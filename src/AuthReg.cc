@@ -14,6 +14,9 @@
 #if HAVE_AUTH_MODULE_BASIC
 #include "auth/basic/Scheme.h"
 #endif
+#if HAVE_AUTH_MODULE_BEARER
+#include "auth/bearer/Scheme.h"
+#endif
 #if HAVE_AUTH_MODULE_DIGEST
 #include "auth/digest/Scheme.h"
 #endif
@@ -37,6 +40,10 @@ Auth::Init()
 #if HAVE_AUTH_MODULE_BASIC
     static const char *basic_type = Auth::Basic::Scheme::GetInstance()->type();
     debugs(29,DBG_IMPORTANT,"Startup: Initialized Authentication Scheme '" << basic_type << "'");
+#endif
+#if HAVE_AUTH_MODULE_BEARER
+    static const char *bearer_type = Auth::Bearer::Scheme::GetInstance()->type();
+    debugs(29,DBG_IMPORTANT,"Startup: Initialized Authentication Scheme '" << bearer_type << "'");
 #endif
 #if HAVE_AUTH_MODULE_DIGEST
     static const char *digest_type = Auth::Digest::Scheme::GetInstance()->type();

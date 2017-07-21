@@ -13,6 +13,9 @@
 
 #include <vector>
 
+// TODO: make auth schedule AsyncCalls?
+typedef void AUTHCB(void*);
+
 /// HTTP Authentication
 namespace Auth
 {
@@ -22,6 +25,8 @@ class CredentialsCache;
 class Scheme;
 class SchemeConfig;
 typedef std::vector<Auth::SchemeConfig *> ConfigVector;
+
+class UserRequest;
 
 } // namespace Auth
 
