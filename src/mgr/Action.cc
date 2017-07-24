@@ -102,10 +102,10 @@ Mgr::Action::fillEntry(StoreEntry* entry, bool writeHttpHeader)
     entry->buffer();
 
     if (writeHttpHeader) {
-        HttpReply *rep = new HttpReply;
-        rep->setHeaders(Http::scOkay, NULL, contentType(), -1, squid_curtime, squid_curtime);
         // Allow cachemgr and other XHR scripts access to our version string
         const ActionParams &params = command().params;
+        HttpReply *rep = new HttpReply;
+        rep->setHeaders(Http::scOkay, NULL, contentType(params.httpAccept), -1, squid_curtime, squid_curtime);
         if (params.httpOrigin.size() > 0) {
             rep->header.putExt("Access-Control-Allow-Origin", params.httpOrigin.termedBuf());
 #if HAVE_AUTH_MODULE_BASIC
