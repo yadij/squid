@@ -25,13 +25,7 @@ protected:
 public:
     static Pointer Create(const Mgr::CommandPointer &);
     /* Action API */
-    virtual const char *contentType(const String &accepts) const override {
-        if (accepts.find("text/yaml") != String::npos) {
-            fmtYaml = true;
-            return "text/yaml;charset=utf-8";
-        }
-        return "text/plain;charset=utf-8";
-    }
+    virtual const char *contentType(const String &) const override;
     virtual void add(const Mgr::Action &) override;
     virtual void pack(Ipc::TypedMsgHdr &) const override;
     virtual void unpack(const Ipc::TypedMsgHdr &) override;
@@ -42,7 +36,7 @@ protected:
     virtual void dump(StoreEntry *) override;
 
 private:
-    bool fmtYaml = false;
+    mutable bool fmtYaml = false;
     DiskdStats data;
 };
 

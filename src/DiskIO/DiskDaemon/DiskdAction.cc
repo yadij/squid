@@ -16,6 +16,7 @@
 #include "ipc/Messages.h"
 #include "ipc/TypedMsgHdr.h"
 #include "mgr/ActionWriter.h"
+#include "SquidString.h"
 #include "Store.h"
 #include "tools.h"
 
@@ -29,6 +30,16 @@ DiskdAction::DiskdAction(const Mgr::CommandPointer &aCmd):
     Action(aCmd)
 {
     debugs(79, 5, HERE);
+}
+
+const char *
+DiskdAction::contentType(const String &accepts) const
+{
+    if (accepts.find("text/yaml") != String::npos) {
+        fmtYaml = true;
+        return "text/yaml;charset=utf-8";
+    }
+    return "text/plain;charset=utf-8";
 }
 
 void
