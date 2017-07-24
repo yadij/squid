@@ -12,8 +12,9 @@
 #include "comm/Loops.h"
 #include "ConfigOption.h"
 #include "diomsg.h"
-#include "DiskdFile.h"
-#include "DiskdIOStrategy.h"
+#include "DiskIO/DiskDaemon/DiskdFile.h"
+#include "DiskIO/DiskDaemon/DiskdIOStrategy.h"
+#include "DiskIO/DiskDaemon/DiskdStats.h"
 #include "DiskIO/DiskFile.h"
 #include "fd.h"
 #include "SquidConfig.h"
@@ -34,7 +35,7 @@
 #include <sys/shm.h>
 #endif
 
-diskd_stats_t diskd_stats;
+DiskdStats diskd_stats;
 
 size_t DiskdIOStrategy::nextInstanceID (0);
 const int diomsg::msg_snd_rcv_sz = sizeof(diomsg) - sizeof(mtyp_t);

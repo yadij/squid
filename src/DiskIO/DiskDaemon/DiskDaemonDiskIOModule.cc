@@ -8,7 +8,7 @@
 
 #include "squid.h"
 #include "DiskDaemonDiskIOModule.h"
-#include "DiskdIOStrategy.h"
+#include "DiskIO/DiskDaemon/DiskdIOStrategy.h"
 #include "DiskIO/DiskDaemon/DiskdAction.h"
 #include "mgr/Registration.h"
 #include "Store.h"
@@ -34,7 +34,7 @@ DiskDaemonDiskIOModule::init()
      * RBC - 20030718.
      */
     assert(!initialised);
-    memset(&diskd_stats, '\0', sizeof(diskd_stats));
+    diskd_stats = DiskdStats();
 #if 0
     /*
      * DPW 2007-04-12

@@ -19,6 +19,7 @@ libDiskDaemon_la_SOURCES = \
 	DiskdFile.h \
 	DiskdIOStrategy.cc \
 	DiskdIOStrategy.h \
+	DiskdStats.h \
 	DiskDaemonDiskIOModule.cc \
 	DiskDaemonDiskIOModule.h
 

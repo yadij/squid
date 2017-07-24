@@ -14,6 +14,7 @@
 #include "ipc/forward.h"
 #include "mgr/forward.h"
 
+class String;
 class StoreEntry;
 
 namespace Mgr

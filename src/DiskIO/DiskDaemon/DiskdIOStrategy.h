@@ -96,28 +96,5 @@ private:
 /// \ingroup diskd
 #define SHMBUF_BLKSZ SM_PAGE_SIZE
 
-/// \ingroup diskd
-struct diskd_stats_t {
-    int open_fail_queue_len;
-    int block_queue_len;
-    int max_away;
-    int max_shmuse;
-    int shmbuf_count;
-    int sent_count;
-    int recv_count;
-    int sio_id;
-
-    struct {
-        int ops;
-        int success;
-        int fail;
-    }
-
-    open, create, close, unlink, read, write;
-};
-
-/// \ingroup diskd
-extern diskd_stats_t diskd_stats;
-
 #endif
 
