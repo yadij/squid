@@ -59,8 +59,7 @@ static void
 ioTableRow(PackableStream &stream, const char *op, const DiskdStats::iops &data, bool yaml)
 {
     if (yaml)
-        stream << "  - [ name: " << op << ", ops: " << data.ops <<
-               ", success: " << data.success << ", fail: " << data.fail << " ]" << std::endl;
+        stream << "  - [ \"" << op << "\", " << data.ops << ", " << data.success << ", " << data.fail << " ]" << std::endl;
     else
       stream << op << "\t" << data.ops << "\t" << data.success << "\t" << data.fail << std::endl;
 }
@@ -82,11 +81,11 @@ DiskdAction::dump(StoreEntry* entry)
            "  block_queue_len: " << data.block_queue_len << std::endl <<
            std::endl;
 
-    stream << "IOPS Table:" << std::endl;
+    stream << "Call Metrics:" << std::endl;
     if (fmtYaml)
-        stream << "  - [ name: NAME, ops: OPS, success: SUCCESS, fail: FAIL ]" << std::endl;
+        stream << "  - [ \"NAME\", \"OPS\", \"SUCCESS\", \"FAIL\" ]" << std::endl;
     else
-        stream << "\tOPS\tSUCCESS\tFAIL" << std::endl;
+        stream << "NAME\tOPS\tSUCCESS\tFAIL" << std::endl;
 
     ioTableRow(stream, "open", data.open, fmtYaml);
     ioTableRow(stream, "create", data.create, fmtYaml);
