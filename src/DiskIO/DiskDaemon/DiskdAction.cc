@@ -77,7 +77,7 @@ DiskdAction::dump(StoreEntry* entry)
            "  block_queue_len: " << data.block_queue_len << std::endl <<
            std::endl;
 
-    stream << "\t\tOPS\tSUCCESS\tFAIL" << std::endl;
+    stream << "\tOPS\tSUCCESS\tFAIL" << std::endl;
     ioTableRow(stream, "open", data.open);
     ioTableRow(stream, "create", data.create);
     ioTableRow(stream, "close", data.close);
