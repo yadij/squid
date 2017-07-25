@@ -56,9 +56,13 @@ DiskdAction::collect()
 }
 
 static void
-ioTableRow(PackableStream &stream, const char *op, const DiskdStats::iops &data)
+ioTableRow(PackableStream &stream, const char *op, const DiskdStats::iops &data, bool yaml)
 {
-    stream << op << "\t" << data.ops << "\t" << data.success << "\t" << data.fail << std::endl;
+    if (yaml)
+        stream << "  - [ name: " << op << ", ops: " << data.ops <<
+               ", success: " << data.success << ", fail: " << data.fail << " ]" << std::endl;
+    else
+      stream << op << "\t" << data.ops << "\t" << data.success << "\t" << data.fail << std::endl;
 }
 
 void
@@ -68,6 +72,7 @@ DiskdAction::dump(StoreEntry* entry)
     Must(entry);
     PackableStream stream(*entry);
 
+    // this report chunk is identical in both TXT and YAML
     stream << "Counters:" << std::endl <<
            "  sent_count: " << data.sent_count << std::endl <<
            "  recv_count: " << data.recv_count << std::endl <<
@@ -77,13 +82,18 @@ DiskdAction::dump(StoreEntry* entry)
            "  block_queue_len: " << data.block_queue_len << std::endl <<
            std::endl;
 
-    stream << "\tOPS\tSUCCESS\tFAIL" << std::endl;
-    ioTableRow(stream, "open", data.open);
-    ioTableRow(stream, "create", data.create);
-    ioTableRow(stream, "close", data.close);
-    ioTableRow(stream, "unlink", data.unlink);
-    ioTableRow(stream, "read", data.read);
-    ioTableRow(stream, "write", data.write);
+    stream << "IOPS Table:" << std::endl;
+    if (fmtYaml)
+        stream << "  - [ name: NAME, ops: OPS, success: SUCCESS, fail: FAIL ]" << std::endl;
+    else
+        stream << "\tOPS\tSUCCESS\tFAIL" << std::endl;
+
+    ioTableRow(stream, "open", data.open, fmtYaml);
+    ioTableRow(stream, "create", data.create, fmtYaml);
+    ioTableRow(stream, "close", data.close, fmtYaml);
+    ioTableRow(stream, "unlink", data.unlink, fmtYaml);
+    ioTableRow(stream, "read", data.read, fmtYaml);
+    ioTableRow(stream, "write", data.write, fmtYaml);
     stream.flush();
 }
 
