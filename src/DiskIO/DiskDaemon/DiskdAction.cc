@@ -61,7 +61,7 @@ ioTableRow(PackableStream &stream, const char *op, const DiskdStats::iops &data,
     if (yaml)
         stream << "  - [ \"" << op << "\", " << data.ops << ", " << data.success << ", " << data.fail << " ]" << std::endl;
     else
-      stream << op << "\t" << data.ops << "\t" << data.success << "\t" << data.fail << std::endl;
+        stream << op << "\t" << data.ops << "\t" << data.success << "\t" << data.fail << std::endl;
 }
 
 void
