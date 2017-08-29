@@ -8,8 +8,8 @@
 
 #include "squid.h"
 #include "DiskDaemonDiskIOModule.h"
-#include "DiskIO/DiskDaemon/DiskdIOStrategy.h"
 #include "DiskIO/DiskDaemon/DiskdAction.h"
+#include "DiskIO/DiskDaemon/DiskdIOStrategy.h"
 #include "mgr/Registration.h"
 #include "Store.h"
 
