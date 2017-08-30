@@ -70,12 +70,11 @@ class TimeOrTag;
 
 class HttpHeader
 {
-
 public:
     HttpHeader();
     explicit HttpHeader(const http_hdr_owner_type owner);
     HttpHeader(const HttpHeader &other);
-    ~HttpHeader();
+    ~HttpHeader() { clean(); }
 
     HttpHeader &operator =(const HttpHeader &other);
 
@@ -155,8 +154,8 @@ public:
     /* protected, do not use these, use interface functions instead */
     std::vector<HttpHeaderEntry*, PoolingAllocator<HttpHeaderEntry*> > entries; /**< parsed fields in raw format */
     HttpHeaderMask mask;    /**< bit set <=> entry present */
-    http_hdr_owner_type owner;  /**< request or reply */
-    int len;            /**< length when packed, not counting terminating null-byte */
+    http_hdr_owner_type owner = hoNone;  /**< request or reply */
+    int len = 0;            /**< length when packed, not counting terminating null-byte */
 
 protected:
     /** \deprecated Public access replaced by removeHopByHopEntries() */
@@ -174,7 +173,7 @@ protected:
 
 private:
     HttpHeaderEntry *findLastEntry(Http::HdrType id) const;
-    bool conflictingContentLength_; ///< found different Content-Length fields
+    bool conflictingContentLength_ = false; ///< found different Content-Length fields
 };
 
 int httpHeaderParseQuotedString(const char *start, const int len, String *val);
