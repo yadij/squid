@@ -6,8 +6,8 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef SQUID_HTTPHDRSURROGATECONTROLTARGET_H
-#define SQUID_HTTPHDRSURROGATECONTROLTARGET_H
+#ifndef _SQUID_SRC_HTTP_HDRSCTARGET_H
+#define _SQUID_SRC_HTTP_HDRSCTARGET_H
 
 #include "defines.h" //for bit mask operations
 #include "HttpHdrSc.h"
@@ -16,23 +16,29 @@ class Packable;
 class StatHist;
 class StoreEntry;
 
+namespace Http
+{
+
+namespace Hdr
+{
+
 /** Representation of HTTP Surogate-Control header field targeted directive
  *
  * \see HttpHdrSc
  */
-class HttpHdrScTarget
+class ScTarget
 {
-    MEMPROXY_CLASS(HttpHdrScTarget);
+    MEMPROXY_CLASS(Http::Hdr::ScTarget);
 
     // parsing is done in HttpHdrSc, need to grant them access.
-    friend class HttpHdrSc;
+    friend class ::HttpHdrSc;
 public:
     static const int MAX_AGE_UNSET=-1; //max-age is unset
     static const int MAX_STALE_UNSET=0; //max-stale is unset
 
-    HttpHdrScTarget(const char *target_) : target(target_) {}
-    HttpHdrScTarget(const String &target_) : target(target_) {}
-    HttpHdrScTarget(const HttpHdrScTarget &t):
+    ScTarget(const char *targetName) : target(targetName) {}
+    ScTarget(const String &targetName) : target(targetName) {}
+    ScTarget(const Http::Hdr::ScTarget &t):
         mask(t.mask), max_age(t.max_age), max_stale(t.max_stale),
         content_(t.content_), target(t.target) {}
 
@@ -76,7 +82,7 @@ public:
     bool hasTarget() const { return target.size() != 0; }
     String Target() const { return target; }
 
-    void mergeWith(const HttpHdrScTarget * new_sc);
+    void mergeWith(const Http::Hdr::ScTarget *);
     void packInto(Packable *p) const;
     void updateStats(StatHist *) const;
 
@@ -99,7 +105,10 @@ private:
     dlink_node node;
 };
 
+} // namespace Hdr
+} // namespace Http
+
 void httpHdrScTargetStatDumper(StoreEntry * sentry, int idx, double val, double size, int count);
 
-#endif /* SQUID_HTTPHDRSURROGATECONTROLTARGET_H */
+#endif /* _SQUID_SRC_HTTP_HDRSCTARGET_H */
 
