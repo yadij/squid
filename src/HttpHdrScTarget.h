@@ -30,10 +30,8 @@ public:
     static const int MAX_AGE_UNSET=-1; //max-age is unset
     static const int MAX_STALE_UNSET=0; //max-stale is unset
 
-    HttpHdrScTarget(const char *target_):
-        mask(0), max_age(MAX_AGE_UNSET), max_stale(MAX_STALE_UNSET),target(target_) {}
-    HttpHdrScTarget(const String &target_):
-        mask(0), max_age(MAX_AGE_UNSET), max_stale(MAX_STALE_UNSET),target(target_) {}
+    HttpHdrScTarget(const char *target_) : target(target_) {}
+    HttpHdrScTarget(const String &target_) : target(target_) {}
     HttpHdrScTarget(const HttpHdrScTarget &t):
         mask(t.mask), max_age(t.max_age), max_stale(t.max_stale),
         content_(t.content_), target(t.target) {}
@@ -93,9 +91,9 @@ private:
         else EBIT_CLR(mask,id);
     }
 
-    int mask;
-    int max_age;
-    int max_stale;
+    int mask = 0;
+    int max_age = MAX_AGE_UNSET;
+    int max_stale = MAX_STALE_UNSET;
     String content_;
     String target;
     dlink_node node;
