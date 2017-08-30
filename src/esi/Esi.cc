@@ -2239,8 +2239,7 @@ esiEnableProcessing (HttpReply *rep)
     int rv = 0;
 
     if (rep->surrogate_control) {
-        HttpHdrScTarget *sctusable =
-            rep->surrogate_control->getMergedTarget(Config.Accel.surrogate_id);
+        auto *sctusable = rep->surrogate_control->getMergedTarget(Config.Accel.surrogate_id);
 
         // found something targeted at us
         if (sctusable &&

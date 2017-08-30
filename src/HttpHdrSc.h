@@ -13,10 +13,17 @@
 #include "mem/forward.h"
 #include "SquidString.h"
 
-class HttpHdrScTarget;
 class Packable;
 class StatHist;
 class StoreEntry;
+
+namespace Http
+{
+namespace Hdr
+{
+class ScTarget;
+}
+}
 
 typedef enum {
     SC_NO_STORE,
@@ -40,15 +47,14 @@ public:
     bool parse(const String *str);
     void packInto(Packable * p) const;
     void updateStats(StatHist *) const;
-    HttpHdrScTarget * getMergedTarget (const char *ourtarget); //todo: make const?
+    Http::Hdr::ScTarget * getMergedTarget(const char *ourtarget); //todo: make const?
     void setMaxAge(char const *target, int max_age);
-    void addTarget(HttpHdrScTarget *t);
-    void addTargetAtTail(HttpHdrScTarget *t);
+    void addTarget(Http::Hdr::ScTarget *);
+    void addTargetAtTail(Http::Hdr::ScTarget *);
 
     dlink_list targets;
 private:
-    HttpHdrScTarget * findTarget (const char *target);
-
+    Http::Hdr::ScTarget * findTarget(const char *);
 };
 
 /* Http Surrogate Control Header Field */

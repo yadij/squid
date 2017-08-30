@@ -276,7 +276,7 @@ void
 HttpStateData::processSurrogateControl(HttpReply *reply)
 {
     if (request->flags.accelerated && reply->surrogate_control) {
-        HttpHdrScTarget *sctusable = reply->surrogate_control->getMergedTarget(Config.Accel.surrogate_id);
+        Http::Hdr::ScTarget *sctusable = reply->surrogate_control->getMergedTarget(Config.Accel.surrogate_id);
 
         if (sctusable) {
             if (sctusable->hasNoStore() ||

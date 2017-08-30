@@ -16,7 +16,7 @@ http_hdr_sc_type &operator++ (http_hdr_sc_type &aHeader);
 
 /* copies non-extant fields from new_sc to this sc */
 void
-Http::Hdr::ScTarget::mergeWith(const HttpHdrScTarget * new_sc)
+Http::Hdr::ScTarget::mergeWith(const Http::Hdr::ScTarget * new_sc)
 {
     assert(new_sc);
     /* Don't touch the target - this is used to get the operations for a
