@@ -36,6 +36,7 @@
 #include "globals.h"
 #include "HttpHeaderTools.h"
 #include "HttpUpgradeProtocolAccess.h"
+#include "http/Config.h"
 #include "icmp/IcmpConfig.h"
 #include "ident/Config.h"
 #include "ip/Intercept.h"

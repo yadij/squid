@@ -30,6 +30,7 @@
 #include "fde.h"
 #include "globals.h"
 #include "http.h"
+#include "http/Config.h"
 #include "http/one/ResponseParser.h"
 #include "http/one/TeChunkedParser.h"
 #include "http/Stream.h"
@@ -2254,6 +2255,15 @@ copyOneHeaderFromClientsideRequestToUpstreamRequest(const HttpHeaderEntry *e, co
         if (!flags.front_end_https)
             hdr_out->addEntry(e->clone());
 
+        break;
+
+    case Http::HdrType::FORWARDED:
+        /** \par Forwarded:
+         * copy if transparent, skip if deleting
+         */
+        if (Http::TheConfig.extForwarded.mode == Http::ExtForwardedCfg::fwdTransparent) {
+            hdr_out->addEntry(e->clone());
+        }
         break;
 
     default:

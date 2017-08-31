@@ -36,10 +36,23 @@ The Squid-6 change history can be <url url="http://www.squid-cache.org/Versions/
 
 <p>The most important of these new features are:
 <itemize>
-	<item>No new features documented yet.
+	<item>Support Forwarded HTTP Extension
 </itemize>
 
 Most user-facing changes are reflected in squid.conf (see below).
+
+
+<sect1>Forwarded HTTP Extension support
+<p>Details in <url url="https://tools.ietf.org/html/rfc7239" name="RFC 7239: Forwarded HTTP Extension">
+
+<p>The <em>Forwarded</em> extension has been standardized to replace
+   <em>X-Forwarded-For</em> and similar custom headers. This release contains
+   initial support for managing this HTTP extension in Squid with the
+   <em>http_ext_forwarded</em> directive.
+
+<p>The default behaviour is <em>transparent</em> - to relay any existing
+   headers unchanged. Alternatively, the <em>delete</em> option can be
+   selected to remove all <em>Forwarded</em> headers.
 
 
 <sect>Changes to squid.conf since Squid-5
@@ -56,7 +69,10 @@ This section gives an account of those changes in three categories:
 <sect1>New directives<label id="newdirectives">
 <p>
 <descrip>
-	<p>There have been no directives added.
+	<tag>http_ext_forwarded</tag>
+	<p>New directive to customize handling of Forwarded headers.
+	   See RFC 7239 for details of this HTTP extension.
+
 </descrip>
 
 <sect1>Changes to existing directives<label id="modifieddirectives">

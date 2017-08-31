@@ -6685,6 +6685,25 @@ DOC_START
 	See also: follow_x_forwarded_for adaptation_send_client_ip
 DOC_END
 
+NAME: http_ext_forwarded
+COMMENT: transparent|delete
+TYPE: http_ext_forwarded
+DEFAULT: transparent
+LOC: Http::TheConfig.extForwarded
+DOC_START
+	Directive for controlling how Squid uses HTTP Forwarded header.
+
+	Mode of operation:
+
+	transparent
+		Relay any existing headers.
+		Do not update or add new entries.
+
+	delete
+		Remove any existing headers.
+		Do not add any new entries.
+DOC_END
+
 NAME: via
 IFDEF: USE_HTTP_VIOLATIONS
 COMMENT: on|off
