@@ -2261,7 +2261,7 @@ copyOneHeaderFromClientsideRequestToUpstreamRequest(const HttpHeaderEntry *e, co
         /** \par Forwarded:
          * copy if transparent, skip if deleting
          */
-        if (Http::TheConfig.extForwarded.mode == Http::ExtForwardedCfg::fwdTransparent) {
+        if (Http::TheConfig.extForwarded.mode == Http::ConfigForwardedExt::fwdTransparent) {
             hdr_out->addEntry(e->clone());
         }
         break;

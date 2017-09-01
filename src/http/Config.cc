@@ -15,41 +15,16 @@
 Http::HttpConfig Http::TheConfig;
 
 void
-Http::ExtForwardedCfg::parse(ConfigParser &parser)
-{
-    while (auto *token = parser.NextToken()) {
-        if (strcmp(token, "transparent") == 0) {
-            mode = Http::ExtForwardedCfg::fwdTransparent;
-
-        } else if (strcmp(token, "delete") == 0) {
-            mode = Http::ExtForwardedCfg::fwdDelete;
-
-        } else {
-            debugs(3, DBG_PARSE_NOTE(DBG_IMPORTANT), "ERROR: http_ext_forwarded unknown option '" << token << "'");
-        }
-    }
-}
-
-void
-Http::ExtForwardedCfg::dump(Packable *p, const char *name)
-{
-    switch (mode) {
-    case Http::ExtForwardedCfg::fwdTransparent:
-        // default, nothing to do.
-        return;
-    case Http::ExtForwardedCfg::fwdDelete:
-        p->appendf("%s delete", name);
-        break;
-    }
-
-    p->append("\n", 1);
-}
-
-void
 Http::HttpConfig::parse(const char *directiveName, ConfigParser &parser)
 {
     if (strcmp(directiveName, "http_ext_forwarded") == 0) {
         extForwarded.parse(parser);
         return;
     }
+}
+
+void
+Http::HttpConfig::dump(Packable *p, const char *name)
+{
+    extForwarded.dump(p, name);
 }
