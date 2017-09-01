@@ -52,4 +52,3 @@ extern HttpConfig TheConfig;
 #define dump_http_ext_forwarded(E,N,D) (D).dump((E),(N))
 
 #endif /* SQUID__SRC_HTTP_CONFIG_H */
-
