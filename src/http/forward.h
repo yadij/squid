@@ -11,8 +11,22 @@
 
 #include "http/one/forward.h"
 
+#include <utility>
+
 namespace Http
 {
+
+/**
+ * A delimiter pair used for common-structure based parsing.
+ * First delimiter is the field-value separator.
+ * Second delimiter is the key=value separator.
+ * Either value being 0xFF indicates no delimiter.
+ *
+ * \note nil is not used as a delimiter because it can occur as a
+ *     bare character within HTTP/1 headers whitespace or values.
+ *     The same is not true for 0xFF.
+ */
+typedef std::pair<const char, const char> DelimiterPair;
 
 class Message;
 typedef RefCount<Http::Message> MessagePointer;

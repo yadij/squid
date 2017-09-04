@@ -10,6 +10,7 @@
 #define SQUID_HTTP_REGISTEREDHEADERS_H
 
 #include "base/LookupTable.h"
+#include "http/forward.h"
 
 #include <iosfwd>
 #include <vector>
@@ -145,6 +146,7 @@ enum HdrKind {
     ReplyHeader = 1 << 2,
     HopByHopHeader = 1 << 3,
     Denied304Header = 1 << 4, //see comment in HttpReply.cc for meaning
+    CommonStructure = 1 << 5, ///< header can use common-structure parse
     GeneralHeader = RequestHeader | ReplyHeader,
     EntityHeader = RequestHeader | ReplyHeader
 };
@@ -154,7 +156,7 @@ class HeaderTableRecord {
 public:
     HeaderTableRecord() {}
     HeaderTableRecord(const char *n) : name(n) {}
-    HeaderTableRecord(const char *, Http::HdrType, Http::HdrFieldType, int /* HdrKind */);
+    HeaderTableRecord(const char *, Http::HdrType, Http::HdrFieldType, int /* HdrKind */, const Http::DelimiterPair delims = {',', ';'});
 
 public:
     const char *name = "";
@@ -166,6 +168,13 @@ public:
     bool reply = false;      ///<header is a reply header
     bool hopbyhop = false;   ///<header is hop by hop
     bool denied304 = false;  ///<header is not to be updated on receiving a 304 in cache revalidation (see HttpReply.cc)
+
+    bool commonStructure = false; ///< whether HTTP common structure parse can be used on this header
+
+    /// The field-value and token=value delimiters for this headers
+    /// parser (if any). The default for HTTP headers are ',' between
+    /// field-value and ';' between token=value
+    Http::DelimiterPair delimiters = {',', ';'};
 };
 
 /** Class for looking up registered header definitions
