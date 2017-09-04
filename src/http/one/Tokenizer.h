@@ -22,7 +22,7 @@ namespace One {
 class Tokenizer : public ::Parser::Tokenizer
 {
 public:
-    Tokenizer(SBuf &s) : ::Parser::Tokenizer(s), savedStats_(0) {}
+    Tokenizer(const SBuf &s) : ::Parser::Tokenizer(s) {}
 
     /**
      * Attempt to parse a quoted-string lexical construct.
@@ -69,7 +69,7 @@ private:
     void restoreLastCheckpoint() { undoParse(savedCheckpoint_, savedStats_); }
 
     SBuf savedCheckpoint_;
-    SBuf::size_type savedStats_;
+    SBuf::size_type savedStats_ = 0;
 };
 
 } // namespace One
