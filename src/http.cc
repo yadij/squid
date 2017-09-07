@@ -1918,8 +1918,8 @@ HttpStateData::httpBuildRequestHeader(HttpRequest * request,
             }
         }
 
-        if (strcmp(opt_forwarded_for, "on") == 0) {
-            /** If set to ON - append client IP or 'unknown'. */
+        if (strcmp(opt_forwarded_for, "on") == 0 || strcmp(opt_forwarded_for, "truncate") == 0) {
+            /** If set to ON or TRUNCATE - append client IP or 'unknown'. */
             if ( request->client_addr.isNoAddr() )
                 strListAdd(&strFwd, "unknown", ',');
             else
@@ -1927,15 +1927,9 @@ HttpStateData::httpBuildRequestHeader(HttpRequest * request,
         } else if (strcmp(opt_forwarded_for, "off") == 0) {
             /** If set to OFF - append 'unknown'. */
             strListAdd(&strFwd, "unknown", ',');
-        } else if (strcmp(opt_forwarded_for, "transparent") == 0) {
-            /** If set to TRANSPARENT - pass through unchanged. */
-        } else if (strcmp(opt_forwarded_for, "truncate") == 0) {
-            /** If set to TRUNCATE - drop existing list and replace with client IP or 'unknown'. */
-            if ( request->client_addr.isNoAddr() )
-                strFwd = "unknown";
-            else
-                strFwd = request->client_addr.toStr(ntoabuf, MAX_IPSTRLEN);
         }
+        /** If set to TRANSPARENT - pass through unchanged. */
+
         if (strFwd.size() > 0)
             hdr_out->putStr(Http::HdrType::X_FORWARDED_FOR, strFwd.termedBuf());
     }
@@ -2240,10 +2234,8 @@ copyOneHeaderFromClientsideRequestToUpstreamRequest(const HttpHeaderEntry *e, co
             hdr_out->addEntry(e->clone());
         break;
 
-    case Http::HdrType::X_FORWARDED_FOR:
-
     case Http::HdrType::CACHE_CONTROL:
-        /** \par X-Forwarded-For:, Cache-Control:
+        /** \par Cache-Control:
          * handled specially by Squid, so leave off for now.
          * append these after the loop if needed */
         break;
@@ -2256,11 +2248,13 @@ copyOneHeaderFromClientsideRequestToUpstreamRequest(const HttpHeaderEntry *e, co
 
         break;
 
+    case Http::HdrType::X_FORWARDED_FOR:
     case Http::HdrType::FORWARDED:
-        /** \par Forwarded:
-         * skip if deleting
+        /** \par X-Forwarded-For:, Forwarded:
+         * skip if deleting or truncating
          */
-        if (strcmp(opt_forwarded_for, "delete") != 0) {
+        if (strcmp(opt_forwarded_for, "delete") != 0 &&
+                strcmp(opt_forwarded_for, "truncate") != 0) {
             hdr_out->addEntry(e->clone());
         }
         break;
