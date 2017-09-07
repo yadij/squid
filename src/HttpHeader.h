@@ -11,6 +11,7 @@
 
 #include "anyp/ProtocolVersion.h"
 #include "base/LookupTable.h"
+#include "http/forward.h"
 #include "http/RegisteredHeaders.h"
 /* because we pass a spec by value */
 #include "HttpHeaderMask.h"
@@ -18,6 +19,7 @@
 #include "sbuf/forward.h"
 #include "SquidString.h"
 
+#include <map>
 #include <vector>
 
 /* class forward declarations */
@@ -152,6 +154,9 @@ public:
     void removeHopByHopEntries();
     inline bool chunked() const; ///< whether message uses chunked Transfer-Encoding
 
+    /// get a headers generic 'common structure' representation
+    Http::CommonStructurePointer getCommonStructure(Http::HdrType) const;
+
     /* protected, do not use these, use interface functions instead */
     std::vector<HttpHeaderEntry *> entries;     /**< parsed fields in raw format */
     HttpHeaderMask mask;    /**< bit set <=> entry present */
@@ -175,6 +180,9 @@ protected:
 private:
     HttpHeaderEntry *findLastEntry(Http::HdrType id) const;
     bool conflictingContentLength_; ///< found different Content-Length fields
+
+    /// map of headers already parsed using CommonStructure
+    std::map<Http::HdrType, Http::CommonStructurePointer> ParsedCsHeaders;
 };
 
 int httpHeaderParseQuotedString(const char *start, const int len, String *val);

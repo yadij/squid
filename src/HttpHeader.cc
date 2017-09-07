@@ -13,6 +13,7 @@
 #include "base/EnumIterator.h"
 #include "base64.h"
 #include "globals.h"
+#include "http/CommonStructure.h"
 #include "http/ContentLengthInterpreter.h"
 #include "HttpHdrCc.h"
 #include "HttpHdrContRange.h"
@@ -1703,6 +1704,39 @@ HttpHeader::hasByNameListMember(const char *name, const char *member, const char
                 && (item[mlen] == '=' || item[mlen] == separator || item[mlen] == ';' || item[mlen] == '\0')) {
             result = 1;
             break;
+        }
+    }
+
+    return result;
+}
+
+Http::CommonStructurePointer
+HttpHeader::getCommonStructure(Http::HdrType id) const
+{
+    if (!has(id))
+        return Http::CommonStructurePointer();
+
+    if (auto &cached = ParsedCsHeaders.at(id))
+        return cached;
+
+    // TODO: store the parse results and re-use CommonStructure objects.
+    // That needs a way to merge HeaderEntry for list headers when
+    // there are multiple of them with variable numbers of sub-lists.
+    // String handling copes by ignoring the sub-lists and catenating
+    // list header field-values with a slow String copy on every fetch.
+
+    Http::CommonStructurePointer result;
+
+    auto &hdrDetails = Http::HeaderLookupTable.lookup(id);
+    assert(Http::HeaderLookupTable.lookup(id).commonStructure);
+
+    // iterate over all entries and apply the common-structure parser
+    // when they match the given header id.
+    for (auto e : entries) {
+        if (e && e->id == id) {
+            if (!result)
+                result.reset(new Http::CommonStructure);
+            result->parse(StringToSBuf(e->value), hdrDetails.delimiters.first, hdrDetails.delimiters.second);
         }
     }
 

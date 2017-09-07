@@ -146,7 +146,7 @@ enum HdrKind {
     ReplyHeader = 1 << 2,
     HopByHopHeader = 1 << 3,
     Denied304Header = 1 << 4, //see comment in HttpReply.cc for meaning
-    CommonStructure = 1 << 5, ///< header can use common-structure parse
+    CommonStructureHeader = 1 << 5, ///< header can use common-structure parse
     GeneralHeader = RequestHeader | ReplyHeader,
     EntityHeader = RequestHeader | ReplyHeader
 };

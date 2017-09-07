@@ -11,10 +11,14 @@
 
 #include "http/one/forward.h"
 
+#include <memory>
 #include <utility>
 
 namespace Http
 {
+
+class CommonStructure;
+typedef std::shared_ptr<Http::CommonStructure> CommonStructurePointer;
 
 /**
  * A delimiter pair used for common-structure based parsing.

@@ -22,7 +22,7 @@ HeaderTableRecord::HeaderTableRecord(const char *n, HdrType theId, HdrFieldType 
     list(theKind & HdrKind::ListHeader), request(theKind & HdrKind::RequestHeader),
     reply(theKind & HdrKind::ReplyHeader), hopbyhop(theKind & HdrKind::HopByHopHeader),
     denied304(theKind & HdrKind::Denied304Header),
-    commonStructure(theKind & HdrKind::CommonStructure),
+    commonStructure(theKind & HdrKind::CommonStructureHeader),
     delimiters(delims)
 {}
 
