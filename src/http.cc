@@ -1900,7 +1900,7 @@ HttpStateData::httpBuildRequestHeader(HttpRequest * request,
     }
 
     /** \pre Handle X-Forwarded-For */
-    if (strcmp(opt_forwarded_for, "delete") != 0) {
+    if (Config.Http.header_forwarded.mode != SquidConfig::http_::ExtForwarded::Modes::fwdDelete) {
 
         String strFwd = hdr_in->getList(Http::HdrType::X_FORWARDED_FOR);
 
@@ -1918,13 +1918,14 @@ HttpStateData::httpBuildRequestHeader(HttpRequest * request,
             }
         }
 
-        if (strcmp(opt_forwarded_for, "on") == 0 || strcmp(opt_forwarded_for, "truncate") == 0) {
+        if (Config.Http.header_forwarded.mode == SquidConfig::http_::ExtForwarded::Modes::xffOn ||
+                Config.Http.header_forwarded.mode == SquidConfig::http_::ExtForwarded::Modes::xffTruncate) {
             /** If set to ON or TRUNCATE - append client IP or 'unknown'. */
             if ( request->client_addr.isNoAddr() )
                 strListAdd(&strFwd, "unknown", ',');
             else
                 strListAdd(&strFwd, request->client_addr.toStr(ntoabuf, MAX_IPSTRLEN), ',');
-        } else if (strcmp(opt_forwarded_for, "off") == 0) {
+        } else if (Config.Http.header_forwarded.mode == SquidConfig::http_::ExtForwarded::Modes::xffOff) {
             /** If set to OFF - append 'unknown'. */
             strListAdd(&strFwd, "unknown", ',');
         }
@@ -2253,8 +2254,8 @@ copyOneHeaderFromClientsideRequestToUpstreamRequest(const HttpHeaderEntry *e, co
         /** \par X-Forwarded-For:, Forwarded:
          * skip if deleting or truncating
          */
-        if (strcmp(opt_forwarded_for, "delete") != 0 &&
-                strcmp(opt_forwarded_for, "truncate") != 0) {
+        if (Config.Http.header_forwarded.mode != SquidConfig::http_::ExtForwarded::Modes::fwdDelete &&
+                Config.Http.header_forwarded.mode != SquidConfig::http_::ExtForwarded::Modes::xffTruncate) {
             hdr_out->addEntry(e->clone());
         }
         break;

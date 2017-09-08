@@ -10215,29 +10215,35 @@ DOC_START
 	reduced memory thrashing in your malloc library.
 DOC_END
 
-NAME: forwarded_for
+NAME: http_header_forwarded forwarded_for
 COMMENT: on|off|transparent|truncate|delete
-TYPE: string
+TYPE: http_header_forwarded
 DEFAULT: on
-LOC: opt_forwarded_for
+LOC: Config.Http.header_forwarded
 DOC_START
-	If set to "on", Squid will append your client's IP address
-	in the HTTP requests it forwards. By default it looks like:
+	Controls how Squid handles the X-Forwarded-For and Forwarded
+	HTTP headers.
 
-		X-Forwarded-For: 192.1.2.3
+	Actions:
 
-	If set to "off", it will appear as
+	transparent
+		Squid will not alter the Forwarded or X-Forwarded-For
+		headers in any way.
 
-		X-Forwarded-For: unknown
+	delete	Remove all Forwarded and X-Forwarded-For headers.
 
-	If set to "transparent", Squid will not alter the
-	X-Forwarded-For header in any way.
 
-	If set to "delete", Squid will delete the entire
-	X-Forwarded-For header.
+	Actions which cause output to be produced in an X-Forwarded-For
+	header are deprecated, but may still be used if required. When
+	these options are used the Forwarded header may not be sent:
 
-	If set to "truncate", Squid will remove all existing
-	X-Forwarded-For entries, and place the client IP as the sole entry.
+	on	Append client IP address to the X-Forwarded-For header.
+
+	off	Append 'unknown' to the X-Forwarded-For header.
+
+	truncate
+		Remove all existing X-Forwarded-For and Forwarded headers,
+		then add X-Forwarded-For containing only the client IP.
 DOC_END
 
 NAME: cachemgr_passwd
