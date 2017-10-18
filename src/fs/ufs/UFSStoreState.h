@@ -19,12 +19,12 @@ namespace Fs
 namespace Ufs
 {
 
-class UFSStoreState : public StoreIOState, public IORequestor
+class UFSStoreState : public ::StoreIOState, public IORequestor
 {
     CBDATA_CLASS(UFSStoreState);
 
 public:
-    UFSStoreState(SwapDir * SD, StoreEntry * anEntry, STIOCB * callback_, void *callback_data_);
+    UFSStoreState(SwapDir *, StoreEntry *, STIOCB *, void *);
     ~UFSStoreState();
     virtual void close(int how);
     virtual void closeCompleted();
@@ -32,15 +32,10 @@ public:
     virtual void ioCompletedNotification();
     virtual void readCompleted(const char *buf, int len, int errflag, RefCount<ReadRequest>);
     virtual void writeCompleted(int errflag, size_t len, RefCount<WriteRequest>);
-    RefCount<DiskFile> theFile;
-    bool opening;
-    bool creating;
-    bool closing;
-    bool reading;
-    bool writing;
-    /* StoreIOState API */
-    void read_(char *buf, size_t size, off_t offset, STRCB * callback, void *callback_data);
-    virtual bool write(char const *buf, size_t size, off_t offset, FREE * free_func);
+
+    /* ::StoreIOState API */
+    void read_(char *, size_t, off_t, STRCB *, void *);
+    virtual bool write(char const *, size_t, off_t, FREE *);
 
 protected:
     virtual void doCloseCallback (int errflag);
@@ -108,7 +103,7 @@ protected:
          * the write_draining flag is used to avoid recursion inside
          * the UFSStoreState::drainWriteQueue() method.
          */
-        bool write_draining;
+        bool write_draining = false;
         /**
          * DPW 2006-05-24
          * The try_closing flag is set by UFSStoreState::tryClosing()
@@ -116,13 +111,23 @@ protected:
          * because of pending I/Os.  If set, UFSStoreState will
          * try to close again in the I/O callbacks.
          */
-        bool try_closing;
+        bool try_closing = false;
     } flags;
 
     bool kickReadQueue();
     void drainWriteQueue();
     void tryClosing();
-    char *read_buf;
+
+public:
+    RefCount<DiskFile> theFile;
+    bool opening = false;
+    bool creating = false;
+    bool closing = false;
+    bool reading = false;
+    bool writing = false;
+
+protected:
+    char *read_buf = nullptr;
 
 private:
     void openDone();

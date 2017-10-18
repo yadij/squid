@@ -11,6 +11,7 @@
 
 #include "base/RefCount.h"
 #include "cbdata.h"
+#include "defines.h"
 #include "mem/forward.h"
 #include "store/forward.h"
 
@@ -42,7 +43,7 @@ public:
     void *operator new (size_t amount);
     void operator delete (void *address);
 
-    StoreIOState(StoreIOState::STIOCB *cbIo, void *data);
+    StoreIOState(StoreIOState::STIOCB *, void *);
     virtual ~StoreIOState();
 
     off_t offset() const {return offset_;}
@@ -68,21 +69,23 @@ public:
     // * header updates that create a fresh chain (while keeping the stale one usable).
     bool touchingStoreEntry() const;
 
-    sdirno swap_dirn;
-    sfileno swap_filen;
-    StoreEntry *e;      /* Need this so the FS layers can play god */
-    mode_t mode;
-    off_t offset_; ///< number of bytes written or read for this entry so far
+public:
+    sdirno swap_dirn = -1;
+    sfileno swap_filen = -1;
+    StoreEntry *e = nullptr;      /* Need this so the FS layers can play god */
+    mode_t mode = O_BINARY;
+    off_t offset_ = 0; ///< number of bytes written or read for this entry so far
     STIOCB *callback;
-    void *callback_data;
+    void *callback_data = nullptr;
 
-    struct {
+    struct read_ {
+        read_() : callback(nullptr) {}
         STRCB *callback;
-        void *callback_data;
+        void *callback_data = nullptr;
     } read;
 
     struct {
-        bool closing;   /* debugging aid */
+        bool closing = false;   /* debugging aid */
     } flags;
 };
 

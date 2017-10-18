@@ -10,7 +10,6 @@
 
 #include "squid.h"
 #include "Debug.h"
-#include "defines.h"
 #include "Store.h"
 #include "StoreIOState.h"
 
@@ -28,17 +27,9 @@ StoreIOState::operator delete (void *)
 }
 
 StoreIOState::StoreIOState(StoreIOState::STIOCB *cbIo, void *data) :
-    swap_dirn(-1),
-    swap_filen(-1),
-    e(NULL),
-    mode(O_BINARY),
-    offset_(0),
     callback(cbIo),
     callback_data(cbdataReference(data))
 {
-    read.callback = NULL;
-    read.callback_data = NULL;
-    flags.closing = false;
 }
 
 StoreIOState::~StoreIOState()

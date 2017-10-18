@@ -15,9 +15,9 @@ class TestSwapDir : public SwapDir
 {
 
 public:
-    TestSwapDir() : SwapDir("test"), statsCalled (false) {}
+    TestSwapDir() : SwapDir("test") {}
 
-    bool statsCalled;
+    bool statsCalled = false;
 
     /* Store::Disk API */
     virtual uint64_t maxSize() const override;

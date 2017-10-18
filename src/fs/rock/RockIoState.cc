@@ -27,14 +27,8 @@ Rock::IoState::IoState(Rock::SwapDir::Pointer &aDir,
                        StoreIOState::STIOCB *cbIo,
                        void *data) :
     StoreIOState(cbIo, data),
-    readableAnchor_(NULL),
-    writeableAnchor_(NULL),
-    splicingPoint(-1),
-    staleSplicingPointNext(-1),
     dir(aDir),
     slotSize(dir->slotSize),
-    objOffset(0),
-    sidCurrent(-1),
     theBuf(dir->slotSize)
 {
     e = anEntry;
