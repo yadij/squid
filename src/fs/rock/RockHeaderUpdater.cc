@@ -71,11 +71,7 @@ Rock::HeaderUpdater::start()
 void
 Rock::HeaderUpdater::startReading()
 {
-    reader = store->openStoreIO(
-                 *update.entry,
-                 nullptr, // unused; see StoreIOState::file_callback
-                 &NoteDoneReading,
-                 this);
+    reader = store->openStoreIO(*update.entry, &NoteDoneReading, this);
     readMore("need swap entry metadata");
 }
 
@@ -166,11 +162,7 @@ Rock::HeaderUpdater::noteDoneReading(int errflag)
 void
 Rock::HeaderUpdater::startWriting()
 {
-    writer = store->createUpdateIO(
-                 update,
-                 nullptr, // unused; see StoreIOState::file_callback
-                 &NoteDoneWriting,
-                 this);
+    writer = store->createUpdateIO(update, &NoteDoneWriting, this);
     Must(writer);
 
     IoState &rockWriter = dynamic_cast<IoState&>(*writer);

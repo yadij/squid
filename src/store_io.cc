@@ -22,7 +22,7 @@ StoreIoStats store_io_stats;
  * to select different polices depending on object size or type.
  */
 StoreIOState::Pointer
-storeCreate(StoreEntry * e, StoreIOState::STFNCB * file_callback, StoreIOState::STIOCB * close_callback, void *callback_data)
+storeCreate(StoreEntry *e, StoreIOState::STIOCB *close_callback, void *callback_data)
 {
     assert (e);
 
@@ -44,7 +44,7 @@ storeCreate(StoreEntry * e, StoreIOState::STFNCB * file_callback, StoreIOState::
     SwapDir *SD = dynamic_cast<SwapDir *>(INDEXSD(dirn));
 
     /* Now that we have a fs to use, call its storeCreate function */
-    StoreIOState::Pointer sio = SD->createStoreIO(*e, file_callback, close_callback, callback_data);
+    StoreIOState::Pointer sio = SD->createStoreIO(*e, close_callback, callback_data);
 
     if (sio == NULL)
         ++store_io_stats.create.create_fail;
@@ -58,10 +58,9 @@ storeCreate(StoreEntry * e, StoreIOState::STFNCB * file_callback, StoreIOState::
  * storeOpen() is purely for reading ..
  */
 StoreIOState::Pointer
-storeOpen(StoreEntry * e, StoreIOState::STFNCB * file_callback, StoreIOState::STIOCB * callback,
-          void *callback_data)
+storeOpen(StoreEntry *e, StoreIOState::STIOCB *callback, void *callback_data)
 {
-    return e->disk().openStoreIO(*e, file_callback, callback, callback_data);
+    return e->disk().openStoreIO(*e, callback, callback_data);
 }
 
 void

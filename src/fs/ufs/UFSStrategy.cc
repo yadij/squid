@@ -54,8 +54,7 @@ Fs::Ufs::UFSStrategy::unlinkFile(char const *path)
 }
 
 StoreIOState::Pointer
-Fs::Ufs::UFSStrategy::open(SwapDir * SD, StoreEntry * e, StoreIOState::STFNCB *,
-                           StoreIOState::STIOCB * aCallback, void *callback_data)
+Fs::Ufs::UFSStrategy::open(SwapDir *SD, StoreEntry *e, StoreIOState::STIOCB *aCallback, void *callback_data)
 {
     assert (((UFSSwapDir *)SD)->IO == this);
     debugs(79, 3, HERE << "fileno "<< std::setfill('0') << std::hex
@@ -90,8 +89,7 @@ Fs::Ufs::UFSStrategy::open(SwapDir * SD, StoreEntry * e, StoreIOState::STFNCB *,
 }
 
 StoreIOState::Pointer
-Fs::Ufs::UFSStrategy::create(SwapDir * SD, StoreEntry * e, StoreIOState::STFNCB *,
-                             StoreIOState::STIOCB * aCallback, void *callback_data)
+Fs::Ufs::UFSStrategy::create(SwapDir *SD, StoreEntry *e, StoreIOState::STIOCB *aCallback, void *callback_data)
 {
     assert (((UFSSwapDir *)SD)->IO == this);
     /* Allocate a number */
