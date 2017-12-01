@@ -11,7 +11,7 @@
 #include "squid.h"
 #include "MemObject.h"
 #include "Store.h"
-#include "StoreMetaURL.h"
+#include "store/MetaUrl.h"
 
 bool
 StoreMetaURL::checkConsistency(StoreEntry *e) const
@@ -22,7 +22,7 @@ StoreMetaURL::checkConsistency(StoreEntry *e) const
         return true;
 
     if (strcasecmp(e->mem_obj->urlXXX(), (char *)value)) {
-        debugs(20, DBG_IMPORTANT, "storeClientReadHeader: URL mismatch");
+        debugs(20, DBG_IMPORTANT, MYNAME ": URL mismatch");
         debugs(20, DBG_IMPORTANT, "\t{" << (char *) value << "} != {" << e->mem_obj->urlXXX() << "}");
         return false;
     }

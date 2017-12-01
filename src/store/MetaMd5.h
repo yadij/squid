@@ -6,10 +6,10 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef SQUID_STOREMETAMD5_H
-#define SQUID_STOREMETAMD5_H
+#ifndef SQUID__STORE_METAMD5_H
+#define SQUID__STORE_METAMD5_H
 
-#include "StoreMeta.h"
+#include "store/MetaTlv.h"
 /* for STORE_META_KEY_MD5 */
 #include "enums.h"
 
@@ -27,5 +27,5 @@ private:
     static int md5_mismatches;
 };
 
-#endif /* SQUID_STOREMETAMD5_H */
+#endif /* SQUID__STORE_METAMD5_H */
 

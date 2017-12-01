@@ -11,7 +11,7 @@
 #include "squid.h"
 #include "MemObject.h"
 #include "Store.h"
-#include "StoreMetaSTD.h"
+#include "store/MetaStd.h"
 
 bool
 StoreMetaSTD::validLength(int len) const

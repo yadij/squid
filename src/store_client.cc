@@ -22,7 +22,7 @@
 #include "Store.h"
 #include "store_swapin.h"
 #include "StoreClient.h"
-#include "StoreMeta.h"
+#include "store/MetaTlv.h"
 #include "StoreMetaUnpacker.h"
 #if USE_DELAY_POOLS
 #include "DelayPools.h"

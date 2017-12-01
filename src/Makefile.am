@@ -10,21 +10,6 @@ include $(top_srcdir)/src/Common.am
 DNSSOURCE = \
 	dns_internal.cc
 
-STOREMETA_SOURCE = \
-	StoreMeta.cc \
-	StoreMeta.h \
-	StoreMetaMD5.cc \
-	StoreMetaMD5.h \
-	StoreMetaSTD.cc \
-	StoreMetaSTD.h \
-	StoreMetaSTDLFS.cc \
-	StoreMetaSTDLFS.h \
-	StoreMetaObjSize.h \
-	StoreMetaURL.cc \
-	StoreMetaURL.h \
-	StoreMetaVary.cc \
-	StoreMetaVary.h
-
 LOADABLE_MODULES_SOURCES = \
 	LoadableModule.h \
 	LoadableModule.cc \
@@ -456,7 +441,6 @@ squid_SOURCES = \
 	store_swapout.cc \
 	StoreMetaUnpacker.cc \
 	StoreMetaUnpacker.h \
-	$(STOREMETA_SOURCE) \
 	StoreSearch.h \
 	StoreStats.cc \
 	StoreStats.h \
@@ -632,7 +616,6 @@ ufsdump_SOURCES = \
 	Parsing.h \
 	store_key_md5.h \
 	store_key_md5.cc \
-	tests/stub_StoreMeta.cc \
 	StoreMetaUnpacker.cc \
 	String.cc \
 	SquidNew.cc \
@@ -658,6 +641,7 @@ ufsdump_LDADD = \
 	fs/libfs.la \
 	ipc/libipc.la \
 	mgr/libmgr.la \
+	store/libstoremeta.la \
 	$(XTRA_OBJS) \
 	$(REPL_OBJS) \
 	$(NETTLELIB) \
@@ -680,6 +664,7 @@ ufsdump_DEPENDENCIES = \
 	fs/libfs.la \
 	ipc/libipc.la \
 	mgr/libmgr.la \
+	store/libstoremeta.la \
 	DiskIO/libdiskio.la \
 	$(REPL_OBJS)
 
@@ -1071,7 +1056,6 @@ tests_testACLMaxUserIP_SOURCES= \
 	tests/stub_SBufDetailedStats.cc \
 	String.cc \
 	StoreIOState.cc \
-	tests/stub_StoreMeta.cc \
 	StoreMetaUnpacker.cc \
 	StoreSwapLogData.cc \
 	store_key_md5.h \
@@ -1099,6 +1083,7 @@ tests_testACLMaxUserIP_SOURCES= \
 	tests/stub_libformat.cc \
 	tests/stub_libmem.cc \
 	tests/stub_libsslsquid.cc \
+	tests/stub_libstore.cc \
 	tests/stub_MemObject.cc \
 	tests/stub_MemStore.cc \
 	mime.h \
@@ -1360,7 +1345,6 @@ tests_testCacheManager_SOURCES = \
 	store_swapout.cc \
 	StoreFileSystem.cc \
 	StoreIOState.cc \
-	tests/stub_StoreMeta.cc \
 	StoreMetaUnpacker.cc \
 	StoreSwapLogData.cc \
 	tools.h \
@@ -1493,7 +1477,6 @@ tests_testDiskIO_SOURCES = \
 	tests/stub_SBufDetailedStats.cc \
 	StoreFileSystem.cc \
 	StoreIOState.cc \
-	tests/stub_StoreMeta.cc \
 	StoreMetaUnpacker.cc \
 	StoreSwapLogData.cc \
 	store_io.cc \
@@ -1779,7 +1762,6 @@ tests_testEvent_SOURCES = \
 	store_swapout.cc \
 	StoreFileSystem.cc \
 	StoreIOState.cc \
-	tests/stub_StoreMeta.cc \
 	StoreMetaUnpacker.cc \
 	StoreSwapLogData.cc \
 	String.cc \
@@ -2011,7 +1993,6 @@ tests_testEventLoop_SOURCES = \
 	store_swapout.cc \
 	StoreFileSystem.cc \
 	StoreIOState.cc \
-	tests/stub_StoreMeta.cc \
 	StoreMetaUnpacker.cc \
 	StoreSwapLogData.cc \
 	String.cc \
@@ -2241,7 +2222,6 @@ tests_test_http_range_SOURCES = \
 	store_swapout.cc \
 	StoreFileSystem.cc \
 	StoreIOState.cc \
-	tests/stub_StoreMeta.cc \
 	StoreMetaUnpacker.cc \
 	StoreSwapLogData.cc \
 	String.cc \
@@ -2554,7 +2534,6 @@ tests_testHttpRequest_SOURCES = \
 	store_swapout.cc \
 	StoreFileSystem.cc \
 	StoreIOState.cc \
-	tests/stub_StoreMeta.cc \
 	StoreMetaUnpacker.cc \
 	StoreSwapLogData.cc \
 	StrList.h \
@@ -2738,7 +2717,6 @@ tests_testStore_SOURCES= \
 	store_io.cc \
 	store_swapout.cc \
 	StoreIOState.cc \
-	tests/stub_StoreMeta.cc \
 	StoreMetaUnpacker.cc \
 	StoreSwapLogData.cc \
 	store_key_md5.h \
@@ -2951,7 +2929,6 @@ tests_testUfs_SOURCES = \
 	StoreSwapLogData.cc \
 	StoreIOState.cc \
 	StoreMetaUnpacker.cc \
-	$(STOREMETA_SOURCE) \
 	StoreFileSystem.cc \
 	store_io.cc \
 	store_swapout.cc \
@@ -3146,7 +3123,6 @@ tests_testRock_SOURCES = \
 	StoreFileSystem.cc \
 	StoreIOState.cc \
 	StoreMetaUnpacker.cc \
-	$(STOREMETA_SOURCE) \
 	StoreSwapLogData.cc \
 	store_io.cc \
 	store_key_md5.h \
@@ -3398,7 +3374,6 @@ tests_testURL_SOURCES = \
 	store_swapout.cc \
 	StoreFileSystem.cc \
 	StoreIOState.cc \
-	tests/stub_StoreMeta.cc \
 	StoreMetaUnpacker.cc \
 	StoreSwapLogData.cc \
 	String.cc \

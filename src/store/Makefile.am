@@ -10,7 +10,7 @@ include $(top_srcdir)/src/TestHeaders.am
 
 SUBDIRS= id_rewriters
 
-noinst_LTLIBRARIES = libstore.la
+noinst_LTLIBRARIES = libstore.la libstoremeta.la
 
 libstore_la_SOURCES= \
 	Controlled.h \
@@ -24,3 +24,21 @@ libstore_la_SOURCES= \
 	LocalSearch.cc \
 	LocalSearch.h \
 	Storage.h
+
+libstore_la_LIBADD= libstoremeta.la
+
+# separate library shared with helper binaries
+libstoremeta_la_SOURCES= \
+	MetaMd5.cc \
+	MetaMd5.h \
+	MetaObjSize.h \
+	MetaStd.cc \
+	MetaStd.h \
+	MetaStdLfs.cc \
+	MetaStdLfs.h \
+	MetaTlv.cc \
+	MetaTlv.h \
+	MetaUrl.cc \
+	MetaUrl.h \
+	MetaVary.cc \
+	MetaVary.h

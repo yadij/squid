@@ -11,7 +11,7 @@
 #include "squid.h"
 #include "MemObject.h"
 #include "Store.h"
-#include "StoreMetaVary.h"
+#include "store/MetaVary.h"
 
 bool
 StoreMetaVary::checkConsistency(StoreEntry *e) const

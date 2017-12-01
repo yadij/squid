@@ -41,7 +41,7 @@
 #include "store_rebuild.h"
 #include "StoreClient.h"
 #include "StoreIOState.h"
-#include "StoreMeta.h"
+#include "store/MetaTlv.h"
 #include "StrList.h"
 #include "swap_log_op.h"
 #include "tools.h"

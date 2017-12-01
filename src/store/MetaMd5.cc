@@ -13,7 +13,7 @@
 #include "md5.h"
 #include "MemObject.h"
 #include "Store.h"
-#include "StoreMetaMD5.h"
+#include "store/MetaMd5.h"
 
 bool
 StoreMetaMD5::validLength(int len) const

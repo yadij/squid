@@ -12,7 +12,7 @@
 #include "md5.h"
 #include "MemObject.h"
 #include "Store.h"
-#include "StoreMeta.h"
+#include "store/MetaTlv.h"
 #include "StoreMetaUnpacker.h"
 
 #if HAVE_SYS_WAIT_H

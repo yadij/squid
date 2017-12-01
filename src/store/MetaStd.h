@@ -6,21 +6,21 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef SQUID_STOREMETASTDLFS_H
-#define SQUID_STOREMETASTDLFS_H
+#ifndef SQUID__STORE_METASTD_H
+#define SQUID__STORE_METASTD_H
 
-#include "StoreMeta.h"
+#include "store/MetaTlv.h"
 
-class StoreMetaSTDLFS : public StoreMeta
+class StoreMetaSTD : public StoreMeta
 {
-    MEMPROXY_CLASS(StoreMetaSTDLFS);
+    MEMPROXY_CLASS(StoreMetaSTD);
 
 public:
-    char getType() const {return STORE_META_STD_LFS;}
+    char getType() const {return STORE_META_STD;}
 
     bool validLength(int) const;
     //    bool checkConsistency(StoreEntry *) const;
 };
 
-#endif /* SQUID_STOREMETASTDLFS_H */
+#endif /* SQUID__STORE_METASTD_H */
 

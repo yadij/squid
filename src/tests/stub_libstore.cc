@@ -8,11 +8,11 @@
 
 #include "squid.h"
 
-#define STUB_API "StoreMeta.cc"
+#define STUB_API "store/libstore.la"
 #include "tests/STUB.h"
 
-#include "StoreMeta.h"
-
+// libstoremeta.la sub-library linked to store/libstore.la
+#include "store/MetaTlv.h"
 bool StoreMeta::validType(char) STUB_RETVAL(false)
 bool StoreMeta::validLength(int) const STUB_RETVAL(false)
 StoreMeta * StoreMeta::Factory (char, size_t, void const *) STUB_RETVAL(NULL)

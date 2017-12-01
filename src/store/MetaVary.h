@@ -6,20 +6,20 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef SQUID_STOREMETAURL_H
-#define SQUID_STOREMETAURL_H
+#ifndef SQUID__STORE_METAVARY_H
+#define SQUID__STORE_METAVARY_H
 
-#include "StoreMeta.h"
+#include "store/MetaTlv.h"
 
-class StoreMetaURL : public StoreMeta
+class StoreMetaVary : public StoreMeta
 {
-    MEMPROXY_CLASS(StoreMetaURL);
+    MEMPROXY_CLASS(StoreMetaVary);
 
 public:
-    char getType() const {return STORE_META_URL;}
+    char getType() const {return STORE_META_VARY_HEADERS;}
 
     bool checkConsistency(StoreEntry *) const;
 };
 
-#endif /* SQUID_STOREMETAURL_H */
+#endif /* SQUID__STORE_METAVARY_H */
 

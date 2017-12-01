@@ -7,7 +7,7 @@
  */
 
 #include "squid.h"
-#include "StoreMeta.h"
+#include "store/MetaTlv.h"
 
 #define STUB_API "store_swapout.cc"
 #include "tests/STUB.h"

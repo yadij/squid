@@ -6,10 +6,10 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef SQUID_STOREMETAOBJSIZE_H
-#define SQUID_STOREMETAOBJSIZE_H
+#ifndef SQUID__STORE_METAOBJSIZE_H
+#define SQUID__STORE_METAOBJSIZE_H
 
-#include "StoreMeta.h"
+#include "store/MetaTlv.h"
 
 class StoreMetaObjSize : public StoreMeta
 {
@@ -19,5 +19,5 @@ public:
     char getType() const {return STORE_META_OBJSIZE;}
 };
 
-#endif /* SQUID_STOREMETAOBJSIZE_H */
+#endif /* SQUID__STORE_METAOBJSIZE_H */
 

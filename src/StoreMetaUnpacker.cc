@@ -12,7 +12,7 @@
 #include "base/TextException.h"
 #include "Debug.h"
 #include "defines.h"
-#include "StoreMeta.h"
+#include "store/MetaTlv.h"
 #include "StoreMetaUnpacker.h"
 
 int const StoreMetaUnpacker::MinimumBufferLength = sizeof(char) + sizeof(int);

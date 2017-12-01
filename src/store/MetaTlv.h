@@ -6,8 +6,8 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef SQUID_TYPELENGTHVALUE_H
-#define SQUID_TYPELENGTHVALUE_H
+#ifndef SQUID__STORE_METATLV_H
+#define SQUID__STORE_METATLV_H
 
 class StoreEntry;
 
@@ -141,5 +141,5 @@ tlv *storeSwapMetaBuild(StoreEntry * e);
 /// \ingroup SwapStoreAPI
 void storeSwapTLVFree(tlv * n);
 
-#endif /* SQUID_TYPELENGTHVALUE_H */
+#endif /* SQUID__STORE_METATLV_H */
 

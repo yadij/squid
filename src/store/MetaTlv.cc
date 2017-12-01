@@ -12,13 +12,13 @@
 #include "base/Range.h"
 #include "MemObject.h"
 #include "Store.h"
-#include "StoreMeta.h"
-#include "StoreMetaMD5.h"
-#include "StoreMetaObjSize.h"
-#include "StoreMetaSTD.h"
-#include "StoreMetaSTDLFS.h"
-#include "StoreMetaURL.h"
-#include "StoreMetaVary.h"
+#include "store/MetaMd5.h"
+#include "store/MetaObjSize.h"
+#include "store/MetaStd.h"
+#include "store/MetaStdLfs.h"
+#include "store/MetaTlv.h"
+#include "store/MetaUrl.h"
+#include "store/MetaVary.h"
 
 bool
 StoreMeta::validType(char type)

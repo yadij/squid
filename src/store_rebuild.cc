@@ -227,7 +227,7 @@ storeRebuildProgress(int sd_index, int total, int sofar)
 
 #include "fde.h"
 #include "Generic.h"
-#include "StoreMeta.h"
+#include "store/MetaTlv.h"
 #include "StoreMetaUnpacker.h"
 
 struct InitStoreEntry : public unary_function<StoreMeta, void> {
