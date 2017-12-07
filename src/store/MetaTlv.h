@@ -11,9 +11,6 @@
 
 class StoreEntry;
 
-// WTF?
-typedef class StoreMeta tlv;
-
 /**
  \ingroup SwapStoreAPI
  \todo AYJ: for critical lists like this we should use A=64,B=65 etc to enforce and reserve values.
@@ -131,15 +128,15 @@ public:
 
     int length;
     void *value;
-    tlv *next;
+    StoreMeta *next;
 };
 
 /// \ingroup SwapStoreAPI
-char *storeSwapMetaPack(tlv * tlv_list, int *length);
+char *storeSwapMetaPack(StoreMeta * tlv_list, int *length);
 /// \ingroup SwapStoreAPI
-tlv *storeSwapMetaBuild(StoreEntry * e);
+StoreMeta *storeSwapMetaBuild(StoreEntry * e);
 /// \ingroup SwapStoreAPI
-void storeSwapTLVFree(tlv * n);
+void storeSwapTLVFree(StoreMeta * n);
 
 #endif /* SQUID__STORE_METATLV_H */
 

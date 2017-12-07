@@ -533,7 +533,7 @@ store_client::unpackHeader(char const *buf, ssize_t len)
     }
 
     int swap_hdr_sz = 0;
-    tlv *tlv_list = nullptr;
+    StoreMeta *tlv_list = nullptr;
     try {
         StoreMetaUnpacker aBuilder(buf, len, &swap_hdr_sz);
         tlv_list = aBuilder.createStoreMeta();
@@ -546,7 +546,7 @@ store_client::unpackHeader(char const *buf, ssize_t len)
     /*
      * Check the meta data and make sure we got the right object.
      */
-    for (tlv *t = tlv_list; t; t = t->next) {
+    for (StoreMeta *t = tlv_list; t; t = t->next) {
         if (!t->checkConsistency(entry)) {
             storeSwapTLVFree(tlv_list);
             return false;

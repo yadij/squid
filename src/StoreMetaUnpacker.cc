@@ -115,7 +115,7 @@ StoreMetaUnpacker::moreToProcess() const
 StoreMeta *
 StoreMetaUnpacker::createStoreMeta ()
 {
-    tlv *TLV = NULL;
+    StoreMeta *TLV = NULL;
     tail = &TLV;
     assert(hdr_len != NULL);
 

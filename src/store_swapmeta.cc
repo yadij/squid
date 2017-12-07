@@ -20,9 +20,9 @@
 #endif
 
 void
-storeSwapTLVFree(tlv * n)
+storeSwapTLVFree(StoreMeta * n)
 {
-    tlv *t;
+    StoreMeta *t;
 
     while ((t = n) != NULL) {
         n = t->next;
@@ -34,11 +34,11 @@ storeSwapTLVFree(tlv * n)
 /*
  * Build a TLV list for a StoreEntry
  */
-tlv *
+StoreMeta *
 storeSwapMetaBuild(StoreEntry * e)
 {
-    tlv *TLV = NULL;        /* we'll return this */
-    tlv **T = &TLV;
+    StoreMeta *TLV = NULL;        /* we'll return this */
+    StoreMeta **T = &TLV;
     assert(e->mem_obj != NULL);
     const int64_t objsize = e->mem_obj->expectedReplySize();
 
@@ -51,7 +51,7 @@ storeSwapMetaBuild(StoreEntry * e)
 
     debugs(20, 3, "storeSwapMetaBuild URL: " << url);
 
-    tlv *t = StoreMeta::Factory (STORE_META_KEY,SQUID_MD5_DIGEST_LENGTH, e->key);
+    StoreMeta *t = StoreMeta::Factory (STORE_META_KEY,SQUID_MD5_DIGEST_LENGTH, e->key);
 
     if (!t) {
         storeSwapTLVFree(TLV);
@@ -103,17 +103,16 @@ storeSwapMetaBuild(StoreEntry * e)
 }
 
 char *
-storeSwapMetaPack(tlv * tlv_list, int *length)
+storeSwapMetaPack(StoreMeta * tlv_list, int *length)
 {
     int buflen = 0;
-    tlv *t;
     int j = 0;
     char *buf;
     assert(length != NULL);
     ++buflen;           /* STORE_META_OK */
     buflen += sizeof(int);  /* size of header to follow */
 
-    for (t = tlv_list; t; t = t->next)
+    for (StoreMeta *t = tlv_list; t; t = t->next)
         buflen += sizeof(char) + sizeof(int) + t->length;
 
     buf = (char *)xmalloc(buflen);
@@ -125,7 +124,7 @@ storeSwapMetaPack(tlv * tlv_list, int *length)
 
     j += sizeof(int);
 
-    for (t = tlv_list; t; t = t->next) {
+    for (StoreMeta *t = tlv_list; t; t = t->next) {
         buf[j] = t->getType();
         ++j;
         memcpy(&buf[j], &t->length, sizeof(int));
