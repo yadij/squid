@@ -11,7 +11,7 @@
 
 #include "store/MetaTlv.h"
 
-class StoreMetaSTD : public StoreMeta
+class StoreMetaSTD : public Store::MetaTlv
 {
     MEMPROXY_CLASS(StoreMetaSTD);
 

@@ -96,10 +96,10 @@ StoreMetaUnpacker::doOneEntry()
         return false;
     }
 
-    StoreMeta *newNode = StoreMeta::Factory(type, length, &buf[position]);
+    Store::MetaTlv *newNode = Store::MetaTlv::Factory(type, length, &buf[position]);
 
     if (newNode)
-        tail = StoreMeta::Add (tail, newNode);
+        tail = Store::MetaTlv::Add(tail, newNode);
 
     position += length;
 
@@ -112,10 +112,10 @@ StoreMetaUnpacker::moreToProcess() const
     return *hdr_len - position - MinimumBufferLength >= 0;
 }
 
-StoreMeta *
-StoreMetaUnpacker::createStoreMeta ()
+Store::MetaTlv *
+StoreMetaUnpacker::createStoreMeta()
 {
-    StoreMeta *TLV = NULL;
+    Store::MetaTlv *TLV = nullptr;
     tail = &TLV;
     assert(hdr_len != NULL);
 

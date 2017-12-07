@@ -1890,7 +1890,7 @@ StoreEntry::startWriting()
 char const *
 StoreEntry::getSerialisedMetaData()
 {
-    StoreMeta *tlv_list = storeSwapMetaBuild(this);
+    Store::MetaTlv *tlv_list = storeSwapMetaBuild(this);
     int swap_hdr_sz;
     char *result = storeSwapMetaPack(tlv_list, &swap_hdr_sz);
     storeSwapTLVFree(tlv_list);

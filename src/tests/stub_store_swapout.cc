@@ -17,7 +17,7 @@
 /* XXX: wrong stub file... */
 void storeUnlink(StoreEntry * e) STUB
 
-char *storeSwapMetaPack(StoreMeta *t, int *) STUB_RETVAL(nullptr)
-StoreMeta *storeSwapMetaBuild(StoreEntry *) STUB_RETVAL(nullptr)
-void storeSwapTLVFree(StoreMeta *) STUB
+char *storeSwapMetaPack(Store::MetaTlv *t, int *) STUB_RETVAL(nullptr)
+Store::MetaTlv *storeSwapMetaBuild(StoreEntry *) STUB_RETVAL(nullptr)
+void storeSwapTLVFree(Store::MetaTlv *) STUB
 

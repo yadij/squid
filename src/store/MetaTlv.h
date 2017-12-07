@@ -9,10 +9,9 @@
 #ifndef SQUID__STORE_METATLV_H
 #define SQUID__STORE_METATLV_H
 
-class StoreEntry;
+#include "store/forward.h"
 
 /**
- \ingroup SwapStoreAPI
  \todo AYJ: for critical lists like this we should use A=64,B=65 etc to enforce and reserve values.
  \note NOTE!  We must preserve the order of this list!
  *
@@ -105,38 +104,38 @@ enum {
     STORE_META_END
 };
 
-/// \ingroup SwapStoreAPI
-class StoreMeta
+namespace Store {
+
+class MetaTlv
 {
 protected:
-    StoreMeta() {}
-    StoreMeta(const StoreMeta &) = default;
-    StoreMeta& operator=(const StoreMeta &) = default;
+    MetaTlv() {}
+    MetaTlv(const MetaTlv &) = default;
+    MetaTlv& operator=(const MetaTlv &) = default;
 
 public:
     static bool validType(char);
     static int const MaximumTLVLength;
     static int const MinimumTLVLength;
-    static StoreMeta *Factory(char type, size_t len, void const *value);
-    static StoreMeta **Add(StoreMeta **tail, StoreMeta *aNode);
-    static void FreeList(StoreMeta **head);
+    static Store::MetaTlv *Factory(char type, size_t len, void const *value);
+    static Store::MetaTlv **Add(Store::MetaTlv **tail, Store::MetaTlv *aNode);
+    static void FreeList(Store::MetaTlv **head);
 
     virtual char getType() const = 0;
     virtual bool validLength(int) const;
     virtual bool checkConsistency(StoreEntry *) const;
-    virtual ~StoreMeta() {}
+    virtual ~MetaTlv() {}
 
     int length = -1;
     void *value = nullptr;
-    StoreMeta *next = nullptr;
+    MetaTlv *next = nullptr;
 };
 
-/// \ingroup SwapStoreAPI
-char *storeSwapMetaPack(StoreMeta * tlv_list, int *length);
-/// \ingroup SwapStoreAPI
-StoreMeta *storeSwapMetaBuild(StoreEntry * e);
-/// \ingroup SwapStoreAPI
-void storeSwapTLVFree(StoreMeta * n);
+} // namespace Store
+
+char *storeSwapMetaPack(Store::MetaTlv * tlv_list, int *length);
+Store::MetaTlv *storeSwapMetaBuild(StoreEntry * e);
+void storeSwapTLVFree(Store::MetaTlv * n);
 
 #endif /* SQUID__STORE_METATLV_H */
 

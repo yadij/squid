@@ -11,7 +11,7 @@
 
 #include "store/MetaTlv.h"
 
-class StoreMetaObjSize : public StoreMeta
+class StoreMetaObjSize : public Store::MetaTlv
 {
     MEMPROXY_CLASS(StoreMetaObjSize);
 

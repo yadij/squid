@@ -21,7 +21,7 @@
 #include "store/MetaVary.h"
 
 bool
-StoreMeta::validType(char type)
+Store::MetaTlv::validType(char type)
 {
     /* VOID is reserved, and new types have to be added as classes */
     if (type <= STORE_META_VOID || type >= STORE_META_END + 10) {
@@ -49,13 +49,13 @@ StoreMeta::validType(char type)
     return true;
 }
 
-const int StoreMeta::MinimumTLVLength = 0;
-const int StoreMeta::MaximumTLVLength = 1 << 16;
+const int Store::MetaTlv::MinimumTLVLength = 0;
+const int Store::MetaTlv::MaximumTLVLength = 1 << 16;
 
 bool
-StoreMeta::validLength(int aLength) const
+Store::MetaTlv::validLength(int aLength) const
 {
-    static const Range<int> TlvValidLengths = Range<int>(StoreMeta::MinimumTLVLength, StoreMeta::MaximumTLVLength);
+    static const Range<int> TlvValidLengths = Range<int>(Store::MetaTlv::MinimumTLVLength, Store::MetaTlv::MaximumTLVLength);
     if (!TlvValidLengths.contains(aLength)) {
         debugs(20, DBG_CRITICAL, MYNAME << ": insane length (" << aLength << ")!");
         return false;
@@ -64,13 +64,13 @@ StoreMeta::validLength(int aLength) const
     return true;
 }
 
-StoreMeta *
-StoreMeta::Factory (char type, size_t len, void const *value)
+Store::MetaTlv *
+Store::MetaTlv::Factory (char type, size_t len, void const *value)
 {
     if (!validType(type))
         return NULL;
 
-    StoreMeta *result;
+    Store::MetaTlv *result;
 
     switch (type) {
 
@@ -99,7 +99,7 @@ StoreMeta::Factory (char type, size_t len, void const *value)
         break;
 
     default:
-        debugs(20, DBG_CRITICAL, "Attempt to create unknown concrete StoreMeta");
+        debugs(20, DBG_CRITICAL, "Attempt to create unknown concrete STORE_META");
         return NULL;
     }
 
@@ -115,19 +115,17 @@ StoreMeta::Factory (char type, size_t len, void const *value)
 }
 
 void
-StoreMeta::FreeList(StoreMeta **head)
+Store::MetaTlv::FreeList(Store::MetaTlv **head)
 {
-    StoreMeta *node;
-
-    while ((node = *head) != NULL) {
+    while (Store::MetaTlv *node = *head) {
         *head = node->next;
         xfree(node->value);
         delete node;
     }
 }
 
-StoreMeta **
-StoreMeta::Add(StoreMeta **tail, StoreMeta *aNode)
+Store::MetaTlv **
+Store::MetaTlv::Add(Store::MetaTlv **tail, Store::MetaTlv *aNode)
 {
     assert (*tail == NULL);
     *tail = aNode;
@@ -135,7 +133,7 @@ StoreMeta::Add(StoreMeta **tail, StoreMeta *aNode)
 }
 
 bool
-StoreMeta::checkConsistency(StoreEntry *) const
+Store::MetaTlv::checkConsistency(StoreEntry *) const
 {
     switch (getType()) {
 

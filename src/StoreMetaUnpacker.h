@@ -9,15 +9,14 @@
 #ifndef SQUID_TYPELENGTHVALUEUNPACKER_H
 #define SQUID_TYPELENGTHVALUEUNPACKER_H
 
-class StoreMeta;
-class StoreEntry;
+#include "store/forward.h"
 
 class StoreMetaUnpacker
 {
 
 public:
     StoreMetaUnpacker (const char *buf, ssize_t bufferLength, int *hdrlen);
-    StoreMeta *createStoreMeta();
+    Store::MetaTlv *createStoreMeta();
     bool isBufferZero(); ///< all-zeros buffer, checkBuffer() would throw
     /// validates buffer sanity and throws if validation fails
     void checkBuffer();
@@ -38,17 +37,17 @@ private:
     int position;
     char type;
     int length;
-    StoreMeta **tail;
+    Store::MetaTlv **tail;
 };
 
 /*
  * store_swapmeta.c
  */
-char *storeSwapMetaPack(StoreMeta * tlv_list, int *length);
-StoreMeta *storeSwapMetaBuild(StoreEntry * e);
-StoreMeta *storeSwapMetaUnpack(const char *buf, int *hdrlen);
-void storeSwapTLVFree(StoreMeta * n);
-StoreMeta ** storeSwapTLVAdd(int type, const void *ptr, size_t len, StoreMeta ** tail);
+char *storeSwapMetaPack(Store::MetaTlv * tlv_list, int *length);
+Store::MetaTlv *storeSwapMetaBuild(StoreEntry *);
+Store::MetaTlv *storeSwapMetaUnpack(const char *buf, int *hdrlen);
+void storeSwapTLVFree(Store::MetaTlv *);
+Store::MetaTlv ** storeSwapTLVAdd(int type, const void *ptr, size_t len, Store::MetaTlv ** tail);
 
 #endif /* SQUID_TYPELENGTHVALUEUNPACKER_H */
 

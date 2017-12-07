@@ -230,10 +230,10 @@ storeRebuildProgress(int sd_index, int total, int sofar)
 #include "store/MetaTlv.h"
 #include "StoreMetaUnpacker.h"
 
-struct InitStoreEntry : public unary_function<StoreMeta, void> {
+struct InitStoreEntry : public unary_function<Store::MetaTlv, void> {
     InitStoreEntry(StoreEntry *anEntry, cache_key *aKey):what(anEntry),index(aKey) {}
 
-    void operator()(StoreMeta const &x) {
+    void operator()(Store::MetaTlv const &x) {
         switch (x.getType()) {
 
         case STORE_META_KEY:
@@ -309,7 +309,7 @@ storeRebuildParseEntry(MemBuf &buf, StoreEntry &tmpe, cache_key *key,
         return false;
     }
 
-    StoreMeta *tlv_list = nullptr;
+    Store::MetaTlv *tlv_list = nullptr;
     try {
         tlv_list = aBuilder.createStoreMeta();
     } catch (const std::exception &e) {

@@ -10,10 +10,8 @@
 #define SQUID__STORE_METAMD5_H
 
 #include "store/MetaTlv.h"
-/* for STORE_META_KEY_MD5 */
-#include "enums.h"
 
-class StoreMetaMD5 : public StoreMeta
+class StoreMetaMD5 : public Store::MetaTlv
 {
     MEMPROXY_CLASS(StoreMetaMD5);
 

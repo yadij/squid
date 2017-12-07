@@ -43,6 +43,8 @@ class Disks;
 class Disk;
 class DiskConfig;
 
+class MetaTlv;
+
 typedef ::StoreEntry Entry;
 typedef ::MemStore Memory;
 typedef ::Transients Transients;
