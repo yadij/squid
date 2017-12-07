@@ -109,9 +109,9 @@ enum {
 class StoreMeta
 {
 protected:
-    StoreMeta() : length(-1), value(nullptr), next(nullptr) { }
-    StoreMeta(const StoreMeta &);
-    StoreMeta& operator=(const StoreMeta &);
+    StoreMeta() {}
+    StoreMeta(const StoreMeta &) = default;
+    StoreMeta& operator=(const StoreMeta &) = default;
 
 public:
     static bool validType(char);
@@ -126,9 +126,9 @@ public:
     virtual bool checkConsistency(StoreEntry *) const;
     virtual ~StoreMeta() {}
 
-    int length;
-    void *value;
-    StoreMeta *next;
+    int length = -1;
+    void *value = nullptr;
+    StoreMeta *next = nullptr;
 };
 
 /// \ingroup SwapStoreAPI
