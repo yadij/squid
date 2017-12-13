@@ -8,28 +8,10 @@
 
 #include "squid.h"
 
-#define STUB_API "url.cc"
+#define STUB_API "URL_old.cc"
 #include "tests/STUB.h"
 
-#include "URL.h"
-URL::URL(AnyP::UriScheme const &) {STUB}
-void URL::touch() STUB
-bool URL::parse(const HttpRequestMethod&, const char *) STUB_RETVAL(true)
-void URL::host(const char *) STUB
-static SBuf nil;
-const SBuf &URL::path() const STUB_RETVAL(nil)
-const SBuf &URL::SlashPath()
-{
-    static SBuf slash("/");
-    return slash;
-}
-const SBuf &URL::Asterisk()
-{
-    static SBuf asterisk("*");
-    return asterisk;
-}
-SBuf &URL::authority(bool) const STUB_RETVAL(nil)
-SBuf &URL::absolute() const STUB_RETVAL(nil)
+#include "URL_old.h"
 void urlInitialize() STUB
 char *urlCanonicalClean(const HttpRequest *) STUB_RETVAL(nullptr)
 const char *urlCanonicalFakeHttps(const HttpRequest *) STUB_RETVAL(nullptr)

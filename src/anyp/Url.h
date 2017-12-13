@@ -6,8 +6,8 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef SQUID_SRC_URL_H
-#define SQUID_SRC_URL_H
+#ifndef SQUID__ANYP_URL_H
+#define SQUID__ANYP_URL_H
 
 #include "anyp/UriScheme.h"
 #include "ip/Address.h"
@@ -16,22 +16,24 @@
 
 #include <iosfwd>
 
+namespace AnyP {
+
 /**
  * The URL class represents a Uniform Resource Location
  *
  * Governed by RFC 3986
  */
-class URL
+class Url
 {
-    MEMPROXY_CLASS(URL);
+    MEMPROXY_CLASS(AnyP::Url);
 
 public:
-    URL() : hostIsNumeric_(false), port_(0) {*host_=0;}
-    URL(AnyP::UriScheme const &aScheme);
-    URL(const URL &other) {
+    Url() {*host_=0;}
+    Url(AnyP::UriScheme const &aScheme) : scheme_(aScheme) { *host_=0; }
+    Url(const AnyP::Url &other) {
         this->operator =(other);
     }
-    URL &operator =(const URL &o) {
+    AnyP::Url &operator =(const AnyP::Url &o) {
         scheme_ = o.scheme_;
         userInfo_ = o.userInfo_;
         memcpy(host_, o.host_, sizeof(host_));
@@ -132,13 +134,13 @@ private:
 
     SBuf userInfo_; // aka 'URL-login'
 
-    // XXX: uses char[] instead of SBUf to reduce performance regressions
+    // XXX: uses char[] instead of SBuf to reduce performance regressions
     //      from c_str() since most code using this is not yet using SBuf
     char host_[SQUIDHOSTNAMELEN];   ///< string representation of the URI authority name or IP
-    bool hostIsNumeric_;            ///< whether the authority 'host' is a raw-IP
+    bool hostIsNumeric_ = false;    ///< whether the authority 'host' is a raw-IP
     Ip::Address hostAddr_;          ///< binary representation of the URI authority if it is a raw-IP
 
-    unsigned short port_;   ///< URL port
+    unsigned short port_ = 0;       ///< URL port
 
     // XXX: for now includes query-string.
     SBuf path_;     ///< URL path segment
@@ -149,8 +151,10 @@ private:
     mutable SBuf absolute_;          ///< RFC 7230 section 5.3.2 absolute-URI
 };
 
+} // namespace AnyP
+
 inline std::ostream &
-operator <<(std::ostream &os, const URL &url)
+operator <<(std::ostream &os, const AnyP::Url &url)
 {
     // none means explicit empty string for scheme.
     if (url.getScheme() != AnyP::PROTO_NONE)
@@ -166,60 +170,5 @@ operator <<(std::ostream &os, const URL &url)
     return os;
 }
 
-class HttpRequest;
-class HttpRequestMethod;
-
-void urlInitialize(void);
-char *urlCanonicalClean(const HttpRequest *);
-const char *urlCanonicalFakeHttps(const HttpRequest * request);
-bool urlIsRelative(const char *);
-char *urlMakeAbsolute(const HttpRequest *, const char *);
-char *urlRInternal(const char *host, unsigned short port, const char *dir, const char *name);
-char *urlInternal(const char *dir, const char *name);
-
-enum MatchDomainNameFlags {
-    mdnNone = 0,
-    mdnHonorWildcards = 1 << 0,
-    mdnRejectSubsubDomains = 1 << 1
-};
-
-/**
- * matchDomainName() matches a hostname (usually extracted from traffic)
- * with a domainname when mdnNone or mdnRejectSubsubDomains flags are used
- * according to the following rules:
- *
- *    HOST      |   DOMAIN    |   mdnNone | mdnRejectSubsubDomains
- * -------------|-------------|-----------|-----------------------
- *      foo.com |   foo.com   |     YES   |   YES
- *     .foo.com |   foo.com   |     YES   |   YES
- *    x.foo.com |   foo.com   |     NO    |   NO
- *      foo.com |  .foo.com   |     YES   |   YES
- *     .foo.com |  .foo.com   |     YES   |   YES
- *    x.foo.com |  .foo.com   |     YES   |   YES
- *   .x.foo.com |  .foo.com   |     YES   |   NO
- *  y.x.foo.com |  .foo.com   |     YES   |   NO
- *
- * if mdnHonorWildcards flag is set then the matchDomainName() also accepts
- * optional wildcards on hostname:
- *
- *    HOST      |    DOMAIN    |  MATCH?
- * -------------|--------------|-------
- *    *.foo.com |   x.foo.com  |   YES
- *    *.foo.com |  .x.foo.com  |   YES
- *    *.foo.com |    .foo.com  |   YES
- *    *.foo.com |     foo.com  |   NO
- *
- * The combination of mdnHonorWildcards and mdnRejectSubsubDomains flags is
- * supported.
- *
- * \retval 0 means the host matches the domain
- * \retval 1 means the host is greater than the domain
- * \retval -1 means the host is less than the domain
- */
-int matchDomainName(const char *host, const char *domain, uint flags = mdnNone);
-int urlCheckRequest(const HttpRequest *);
-char *urlHostname(const char *url);
-void urlExtMethodConfigure(void);
-
-#endif /* SQUID_SRC_URL_H_H */
+#endif /* SQUID__ANYP_URL_H */
 

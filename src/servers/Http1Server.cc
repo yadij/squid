@@ -21,6 +21,7 @@
 #include "servers/Http1Server.h"
 #include "SquidConfig.h"
 #include "Store.h"
+#include "URL_old.h"
 
 CBDATA_NAMESPACED_CLASS_INIT(Http1, Server);
 

@@ -16,7 +16,6 @@
 #include "ssl/ServerBump.h"
 #include "Store.h"
 #include "StoreClient.h"
-#include "URL.h"
 
 CBDATA_NAMESPACED_CLASS_INIT(Ssl, ServerBump);
 

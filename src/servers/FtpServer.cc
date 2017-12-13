@@ -36,6 +36,7 @@
 #include "SquidConfig.h"
 #include "StatCounters.h"
 #include "tools.h"
+#include "URL_old.h"
 
 #include <set>
 #include <map>

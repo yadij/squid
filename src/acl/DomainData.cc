@@ -14,7 +14,7 @@
 #include "cache_cf.h"
 #include "ConfigParser.h"
 #include "Debug.h"
-#include "src/URL.h"
+#include "URL_old.h"
 #include "util.h"
 
 template<class T>

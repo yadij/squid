@@ -25,7 +25,7 @@
 #include "StatCounters.h"
 #include "Store.h"
 #include "tools.h"
-#include "URL.h"
+#include "URL_old.h"
 
 #if USE_ADAPTATION
 #include "adaptation/AccessCheck.h"

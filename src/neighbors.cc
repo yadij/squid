@@ -44,7 +44,7 @@
 #include "Store.h"
 #include "store_key_md5.h"
 #include "tools.h"
-#include "URL.h"
+#include "URL_old.h"
 
 /* count mcast group peers every 15 minutes */
 #define MCAST_COUNT_RATE 900
@@ -111,7 +111,7 @@ whichPeer(const Ip::Address &from)
 }
 
 peer_t
-neighborType(const CachePeer * p, const URL &url)
+neighborType(const CachePeer * p, const AnyP::Url &url)
 {
 
     const NeighborTypeDomainList *d = NULL;

@@ -22,7 +22,7 @@
 #include "ssl/bio.h"
 #include "ssl/ServerBump.h"
 #include "ssl/support.h"
-#include "URL.h"
+#include "URL_old.h"
 
 // Compare function for tree search algorithms
 static int

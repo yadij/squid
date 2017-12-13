@@ -474,8 +474,8 @@ squid_SOURCES = \
 	tunnel.cc \
 	typedefs.h \
 	$(UNLINKDSOURCE) \
-	url.cc \
-	URL.h \
+	URL_old.cc \
+	URL_old.h \
 	urn.h \
 	urn.cc \
 	wccp.h \
@@ -1120,7 +1120,7 @@ tests_testACLMaxUserIP_SOURCES= \
 	tests/testACLMaxUserIP.h \
 	tests/stub_time.cc \
 	tests/stub_url.cc \
-	URL.h \
+	URL_old.h \
 	MemBuf.cc \
 	wordlist.h \
 	wordlist.cc
@@ -2407,6 +2407,7 @@ tests_testHttpRequest_SOURCES = \
 	tests/stub_libdiskio.cc \
 	tests/stub_libeui.cc \
 	tests/stub_store_stats.cc \
+	tests/stub_url.cc \
 	tests/stub_EventLoop.cc \
 	time.cc \
 	BodyPipe.cc \
@@ -2566,7 +2567,6 @@ tests_testHttpRequest_SOURCES = \
 	tests/stub_tunnel.cc \
 	tests/stub_SwapDir.cc \
 	MemStore.cc \
-	url.cc \
 	urn.h \
 	urn.cc \
 	wccp2.h \
@@ -3425,7 +3425,8 @@ tests_testURL_SOURCES = \
 	tools.h \
 	tools.cc \
 	tests/stub_tunnel.cc \
-	url.cc \
+	URL_old.cc \
+	URL_old.h \
 	urn.h \
 	urn.cc \
 	wccp2.h \

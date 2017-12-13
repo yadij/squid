@@ -113,7 +113,7 @@
 #include "Store.h"
 #include "TimeOrTag.h"
 #include "tools.h"
-#include "URL.h"
+#include "URL_old.h"
 
 #if USE_AUTH
 #include "auth/UserRequest.h"

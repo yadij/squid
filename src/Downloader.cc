@@ -15,6 +15,7 @@
 #include "fatal.h"
 #include "http/one/RequestParser.h"
 #include "http/Stream.h"
+#include "URL_old.h"
 
 CBDATA_CLASS_INIT(Downloader);
 
