@@ -407,7 +407,6 @@ urnParseReply(const char *inbuf, const HttpRequestMethod& m)
 {
     char *buf = xstrdup(inbuf);
     char *token;
-    char *host;
     url_entry *list;
     url_entry *old;
     int n = 32;
@@ -415,6 +414,8 @@ urnParseReply(const char *inbuf, const HttpRequestMethod& m)
     debugs(52, 3, "urnParseReply");
     list = (url_entry *)xcalloc(n + 1, sizeof(*list));
 
+    AnyP::Url tmpUrl;
+    const HttpRequestMethod nilMethod;
     for (token = strtok(buf, crlf); token; token = strtok(NULL, crlf)) {
         debugs(52, 3, "urnParseReply: got '" << token << "'");
 
@@ -426,24 +427,24 @@ urnParseReply(const char *inbuf, const HttpRequestMethod& m)
             safe_free(old);
         }
 
-        host = urlHostname(token);
-
-        if (NULL == host)
+        tmpUrl.clear();
+        tmpUrl.parse(nilMethod, token);
+        if (!tmpUrl.host())
             continue;
 
 #if USE_ICMP
-        list[i].rtt = netdbHostRtt(host);
+        list[i].rtt = netdbHostRtt(tmpUrl.host());
 
         if (0 == list[i].rtt) {
-            debugs(52, 3, "urnParseReply: Pinging " << host);
-            netdbPingSite(host);
+            debugs(52, 3, "Pinging " << tmpUrl.host());
+            netdbPingSite(tmpUrl.host());
         }
 #else
         list[i].rtt = 0;
 #endif
 
         list[i].url = xstrdup(token);
-        list[i].host = xstrdup(host);
+        list[i].host = xstrdup(tmpUrl.host());
         // TODO: Use storeHas() or lock/unlock entry to avoid creating unlocked
         // ones.
         list[i].flags.cached = storeGetPublic(list[i].url, m) ? 1 : 0;
