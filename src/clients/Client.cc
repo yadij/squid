@@ -419,33 +419,26 @@ Client::getMoreRequestBody(MemBuf &buf)
     return requestBodySource->getMoreData(buf);
 }
 
-// Compares hosts in urls, returns false if different, no sheme, or no host.
+// Compares hosts in URLs, returns false if different, no scheme, or no host.
 static bool
 sameUrlHosts(const char *url1, const char *url2)
 {
-    // XXX: Want urlHostname() here, but it uses static storage and copying
-    const char *host1 = strchr(url1, ':');
-    const char *host2 = strchr(url2, ':');
+    HttpRequestMethod method(Http::METHOD_GET);
+    AnyP::Url host1, host2;
+    host1.parse(method, url1);
+    host2.parse(method, url2);
 
-    if (host1 && host2) {
-        // skip scheme slashes
-        do {
-            ++host1;
-            ++host2;
-        } while (*host1 == '/' && *host2 == '/');
+    if (host1.getScheme() == AnyP::PROTO_NONE || host2.getScheme() == AnyP::PROTO_NONE)
+        return false; // no URL scheme
 
-        if (!*host1)
-            return false; // no host
+    if (!host1.host() || !*host1.host())
+        return false; // no hostname
 
-        // increment while the same until we reach the end of the URL/host
-        while (*host1 && *host1 != '/' && *host1 == *host2) {
-            ++host1;
-            ++host2;
-        }
-        return *host1 == *host2;
-    }
+    if (!host2.host() || !*host2.host())
+        return false; // no hostname
 
-    return false; // no URL scheme
+    // true if same case-insensitive, else false
+    return strcasecmp(host1.host(), host2.host()) == 0;
 }
 
 // purges entries that match the value of a given HTTP [response] header
