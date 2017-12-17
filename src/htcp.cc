@@ -847,17 +847,18 @@ htcpTstReply(htcpDataHeader * dhdr, StoreEntry * e, htcpSpecifier * spec, Ip::Ad
         hdr.clean();
 
 #if USE_ICMP
-        if (char *host = urlHostname(spec->uri)) {
+        AnyP::Url specUrl;
+        specUrl.parse(HttpRequestMethod(), spec->uri);
+        if (const char *host = specUrl.host()) {
             int rtt = 0;
             int hops = 0;
             int samp = 0;
             netdbHostData(host, &samp, &rtt, &hops);
 
             if (rtt || hops) {
-                char cto_buf[128];
-                snprintf(cto_buf, 128, "%s %d %f %d",
-                         host, samp, 0.001 * rtt, hops);
-                hdr.putExt("Cache-to-Origin", cto_buf);
+                SBuf cto_buf;
+                cto_buf.Printf("%s %d %f %d", host, samp, 0.001 * rtt, hops);
+                hdr.putExt("Cache-to-Origin", cto_buf.c_str());
             }
         }
 #endif /* USE_ICMP */
