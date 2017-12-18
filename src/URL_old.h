@@ -22,7 +22,6 @@ char *urlMakeAbsolute(const HttpRequest *, const char *);
 char *urlRInternal(const char *host, unsigned short port, const char *dir, const char *name);
 char *urlInternal(const char *dir, const char *name);
 int urlCheckRequest(const HttpRequest *);
-char *urlHostname(const char *url);
 void urlExtMethodConfigure(void);
 
 
