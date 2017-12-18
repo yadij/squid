@@ -445,33 +445,61 @@ sameUrlHosts(const char *url1, const char *url2)
 static void
 purgeEntriesByHeader(HttpRequest *req, const char *reqUrl, Http::Message *rep, Http::HdrType hdr)
 {
-    const char *hdrUrl, *absUrl;
+    const char *hdrUrl = rep->header.getStr(hdr);
+    if (!hdrUrl)
+        return; // URL header does not exist, do nothing
 
-    absUrl = NULL;
-    hdrUrl = rep->header.getStr(hdr);
-    if (hdrUrl == NULL) {
-        return;
-    }
+    AnyP::Url tmpUrl;
+    if (!tmpUrl.parse(HttpRequestMethod(), hdrUrl))
+        return; // invalid URL, do nothing
 
-    /*
-     * If the URL is relative, make it absolute so we can find it.
-     * If it's absolute, make sure the host parts match to avoid DOS attacks
-     * as per RFC 2616 13.10.
-     */
-    if (urlIsRelative(hdrUrl)) {
-        absUrl = urlMakeAbsolute(req, hdrUrl);
-        if (absUrl != NULL) {
-            hdrUrl = absUrl;
+    // If the URL is relative, try to make it absolute so we can find it.
+    if (!tmpUrl.host()) {
+
+#if 0
+        // CONNECT requests are already well-formed and not cached, stop trying to purge
+        if (req->method.id() == Http::METHOD_CONNECT)
+            return;
+#endif
+
+        // XXX: this is what the original code did, but it seems to break the
+        // intended behaviour of this function. It purges the requested URN path,
+        // not converting the given one into an 'absolute URL' URN...
+        if (req->url.getScheme() == AnyP::PROTO_URN)
+            tmpUrl = req->url;
+
+        // copy the scheme, user-info, authority details from the Request URL
+        tmpUrl.setScheme(req->url.getScheme());
+        tmpUrl.userInfo(req->url.userInfo());
+        tmpUrl.host(req->url.host());
+        tmpUrl.port(req->url.port());
+
+        // path is kind of a merge operation
+
+        // if the header contained a full-path (path starting with '/'), use that
+        // otherwise, prefix it with the initial path segments from req->url
+        // eg request /foo/bar.html + "header: /example.txt" -> /example.txt
+        // eg request /foo/bar.html + "header: example.txt"  -> /foo/example.txt
+        if (hdrUrl[0] != '/') {
+            SBuf path = req->url.path();
+            SBuf::size_type queryStartPos = path.find('?');
+            SBuf::size_type lastSlashPos = path.rfind('/', queryStartPos);
+            if (lastSlashPos != SBuf::npos) {
+                // replace only the last (file?) segment with the given hdrUrl
+                path.chop(0, lastSlashPos);
+                path.append(tmpUrl.path());
+                tmpUrl.path(path);
+            }
+            // else use tmpUrl path as-is
         }
+
     } else if (!sameUrlHosts(reqUrl, hdrUrl)) {
+        // RFC 2616 section 13.10: If it's absolute, make sure the host parts match to avoid DOS attacks
         return;
     }
 
-    purgeEntriesByUrl(req, hdrUrl);
-
-    if (absUrl != NULL) {
-        safe_free(absUrl);
-    }
+    SBuf strFormat(tmpUrl.absolute());
+    purgeEntriesByUrl(req, strFormat.c_str());
 }
 
 // some HTTP methods should purge matching cache entries

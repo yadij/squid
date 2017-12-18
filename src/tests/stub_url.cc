@@ -15,8 +15,6 @@
 void urlInitialize() STUB
 char *urlCanonicalClean(const HttpRequest *) STUB_RETVAL(nullptr)
 const char *urlCanonicalFakeHttps(const HttpRequest *) STUB_RETVAL(nullptr)
-bool urlIsRelative(const char *) STUB_RETVAL(false)
-char *urlMakeAbsolute(const HttpRequest *, const char *)STUB_RETVAL(nullptr)
 char *urlRInternal(const char *, unsigned short, const char *, const char *) STUB_RETVAL(nullptr)
 char *urlInternal(const char *, const char *) STUB_RETVAL(nullptr)
 int matchDomainName(const char *, const char *, uint) STUB_RETVAL(0)

@@ -17,8 +17,6 @@ class HttpRequestMethod;
 void urlInitialize(void);
 char *urlCanonicalClean(const HttpRequest *);
 const char *urlCanonicalFakeHttps(const HttpRequest * request);
-bool urlIsRelative(const char *);
-char *urlMakeAbsolute(const HttpRequest *, const char *);
 char *urlRInternal(const char *host, unsigned short port, const char *dir, const char *name);
 char *urlInternal(const char *dir, const char *name);
 int urlCheckRequest(const HttpRequest *);
