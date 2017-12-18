@@ -649,6 +649,78 @@ HttpRequest::canHandle1xx() const
     return true;
 }
 
+bool
+HttpRequest::canHandleUri() const
+{
+    /* protocol "independent" methods
+     *
+     * actually these methods are specific to HTTP:
+     * they are methods we recieve on our HTTP port,
+     * and if we had a FTP listener would not be relevant
+     * there.
+     *
+     * So, we should delegate them to HTTP. The problem is that we
+     * do not have a default protocol from the client side of HTTP.
+     *
+     * XXX: the above is now incorrect, we have AnyP::PortCfg.protocol for default
+     */
+    if (method == Http::METHOD_CONNECT)
+        return true;
+
+    // we support OPTIONS and TRACE directed at us (with a 501 reply, for now)
+    // we also support forwarding OPTIONS and TRACE, except for the *-URI ones
+    if (method == Http::METHOD_OPTIONS || method == Http::METHOD_TRACE)
+        return (header.getInt64(Http::HdrType::MAX_FORWARDS) == 0 || url.path() != AnyP::Url::Asterisk());
+
+    // deprecated custom Squid method
+    // TODO remove when HTCP CLR is available
+    if (method == Http::METHOD_PURGE)
+        return true;
+
+    // does method match the protocol?
+    switch (url.getScheme()) {
+    case AnyP::PROTO_URN:
+    case AnyP::PROTO_HTTP:
+    case AnyP::PROTO_CACHE_OBJECT:
+        return true;
+        break;
+
+    case AnyP::PROTO_FTP:
+        if (method == Http::METHOD_PUT)
+            return true;
+        // fall through to next case for GET/HEAD
+
+    case AnyP::PROTO_GOPHER:
+    case AnyP::PROTO_WAIS:
+    case AnyP::PROTO_WHOIS:
+        if (method == Http::METHOD_GET)
+            return true;
+        else if (method == Http::METHOD_HEAD)
+            return true;
+        break;
+
+    case AnyP::PROTO_HTTPS:
+#if USE_OPENSSL
+        return true;
+#elif USE_GNUTLS
+        return true;
+#else
+        /*
+        * Squid can't originate a TLS connection, so it should
+        * never receive an "https:" URL.  It should always be
+        * CONNECT instead.
+        */
+        return false;
+#endif
+        break;
+
+    default:
+        break;
+    }
+
+    return false;
+}
+
 ConnStateData *
 HttpRequest::pinnedConnection()
 {

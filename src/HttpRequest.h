@@ -70,6 +70,11 @@ public:
     /// whether the client is likely to be able to handle a 1xx reply
     bool canHandle1xx() const;
 
+    /// Whether the requested URI can be provided with the current method.
+    /// \note Only considers this Squid capabilities. Does not consider
+    ///       hether peers can provide the response
+    bool canHandleUri() const;
+
 #if USE_ADAPTATION
     /// Returns possibly nil history, creating it if adapt. logging is enabled
     Adaptation::History::Pointer adaptLogHistory() const;
