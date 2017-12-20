@@ -68,6 +68,10 @@ public:
     /// optional set label for debugging (default: "anonymous")
     const char * name;
 
+    // URI common character sets, RFC 3986
+    // pchar
+    static const CharacterSet PCHAR;
+
     // common character sets, RFC 5234
     // A-Za-z
     static const CharacterSet ALPHA;

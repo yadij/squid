@@ -128,6 +128,8 @@ operator <<(std::ostream &s, const CharacterSet &c)
 }
 
 const CharacterSet
+// RFC 3986
+CharacterSet::PCHAR("pchar", "!$%&'*+-._~(),;=:@0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"),
 // RFC 5234
 CharacterSet::ALPHA("ALPHA", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"),
              CharacterSet::BIT("BIT","01"),
