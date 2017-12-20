@@ -16,6 +16,10 @@
 
 #include <iosfwd>
 
+namespace Parser {
+class Tokenizer;
+}
+
 namespace AnyP {
 
 /**
@@ -116,7 +120,8 @@ public:
     SBuf &absolute() const;
 
 private:
-    void parseFinish(const AnyP::ProtocolType, const char *const, const char *const, const char *const, const SBuf &, const int);
+    bool parseScheme(Parser::Tokenizer &);
+    void parseFinish(const char *const, const char *const, const SBuf &, const int);
 
     /**
      \par

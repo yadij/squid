@@ -13,6 +13,7 @@
 #include "base/CharacterSet.h"
 #include "globals.h"
 #include "HttpRequest.h"
+#include "parser/Tokenizer.h"
 #include "rfc1738.h"
 #include "SquidConfig.h"
 #include "SquidString.h"
@@ -99,50 +100,75 @@ AnyP::Url::path() const
     return path_;
 }
 
-/**
- * Parse the scheme name from string b, into protocol type.
- * The string must be 0-terminated.
- */
+/// Parse the scheme name from string b, into protocol type.
 static AnyP::ProtocolType
-urlParseProtocol(const char *b)
+urlParseProtocol(const SBuf &b)
 {
-    // make e point to the ':' character
-    const char *e = b + strcspn(b, ":");
-    int len = e - b;
-
     /* test common stuff first */
-    if (strncasecmp(b, "http", len) == 0)
+    if (b.caseCmp("http") == 0)
         return AnyP::PROTO_HTTP;
-    if (strncasecmp(b, "ftp", len) == 0)
+
+    if (b.caseCmp("ftp") == 0)
         return AnyP::PROTO_FTP;
-    if (strncasecmp(b, "https", len) == 0)
+
+    if (b.caseCmp("https") == 0)
         return AnyP::PROTO_HTTPS;
-    if (strncasecmp(b, "file", len) == 0)
+
+    if (b.caseCmp("file") == 0)
         return AnyP::PROTO_FTP;
-    if (strncasecmp(b, "coap", len) == 0)
+
+    if (b.caseCmp("coap") == 0)
         return AnyP::PROTO_COAP;
-    if (strncasecmp(b, "coaps", len) == 0)
+
+    if (b.caseCmp("coaps") == 0)
         return AnyP::PROTO_COAPS;
 
-    if (strncasecmp(b, "gopher", len) == 0)
+    if (b.caseCmp("gopher") == 0)
         return AnyP::PROTO_GOPHER;
 
-    if (strncasecmp(b, "wais", len) == 0)
+    if (b.caseCmp("wais") == 0)
         return AnyP::PROTO_WAIS;
 
-    if (strncasecmp(b, "cache_object", len) == 0)
+    if (b.caseCmp("cache_object") == 0)
         return AnyP::PROTO_CACHE_OBJECT;
 
-    if (strncasecmp(b, "urn", len) == 0)
+    if (b.caseCmp("urn") == 0)
         return AnyP::PROTO_URN;
 
-    if (strncasecmp(b, "whois", len) == 0)
+    if (b.caseCmp("whois") == 0)
         return AnyP::PROTO_WHOIS;
 
-    if (len > 0)
+    if (b.length() > 0)
         return AnyP::PROTO_UNKNOWN;
 
     return AnyP::PROTO_NONE;
+}
+
+/**
+ * RFC 3986 section 3.1:
+ *
+ * scheme      = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+ */
+bool
+AnyP::Url::parseScheme(Parser::Tokenizer &tok)
+{
+    SBuf checkpoint = tok.remaining();
+
+    static const CharacterSet SchemeChars = (CharacterSet("scheme", "+-.") + CharacterSet::ALPHA + CharacterSet::DIGIT);
+
+    SBuf foundScheme;
+    if (tok.prefix(foundScheme, SchemeChars) && tok.skip(':')) {
+        SBuf protoStr(foundScheme);
+        protoStr.toLower();
+        const AnyP::ProtocolType protocol = urlParseProtocol(protoStr);
+        // XXX: Performance regression. c_str() here usually reallocates
+        const char *t = foundScheme.c_str();
+        setScheme(protocol, t);
+        return true;
+    }
+
+    tok.reset(checkpoint); // leave tok as it was when we started
+    return false;
 }
 
 /*
@@ -155,19 +181,17 @@ urlParseProtocol(const char *b)
 bool
 AnyP::Url::parse(const HttpRequestMethod& method, const char *url)
 {
-    LOCAL_ARRAY(char, proto, MAX_URL);
     LOCAL_ARRAY(char, login, MAX_URL);
     LOCAL_ARRAY(char, foundHost, MAX_URL);
     LOCAL_ARRAY(char, urlpath, MAX_URL);
     char *t = NULL;
     char *q = NULL;
     int foundPort;
-    AnyP::ProtocolType protocol = AnyP::PROTO_NONE;
     int l;
     int i;
     const char *src;
     char *dst;
-    proto[0] = foundHost[0] = urlpath[0] = login[0] = '\0';
+    foundHost[0] = urlpath[0] = login[0] = '\0';
 
     if ((l = strlen(url)) + Config.appendDomainLen > (MAX_URL - 1)) {
         debugs(23, DBG_IMPORTANT, MYNAME << "URL too large (" << l << " bytes)");
@@ -190,31 +214,36 @@ AnyP::Url::parse(const HttpRequestMethod& method, const char *url)
 
     } else if ((method == Http::METHOD_OPTIONS || method == Http::METHOD_TRACE) &&
                AnyP::Url::Asterisk().cmp(url) == 0) {
-        parseFinish(AnyP::PROTO_HTTP, nullptr, url, foundHost, SBuf(), 80 /* HTTP default port */);
-        return true;
-    } else if (strncmp(url, "urn:", 4) == 0) {
-        debugs(23, 3, "Split URI '" << url << "' into proto='urn', path='" << (url+4) << "'");
-        debugs(50, 5, "urn=" << (url+4));
-        setScheme(AnyP::PROTO_URN, nullptr);
-        path(url + 4);
+        setScheme(AnyP::PROTO_HTTP, nullptr);
+        parseFinish(url, foundHost, SBuf(), 80 /* HTTP default port */);
         return true;
     } else {
         /* Parse the URL: */
-        src = url;
-        i = 0;
-        /* Find first : - everything before is protocol */
-        for (i = 0, dst = proto; i < l && *src != ':'; ++i, ++src, ++dst) {
-            *dst = *src;
-        }
-        if (i >= l)
-            return false;
-        *dst = '\0';
 
-        /* Then its :// */
-        if ((i+3) > l || *src != ':' || *(src + 1) != '/' || *(src + 2) != '/')
+        // XXX: performance regression SBuf() reallocates
+        SBuf tmp(url);
+        Parser::Tokenizer tok(tmp);
+
+        if (parseScheme(tok)) {
+
+            if (getScheme() == AnyP::PROTO_URN) {
+                debugs(23, 3, "Split URI '" << url << "' into proto='urn', path='" << tok.remaining() << "'");
+                debugs(50, 5, "urn=" << tok.remaining());
+                path(url + 4);
+                return true;
+            }
+
+            foundPort = getScheme().defaultPort();
+        }
+
+        /* Then its '//' */
+        static const SBuf authorityPrefix("//");
+        if (!tok.skip(authorityPrefix))
             return false;
-        i += 3;
-        src += 3;
+
+        // old parse on the rest of the URL string
+        i = tok.parsedSize();
+        src = url + i;
 
         /* Then everything until first /; thats host (and port; which we'll look for here later) */
         // bug 1881: If we don't get a "/" then we imply it was there
@@ -254,9 +283,6 @@ AnyP::Url::parse(const HttpRequestMethod& method, const char *url)
             ++dst;
         }
         *dst = '\0';
-
-        protocol = urlParseProtocol(proto);
-        foundPort = AnyP::UriScheme(protocol).defaultPort();
 
         /* Is there any login information? (we should eventually parse it above) */
         t = strrchr(foundHost, '@');
@@ -304,7 +330,7 @@ AnyP::Url::parse(const HttpRequestMethod& method, const char *url)
         }
 
         // Bug 3183 sanity check: If scheme is present, host must be too.
-        if (protocol != AnyP::PROTO_NONE && foundHost[0] == '\0') {
+        if (getScheme() != AnyP::PROTO_NONE && foundHost[0] == '\0') {
             debugs(23, DBG_IMPORTANT, "SECURITY ALERT: Missing hostname in URL '" << url << "'. see access.log for details.");
             return false;
         }
@@ -333,7 +359,7 @@ AnyP::Url::parse(const HttpRequestMethod& method, const char *url)
         }
     }
 
-    debugs(23, 3, "Split URL '" << url << "' into proto='" << proto << "', host='" << foundHost << "', port='" << foundPort << "', path='" << urlpath << "'");
+    debugs(23, 3, "Split URL '" << url << "' into proto='" << getScheme().image() << "', host='" << foundHost << "', port='" << foundPort << "', path='" << urlpath << "'");
 
     if (Config.onoff.check_hostnames &&
             strspn(foundHost, Config.onoff.allow_underscore ? valid_hostname_chars_u : valid_hostname_chars) != strlen(foundHost)) {
@@ -403,20 +429,17 @@ AnyP::Url::parse(const HttpRequestMethod& method, const char *url)
         }
     }
 
-    parseFinish(protocol, proto, urlpath, foundHost, SBuf(login), foundPort);
+    parseFinish(urlpath, foundHost, SBuf(login), foundPort);
     return true;
 }
 
 /// Update the URL object with parsed URI data.
 void
-AnyP::Url::parseFinish(const AnyP::ProtocolType protocol,
-                 const char *const protoStr, // for unknown protocols
-                 const char *const aUrlPath,
+AnyP::Url::parseFinish(const char *const aUrlPath,
                  const char *const aHost,
                  const SBuf &aLogin,
                  const int aPort)
 {
-    setScheme(protocol, protoStr);
     path(aUrlPath);
     host(aHost);
     userInfo(aLogin);
