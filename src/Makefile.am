@@ -2382,6 +2382,7 @@ tests_testHttp1Parser_LDADD= \
 	base/libbase.la \
 	ip/libip.la \
 	sbuf/libsbuf.la \
+	$(top_builddir)/lib/libmiscencoding.la \
 	$(top_builddir)/lib/libmiscutil.la \
 	$(SSLLIB) \
 	$(LIBCPPUNIT_LIBS) \

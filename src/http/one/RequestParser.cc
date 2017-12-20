@@ -7,6 +7,7 @@
  */
 
 #include "squid.h"
+#include "anyp/Url.h"
 #include "Debug.h"
 #include "http/one/RequestParser.h"
 #include "http/one/Tokenizer.h"
@@ -82,32 +83,6 @@ Http::One::RequestParser::parseMethodField(Http1::Tokenizer &tok)
     return true;
 }
 
-/// the characters which truly are valid within URI
-static const CharacterSet &
-UriValidCharacters()
-{
-    /* RFC 3986 section 2:
-     * "
-     *   A URI is composed from a limited set of characters consisting of
-     *   digits, letters, and a few graphic symbols.
-     * "
-     */
-    static const CharacterSet UriChars =
-        CharacterSet("URI-Chars","") +
-        // RFC 3986 section 2.2 - reserved characters
-        CharacterSet("gen-delims", ":/?#[]@") +
-        CharacterSet("sub-delims", "!$&'()*+,;=") +
-        // RFC 3986 section 2.3 - unreserved characters
-        CharacterSet::ALPHA +
-        CharacterSet::DIGIT +
-        CharacterSet("unreserved", "-._~") +
-        // RFC 3986 section 2.1 - percent encoding "%" HEXDIG
-        CharacterSet("pct-encoded", "%") +
-        CharacterSet::HEXDIG;
-
-    return UriChars;
-}
-
 /// characters which Squid will accept in the HTTP request-target (URI)
 const CharacterSet &
 Http::One::RequestParser::RequestTargetCharacters()
@@ -115,7 +90,7 @@ Http::One::RequestParser::RequestTargetCharacters()
     if (Config.onoff.relaxed_header_parser) {
 #if USE_HTTP_VIOLATIONS
         static const CharacterSet RelaxedExtended =
-            UriValidCharacters() +
+            AnyP::Url::UriValidCharacters() +
             // accept whitespace (extended), it will be dealt with later
             DelimiterCharacters() +
             // RFC 2396 unwise character set which must never be transmitted
@@ -127,7 +102,7 @@ Http::One::RequestParser::RequestTargetCharacters()
         return RelaxedExtended;
 #else
         static const CharacterSet RelaxedCompliant =
-            UriValidCharacters() +
+            AnyP::Url::UriValidCharacters() +
             // accept whitespace (extended), it will be dealt with later.
             DelimiterCharacters();
 
@@ -136,7 +111,7 @@ Http::One::RequestParser::RequestTargetCharacters()
     }
 
     // strict parse only accepts what the RFC say we can
-    return UriValidCharacters();
+    return AnyP::Url::UriValidCharacters();
 }
 
 bool

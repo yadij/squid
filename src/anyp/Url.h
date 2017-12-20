@@ -91,6 +91,9 @@ public:
     /// the static '*' pseudo-URL
     static const SBuf &Asterisk();
 
+    /// the characters which truly are valid within URI
+    static const CharacterSet &UriValidCharacters();
+
     /**
      * The authority-form URI for currently stored values.
      *
