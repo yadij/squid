@@ -9,7 +9,7 @@
 #ifndef SQUID_SRC_HTTP_ONE_TeChunkedParser_H
 #define SQUID_SRC_HTTP_ONE_TeChunkedParser_H
 
-#include "http/one/Parser.h"
+#include "http/Parser.h"
 
 class MemBuf;
 
@@ -28,7 +28,7 @@ namespace One
  * Ignores chunk extensions except for ICAP's ieof.
  * Trailers are available via mimeHeader() if wanted.
  */
-class TeChunkedParser : public Http1::Parser
+class TeChunkedParser : public Http::Parser
 {
 public:
     TeChunkedParser();
@@ -39,7 +39,7 @@ public:
 
     bool needsMoreSpace() const;
 
-    /* Http1::Parser API */
+    /* Http::Parser API */
     virtual void clear();
     virtual bool parse(const SBuf &);
     virtual Parser::size_type firstLineSize() const {return 0;} // has no meaning with multiple chunks

@@ -26,6 +26,7 @@
 #include "FwdState.h"
 #include "globals.h"
 #include "http.h"
+#include "http/Parser.h"
 #include "http/Stream.h"
 #include "HttpRequest.h"
 #include "icmp/net_db.h"
@@ -961,7 +962,7 @@ TunnelStateData::connectExchangeCheckpoint()
         debugs(26, 5, "still writing CONNECT request on " << server.conn);
     } else {
         assert(!waitingForConnectExchange());
-        debugs(26, 3, "done with CONNECT exchange on " << server.conn);
+        debugs(26, 3, "done with CONNECT or HTTP/2 magic exchange on " << server.conn);
         tunnelConnected(server.conn, this);
     }
 }
@@ -1170,15 +1171,19 @@ tunnelRelayConnectRequest(const Comm::ConnectionPointer &srv, void *data)
     flags.proxying = tunnelState->request->flags.proxying;
     MemBuf mb;
     mb.init();
-    mb.appendf("CONNECT %s HTTP/1.1\r\n", tunnelState->url);
-    HttpStateData::httpBuildRequestHeader(tunnelState->request.getRaw(),
-                                          NULL,         /* StoreEntry */
-                                          tunnelState->al,          /* AccessLogEntry */
-                                          &hdr_out,
-                                          flags);           /* flags */
-    hdr_out.packInto(&mb);
-    hdr_out.clean();
-    mb.append("\r\n", 2);
+
+    // method PRI only gets here as part of HTTP/2 magic prefix
+    if (tunnelState->request->method == Http::METHOD_PRI) {
+        // send full HTTP/2.0 magic connection header to server
+        mb.append(Http::Parser::Http2magic.rawContent(), Http::Parser::Http2magic.length());
+    } else {
+        // assume CONNECT
+        mb.appendf("CONNECT %s HTTP/1.1\r\n", tunnelState->url);
+        HttpStateData::httpBuildRequestHeader(tunnelState->request.getRaw(), NULL, tunnelState->al, &hdr_out, flags);
+        hdr_out.packInto(&mb);
+        hdr_out.clean();
+        mb.append("\r\n", 2);
+    }
 
     debugs(11, 2, "Tunnel Server REQUEST: " << tunnelState->server.conn <<
            ":\n----------\n" << mb.buf << "\n----------");

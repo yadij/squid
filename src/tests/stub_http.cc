@@ -7,6 +7,7 @@
  */
 
 #include "squid.h"
+#include "http/two/StreamContext.h"
 #include "HttpReply.h"
 #include "HttpRequest.h"
 #include "sbuf/SBuf.h"

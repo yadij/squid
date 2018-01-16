@@ -13,6 +13,7 @@
 #include "comm/Connection.h"
 #include "comm/Read.h"
 #include "CommCalls.h"
+#include "http/two/StreamContext.h"
 #include "ipc/Port.h"
 #include "tools.h"
 #include "util.h"

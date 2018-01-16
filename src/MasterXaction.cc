@@ -7,6 +7,7 @@
  */
 
 #include "squid.h"
+#include "http/two/StreamContext.h"
 #include "MasterXaction.h"
 
 InstanceIdDefinitions(MasterXaction, "MXID_");

@@ -18,6 +18,7 @@
 #include "comm/Write.h"
 #include "CommCalls.h"
 #include "globals.h"
+#include "http/two/StreamContext.h"
 #include "ident/Config.h"
 #include "ident/Ident.h"
 #include "MemBuf.h"

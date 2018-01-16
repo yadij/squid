@@ -42,7 +42,7 @@ testHttp1Parser::globalSetup()
 struct resultSet {
     bool parsed;
     bool needsMore;
-    Http1::ParseState parserState;
+    Http::ParseState parserState;
     Http::StatusCode status;
     SBuf::size_type suffixSz;
     HttpRequestMethod method;
@@ -125,7 +125,7 @@ testHttp1Parser::testParserConstruct()
     {
         Http1::RequestParser output;
         CPPUNIT_ASSERT_EQUAL(true, output.needsMoreData());
-        CPPUNIT_ASSERT_EQUAL(Http1::HTTP_PARSE_NONE, output.parsingStage_);
+        CPPUNIT_ASSERT_EQUAL(Http::HTTP_PARSE_NONE, output.parsingStage_);
         CPPUNIT_ASSERT_EQUAL(Http::scNone, output.parseStatusCode); // XXX: clear() not being called.
         CPPUNIT_ASSERT(output.buf_.isEmpty());
         CPPUNIT_ASSERT_EQUAL(HttpRequestMethod(Http::METHOD_NONE), output.method_);
@@ -137,7 +137,7 @@ testHttp1Parser::testParserConstruct()
     {
         Http1::RequestParser *output = new Http1::RequestParser;
         CPPUNIT_ASSERT_EQUAL(true, output->needsMoreData());
-        CPPUNIT_ASSERT_EQUAL(Http1::HTTP_PARSE_NONE, output->parsingStage_);
+        CPPUNIT_ASSERT_EQUAL(Http::HTTP_PARSE_NONE, output->parsingStage_);
         CPPUNIT_ASSERT_EQUAL(Http::scNone, output->parseStatusCode);
         CPPUNIT_ASSERT(output->buf_.isEmpty());
         CPPUNIT_ASSERT_EQUAL(HttpRequestMethod(Http::METHOD_NONE), output->method_);
@@ -165,7 +165,7 @@ testHttp1Parser::testParseRequestLineProtocols()
         struct resultSet expect = {
             .parsed = true,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -183,7 +183,7 @@ testHttp1Parser::testParseRequestLineProtocols()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(Http::METHOD_POST),
@@ -201,7 +201,7 @@ testHttp1Parser::testParseRequestLineProtocols()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = true,
-            .parserState = Http1::HTTP_PARSE_MIME,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -219,7 +219,7 @@ testHttp1Parser::testParseRequestLineProtocols()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = true,
-            .parserState = Http1::HTTP_PARSE_MIME,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -237,7 +237,7 @@ testHttp1Parser::testParseRequestLineProtocols()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = true,
-            .parserState = Http1::HTTP_PARSE_MIME,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -257,7 +257,7 @@ testHttp1Parser::testParseRequestLineProtocols()
         struct resultSet expectA = {
             .parsed = true,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -272,7 +272,7 @@ testHttp1Parser::testParseRequestLineProtocols()
         struct resultSet expectB = {
             .parsed = true,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -290,7 +290,7 @@ testHttp1Parser::testParseRequestLineProtocols()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_MIME,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -308,7 +308,7 @@ testHttp1Parser::testParseRequestLineProtocols()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -326,7 +326,7 @@ testHttp1Parser::testParseRequestLineProtocols()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -344,7 +344,7 @@ testHttp1Parser::testParseRequestLineProtocols()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -362,7 +362,7 @@ testHttp1Parser::testParseRequestLineProtocols()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -380,7 +380,7 @@ testHttp1Parser::testParseRequestLineProtocols()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -398,7 +398,7 @@ testHttp1Parser::testParseRequestLineProtocols()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -416,7 +416,7 @@ testHttp1Parser::testParseRequestLineProtocols()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -446,7 +446,7 @@ testHttp1Parser::testParseRequestLineStrange()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = true,
-            .parserState = Http1::HTTP_PARSE_MIME,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -460,7 +460,7 @@ testHttp1Parser::testParseRequestLineStrange()
         struct resultSet expectStrict = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -479,7 +479,7 @@ testHttp1Parser::testParseRequestLineStrange()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = true,
-            .parserState = Http1::HTTP_PARSE_MIME,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -493,7 +493,7 @@ testHttp1Parser::testParseRequestLineStrange()
         struct resultSet expectStrict = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -511,7 +511,7 @@ testHttp1Parser::testParseRequestLineStrange()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = true,
-            .parserState = Http1::HTTP_PARSE_MIME,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scOkay,
             .suffixSz = 4, // strlen("boo!")
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -542,7 +542,7 @@ testHttp1Parser::testParseRequestLineTerminators()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = true,
-            .parserState = Http1::HTTP_PARSE_MIME,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -556,7 +556,7 @@ testHttp1Parser::testParseRequestLineTerminators()
         struct resultSet expectStrict = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -577,7 +577,7 @@ testHttp1Parser::testParseRequestLineTerminators()
         struct resultSet expect = {
             .parsed = true,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -591,7 +591,7 @@ testHttp1Parser::testParseRequestLineTerminators()
         struct resultSet expectStrict = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -610,7 +610,7 @@ testHttp1Parser::testParseRequestLineTerminators()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -638,7 +638,7 @@ testHttp1Parser::testParseRequestLineMethods()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = true,
-            .parserState = Http1::HTTP_PARSE_MIME,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(SBuf(".")),
@@ -656,7 +656,7 @@ testHttp1Parser::testParseRequestLineMethods()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = true,
-            .parserState = Http1::HTTP_PARSE_MIME,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(SBuf("!#$%&'*+-.^_`|~")),
@@ -674,7 +674,7 @@ testHttp1Parser::testParseRequestLineMethods()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = true,
-            .parserState = Http1::HTTP_PARSE_MIME,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(Http::METHOD_OPTIONS),
@@ -692,7 +692,7 @@ testHttp1Parser::testParseRequestLineMethods()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = true,
-            .parserState = Http1::HTTP_PARSE_MIME,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(SBuf("HELLOWORLD")),
@@ -711,7 +711,7 @@ testHttp1Parser::testParseRequestLineMethods()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scNotImplemented,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -730,7 +730,7 @@ testHttp1Parser::testParseRequestLineMethods()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -747,7 +747,7 @@ testHttp1Parser::testParseRequestLineMethods()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -765,7 +765,7 @@ testHttp1Parser::testParseRequestLineMethods()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -784,7 +784,7 @@ testHttp1Parser::testParseRequestLineMethods()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = true,
-            .parserState = Http1::HTTP_PARSE_MIME,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -798,7 +798,7 @@ testHttp1Parser::testParseRequestLineMethods()
         struct resultSet expectStrict = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -816,7 +816,7 @@ testHttp1Parser::testParseRequestLineMethods()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -836,7 +836,7 @@ testHttp1Parser::testParseRequestLineMethods()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = true,
-            .parserState = Http1::HTTP_PARSE_MIME,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -850,7 +850,7 @@ testHttp1Parser::testParseRequestLineMethods()
         struct resultSet expectStrict = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -870,7 +870,7 @@ testHttp1Parser::testParseRequestLineMethods()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = true,
-            .parserState = Http1::HTTP_PARSE_MIME,
+            .parserState = Http::HTTP_PARSE_MIME,
             .status = Http::scOkay,
             .suffixSz = 0,
             .method = HttpRequestMethod(Http::METHOD_GET),
@@ -884,7 +884,7 @@ testHttp1Parser::testParseRequestLineMethods()
         struct resultSet expectStrict = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -913,7 +913,7 @@ testHttp1Parser::testParseRequestLineInvalid()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -931,7 +931,7 @@ testHttp1Parser::testParseRequestLineInvalid()
         struct resultSet expectStrict = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -949,7 +949,7 @@ testHttp1Parser::testParseRequestLineInvalid()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -967,7 +967,7 @@ testHttp1Parser::testParseRequestLineInvalid()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -987,7 +987,7 @@ testHttp1Parser::testParseRequestLineInvalid()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -1001,7 +1001,7 @@ testHttp1Parser::testParseRequestLineInvalid()
         struct resultSet expectStrict = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -1020,7 +1020,7 @@ testHttp1Parser::testParseRequestLineInvalid()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -1038,7 +1038,7 @@ testHttp1Parser::testParseRequestLineInvalid()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -1056,7 +1056,7 @@ testHttp1Parser::testParseRequestLineInvalid()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -1074,7 +1074,7 @@ testHttp1Parser::testParseRequestLineInvalid()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = false,
-            .parserState = Http1::HTTP_PARSE_DONE,
+            .parserState = Http::HTTP_PARSE_DONE,
             .status = Http::scBadRequest,
             .suffixSz = input.length(),
             .method = HttpRequestMethod(),
@@ -1119,7 +1119,7 @@ testHttp1Parser::testDripFeed()
         struct resultSet expect = {
             .parsed = false,
             .needsMore = true,
-            .parserState = Http1::HTTP_PARSE_NONE,
+            .parserState = Http::HTTP_PARSE_NONE,
             .status = Http::scNone,
             .suffixSz = 0,
             .method = HttpRequestMethod(),
@@ -1145,7 +1145,7 @@ testHttp1Parser::testDripFeed()
 
             // when the garbage is passed we expect to start seeing first-line bytes
             if (pos == garbageEnd)
-                expect.parserState = Http1::HTTP_PARSE_FIRST;
+                expect.parserState = Http::HTTP_PARSE_FIRST;
 
             // all points after garbage start to see accumulated bytes looking for end of current section
             if (pos >= garbageEnd)
@@ -1154,7 +1154,7 @@ testHttp1Parser::testDripFeed()
             // at end of request line expect to see method, URI, version details
             // and switch to seeking Mime header section
             if (pos == reqLineEnd) {
-                expect.parserState = Http1::HTTP_PARSE_MIME;
+                expect.parserState = Http::HTTP_PARSE_MIME;
                 expect.suffixSz = 0; // and a checkpoint buffer reset
                 expect.status = Http::scOkay;
                 expect.method = HttpRequestMethod(Http::METHOD_GET);

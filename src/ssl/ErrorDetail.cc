@@ -10,6 +10,7 @@
 #include "errorpage.h"
 #include "fatal.h"
 #include "html_quote.h"
+#include "http/two/StreamContext.h"
 #include "ssl/ErrorDetail.h"
 
 #include <climits>

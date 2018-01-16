@@ -159,6 +159,8 @@ public:
     /* BodyPipe API */
     BodyPipe::Pointer expectRequestBody(int64_t size);
     virtual void noteMoreBodySpaceAvailable(BodyPipe::Pointer) = 0;
+
+    /* BodyProducer API */
     virtual void noteBodyConsumerAborted(BodyPipe::Pointer) = 0;
 
     bool handleRequestBodyData();
@@ -209,7 +211,7 @@ public:
 
     // AsyncJob API
     virtual void start();
-    virtual bool doneAll() const { return BodyProducer::doneAll() && false;}
+    virtual bool doneAll() const { return Server::doneAll() && false;}
     virtual void swanSong();
 
     /// Changes state so that we close the connection and quit after serving

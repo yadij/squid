@@ -19,7 +19,7 @@
 Http::One::TeChunkedParser::TeChunkedParser()
 {
     // chunked encoding only exists in HTTP/1.1
-    Http1::Parser::msgProtocol_ = Http::ProtocolVersion(1,1);
+    Http::Parser::msgProtocol_ = Http::ProtocolVersion(1,1);
 
     clear();
 }
@@ -27,7 +27,7 @@ Http::One::TeChunkedParser::TeChunkedParser()
 void
 Http::One::TeChunkedParser::clear()
 {
-    parsingStage_ = Http1::HTTP_PARSE_NONE;
+    parsingStage_ = Http::HTTP_PARSE_NONE;
     buf_.clear();
     theChunkSize = theLeftBodySize = 0;
     theOut = NULL;
@@ -46,8 +46,8 @@ Http::One::TeChunkedParser::parse(const SBuf &aBuf)
 
     Must(!buf_.isEmpty() && theOut);
 
-    if (parsingStage_ == Http1::HTTP_PARSE_NONE)
-        parsingStage_ = Http1::HTTP_PARSE_CHUNK_SZ;
+    if (parsingStage_ == Http::HTTP_PARSE_NONE)
+        parsingStage_ = Http::HTTP_PARSE_CHUNK_SZ;
 
     Http1::Tokenizer tok(buf_);
 
@@ -56,17 +56,17 @@ Http::One::TeChunkedParser::parse(const SBuf &aBuf)
     // restart in the middle of a chunk/frame
     do {
 
-        if (parsingStage_ == Http1::HTTP_PARSE_CHUNK_EXT && !parseChunkExtension(tok, theChunkSize))
+        if (parsingStage_ == Http::HTTP_PARSE_CHUNK_EXT && !parseChunkExtension(tok, theChunkSize))
             return false;
 
-        if (parsingStage_ == Http1::HTTP_PARSE_CHUNK && !parseChunkBody(tok))
+        if (parsingStage_ == Http::HTTP_PARSE_CHUNK && !parseChunkBody(tok))
             return false;
 
-        if (parsingStage_ == Http1::HTTP_PARSE_MIME && !grabMimeBlock("Trailers", 64*1024 /* 64KB max */))
+        if (parsingStage_ == Http::HTTP_PARSE_MIME && !grabMimeBlock("Trailers", 64*1024 /* 64KB max */))
             return false;
 
         // loop for as many chunks as we can
-    } while (parsingStage_ == Http1::HTTP_PARSE_CHUNK_SZ && parseChunkSize(tok));
+    } while (parsingStage_ == Http::HTTP_PARSE_CHUNK_SZ && parseChunkSize(tok));
 
     return !needsMoreData() && !needsMoreSpace();
 }
@@ -75,7 +75,7 @@ bool
 Http::One::TeChunkedParser::needsMoreSpace() const
 {
     assert(theOut);
-    return parsingStage_ == Http1::HTTP_PARSE_CHUNK && !theOut->hasPotentialSpace();
+    return parsingStage_ == Http::HTTP_PARSE_CHUNK && !theOut->hasPotentialSpace();
 }
 
 /// RFC 7230 section 4.1 chunk-size
@@ -92,7 +92,7 @@ Http::One::TeChunkedParser::parseChunkSize(Http1::Tokenizer &tok)
         theChunkSize = theLeftBodySize = size;
         debugs(94,7, "found chunk: " << theChunkSize);
         buf_ = tok.remaining(); // parse checkpoint
-        parsingStage_ = Http1::HTTP_PARSE_CHUNK_EXT;
+        parsingStage_ = Http::HTTP_PARSE_CHUNK_EXT;
         return true;
 
     } else if (tok.atEnd()) {
@@ -155,7 +155,7 @@ Http::One::TeChunkedParser::parseChunkExtension(Http1::Tokenizer &tok, bool skip
     if (skipLineTerminator(tok)) {
         buf_ = tok.remaining(); // checkpoint
         // non-0 chunk means data, 0-size means optional Trailer follows
-        parsingStage_ = theChunkSize ? Http1::HTTP_PARSE_CHUNK : Http1::HTTP_PARSE_MIME;
+        parsingStage_ = theChunkSize ? Http::HTTP_PARSE_CHUNK : Http::HTTP_PARSE_MIME;
         return true;
     }
 
@@ -195,7 +195,7 @@ Http::One::TeChunkedParser::parseChunkEnd(Http1::Tokenizer &tok)
     if (skipLineTerminator(tok)) {
         buf_ = tok.remaining(); // parse checkpoint
         theChunkSize = 0; // done with the current chunk
-        parsingStage_ = Http1::HTTP_PARSE_CHUNK_SZ;
+        parsingStage_ = Http::HTTP_PARSE_CHUNK_SZ;
         return true;
     }
 

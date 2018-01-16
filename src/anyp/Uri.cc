@@ -11,6 +11,7 @@
 #include "squid.h"
 #include "anyp/Uri.h"
 #include "globals.h"
+#include "http/two/StreamContext.h"
 #include "HttpRequest.h"
 #include "rfc1738.h"
 #include "SquidConfig.h"
@@ -223,7 +224,7 @@ AnyP::Uri::parse(const HttpRequestMethod& method, const char *url)
             if (sscanf(url, "%[^:]:%d", foundHost, &foundPort) < 1)
                 return false;
 
-    } else if ((method == Http::METHOD_OPTIONS || method == Http::METHOD_TRACE) &&
+    } else if ((method == Http::METHOD_OPTIONS || method == Http::METHOD_TRACE || method == Http::METHOD_PRI) &&
                AnyP::Uri::Asterisk().cmp(url) == 0) {
         parseFinish(AnyP::PROTO_HTTP, nullptr, url, foundHost, SBuf(), 80 /* HTTP default port */);
         return true;
@@ -600,8 +601,7 @@ urlIsRelative(const char *url)
 char *
 urlMakeAbsolute(const HttpRequest * req, const char *relUrl)
 {
-
-    if (req->method.id() == Http::METHOD_CONNECT) {
+    if (req->method.id() == Http::METHOD_CONNECT || req->method.id() == Http::METHOD_PRI) {
         return (NULL);
     }
 
@@ -770,6 +770,10 @@ urlCheckRequest(const HttpRequest * r)
 
     if (r->method == Http::METHOD_CONNECT)
         return 1;
+
+    // we support HTTP/2 magic PRI requests
+    if (r->method == Http::METHOD_PRI && r->http_ver == Http::ProtocolVersion(2,0))
+        return (r->url.path() == AnyP::Uri::Asterisk());
 
     // we support OPTIONS and TRACE directed at us (with a 501 reply, for now)
     // we also support forwarding OPTIONS and TRACE, except for the *-URI ones

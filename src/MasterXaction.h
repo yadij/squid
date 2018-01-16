@@ -15,6 +15,7 @@
 #include "base/Lock.h"
 #include "base/RefCount.h"
 #include "comm/forward.h"
+#include "http/two/forward.h"
 #include "XactionInitiator.h"
 
 /** Master transaction details.
@@ -54,6 +55,9 @@ public:
 
     /// the initiator of this transaction
     XactionInitiator initiator;
+
+    /// the HTTP (v2.0) request details
+    Http2::StreamContextPointer http2Stream;
 
     // TODO: add state from other Jobs in the transaction
 };

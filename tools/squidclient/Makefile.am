@@ -57,6 +57,8 @@ bin_PROGRAMS = squidclient
 squidclient_SOURCES = \
 	gssapi_support.cc \
 	gssapi_support.h \
+	Http2.cc \
+	Http2.h \
 	Parameters.h \
 	Ping.cc \
 	Ping.h \
