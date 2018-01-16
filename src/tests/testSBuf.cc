@@ -11,6 +11,7 @@
 #include "base/TextException.h"
 #include "compat/cppunit.h"
 #include "event.h"
+#include "http/two/StreamContext.h"
 #include "HttpReply.h"
 #include "MemObject.h"
 #include "sbuf/Algorithms.h"

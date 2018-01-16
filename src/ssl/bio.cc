@@ -10,6 +10,7 @@
 
 #include "squid.h"
 #include "base/IoManip.h"
+#include "http/two/StreamContext.h"
 #include "ssl/support.h"
 
 /* support.cc says this is needed */

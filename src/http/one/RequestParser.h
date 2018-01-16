@@ -9,7 +9,7 @@
 #ifndef SQUID_SRC_HTTP_ONE_REQUESTPARSER_H
 #define SQUID_SRC_HTTP_ONE_REQUESTPARSER_H
 
-#include "http/one/Parser.h"
+#include "http/Parser.h"
 #include "http/RequestMethod.h"
 
 namespace Parser {
@@ -27,7 +27,7 @@ namespace One {
  * \li request-line (method, URL, protocol, version)
  * \li mime-header (set of RFC2616 syntax header fields)
  */
-class RequestParser : public Http1::Parser
+class RequestParser : public Http::Parser
 {
 public:
     RequestParser() = default;
@@ -40,8 +40,10 @@ public:
 
     /* Http::One::Parser API */
     void clear() override {*this = RequestParser();}
-    Http1::Parser::size_type firstLineSize() const override;
+    Http::Parser::size_type firstLineSize() const override;
     bool parse(const SBuf &aBuf) override;
+
+    virtual bool parseHttp2magicPrefix(const SBuf &buf);
 
     /// the HTTP method if this is a request message
     const HttpRequestMethod & method() const {return method_;}

@@ -9,13 +9,16 @@
 #include "squid.h"
 #include "base/CharacterSet.h"
 #include "debug/Stream.h"
-#include "http/one/Parser.h"
+#include "http/Parser.h"
 #include "mime_header.h"
 #include "parser/Tokenizer.h"
 #include "SquidConfig.h"
 
 /// RFC 7230 section 2.6 - 7 magic octets
-const SBuf Http::One::Parser::Http1magic("HTTP/1.");
+const SBuf Http::Parser::Http1magic("HTTP/1.");
+
+/// RFC 7540 section 3.5 - 24 magic octets
+const SBuf Http::Parser::Http2magic("PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n");
 
 const SBuf &Http::One::CrLf()
 {
@@ -24,12 +27,38 @@ const SBuf &Http::One::CrLf()
 }
 
 void
-Http::One::Parser::clear()
+Http::Parser::clear()
 {
     parsingStage_ = HTTP_PARSE_NONE;
     buf_ = nullptr;
     msgProtocol_ = AnyP::ProtocolVersion();
     mimeHeaderBlock_.clear();
+}
+
+/// Parse HTTP/2 magic prefix (if any).
+bool
+Http::Parser::parseHttp2magicPrefix(const SBuf &buf)
+{
+    buf_ = buf;
+
+    debugs(74, 5, "Trying to parse HTTP/2 magic octets prefix");
+
+    // false if the buffer contents are too short for a full match
+    if (buf_.length() < Http2magic.length())
+        return false;
+
+    const SBuf &b = buf_.substr(0, Http2magic.length());
+
+    debugs(74, 5, "enough octets to check for full prefix. Is this HTTP/2 '" << b << "'.");
+
+    if (b.cmp(Http2magic) == 0) {
+        debugs(74, 5, "found HTTP/2 magic octets prefix");
+        buf_.consume(Http2magic.length());
+        parsingStage_ = HTTP_PARSE_DONE;
+        return true;
+    }
+
+    return false;
 }
 
 /// characters HTTP permits tolerant parsers to accept as delimiters
@@ -49,21 +78,21 @@ RelaxedDelimiterCharacters()
 }
 
 const CharacterSet &
-Http::One::Parser::WhitespaceCharacters()
+Http::Parser::WhitespaceCharacters()
 {
     return Config.onoff.relaxed_header_parser ?
            RelaxedDelimiterCharacters() : CharacterSet::WSP;
 }
 
 const CharacterSet &
-Http::One::Parser::DelimiterCharacters()
+Http::Parser::DelimiterCharacters()
 {
     return Config.onoff.relaxed_header_parser ?
            RelaxedDelimiterCharacters() : CharacterSet::SP;
 }
 
 void
-Http::One::Parser::skipLineTerminator(Tokenizer &tok) const
+Http::Parser::skipLineTerminator(Parser::Tokenizer &tok) const
 {
     if (Config.onoff.relaxed_header_parser && tok.skipOne(CharacterSet::LF))
         return;
@@ -94,7 +123,7 @@ LineCharacters()
  * sequences of CRLF will be pruned, but not sequences of bare-LF.
  */
 void
-Http::One::Parser::cleanMimePrefix()
+Http::Parser::cleanMimePrefix()
 {
     Tokenizer tok(mimeHeaderBlock_);
     while (tok.skipOne(RelaxedDelimiterCharacters())) {
@@ -129,7 +158,7 @@ Http::One::Parser::cleanMimePrefix()
  *  the field value or forwarding the message downstream."
  */
 void
-Http::One::Parser::unfoldMime()
+Http::Parser::unfoldMime()
 {
     Tokenizer tok(mimeHeaderBlock_);
     const auto szLimit = mimeHeaderBlock_.length();
@@ -154,7 +183,7 @@ Http::One::Parser::unfoldMime()
 }
 
 bool
-Http::One::Parser::grabMimeBlock(const char *which, const size_t limit)
+Http::Parser::grabMimeBlock(const char *which, const size_t limit)
 {
     // MIME headers block exist in (only) HTTP/1.x and ICY
     const bool expectMime = (msgProtocol_.protocol == AnyP::PROTO_HTTP && msgProtocol_.major == 1) ||
@@ -210,7 +239,7 @@ Http::One::Parser::grabMimeBlock(const char *which, const size_t limit)
 // BUG: returns only the first header line with given name,
 //      ignores multi-line headers and obs-fold headers
 char *
-Http::One::Parser::getHostHeaderField()
+Http::Parser::getHostHeaderField()
 {
     if (!headerBlockSize())
         return nullptr;
@@ -266,7 +295,7 @@ Http::One::Parser::getHostHeaderField()
 }
 
 int
-Http::One::ErrorLevel()
+Http::ErrorLevel()
 {
     return Config.onoff.relaxed_header_parser < 0 ? DBG_IMPORTANT : 5;
 }
@@ -279,7 +308,7 @@ ParseBws_(Parser::Tokenizer &tok, const CharacterSet &bwsChars)
     const auto count = tok.skipAll(bwsChars);
 
     if (tok.atEnd())
-        throw InsufficientInput(); // even if count is positive
+        throw ::Parser::InsufficientInput(); // even if count is positive
 
     if (count) {
         // Generating BWS is a MUST-level violation so warn about it as needed.
@@ -293,12 +322,14 @@ ParseBws_(Parser::Tokenizer &tok, const CharacterSet &bwsChars)
 }
 } // namespace Http::One
 
+// BWS = *( SP / HTAB ) ; WhitespaceCharacters() may relax this RFC 7230 rule
 void
 Http::One::ParseBws(Parser::Tokenizer &tok)
 {
     ParseBws_(tok, Parser::WhitespaceCharacters());
 }
 
+// RFC 7230:  BWS = *( SP / HTAB )
 void
 Http::One::ParseStrictBws(Parser::Tokenizer &tok)
 {

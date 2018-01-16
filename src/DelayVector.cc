@@ -15,6 +15,7 @@
 #include "base/DelayedAsyncCalls.h"
 #include "comm/Connection.h"
 #include "DelayVector.h"
+#include "http/two/StreamContext.h"
 
 DelayVector::DelayVector()
 {

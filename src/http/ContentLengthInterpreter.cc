@@ -13,7 +13,7 @@
 #include "base/Raw.h"
 #include "debug/Stream.h"
 #include "http/ContentLengthInterpreter.h"
-#include "http/one/Parser.h"
+#include "http/Parser.h"
 #include "HttpHeaderTools.h"
 #include "SquidConfig.h"
 #include "SquidString.h"
@@ -36,7 +36,7 @@ const char *
 Http::ContentLengthInterpreter::findDigits(const char *prefix, const char * const valueEnd) const
 {
     // skip leading OWS in RFC 7230's `OWS field-value OWS`
-    const CharacterSet &whitespace = Http::One::Parser::WhitespaceCharacters();
+    const CharacterSet &whitespace = Http::Parser::WhitespaceCharacters();
     while (prefix < valueEnd) {
         const auto ch = *prefix;
         if (CharacterSet::DIGIT[ch])
@@ -56,7 +56,7 @@ Http::ContentLengthInterpreter::goodSuffix(const char *suffix, const char * cons
     if (suffix == end)
         return true;
 
-    for (const CharacterSet &delimiters = Http::One::Parser::DelimiterCharacters();
+    for (const CharacterSet &delimiters = Http::Parser::DelimiterCharacters();
             suffix < end; ++suffix) {
         if (!delimiters[*suffix])
             return false;

@@ -414,6 +414,7 @@ ClientRequestContext::hostHeaderVerifyFailed(const char *A, const char *B)
 {
     // IP address validation for Host: failed. Admin wants to ignore them.
     // NP: we do not yet handle CONNECT tunnels well, so ignore for them
+    // NP: we also ignore HTTP/2 PRI tunnels, but they are missing Host header entirely.
     if (!Config.onoff.hostStrictVerify && http->request->method != Http::METHOD_CONNECT) {
         debugs(85, 3, "SECURITY ALERT: Host header forgery detected on " << http->getConn()->clientConnection <<
                " (" << A << " does not match " << B << ") on URL: " << http->request->effectiveRequestUri());
@@ -1361,6 +1362,15 @@ ClientHttpRequest::processRequest()
 {
     debugs(85, 4, request->method << ' ' << uri);
 
+    // if we are redirecting, do that.
+    if (redirect.status) {
+        httpStart();
+        return;
+    }
+    // otherwise check for tunnelling...
+
+    const bool Http2MagicTunnel = request->method == Http::METHOD_PRI && request->http_ver == Http::ProtocolVersion(2,0);
+
     const bool untouchedConnect = request->method == Http::METHOD_CONNECT && !redirect.status;
 
 #if USE_OPENSSL
@@ -1371,7 +1381,7 @@ ClientHttpRequest::processRequest()
     }
 #endif
 
-    if (untouchedConnect || request->flags.forceTunnel) {
+    if (untouchedConnect || Http2MagicTunnel || request->flags.forceTunnel) {
         getConn()->stopReading(); // tunnels read for themselves
         tunnelStart(this);
         return;

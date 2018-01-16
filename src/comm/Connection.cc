@@ -14,6 +14,7 @@
 #include "comm/Connection.h"
 #include "fde.h"
 #include "FwdState.h"
+#include "http/two/StreamContext.h"
 #include "neighbors.h"
 #include "security/NegotiationHistory.h"
 #include "SquidConfig.h"

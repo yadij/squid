@@ -10,6 +10,7 @@
 #include "adaptation/icap/Config.h"
 #include "adaptation/icap/Options.h"
 #include "base/TextException.h"
+#include "http/two/StreamContext.h"
 #include "HttpReply.h"
 #include "StrList.h"
 #include "wordlist.h"

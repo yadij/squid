@@ -9,6 +9,7 @@ include $(top_srcdir)/src/Common.am
 
 SUBDIRS = \
 	one \
+	two \
 	url_rewriters
 
 noinst_LTLIBRARIES = libhttp.la
@@ -16,10 +17,14 @@ noinst_LTLIBRARIES = libhttp.la
 libhttp_la_SOURCES = \
 	ContentLengthInterpreter.cc \
 	ContentLengthInterpreter.h \
+	FrameType.cc \
+	FrameType.h \
 	Message.cc \
 	Message.h \
 	MethodType.cc \
 	MethodType.h \
+	Parser.cc \
+	Parser.h \
 	ProtocolVersion.h \
 	RegisteredHeaders.cc \
 	RegisteredHeaders.h \
@@ -35,12 +40,18 @@ libhttp_la_SOURCES = \
 	Stream.h \
 	forward.h
 
-libhttp_la_LIBADD= one/libhttp1.la
+libhttp_la_LIBADD= \
+	one/libhttp1.la \
+	two/libhttp2.la
+
+FrameType.cc: FrameType.h $(top_srcdir)/src/mk-string-arrays.awk
+	($(AWK) -f $(top_srcdir)/src/mk-string-arrays.awk sbuf=1 < $(srcdir)/FrameType.h >$@) \
+		|| ($(RM) -f $@ && exit 1)
 
 MethodType.cc: MethodType.h $(top_srcdir)/src/mk-string-arrays.awk
 	($(AWK) -f $(top_srcdir)/src/mk-string-arrays.awk sbuf=1 < $(srcdir)/MethodType.h | \
 		sed -e 's%METHOD_%%' -e 's%_C%-C%' >$@) || ($(RM) -f $@ && exit 1)
 
-CLEANFILES += MethodType.cc
+CLEANFILES += FrameType.cc MethodType.cc
 
 EXTRA_DIST = RegisteredHeadersHash.gperf

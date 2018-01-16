@@ -12,6 +12,7 @@
 #include "CachePeer.h"
 #include "defines.h"
 #include "neighbors.h"
+#include "http/two/StreamContext.h"
 #include "NeighborTypeDomainList.h"
 #include "pconn.h"
 #include "PeerDigest.h"

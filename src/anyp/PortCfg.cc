@@ -11,6 +11,7 @@
 #include "anyp/UriScheme.h"
 #include "comm.h"
 #include "fatal.h"
+#include "http/two/StreamContext.h"
 #include "security/PeerOptions.h"
 #if USE_OPENSSL
 #include "ssl/support.h"
