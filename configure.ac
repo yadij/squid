@@ -2604,6 +2604,7 @@ AC_CONFIG_FILES([
 	src/html/Makefile
 	src/http/Makefile
 	src/http/one/Makefile
+	src/http/two/Makefile
 	src/http/url_rewriters/Makefile
 	src/http/url_rewriters/fake/Makefile
 	src/http/url_rewriters/LFS/Makefile

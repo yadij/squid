@@ -8,6 +8,7 @@
 
 #include "squid.h"
 #include "compat/cppunit.h"
+#include "http/two/StreamContext.h"
 #include "HttpHeader.h"
 #include "HttpRequest.h"
 #include "MasterXaction.h"

@@ -123,7 +123,7 @@ public:
 
     void configureContentLengthInterpreter(Http::ContentLengthInterpreter &) override;
     /// parses reply header using Parser
-    bool parseHeader(Http1::Parser &hp);
+    bool parseHeader(Http::Parser &hp);
 
     /// Parses response status line and headers at the start of the given
     /// NUL-terminated buffer of the given size. Respects reply_header_max_size.

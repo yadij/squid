@@ -10,8 +10,6 @@ include $(top_srcdir)/src/Common.am
 noinst_LTLIBRARIES = libhttp1.la
 
 libhttp1_la_SOURCES = \
-	Parser.cc \
-	Parser.h \
 	RequestParser.cc \
 	RequestParser.h \
 	ResponseParser.cc \

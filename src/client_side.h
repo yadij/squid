@@ -236,7 +236,7 @@ public:
 
     // AsyncJob API
     void start() override;
-    bool doneAll() const override { return BodyProducer::doneAll() && false;}
+    bool doneAll() const override { return Server::doneAll() && false;}
     void swanSong() override;
     void callException(const std::exception &) override;
 

@@ -17,6 +17,7 @@
 #include "error/forward.h"
 #include "HttpReply.h"
 #include "HttpRequest.h"
+#include "http/two/StreamContext.h"
 #include "ip/Address.h"
 #if USE_AUTH
 #include "auth/UserRequest.h"

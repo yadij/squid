@@ -10,6 +10,7 @@
 #include "AccessLogEntry.h"
 #include "errorpage.h"
 #include "HttpReply.h"
+#include "http/two/StreamContext.h"
 
 #define STUB_API "errorpage.cc"
 #include "tests/STUB.h"

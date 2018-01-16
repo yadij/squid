@@ -10,6 +10,7 @@
 #include <cppunit/TestAssert.h>
 
 #include "compat/cppunit.h"
+#include "http/two/StreamContext.h"
 #include "HttpHeader.h"
 #include "HttpReply.h"
 #include "mime_header.h"

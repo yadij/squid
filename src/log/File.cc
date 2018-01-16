@@ -12,6 +12,7 @@
 #include "debug/Messages.h"
 #include "fatal.h"
 #include "fde.h"
+#include "http/two/StreamContext.h"
 #include "log/File.h"
 #include "log/ModDaemon.h"
 #include "log/ModStdio.h"

@@ -9,7 +9,7 @@
 #ifndef SQUID_SRC_HTTP_ONE_TECHUNKEDPARSER_H
 #define SQUID_SRC_HTTP_ONE_TECHUNKEDPARSER_H
 
-#include "http/one/Parser.h"
+#include "http/Parser.h"
 
 class MemBuf;
 
@@ -48,7 +48,7 @@ public:
  * Chunk extensions like use-original-body are handled via parseExtensionValuesWith().
  * Trailers are available via mimeHeader() if wanted.
  */
-class TeChunkedParser : public Http1::Parser
+class TeChunkedParser : public Http::Parser
 {
 public:
     TeChunkedParser();
@@ -63,7 +63,7 @@ public:
 
     bool needsMoreSpace() const;
 
-    /* Http1::Parser API */
+    /* Http::Parser API */
     void clear() override;
     bool parse(const SBuf &) override;
     Parser::size_type firstLineSize() const override {return 0;} // has no meaning with multiple chunks
