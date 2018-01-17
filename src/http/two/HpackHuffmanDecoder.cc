@@ -9,7 +9,6 @@
 #include "squid.h"
 #include "http/two/HpackHuffmanDecoder.h"
 
-
 // pre-computed RFC 7541 Huffman lookup tables
 
 struct Huff {
