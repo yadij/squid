@@ -77,6 +77,9 @@ public:
      *
      */
     bool isIntercepted() { return natIntercept||tproxyIntercept ;}
+
+    /// true if the traffic uses SOCKS protocol
+    bool socks = false;
 };
 
 } // namespace AnyP

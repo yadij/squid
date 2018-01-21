@@ -3673,6 +3673,8 @@ parse_port_option(AnyP::PortCfgPointer &s, char *token)
             self_destruct();
             return;
         }
+    } else if (strcmp(token, "socks") == 0) {
+        s->flags.socks = true;
     } else if (strcmp(token, "tcpkeepalive") == 0) {
         s->tcp_keepalive.enabled = true;
     } else if (strncmp(token, "tcpkeepalive=", 13) == 0) {
