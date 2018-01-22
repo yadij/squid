@@ -578,6 +578,7 @@ squid_LDADD = \
 	$(EPOLL_LIBS) \
 	$(MINGW_LIBS) \
 	$(KRB5LIBS) \
+	$(LIBSOCKSD_LIBS) \
 	$(COMPAT_LIB) \
 	$(XTRA_LIBS)
 
@@ -595,6 +596,7 @@ endif
 ## Kerberos libraries require their include path...
 AM_CPPFLAGS += $(KRB5INCS)
 
+AM_CPPFLAGS += $(LIBSOCKSD_CFLAGS)
 
 unlinkd_SOURCES = unlinkd_daemon.cc
 unlinkd_LDADD = \
