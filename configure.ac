@@ -2747,7 +2747,7 @@ AS_IF([test "x$with_cppunit" != "xno"],[
 ])
 
 AC_ARG_WITH([socksd], AS_HELP_STRING([--without-socksd],[Do not use libsocksd for SOCKS support]),[
-  AS_CASE($with_socksd, [yes|no],[
+  AS_CASE($with_socksd, [yes|no],[],[
     AS_IF(test ! -d "$withval" , AC_MSG_ERROR([--with-socksd PATH does not point to a directory]))
     LIBSOCKSD_CFLAGS="-I$with_socksd/include"
     LIBSOCKSD_LIBS="-L$with_cppunit/lib -lsocksd"
@@ -2760,6 +2760,7 @@ AS_IF([test "x$with_socksd" != "xno"],[
   AC_CHECK_HEADERS(socks.h)
   SQUID_STATE_ROLLBACK(squid_libsocksd_state)
 ])
+AC_DEFINE_UNQUOTED(USE_SOCKS, HAVE_SOCKS_H, [Define if SOCKS support is available])
 
 # Force some compilers to use ANSI features
 #
