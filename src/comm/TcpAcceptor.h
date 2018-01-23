@@ -42,7 +42,7 @@ class TcpAcceptor : public AsyncJob
 public:
     typedef CbcPointer<Comm::TcpAcceptor> Pointer;
 
-private:
+protected:
     virtual void start();
     virtual bool doneAll() const;
     virtual void swanSong();
@@ -77,6 +77,10 @@ public:
     int errcode;
 
 protected:
+    virtual Comm::Flag oldAccept(Comm::ConnectionPointer &details);
+    virtual bool setListen();
+    const Comm::ConnectionPointer getConn() const { return conn; }
+
     friend class AcceptLimiter;
     int32_t isLimited;                   ///< whether this socket is delayed and on the AcceptLimiter queue.
 
@@ -101,8 +105,8 @@ private:
     static void doAccept(int fd, void *data);
 
     void acceptOne();
-    Comm::Flag oldAccept(Comm::ConnectionPointer &details);
-    void setListen();
+    void setPortFilters();
+    void setupCloseHandler();
     void handleClosure(const CommCloseCbParams &io);
     /// whether we are listening on one of the squid.conf *ports
     bool intendedForUserConnections() const { return bool(listenPort_); }

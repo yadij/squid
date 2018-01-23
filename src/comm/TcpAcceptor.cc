@@ -80,7 +80,23 @@ Comm::TcpAcceptor::start()
 
     Must(IsConnOpen(conn));
 
-    setListen();
+    if (setListen()) {
+        setPortFilters();
+        setupCloseHandler();
+
+#if 0
+        // Untested code.
+        // Set TOS if needed.
+        // To correctly implement TOS values on listening sockets, probably requires
+        // more work to inherit TOS values to created connection objects.
+        if (conn->tos)
+            Ip::Qos::setSockTos(conn, conn->tos)
+#if SO_MARK
+            if (conn->nfmark)
+                Ip::Qos::setSockNfmark(conn, conn->nfmark);
+#endif
+#endif
+    }
 
     conn->noteStart();
 
@@ -149,16 +165,24 @@ Comm::TcpAcceptor::status() const
  * The constructor takes a callback to call when an FD has been
  * accept()ed some time later.
  */
-void
+bool
 Comm::TcpAcceptor::setListen()
 {
     errcode = errno = 0;
     if (listen(conn->fd, Squid_MaxFD >> 2) < 0) {
         errcode = errno;
         debugs(50, DBG_CRITICAL, "ERROR: listen(" << status() << ", " << (Squid_MaxFD >> 2) << "): " << xstrerr(errcode));
-        return;
+        return false;
     }
 
+    fd_open(conn->fd, FD_SOCKET, "TCP Listener");
+    return true;
+}
+
+/// set accept_filter directive values (if any) to the listening port
+void
+Comm::TcpAcceptor::setPortFilters()
+{
     if (Config.accept_filter && strcmp(Config.accept_filter, "none") != 0) {
 #ifdef SO_ACCEPTFILTER
         struct accept_filter_arg afa;
@@ -181,20 +205,12 @@ Comm::TcpAcceptor::setListen()
         debugs(5, DBG_CRITICAL, "WARNING: accept_filter not supported on your OS");
 #endif
     }
+}
 
-#if 0
-    // Untested code.
-    // Set TOS if needed.
-    // To correctly implement TOS values on listening sockets, probably requires
-    // more work to inherit TOS values to created connection objects.
-    if (conn->tos)
-        Ip::Qos::setSockTos(conn, conn->tos)
-#if SO_MARK
-        if (conn->nfmark)
-            Ip::Qos::setSockNfmark(conn, conn->nfmark);
-#endif
-#endif
-
+/// setup the close handler for the listening socket
+void
+Comm::TcpAcceptor::setupCloseHandler()
+{
     typedef CommCbMemFunT<Comm::TcpAcceptor, CommCloseCbParams> Dialer;
     closer_ = JobCallback(5, 4, Dialer, this, Comm::TcpAcceptor::handleClosure);
     comm_add_close_handler(conn->fd, closer_);

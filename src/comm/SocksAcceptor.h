@@ -9,6 +9,8 @@
 #ifndef SQUID_COMM_SOCKSACCEPTOR_H
 #define SQUID_COMM_SOCKSACCEPTOR_H
 
+#if USE_SOCKS
+
 #include "comm/TcpAcceptor.h"
 
 namespace Comm
@@ -46,5 +48,6 @@ public:
 
 } // namespace Comm
 
+#endif /* USE_SOCKS */
 #endif /* SQUID_COMM_SOCKSACCEPTOR_H */
 
