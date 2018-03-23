@@ -98,68 +98,6 @@ private:
 };
 
 /// \ingroup ACLAPI
-typedef enum {
-    // Authorization ACL result states
-    ACCESS_DENIED,
-    ACCESS_ALLOWED,
-    ACCESS_DUNNO,
-
-    // Authentication ACL result states
-    ACCESS_AUTH_REQUIRED,    // Missing Credentials
-} aclMatchCode;
-
-/// \ingroup ACLAPI
-/// ACL check answer; TODO: Rename to Acl::Answer
-class allow_t
-{
-public:
-    // not explicit: allow "aclMatchCode to allow_t" conversions (for now)
-    allow_t(const aclMatchCode aCode, int aKind = 0): code(aCode), kind(aKind) {}
-    allow_t() = default;
-
-    // allows implicit casting and comparison with aclMatchCode objects
-    operator aclMatchCode() const { return code; }
-
-    /// Whether an "allow" rule matched. If in doubt, use this popular method.
-    /// Also use this method to treat exceptional ACCESS_DUNNO and
-    /// ACCESS_AUTH_REQUIRED outcomes as if a "deny" rule matched.
-    /// See also: denied().
-    bool allowed() const { return code == ACCESS_ALLOWED; }
-
-    /// Whether a "deny" rule matched. Avoid this rarely used method.
-    /// Use this method (only) to treat exceptional ACCESS_DUNNO and
-    /// ACCESS_AUTH_REQUIRED outcomes as if an "allow" rule matched.
-    /// See also: allowed().
-    bool denied() const { return code == ACCESS_DENIED; }
-
-    /// whether Squid is uncertain about the allowed() or denied() answer
-    bool conflicted() const { return !allowed() && !denied(); }
-
-    aclMatchCode code = ACCESS_DUNNO; ///< ACCESS_* code
-    int kind = 0; ///< which custom access list verb matched
-};
-
-inline std::ostream &
-operator <<(std::ostream &o, const allow_t a)
-{
-    switch (a) {
-    case ACCESS_DENIED:
-        o << "DENIED";
-        break;
-    case ACCESS_ALLOWED:
-        o << "ALLOWED";
-        break;
-    case ACCESS_DUNNO:
-        o << "DUNNO";
-        break;
-    case ACCESS_AUTH_REQUIRED:
-        o << "AUTH_REQUIRED";
-        break;
-    }
-    return o;
-}
-
-/// \ingroup ACLAPI
 class acl_proxy_auth_match_cache
 {
     MEMPROXY_CLASS(acl_proxy_auth_match_cache);

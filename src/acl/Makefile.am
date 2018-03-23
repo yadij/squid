@@ -16,6 +16,7 @@ noinst_LTLIBRARIES = libapi.la libstate.la libacls.la
 libapi_la_SOURCES = \
 	Acl.cc \
 	Acl.h \
+	Answer.h \
 	BoolOps.cc \
 	BoolOps.h \
 	Checklist.cc \
