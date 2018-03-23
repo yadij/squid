@@ -115,24 +115,10 @@ class allow_t
 public:
     // not explicit: allow "aclMatchCode to allow_t" conversions (for now)
     allow_t(const aclMatchCode aCode, int aKind = 0): code(aCode), kind(aKind) {}
+    allow_t() = default;
 
-    allow_t(): code(ACCESS_DUNNO), kind(0) {}
-
-    bool operator ==(const aclMatchCode aCode) const {
-        return code == aCode;
-    }
-
-    bool operator !=(const aclMatchCode aCode) const {
-        return !(*this == aCode);
-    }
-
-    bool operator ==(const allow_t allow) const {
-        return code == allow.code && kind == allow.kind;
-    }
-
-    operator aclMatchCode() const {
-        return code;
-    }
+    // allows implicit casting and comparison with aclMatchCode objects
+    operator aclMatchCode() const { return code; }
 
     /// Whether an "allow" rule matched. If in doubt, use this popular method.
     /// Also use this method to treat exceptional ACCESS_DUNNO and
@@ -149,8 +135,8 @@ public:
     /// whether Squid is uncertain about the allowed() or denied() answer
     bool conflicted() const { return !allowed() && !denied(); }
 
-    aclMatchCode code; ///< ACCESS_* code
-    int kind; ///< which custom access list verb matched
+    aclMatchCode code = ACCESS_DUNNO; ///< ACCESS_* code
+    int kind = 0; ///< which custom access list verb matched
 };
 
 inline std::ostream &
