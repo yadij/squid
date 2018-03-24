@@ -9,6 +9,7 @@
 #ifndef SQUID_ACL_TREE_H
 #define SQUID_ACL_TREE_H
 
+#include "acl/Answer.h"
 #include "acl/BoolOps.h"
 #include "sbuf/List.h"
 
