@@ -9,6 +9,7 @@
 #ifndef SQUID_ACL_FORWARD_H
 #define SQUID_ACL_FORWARD_H
 
+#include "base/CbcPointer.h"
 #include "base/RefCount.h"
 
 class ACL;
@@ -29,6 +30,7 @@ class NotNode;
 class AndNode;
 class OrNode;
 class Tree;
+typedef CbcPointer<Acl::Tree> TreePointer;
 
 /// prepares to parse ACLs configuration
 void Init(void);
@@ -42,7 +44,9 @@ typedef void ACLCB(Acl::Answer, void *);
 // TODO: Consider renaming all users and removing. Cons: hides the difference
 // between ACLList tree without actions and acl_access Tree with actions.
 #define acl_access Acl::Tree
+#define acl_accessPointer Acl::TreePointer
 #define ACLList Acl::Tree
+#define ACLListPointer Acl::TreePointer
 
 class ExternalACLEntry;
 typedef RefCount<ExternalACLEntry> ExternalACLEntryPointer;
