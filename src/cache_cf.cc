@@ -215,14 +215,14 @@ static void free_sslproxy_cert_sign(sslproxy_cert_sign **cert_sign);
 static void parse_sslproxy_cert_adapt(sslproxy_cert_adapt **cert_adapt);
 static void dump_sslproxy_cert_adapt(StoreEntry *entry, const char *name, sslproxy_cert_adapt *cert_adapt);
 static void free_sslproxy_cert_adapt(sslproxy_cert_adapt **cert_adapt);
-static void parse_sslproxy_ssl_bump(acl_access **ssl_bump);
-static void dump_sslproxy_ssl_bump(StoreEntry *entry, const char *name, acl_access *ssl_bump);
-static void free_sslproxy_ssl_bump(acl_access **ssl_bump);
+static void parse_sslproxy_ssl_bump(acl_accessPointer *ssl_bump);
+static void dump_sslproxy_ssl_bump(StoreEntry *entry, const char *name, const acl_accessPointer &ssl_bump);
+static void free_sslproxy_ssl_bump(acl_accessPointer *ssl_bump);
 #endif /* USE_OPENSSL */
 
-static void parse_ftp_epsv(acl_access **ftp_epsv);
-static void dump_ftp_epsv(StoreEntry *entry, const char *name, acl_access *ftp_epsv);
-static void free_ftp_epsv(acl_access **ftp_epsv);
+static void parse_ftp_epsv(acl_accessPointer *ftp_epsv);
+static void dump_ftp_epsv(StoreEntry *entry, const char *name, const acl_accessPointer &ftp_epsv);
+static void free_ftp_epsv(acl_accessPointer *ftp_epsv);
 
 static void parse_b_size_t(size_t * var);
 static void parse_b_int64_t(int64_t * var);
@@ -240,10 +240,10 @@ static int parseOneConfigFile(const char *file_name, unsigned int depth);
 static void parse_configuration_includes_quoted_values(bool *recognizeQuotedValues);
 static void dump_configuration_includes_quoted_values(StoreEntry *const entry, const char *const name, bool recognizeQuotedValues);
 static void free_configuration_includes_quoted_values(bool *recognizeQuotedValues);
-static void parse_on_unsupported_protocol(acl_access **access);
-static void dump_on_unsupported_protocol(StoreEntry *entry, const char *name, acl_access *access);
-static void free_on_unsupported_protocol(acl_access **access);
-static void ParseAclWithAction(acl_access **access, const Acl::Answer &action, const char *desc, ACL *acl = nullptr);
+static void parse_on_unsupported_protocol(acl_accessPointer *access);
+static void dump_on_unsupported_protocol(StoreEntry *entry, const char *name, const acl_accessPointer &access);
+static void free_on_unsupported_protocol(acl_accessPointer *access);
+static void ParseAclWithAction(acl_accessPointer *access, const Acl::Answer &action, const char *desc, ACL *acl = nullptr);
 
 /*
  * LegacyParser is a parser for legacy code that uses the global
@@ -1395,20 +1395,20 @@ dump_acl_list(StoreEntry * entry, ACLList * head)
 }
 
 void
-dump_acl_access(StoreEntry * entry, const char *name, acl_access * head)
+dump_acl_access(StoreEntry * entry, const char *name, const acl_accessPointer &head)
 {
-    if (head)
+    if (head.valid())
         dump_SBufList(entry, head->treeDump(name, &Acl::AllowOrDeny));
 }
 
 static void
-parse_acl_access(acl_access ** head)
+parse_acl_access(acl_accessPointer *head)
 {
     aclParseAccessLine(cfg_directive, LegacyParser, head);
 }
 
 static void
-free_acl_access(acl_access ** head)
+free_acl_access(acl_accessPointer *head)
 {
     aclDestroyAccessList(head);
 }
@@ -1875,7 +1875,7 @@ dump_authparam(StoreEntry * entry, const char *name, Auth::ConfigVector cfg)
 }
 
 static void
-parse_AuthSchemes(acl_access **authSchemes)
+parse_AuthSchemes(acl_accessPointer *authSchemes)
 {
     const char *tok = ConfigParser::NextQuotedToken();
     if (!tok) {
@@ -1889,16 +1889,16 @@ parse_AuthSchemes(acl_access **authSchemes)
 }
 
 static void
-free_AuthSchemes(acl_access **authSchemes)
+free_AuthSchemes(acl_accessPointer *authSchemes)
 {
     Auth::TheConfig.schemeLists.clear();
     free_acl_access(authSchemes);
 }
 
 static void
-dump_AuthSchemes(StoreEntry *entry, const char *name, acl_access *authSchemes)
+dump_AuthSchemes(StoreEntry *entry, const char *name, const acl_accessPointer &authSchemes)
 {
-    if (authSchemes)
+    if (authSchemes.valid())
         dump_SBufList(entry, authSchemes->treeDump(name, [](const Acl::Answer &action) {
         return Auth::TheConfig.schemeLists.at(action.kind).rawSchemes;
     }));
@@ -1907,7 +1907,7 @@ dump_AuthSchemes(StoreEntry *entry, const char *name, acl_access *authSchemes)
 #endif /* USE_AUTH */
 
 static void
-ParseAclWithAction(acl_access **access, const Acl::Answer &action, const char *desc, ACL *acl)
+ParseAclWithAction(acl_accessPointer *access, const Acl::Answer &action, const char *desc, ACL *acl)
 {
     assert(access);
     SBuf name;
@@ -2046,7 +2046,7 @@ dump_peer(StoreEntry * entry, const char *name, CachePeer * p)
                           p->name);
         dump_peer_options(entry, p);
 
-        if (p->access) {
+        if (p->access.valid()) {
             snprintf(xname, 128, "cache_peer_access %s", p->name);
             dump_acl_access(entry, xname, p->access);
         }
@@ -3184,9 +3184,9 @@ check_null_wordlist(wordlist * w)
 #endif
 
 static int
-check_null_acl_access(acl_access * a)
+check_null_acl_access(const acl_accessPointer &a)
 {
-    return a == NULL;
+    return !a.set();
 }
 
 #define free_wordlist wordlistDestroy
@@ -4629,7 +4629,7 @@ sslBumpCfgRr::finalizeConfig()
     }
 }
 
-static void parse_sslproxy_ssl_bump(acl_access **ssl_bump)
+static void parse_sslproxy_ssl_bump(acl_accessPointer *ssl_bump)
 {
     typedef const char *BumpCfgStyle;
     BumpCfgStyle bcsNone = NULL;
@@ -4709,15 +4709,15 @@ static void parse_sslproxy_ssl_bump(acl_access **ssl_bump)
     ParseAclWithAction(ssl_bump, action, "ssl_bump");
 }
 
-static void dump_sslproxy_ssl_bump(StoreEntry *entry, const char *name, acl_access *ssl_bump)
+static void dump_sslproxy_ssl_bump(StoreEntry *entry, const char *name, const acl_accessPointer &ssl_bump)
 {
-    if (ssl_bump)
+    if (ssl_bump.valid())
         dump_SBufList(entry, ssl_bump->treeDump(name, [](const Acl::Answer &action) {
         return Ssl::BumpModeStr.at(action.kind);
     }));
 }
 
-static void free_sslproxy_ssl_bump(acl_access **ssl_bump)
+static void free_sslproxy_ssl_bump(acl_accessPointer *ssl_bump)
 {
     free_acl_access(ssl_bump);
 }
@@ -4806,7 +4806,7 @@ static void free_note(Notes *notes)
 }
 
 static bool FtpEspvDeprecated = false;
-static void parse_ftp_epsv(acl_access **ftp_epsv)
+static void parse_ftp_epsv(acl_accessPointer *ftp_epsv)
 {
     Acl::Answer ftpEpsvDeprecatedAction;
     bool ftpEpsvIsDeprecatedRule = false;
@@ -4832,7 +4832,7 @@ static void parse_ftp_epsv(acl_access **ftp_epsv)
     //   2) if this line is "ftp_epsv on|off" and already exist rules of "ftp_epsv allow|deny ..."
     // then abort
     if ((!ftpEpsvIsDeprecatedRule && FtpEspvDeprecated) ||
-            (ftpEpsvIsDeprecatedRule && !FtpEspvDeprecated && *ftp_epsv != NULL)) {
+            (ftpEpsvIsDeprecatedRule && !FtpEspvDeprecated && ftp_epsv->valid())) {
         debugs(3, DBG_CRITICAL, "FATAL: do not mix \"ftp_epsv on|off\" cfg lines with \"ftp_epsv allow|deny ...\" cfg lines. Update your ftp_epsv rules.");
         self_destruct();
         return;
@@ -4840,8 +4840,8 @@ static void parse_ftp_epsv(acl_access **ftp_epsv)
 
     if (ftpEpsvIsDeprecatedRule) {
         // overwrite previous ftp_epsv lines
-        delete *ftp_epsv;
-        *ftp_epsv = nullptr;
+        delete ftp_epsv->get();
+        ftp_epsv->clear();
 
         if (ftpEpsvDeprecatedAction == Acl::Answer(ACCESS_DENIED)) {
             if (ACL *a = ACL::FindByName("all"))
@@ -4857,13 +4857,13 @@ static void parse_ftp_epsv(acl_access **ftp_epsv)
     }
 }
 
-static void dump_ftp_epsv(StoreEntry *entry, const char *name, acl_access *ftp_epsv)
+static void dump_ftp_epsv(StoreEntry *entry, const char *name, const acl_accessPointer &ftp_epsv)
 {
-    if (ftp_epsv)
+    if (ftp_epsv.valid())
         dump_SBufList(entry, ftp_epsv->treeDump(name, Acl::AllowOrDeny));
 }
 
-static void free_ftp_epsv(acl_access **ftp_epsv)
+static void free_ftp_epsv(acl_accessPointer *ftp_epsv)
 {
     free_acl_access(ftp_epsv);
     FtpEspvDeprecated = false;
@@ -4966,7 +4966,7 @@ free_configuration_includes_quoted_values(bool *)
 }
 
 static void
-parse_on_unsupported_protocol(acl_access **access)
+parse_on_unsupported_protocol(acl_accessPointer *access)
 {
     char *tm;
     if ((tm = ConfigParser::NextToken()) == NULL) {
@@ -4990,14 +4990,14 @@ parse_on_unsupported_protocol(acl_access **access)
 }
 
 static void
-dump_on_unsupported_protocol(StoreEntry *entry, const char *name, acl_access *access)
+dump_on_unsupported_protocol(StoreEntry *entry, const char *name, const acl_accessPointer &access)
 {
     static const std::vector<const char *> onErrorTunnelMode = {
         "none",
         "tunnel",
         "respond"
     };
-    if (access) {
+    if (access.valid()) {
         SBufList lines = access->treeDump(name, [](const Acl::Answer &action) {
             return onErrorTunnelMode.at(action.kind);
         });
@@ -5006,7 +5006,7 @@ dump_on_unsupported_protocol(StoreEntry *entry, const char *name, acl_access *ac
 }
 
 static void
-free_on_unsupported_protocol(acl_access **access)
+free_on_unsupported_protocol(acl_accessPointer *access)
 {
     free_acl_access(access);
 }

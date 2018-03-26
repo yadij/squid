@@ -359,7 +359,7 @@ static
 void header_mangler_dump_access(StoreEntry * entry, const char *option,
                                 const headerMangler &m, const char *name)
 {
-    if (m.access_list != NULL) {
+    if (m.access_list.valid()) {
         storeAppendPrintf(entry, "%s ", option);
         dump_acl_access(entry, name, m.access_list);
     }
@@ -449,7 +449,7 @@ HeaderManglers::find(const HttpHeaderEntry &e) const
 {
     // a known header with a configured ACL list
     if (e.id != Http::HdrType::OTHER && Http::any_HdrType_enum_value(e.id) &&
-            known[e.id].access_list)
+            known[e.id].access_list.valid())
         return &known[e.id];
 
     // a custom header
@@ -463,11 +463,11 @@ HeaderManglers::find(const HttpHeaderEntry &e) const
     }
 
     // Next-to-last resort: "Other" rules match any custom header
-    if (e.id == Http::HdrType::OTHER && known[Http::HdrType::OTHER].access_list)
+    if (e.id == Http::HdrType::OTHER && known[Http::HdrType::OTHER].access_list.valid())
         return &known[Http::HdrType::OTHER];
 
     // Last resort: "All" rules match any header
-    if (all.access_list)
+    if (all.access_list.valid())
         return &all;
 
     return NULL;

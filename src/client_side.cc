@@ -450,7 +450,7 @@ ClientHttpRequest::logRequest()
     accessLogLog(al, &checklist);
 
     bool updatePerformanceCounters = true;
-    if (Config.accessList.stats_collection) {
+    if (Config.accessList.stats_collection.valid()) {
         ACLFilledChecklist statsCheck(Config.accessList.stats_collection, request, NULL);
         statsCheck.al = al;
         if (al->reply) {
@@ -1461,7 +1461,7 @@ bool ConnStateData::serveDelayedError(Http::Stream *context)
                    "does not match domainname " << request->url.host());
 
             bool allowDomainMismatch = false;
-            if (Config.ssl_client.cert_error) {
+            if (Config.ssl_client.cert_error.valid()) {
                 ACLFilledChecklist check(Config.ssl_client.cert_error, request, dash_str);
                 check.al = http->al;
                 check.sslErrors = new Security::CertErrors(Security::CertError(SQUID_X509_V_ERR_DOMAIN_MISMATCH, srvCert));
@@ -2385,7 +2385,7 @@ ConnStateData::whenClientIpKnown()
         fqdncache_gethostbyaddr(clientConnection->remote, FQDN_LOOKUP_IF_MISS);
 
 #if USE_IDENT
-    if (Ident::TheConfig.identLookup) {
+    if (Ident::TheConfig.identLookup.valid()) {
         ACLFilledChecklist identChecklist(Ident::TheConfig.identLookup, NULL, NULL);
         identChecklist.src_addr = clientConnection->remote;
         identChecklist.my_addr = clientConnection->local;
@@ -2415,8 +2415,8 @@ ConnStateData::whenClientIpKnown()
         for (unsigned int pool = 0; pool < pools.size(); ++pool) {
 
             /* pools require explicit 'allow' to assign a client into them */
-            if (pools[pool]->access) {
-                ch.changeAcl(pools[pool]->access);
+            if (pools[pool]->access.valid()) {
+                ch.changeAcl(pools[pool]->access.get());
                 Acl::Answer answer = ch.fastCheck();
                 if (answer.allowed()) {
 
@@ -3667,7 +3667,7 @@ varyEvaluateMatch(StoreEntry * entry, HttpRequest * request)
 }
 
 ACLFilledChecklist *
-clientAclChecklistCreate(const acl_access * acl, ClientHttpRequest * http)
+clientAclChecklistCreate(const acl_accessPointer &acl, ClientHttpRequest * http)
 {
     const auto checklist = new ACLFilledChecklist(acl, nullptr, nullptr);
     clientAclChecklistFill(*checklist, http);
@@ -4103,7 +4103,7 @@ ConnStateData::checkLogging()
 bool
 ConnStateData::mayTunnelUnsupportedProto()
 {
-    return Config.accessList.on_unsupported_protocol
+    return Config.accessList.on_unsupported_protocol.valid()
 #if USE_OPENSSL
            &&
            ((port->flags.isIntercepted() && port->flags.tunnelSslBumping)

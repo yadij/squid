@@ -681,7 +681,7 @@ ClientRequestContext::clientAccessCheck()
 {
 #if FOLLOW_X_FORWARDED_FOR
     if (!http->request->flags.doneFollowXff() &&
-            Config.accessList.followXFF &&
+            Config.accessList.followXFF.valid() &&
             http->request->header.has(Http::HdrType::X_FORWARDED_FOR)) {
 
         /* we always trust the direct client address for actual use */
@@ -698,7 +698,7 @@ ClientRequestContext::clientAccessCheck()
     }
 #endif
 
-    if (Config.accessList.http) {
+    if (Config.accessList.http.valid()) {
         acl_checklist = clientAclChecklistCreate(Config.accessList.http, http);
         acl_checklist->nonBlockingCheck(clientAccessCheckDoneWrapper, this);
     } else {
@@ -715,7 +715,7 @@ ClientRequestContext::clientAccessCheck()
 void
 ClientRequestContext::clientAccessCheck2()
 {
-    if (Config.accessList.adapted_http) {
+    if (Config.accessList.adapted_http.valid()) {
         acl_checklist = clientAclChecklistCreate(Config.accessList.adapted_http, http);
         acl_checklist->nonBlockingCheck(clientAccessCheckDoneWrapper, this);
     } else {
@@ -877,7 +877,7 @@ ClientRequestContext::clientRedirectStart()
 {
     debugs(33, 5, HERE << "'" << http->uri << "'");
     http->al->syncNotes(http->request);
-    if (Config.accessList.redirector) {
+    if (Config.accessList.redirector.valid()) {
         acl_checklist = clientAclChecklistCreate(Config.accessList.redirector, http);
         acl_checklist->nonBlockingCheck(clientRedirectAccessCheckDone, this);
     } else
@@ -914,7 +914,7 @@ ClientRequestContext::clientStoreIdStart()
 {
     debugs(33, 5,"'" << http->uri << "'");
 
-    if (Config.accessList.store_id) {
+    if (Config.accessList.store_id.valid()) {
         acl_checklist = clientAclChecklistCreate(Config.accessList.store_id, http);
         acl_checklist->nonBlockingCheck(clientStoreIdAccessCheckDone, this);
     } else
@@ -1352,7 +1352,7 @@ ClientRequestContext::clientStoreIdDone(const Helper::Reply &reply)
 void
 ClientRequestContext::checkNoCache()
 {
-    if (Config.accessList.noCache) {
+    if (Config.accessList.noCache.valid()) {
         acl_checklist = clientAclChecklistCreate(Config.accessList.noCache, http);
         acl_checklist->nonBlockingCheck(checkNoCacheDoneWrapper, this);
     } else {
@@ -1793,7 +1793,7 @@ ClientHttpRequest::doCallouts()
         if (!calloutContext->no_cache_done) {
             calloutContext->no_cache_done = true;
 
-            if (Config.accessList.noCache && request->flags.cachable) {
+            if (Config.accessList.noCache.valid() && request->flags.cachable) {
                 debugs(83, 3, HERE << "Doing calloutContext->checkNoCache()");
                 calloutContext->checkNoCache();
                 return;

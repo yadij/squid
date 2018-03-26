@@ -322,7 +322,7 @@ FwdState::Start(const Comm::ConnectionPointer &clientConn, StoreEntry *entry, Ht
      * be allowed.  yuck, I know.
      */
 
-    if ( Config.accessList.miss && !request->client_addr.isNoAddr() &&
+    if (Config.accessList.miss.valid() && !request->client_addr.isNoAddr() &&
             !request->flags.internal && request->url.getScheme() != AnyP::PROTO_CACHE_OBJECT) {
         /**
          * Check if this host is allowed to fetch MISSES from us (miss_access).
@@ -1216,7 +1216,7 @@ Comm::ConnectionPointer
 FwdState::pconnPop(const Comm::ConnectionPointer &dest, const char *domain)
 {
     bool retriable = checkRetriable();
-    if (!retriable && Config.accessList.serverPconnForNonretriable) {
+    if (!retriable && Config.accessList.serverPconnForNonretriable.valid()) {
         ACLFilledChecklist ch(Config.accessList.serverPconnForNonretriable, request, NULL);
         ch.al = al;
         ch.syncAle(request, nullptr);

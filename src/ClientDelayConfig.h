@@ -32,7 +32,7 @@ public:
     ClientDelayPool &operator=(const ClientDelayPool &) = delete;
 
     void dump (StoreEntry * entry, unsigned int poolNumberMinusOne) const;
-    acl_access *access;
+    acl_accessPointer access;
     int rate;
     int64_t highwatermark;
 };

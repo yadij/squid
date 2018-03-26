@@ -17,13 +17,13 @@
 
 int Adaptation::AccessRule::LastId = 0;
 
-Adaptation::AccessRule::AccessRule(const String &aGroupId): id(++LastId), groupId(aGroupId), acl(NULL)
+Adaptation::AccessRule::AccessRule(const String &aGroupId): id(++LastId), groupId(aGroupId)
 {
 }
 
 Adaptation::AccessRule::~AccessRule()
 {
-    delete acl;
+    delete acl.get();
 }
 
 void

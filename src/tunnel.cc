@@ -1099,7 +1099,7 @@ tunnelStart(ClientHttpRequest * http)
      * be allowed.  yuck, I know.
      */
 
-    if (Config.accessList.miss && !request->client_addr.isNoAddr()) {
+    if (Config.accessList.miss.valid() && !request->client_addr.isNoAddr()) {
         /*
          * Check if this host is allowed to fetch MISSES from us (miss_access)
          * default is to allow.

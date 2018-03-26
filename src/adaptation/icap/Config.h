@@ -35,7 +35,7 @@ public:
     int reuse_connections;
     char* client_username_header;
     int client_username_encode;
-    acl_access *repeat; ///< icap_retry ACL in squid.conf
+    acl_accessPointer repeat; ///< icap_retry ACL in squid.conf
     int repeat_limit; ///< icap_retry_limit in squid.conf
 
     Config();

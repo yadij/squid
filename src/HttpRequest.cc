@@ -740,7 +740,7 @@ HttpRequest::manager(const CbcPointer<ConnStateData> &aMgr, const AccessLogEntry
         flags.interceptTproxy = ((clientConnection->flags & COMM_TRANSPARENT) != 0 ) ;
         const bool proxyProtocolPort = port ? port->flags.proxySurrogate : false;
         if (flags.interceptTproxy && !proxyProtocolPort) {
-            if (Config.accessList.spoof_client_ip) {
+            if (Config.accessList.spoof_client_ip.valid()) {
                 ACLFilledChecklist *checklist = new ACLFilledChecklist(Config.accessList.spoof_client_ip, this, clientConnection->rfc931);
                 checklist->al = al;
                 checklist->syncAle(this, nullptr);

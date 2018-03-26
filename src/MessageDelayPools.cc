@@ -10,6 +10,7 @@
 
 #if USE_DELAY_POOLS
 #include "acl/Gadgets.h"
+#include "acl/Tree.h"
 #include "cache_cf.h"
 #include "ConfigParser.h"
 #include "DelaySpec.h"
@@ -63,7 +64,6 @@ MessageDelayPools::freePools()
 
 MessageDelayPool::MessageDelayPool(const SBuf &name, int64_t bucketSpeed, int64_t bucketSize,
                                    int64_t aggregateSpeed, int64_t aggregateSize, uint16_t initialBucketPercent):
-    access(0),
     poolName(name),
     individualRestore(bucketSpeed),
     individualMaximum(bucketSize),
@@ -77,7 +77,7 @@ MessageDelayPool::MessageDelayPool(const SBuf &name, int64_t bucketSpeed, int64_
 
 MessageDelayPool::~MessageDelayPool()
 {
-    if (access)
+    if (access.valid())
         aclDestroyAccessList(&access);
 }
 

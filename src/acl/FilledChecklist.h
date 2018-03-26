@@ -35,7 +35,7 @@ class ACLFilledChecklist: public ACLChecklist
 
 public:
     ACLFilledChecklist();
-    ACLFilledChecklist(const acl_access *, HttpRequest *, const char *ident = nullptr);
+    ACLFilledChecklist(const acl_accessPointer &, HttpRequest *, const char *ident = nullptr);
     ~ACLFilledChecklist();
 
     /// configure client request-related fields for the first time

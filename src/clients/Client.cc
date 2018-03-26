@@ -517,10 +517,10 @@ Client::haveParsedReplyHeaders()
 bool
 Client::blockCaching()
 {
-    if (const Acl::Tree *acl = Config.accessList.storeMiss) {
+    if (Config.accessList.storeMiss.valid()) {
         // This relatively expensive check is not in StoreEntry::checkCachable:
         // That method lacks HttpRequest and may be called too many times.
-        ACLFilledChecklist ch(acl, originalRequest().getRaw());
+        ACLFilledChecklist ch(Config.accessList.storeMiss, originalRequest().getRaw());
         ch.reply = const_cast<HttpReply*>(entry->getReply()); // ACLFilledChecklist API bug
         HTTPMSGLOCK(ch.reply);
         if (!ch.fastCheck().allowed()) { // when in doubt, block

@@ -35,7 +35,7 @@ public:
     std::vector<Auth::SchemesConfig> schemeLists;
 
     /// the ACL list for auth_schemes directives
-    acl_access *schemeAccess = nullptr;
+    acl_accessPointer schemeAccess;
 
     /// the authenticate_cache_garbage_interval
     time_t garbageCollectInterval = 0;

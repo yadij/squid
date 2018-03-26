@@ -40,6 +40,8 @@ COPIED_SOURCE= \
 	globals.cc \
 	SquidConfig.cc \
 	SquidNew.cc \
+	stub_acl_libapi.cc \
+	stub_cbdata.cc \
 	stub_HelperChildConfig.cc \
 	stub_libmem.cc \
 	stub_SBuf.cc \
@@ -97,6 +99,12 @@ SquidConfig.cc: $(top_srcdir)/src/SquidConfig.cc
 
 SquidNew.cc: $(top_srcdir)/src/SquidNew.cc
 	cp $(top_srcdir)/src/SquidNew.cc $@
+
+stub_acl_libapi.cc: $(top_srcdir)/src/tests/stub_acl_libapi.cc STUB.h
+	cp $(top_srcdir)/src/tests/stub_acl_libapi.cc $@
+
+stub_cbdata.cc: $(top_srcdir)/src/tests/stub_cbdata.cc STUB.h
+	cp $(top_srcdir)/src/tests/stub_cbdata.cc $@
 
 stub_HelperChildConfig.cc: $(top_srcdir)/src/tests/stub_HelperChildConfig.cc
 	cp $(top_srcdir)/src/tests/stub_HelperChildConfig.cc $@

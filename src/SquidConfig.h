@@ -9,7 +9,7 @@
 #ifndef SQUID_SQUIDCONFIG_H_
 #define SQUID_SQUIDCONFIG_H_
 
-#include "acl/forward.h"
+#include "acl/Tree.h"
 #include "base/RefCount.h"
 #include "base/YesNoNone.h"
 #if USE_DELAY_POOLS
@@ -355,54 +355,54 @@ public:
     class ACL *aclList;
 
     struct {
-        acl_access *http;
-        acl_access *adapted_http;
-        acl_access *icp;
-        acl_access *miss;
-        acl_access *NeverDirect;
-        acl_access *AlwaysDirect;
-        acl_access *ASlists;
-        acl_access *noCache;
-        acl_access *sendHit;
-        acl_access *storeMiss;
-        acl_access *stats_collection;
+        acl_accessPointer http;
+        acl_accessPointer adapted_http;
+        acl_accessPointer icp;
+        acl_accessPointer miss;
+        acl_accessPointer NeverDirect;
+        acl_accessPointer AlwaysDirect;
+        acl_accessPointer ASlists;
+        acl_accessPointer noCache;
+        acl_accessPointer sendHit;
+        acl_accessPointer storeMiss;
+        acl_accessPointer stats_collection;
 #if SQUID_SNMP
 
-        acl_access *snmp;
+        acl_accessPointer snmp;
 #endif
 #if USE_HTTP_VIOLATIONS
-        acl_access *brokenPosts;
+        acl_accessPointer brokenPosts;
 #endif
-        acl_access *redirector;
-        acl_access *store_id;
-        acl_access *reply;
+        acl_accessPointer redirector;
+        acl_accessPointer store_id;
+        acl_accessPointer reply;
         Acl::Address *outgoing_address;
 #if USE_HTCP
 
-        acl_access *htcp;
-        acl_access *htcp_clr;
+        acl_accessPointer htcp;
+        acl_accessPointer htcp_clr;
 #endif
 
 #if USE_OPENSSL
-        acl_access *ssl_bump;
+        acl_accessPointer ssl_bump;
 #endif
 #if FOLLOW_X_FORWARDED_FOR
-        acl_access *followXFF;
+        acl_accessPointer followXFF;
 #endif /* FOLLOW_X_FORWARDED_FOR */
 
         /// acceptible PROXY protocol clients
-        acl_access *proxyProtocol;
+        acl_accessPointer proxyProtocol;
 
         /// spoof_client_ip squid.conf acl.
         /// nil unless configured
-        acl_access* spoof_client_ip;
-        acl_access *on_unsupported_protocol;
+        acl_accessPointer spoof_client_ip;
+        acl_accessPointer on_unsupported_protocol;
 
-        acl_access *ftp_epsv;
+        acl_accessPointer ftp_epsv;
 
-        acl_access *forceRequestBodyContinuation;
-        acl_access *serverPconnForNonretriable;
-        acl_access *collapsedForwardingAccess;
+        acl_accessPointer forceRequestBodyContinuation;
+        acl_accessPointer serverPconnForNonretriable;
+        acl_accessPointer collapsedForwardingAccess;
     } accessList;
     AclDenyInfoList *denyInfoList;
 
@@ -513,7 +513,7 @@ public:
         Security::ContextPointer sslContext;
 #if USE_OPENSSL
         char *foreignIntermediateCertsPath;
-        acl_access *cert_error;
+        acl_accessPointer cert_error;
         sslproxy_cert_sign *cert_sign;
         sslproxy_cert_adapt *cert_adapt;
 #endif

@@ -38,7 +38,7 @@ public:
     typedef int Id;
     const Id id;
     String groupId;
-    acl_access *acl;
+    acl_accessPointer acl;
 
 private:
     static Id LastId;

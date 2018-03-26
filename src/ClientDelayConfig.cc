@@ -9,6 +9,7 @@
 #include "squid.h"
 #include "acl/Acl.h"
 #include "acl/Gadgets.h"
+#include "acl/Tree.h"
 #include "ClientDelayConfig.h"
 #include "ConfigParser.h"
 #include "Parsing.h"
@@ -16,7 +17,7 @@
 
 ClientDelayPool::~ClientDelayPool()
 {
-    if (access)
+    if (access.valid())
         aclDestroyAccessList(&access);
 }
 

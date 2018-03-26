@@ -73,7 +73,7 @@ public:
 
     unsigned short http_port = CACHE_HTTP_PORT;
     NeighborTypeDomainList *typelist = nullptr;
-    acl_access *access = nullptr;
+    acl_accessPointer access;
 
     struct {
         bool proxy_only = false;

@@ -11,6 +11,7 @@
 
 #include "acl/Answer.h"
 #include "acl/InnerNode.h"
+#include "acl/Tree.h"
 
 #include <stack>
 #include <vector>
@@ -134,7 +135,7 @@ public:
      *
      * If there are no ACLs to check at all, the result becomes ACCESS_ALLOWED.
      */
-    Acl::Answer const & fastCheck(const Acl::Tree *list);
+    Acl::Answer const & fastCheck(const Acl::TreePointer list);
 
     /// If slow lookups are allowed, switches into "async in progress" state.
     /// Otherwise, returns false; the caller is expected to handle the failure.
@@ -173,13 +174,14 @@ public:
     /// warns if there are uninitialized ALE components and fills them
     virtual void verifyAle() const = 0;
 
-    /// change the current ACL list
+    /// Change the current ACL list.
+    /// The old pointer may have been free'd if this was the last CBDATA reference.
     /// \return a pointer to the old list value (may be nullptr)
-    const Acl::Tree *changeAcl(const Acl::Tree *t) {
-        const Acl::Tree *old = accessList;
-        if (t != accessList) {
-            cbdataReferenceDone(accessList);
-            accessList = cbdataReference(t);
+    const Acl::TreePointer changeAcl(const Acl::Tree *t) {
+        const Acl::TreePointer old(accessList);
+        if (t != accessList.raw()) {
+            accessList.clear();
+            accessList = Acl::TreePointer(const_cast<Acl::Tree *>(t));
         }
         return old;
     }
@@ -193,7 +195,7 @@ private:
     void changeState(AsyncState *);
     AsyncState *asyncState() const;
 
-    const Acl::Tree *accessList;
+    Acl::TreePointer accessList;
 public:
 
     ACLCB *callback;

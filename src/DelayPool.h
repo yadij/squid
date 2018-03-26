@@ -35,7 +35,7 @@ public:
 
     CompositePoolNode::Pointer const theComposite() const {return theComposite_;}
 
-    acl_access *access;
+    acl_accessPointer access;
 
 private:
     CompositePoolNode::Pointer theComposite_;

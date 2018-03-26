@@ -291,7 +291,7 @@ Http::Stream::sendStartOfMessage(HttpReply *rep, StoreIOBuffer bodyData)
     }
 #if USE_DELAY_POOLS
     for (const auto &pool: MessageDelayPools::Instance()->pools) {
-        if (pool->access) {
+        if (pool->access.valid()) {
             std::unique_ptr<ACLFilledChecklist> chl(clientAclChecklistCreate(pool->access, http));
             chl->reply = rep;
             HTTPMSGLOCK(chl->reply);

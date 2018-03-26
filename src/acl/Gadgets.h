@@ -23,14 +23,14 @@ class wordlist;
 /// \ingroup ACLAPI
 void aclRegister(ACL *acl);
 /// \ingroup ACLAPI
-void aclDestroyAccessList(acl_access **list);
+void aclDestroyAccessList(acl_accessPointer *list);
 /// \ingroup ACLAPI
 void aclDestroyAcls(ACL **);
 /// \ingroup ACLAPI
 void aclDestroyAclList(ACLList **);
 /// Parses a single line of a "action followed by acls" directive (e.g., http_access).
 /// \ingroup ACLAPI
-void aclParseAccessLine(const char *directive, ConfigParser &parser, Acl::Tree **);
+void aclParseAccessLine(const char *directive, ConfigParser &parser, Acl::TreePointer *);
 /// Parses a single line of a "some context followed by acls" directive (e.g., note n v).
 /// The label parameter identifies the context (for debugging).
 /// \ingroup ACLAPI
@@ -58,7 +58,7 @@ wordlist *aclDumpGeneric(const ACL *);
 /// \ingroup ACLAPI
 void aclCacheMatchFlush(dlink_list * cache);
 /// \ingroup ACLAPI
-void dump_acl_access(StoreEntry * entry, const char *name, acl_access * head);
+void dump_acl_access(StoreEntry * entry, const char *name, const acl_accessPointer &);
 /// \ingroup ACLAPI
 void dump_acl_list(StoreEntry * entry, ACLList * head);
 

@@ -19,7 +19,7 @@ namespace Ident
 class IdentConfig
 {
 public:
-    acl_access *identLookup;
+    acl_accessPointer identLookup;
     time_t timeout;
 };
 

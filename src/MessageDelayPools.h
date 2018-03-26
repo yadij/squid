@@ -47,7 +47,7 @@ public:
 
     void dump (StoreEntry * entry) const;
 
-    acl_access *access;
+    acl_accessPointer access;
     /// the response delay pool name
     SBuf poolName;
     /// the speed limit of an individual bucket (bytes/s)

@@ -128,8 +128,8 @@ Security::PeerConnector::initialize(Security::SessionPointer &serverSession)
     if (!Ssl::TheConfig.ssl_crt_validator) {
         // Create the ACL check list now, while we have access to more info.
         // The list is used in ssl_verify_cb() and is freed in ssl_free().
-        if (acl_access *acl = ::Config.ssl_client.cert_error) {
-            ACLFilledChecklist *check = new ACLFilledChecklist(acl, request.getRaw(), dash_str);
+        if (::Config.ssl_client.cert_error.valid()) {
+            ACLFilledChecklist *check = new ACLFilledChecklist(::Config.ssl_client.cert_error, request.getRaw(), dash_str);
             check->al = al;
             check->syncAle(request.getRaw(), nullptr);
             // check->fd(fd); XXX: need client FD here
@@ -322,8 +322,8 @@ Security::CertErrors *
 Security::PeerConnector::sslCrtvdCheckForErrors(Ssl::CertValidationResponse const &resp, Ssl::ErrorDetail *& errDetails)
 {
     ACLFilledChecklist *check = NULL;
-    if (acl_access *acl = ::Config.ssl_client.cert_error) {
-        check = new ACLFilledChecklist(acl, request.getRaw(), dash_str);
+    if (::Config.ssl_client.cert_error.valid()) {
+        check = new ACLFilledChecklist(::Config.ssl_client.cert_error, request.getRaw(), dash_str);
         check->al = al;
         check->syncAle(request.getRaw(), nullptr);
     }

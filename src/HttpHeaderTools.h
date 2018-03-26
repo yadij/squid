@@ -35,11 +35,10 @@ typedef enum {
     ROR_REPLY
 } req_or_rep_t;
 
-// Currently a POD
 class headerMangler
 {
 public:
-    acl_access *access_list;
+    acl_accessPointer access_list;
     char *replacement;
 };
 

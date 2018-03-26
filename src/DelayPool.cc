@@ -13,11 +13,12 @@
 #if USE_DELAY_POOLS
 #include "acl/Acl.h"
 #include "acl/Gadgets.h"
+#include "acl/Tree.h"
 #include "CommonPool.h"
 #include "DelayPool.h"
 #include "Store.h"
 
-DelayPool::DelayPool() : pool (NULL), access (NULL)
+DelayPool::DelayPool() : pool(nullptr)
 {
     pool = CommonPool::Factory(0, theComposite_);
 }
@@ -27,7 +28,7 @@ DelayPool::~DelayPool()
     if (pool)
         freeData();
 
-    if (access)
+    if (access.valid())
         aclDestroyAccessList(&access);
 }
 

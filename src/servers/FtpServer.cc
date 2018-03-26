@@ -1540,7 +1540,7 @@ Ftp::Server::handleUploadRequest(String &, String &)
     if (!checkDataConnPre())
         return false;
 
-    if (Config.accessList.forceRequestBodyContinuation) {
+    if (Config.accessList.forceRequestBodyContinuation.valid()) {
         ClientHttpRequest *http = pipeline.front()->http;
         HttpRequest *request = http->request;
         ACLFilledChecklist bodyContinuationCheck(Config.accessList.forceRequestBodyContinuation, request, NULL);

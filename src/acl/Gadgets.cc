@@ -142,7 +142,7 @@ aclParseDenyInfoLine(AclDenyInfoList ** head)
 }
 
 void
-aclParseAccessLine(const char *directive, ConfigParser &, acl_access **treep)
+aclParseAccessLine(const char *directive, ConfigParser &, acl_accessPointer *treep)
 {
     /* first expect either 'allow' or 'deny' */
     const char *t = ConfigParser::NextToken();
@@ -164,7 +164,7 @@ aclParseAccessLine(const char *directive, ConfigParser &, acl_access **treep)
         return;
     }
 
-    const int ruleId = ((treep && *treep) ? (*treep)->childrenCount() : 0) + 1;
+    const int ruleId = ((treep && treep->set()) ? (*treep)->childrenCount() : 0) + 1;
     MemBuf ctxBuf;
     ctxBuf.init();
     ctxBuf.appendf("%s#%d", directive, ruleId);
@@ -183,7 +183,7 @@ aclParseAccessLine(const char *directive, ConfigParser &, acl_access **treep)
     /* Append to the end of this list */
 
     assert(treep);
-    if (!*treep) {
+    if (!treep->set()) {
         *treep = new Acl::Tree;
         (*treep)->context(directive, config_input_line);
     }
@@ -281,13 +281,14 @@ aclDestroyAclList(ACLList **list)
 }
 
 void
-aclDestroyAccessList(acl_access ** list)
+aclDestroyAccessList(acl_accessPointer *list)
 {
     assert(list);
-    if (*list)
+    if (list->valid()) {
         debugs(28, 3, "destroying: " << *list << ' ' << (*list)->name);
-    delete *list;
-    *list = NULL;
+        delete list->get();
+    }
+    list->clear();
 }
 
 /* maex@space.net (06.09.1996)
