@@ -16,7 +16,7 @@ class sslproxy_cert_sign
 {
 public:
     int alg;
-    ACLList *aclList;
+    ACLListPointer aclList;
     sslproxy_cert_sign *next;
 };
 
@@ -25,7 +25,7 @@ class sslproxy_cert_adapt
 public:
     int alg;
     char *param;
-    ACLList *aclList;
+    ACLListPointer aclList;
     sslproxy_cert_adapt *next;
 };
 #endif

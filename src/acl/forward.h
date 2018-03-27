@@ -15,7 +15,6 @@
 class ACL;
 class ACLChecklist;
 class ACLFilledChecklist;
-class ACLList;
 
 class AclDenyInfoList;
 class AclSizeLimit;
@@ -43,9 +42,7 @@ typedef void ACLCB(Acl::Answer, void *);
 
 // TODO: Consider renaming all users and removing. Cons: hides the difference
 // between ACLList tree without actions and acl_access Tree with actions.
-#define acl_access Acl::Tree
 #define acl_accessPointer Acl::TreePointer
-#define ACLList Acl::Tree
 #define ACLListPointer Acl::TreePointer
 
 class ExternalACLEntry;

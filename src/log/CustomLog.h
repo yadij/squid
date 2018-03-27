@@ -26,7 +26,7 @@ public:
     bool usesDaemon() const;
 
     char *filename;
-    ACLList *aclList;
+    ACLListPointer aclList;
     Format::Format *logFormat;
     Logfile *logfile;
     CustomLog *next;

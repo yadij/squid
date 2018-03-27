@@ -26,5 +26,5 @@ void requirePathnameExists(const char *name, const char *path) STUB_NOP
 void parse_time_t(time_t * var) STUB
 void ConfigParser::ParseUShort(unsigned short *var) STUB
 void dump_acl_access(StoreEntry * entry, const char *name, const acl_accessPointer &head) STUB
-void dump_acl_list(StoreEntry*, ACLList*) STUB
+void dump_acl_list(StoreEntry *, const ACLListPointer &) STUB
 

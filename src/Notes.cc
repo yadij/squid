@@ -76,7 +76,7 @@ Note::match(HttpRequest *request, HttpReply *reply, const AccessLogEntry::Pointe
         HTTPMSGLOCK(ch.reply);
 
     for (auto v: values) {
-        assert(v->aclList);
+        assert(v->aclList.valid());
         const auto ret = ch.fastCheck(v->aclList);
         debugs(93, 5, "Check for header name: " << theKey << ": " << v->value() <<
                ", HttpRequest: " << request << " HttpReply: " << reply << " matched: " << ret);

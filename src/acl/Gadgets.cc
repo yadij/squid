@@ -195,7 +195,7 @@ aclParseAccessLine(const char *directive, ConfigParser &, acl_accessPointer *tre
 
 // aclParseAclList does not expect or set actions (cf. aclParseAccessLine)
 void
-aclParseAclList(ConfigParser &, Acl::Tree **treep, const char *label)
+aclParseAclList(ConfigParser &, Acl::TreePointer *treep, const char *label)
 {
     // accomodate callers unable to convert their ACL list context to string
     if (!label)
@@ -221,7 +221,7 @@ aclParseAclList(ConfigParser &, Acl::Tree **treep, const char *label)
     tree->context(ctxTree.content(), config_input_line);
 
     assert(treep);
-    assert(!*treep);
+    assert(!treep->valid());
     *treep = tree;
 }
 
@@ -272,12 +272,14 @@ aclDestroyAcls(ACL ** head)
 }
 
 void
-aclDestroyAclList(ACLList **list)
+aclDestroyAclList(ACLListPointer *list)
 {
-    debugs(28, 8, "aclDestroyAclList: invoked");
     assert(list);
-    delete *list;
-    *list = NULL;
+    if (list->valid()) {
+        debugs(28, 8, "destroying: " << *list);
+        delete list->get();
+    }
+    list->clear();
 }
 
 void

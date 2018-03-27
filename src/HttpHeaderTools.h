@@ -95,7 +95,7 @@ private:
 class HeaderWithAcl
 {
 public:
-    HeaderWithAcl() : aclList(NULL), valueFormat(NULL), fieldId(Http::HdrType::BAD_HDR), quoted(false) {}
+    HeaderWithAcl() : valueFormat(NULL), fieldId(Http::HdrType::BAD_HDR), quoted(false) {}
 
     /// HTTP header field name
     std::string fieldName;
@@ -104,7 +104,7 @@ public:
     std::string fieldValue;
 
     /// when the header field should be added (always if nil)
-    ACLList *aclList;
+    ACLListPointer aclList;
 
     /// compiled HTTP header field value (no macros)
     Format::Format *valueFormat;

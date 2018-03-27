@@ -1389,9 +1389,10 @@ free_acl(ACL ** ae)
 }
 
 void
-dump_acl_list(StoreEntry * entry, ACLList * head)
+dump_acl_list(StoreEntry * entry, const ACLListPointer &head)
 {
-    dump_SBufList(entry, head->dump());
+    if (head.valid())
+        dump_SBufList(entry, head->dump());
 }
 
 void
@@ -4213,7 +4214,7 @@ dump_access_log(StoreEntry * entry, const char *name, CustomLog * logs)
         if (log->rotateCount >= 0)
             storeAppendPrintf(entry, " rotate=%d", log->rotateCount);
 
-        if (log->aclList)
+        if (log->aclList.valid())
             dump_acl_list(entry, log->aclList);
 
         storeAppendPrintf(entry, "\n");
@@ -4230,7 +4231,7 @@ free_access_log(CustomLog ** definitions)
         log->logFormat = NULL;
         log->type = Log::Format::CLF_UNKNOWN;
 
-        if (log->aclList)
+        if (log->aclList.valid())
             aclDestroyAclList(&log->aclList);
 
         safe_free(log->filename);
@@ -4519,7 +4520,7 @@ static void dump_sslproxy_cert_adapt(StoreEntry *entry, const char *name, sslpro
     for (sslproxy_cert_adapt *ca = cert_adapt; ca != NULL; ca = ca->next) {
         storeAppendPrintf(entry, "%s ", name);
         storeAppendPrintf(entry, "%s{%s} ", Ssl::sslCertAdaptAlgoritm(ca->alg), ca->param);
-        if (ca->aclList)
+        if (ca->aclList.valid())
             dump_acl_list(entry, ca->aclList);
         storeAppendPrintf(entry, "\n");
     }
@@ -4532,7 +4533,7 @@ static void free_sslproxy_cert_adapt(sslproxy_cert_adapt **cert_adapt)
         *cert_adapt = ca->next;
         safe_free(ca->param);
 
-        if (ca->aclList)
+        if (ca->aclList.valid())
             aclDestroyAclList(&ca->aclList);
 
         safe_free(ca);
@@ -4576,7 +4577,7 @@ static void dump_sslproxy_cert_sign(StoreEntry *entry, const char *name, sslprox
     for (cs = cert_sign; cs != NULL; cs = cs->next) {
         storeAppendPrintf(entry, "%s ", name);
         storeAppendPrintf(entry, "%s ", Ssl::certSignAlgorithm(cs->alg));
-        if (cs->aclList)
+        if (cs->aclList.valid())
             dump_acl_list(entry, cs->aclList);
         storeAppendPrintf(entry, "\n");
     }
@@ -4588,7 +4589,7 @@ static void free_sslproxy_cert_sign(sslproxy_cert_sign **cert_sign)
         sslproxy_cert_sign *cs = *cert_sign;
         *cert_sign = cs->next;
 
-        if (cs->aclList)
+        if (cs->aclList.valid())
             aclDestroyAclList(&cs->aclList);
 
         safe_free(cs);
@@ -4731,7 +4732,7 @@ static void dump_HeaderWithAclList(StoreEntry * entry, const char *name, HeaderW
 
     for (HeaderWithAclList::iterator hwa = headers->begin(); hwa != headers->end(); ++hwa) {
         storeAppendPrintf(entry, "%s %s %s", name, hwa->fieldName.c_str(), hwa->fieldValue.c_str());
-        if (hwa->aclList)
+        if (hwa->aclList.valid())
             dump_acl_list(entry, hwa->aclList);
         storeAppendPrintf(entry, "\n");
     }
@@ -4777,7 +4778,7 @@ static void free_HeaderWithAclList(HeaderWithAclList **header)
         return;
 
     for (HeaderWithAclList::iterator hwa = (*header)->begin(); hwa != (*header)->end(); ++hwa) {
-        if (hwa->aclList)
+        if (hwa->aclList.valid())
             aclDestroyAclList(&hwa->aclList);
 
         if (hwa->valueFormat) {

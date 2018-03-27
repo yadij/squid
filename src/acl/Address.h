@@ -21,11 +21,11 @@ class Address
     CBDATA_CLASS(Address);
 
 public:
-    Address() : next(NULL), aclList(NULL) {}
+    Address() : next(NULL) {}
     ~Address();
 
     Acl::Address *next;
-    ACLList *aclList;
+    ACLListPointer aclList;
 
     Ip::Address addr;
 };

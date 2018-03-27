@@ -2852,7 +2852,7 @@ void ConnStateData::buildSslCertGenerationParams(Ssl::CertificateProperties &cer
                     (ca->alg == Ssl::algSetValidBefore && certProperties.setValidBefore) )
                 continue;
 
-            if (ca->aclList && checklist.fastCheck(ca->aclList).allowed()) {
+            if (ca->aclList.valid() && checklist.fastCheck(ca->aclList).allowed()) {
                 const char *alg = Ssl::CertAdaptAlgorithmStr[ca->alg];
                 const char *param = ca->param;
 
@@ -2875,7 +2875,7 @@ void ConnStateData::buildSslCertGenerationParams(Ssl::CertificateProperties &cer
 
         certProperties.signAlgorithm = Ssl::algSignEnd;
         for (sslproxy_cert_sign *sg = Config.ssl_client.cert_sign; sg != NULL; sg = sg->next) {
-            if (sg->aclList && checklist.fastCheck(sg->aclList).allowed()) {
+            if (sg->aclList.valid() && checklist.fastCheck(sg->aclList).allowed()) {
                 certProperties.signAlgorithm = (Ssl::CertSignAlgorithm)sg->alg;
                 break;
             }

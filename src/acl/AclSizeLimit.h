@@ -18,11 +18,11 @@ class AclSizeLimit
     CBDATA_CLASS(AclSizeLimit);
 
 public:
-    AclSizeLimit() : next(NULL), aclList(NULL), size(0) {}
+    AclSizeLimit() : next(NULL), size(0) {}
     ~AclSizeLimit();
 
     AclSizeLimit *next;
-    ACLList *aclList;
+    ACLListPointer aclList;
     int64_t size;
 };
 
