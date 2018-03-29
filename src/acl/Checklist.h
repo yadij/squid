@@ -175,14 +175,11 @@ public:
     virtual void verifyAle() const = 0;
 
     /// Change the current ACL list.
-    /// The old pointer may have been free'd if this was the last CBDATA reference.
-    /// \return a pointer to the old list value (may be nullptr)
-    const Acl::TreePointer changeAcl(const Acl::Tree *t) {
+    /// The old pointer may be free'd if this was the last reference.
+    /// \return a pointer to the old list value (may be nil)
+    const Acl::TreePointer changeAcl(const Acl::TreePointer &t) {
         const Acl::TreePointer old(accessList);
-        if (t != accessList.raw()) {
-            accessList.clear();
-            accessList = Acl::TreePointer(const_cast<Acl::Tree *>(t));
-        }
+        accessList = t;
         return old;
     }
 
