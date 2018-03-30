@@ -11,9 +11,8 @@
 #ifndef SQUID_EXTERNALACLENTRY_H
 #define SQUID_EXTERNALACLENTRY_H
 
-#include "acl/Acl.h"
 #include "acl/Answer.h"
-#include "acl/forward.h"
+#include "dlink.h"
 #include "hash.h"
 #include "Notes.h"
 #include "SquidString.h"

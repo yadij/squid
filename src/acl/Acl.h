@@ -9,12 +9,10 @@
 #ifndef SQUID_ACL_H
 #define SQUID_ACL_H
 
-#include "acl/forward.h"
 #include "acl/Options.h"
 #include "cbdata.h"
 #include "defines.h"
 #include "dlink.h"
-#include "sbuf/forward.h"
 
 #include <algorithm>
 #include <ostream>

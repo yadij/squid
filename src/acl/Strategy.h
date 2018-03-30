@@ -9,7 +9,6 @@
 #ifndef SQUID_ACLSTRATEGY_H
 #define SQUID_ACLSTRATEGY_H
 
-#include "acl/Acl.h"
 #include "acl/Data.h"
 #include "acl/Options.h"
 

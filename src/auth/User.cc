@@ -9,7 +9,6 @@
 /* DEBUG: section 29    Authenticator */
 
 #include "squid.h"
-#include "acl/Acl.h"
 #include "acl/Gadgets.h"
 #include "auth/Config.h"
 #include "auth/CredentialsCache.h"

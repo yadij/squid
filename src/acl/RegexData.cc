@@ -15,7 +15,6 @@
 /* DEBUG: section 28    Access Control */
 
 #include "squid.h"
-#include "acl/Acl.h"
 #include "acl/Checklist.h"
 #include "acl/RegexData.h"
 #include "base/RegexPattern.h"

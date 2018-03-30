@@ -8,7 +8,7 @@
 
 #ifndef SQUID_ACLSOURCEDOMAIN_H
 #define SQUID_ACLSOURCEDOMAIN_H
-#include "acl/Acl.h"
+
 #include "acl/Checklist.h"
 #include "acl/Data.h"
 #include "acl/Strategy.h"

@@ -9,7 +9,6 @@
 #ifndef SQUID_ACLSERVERNAME_H
 #define SQUID_ACLSERVERNAME_H
 
-#include "acl/Acl.h"
 #include "acl/DomainData.h"
 #include "acl/Strategy.h"
 

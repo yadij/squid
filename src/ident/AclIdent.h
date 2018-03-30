@@ -11,7 +11,9 @@
 
 #if USE_IDENT
 
+#include "acl/Acl.h"
 #include "acl/Checklist.h"
+#include "acl/Data.h"
 
 /// \ingroup ACLAPI
 class IdentLookup : public ACLChecklist::AsyncState
@@ -25,9 +27,6 @@ private:
     static IdentLookup instance_;
     static void LookupDone(const char *ident, void *data);
 };
-
-#include "acl/Acl.h"
-#include "acl/Data.h"
 
 /// \ingroup ACLAPI
 class ACLIdent : public ACL

@@ -9,7 +9,6 @@
 #ifndef SQUID_ACLCERTIFICATE_H
 #define SQUID_ACLCERTIFICATE_H
 
-#include "acl/Acl.h"
 #include "acl/Checklist.h"
 #include "acl/Data.h"
 #include "acl/Strategised.h"

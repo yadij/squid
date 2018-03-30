@@ -9,7 +9,6 @@
 /* DEBUG: section 53    AS Number handling */
 
 #include "squid.h"
-#include "acl/Acl.h"
 #include "acl/Asn.h"
 #include "acl/Checklist.h"
 #include "acl/DestinationAsn.h"

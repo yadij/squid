@@ -9,7 +9,6 @@
 #ifndef SQUID_ACLREPLYHEADERSTRATEGY_H
 #define SQUID_ACLREPLYHEADERSTRATEGY_H
 
-#include "acl/Acl.h"
 #include "acl/Data.h"
 #include "acl/FilledChecklist.h"
 #include "acl/Strategy.h"

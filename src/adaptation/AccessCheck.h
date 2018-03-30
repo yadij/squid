@@ -10,7 +10,6 @@
 #define SQUID_ADAPTATION__ACCESS_CHECK_H
 
 #include "AccessLogEntry.h"
-#include "acl/Acl.h"
 #include "adaptation/Elements.h"
 #include "adaptation/forward.h"
 #include "adaptation/Initiator.h"

@@ -9,7 +9,6 @@
 #ifndef SQUID_SRC_SECURITY_PEERCONNECTOR_H
 #define SQUID_SRC_SECURITY_PEERCONNECTOR_H
 
-#include "acl/Acl.h"
 #include "base/AsyncCbdataCalls.h"
 #include "base/AsyncJob.h"
 #include "CommCalls.h"

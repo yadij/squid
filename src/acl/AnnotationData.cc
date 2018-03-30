@@ -7,7 +7,6 @@
  */
 
 #include "squid.h"
-#include "acl/Acl.h"
 #include "acl/AnnotationData.h"
 #include "acl/Checklist.h"
 #include "cache_cf.h"

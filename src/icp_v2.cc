@@ -15,7 +15,6 @@
 
 #include "squid.h"
 #include "AccessLogEntry.h"
-#include "acl/Acl.h"
 #include "acl/FilledChecklist.h"
 #include "client_db.h"
 #include "comm.h"

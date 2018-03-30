@@ -9,8 +9,6 @@
 #include "squid.h"
 
 #if USE_AUTH
-
-#include "acl/Acl.h"
 #include "auth/AclMaxUserIp.h"
 #include "auth/UserRequest.h"
 #include "ConfigParser.h"

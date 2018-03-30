@@ -9,6 +9,7 @@
 #ifndef SQUID_EXTERNALACL_H
 #define SQUID_EXTERNALACL_H
 
+#include "acl/Acl.h"
 #include "acl/Checklist.h"
 #include "base/RefCount.h"
 
@@ -31,8 +32,6 @@ private:
     static ExternalACLLookup instance_;
     static void LookupDone(void *data, const ExternalACLEntryPointer &result);
 };
-
-#include "acl/Acl.h"
 
 class ACLExternal : public ACL
 {
