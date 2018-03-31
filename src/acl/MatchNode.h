@@ -35,9 +35,6 @@ class MatchNode
 {
 
 public:
-    void *operator new(size_t);
-    void operator delete(void *);
-
     static void ParseAclLine(ConfigParser &parser, MatchNode ** head);
     static void Initialize();
     static MatchNode *FindByName(const char *name);

@@ -62,8 +62,6 @@ int InnerNode::match(ACLChecklist *checklist) STUB_RETVAL(0)
 #include "acl/MatchNode.h"
 namespace Acl {
 // void RegisterMaker(TypeName typeName, Maker maker);
-void *MatchNode::operator new(size_t sz) { return xmalloc(sz); }
-void MatchNode::operator delete(void *X) { xfree(X); }
 void MatchNode::ParseAclLine(ConfigParser &, Acl::MatchNode **) STUB
 void MatchNode::Initialize() STUB
 MatchNode *Acl::MatchNode::FindByName(const char *) STUB_RETVAL(nullptr)

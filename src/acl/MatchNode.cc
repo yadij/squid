@@ -75,19 +75,6 @@ Acl::RegisterMaker(TypeName typeName, Maker maker)
     TheMakers().emplace(typeName, maker);
 }
 
-void *
-Acl::MatchNode::operator new (size_t)
-{
-    fatal ("unusable Acl::MatchNode::new");
-    return (void *)1;
-}
-
-void
-Acl::MatchNode::operator delete (void *)
-{
-    fatal ("unusable Acl::MatchNode::delete");
-}
-
 Acl::MatchNode *
 Acl::MatchNode::FindByName(const char *name)
 {
