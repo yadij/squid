@@ -21,7 +21,7 @@
 
 #include <algorithm>
 
-ACL *
+Acl::MatchNode *
 ACLARP::clone() const
 {
     return new ACLARP(*this);

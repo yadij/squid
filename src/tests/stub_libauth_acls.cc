@@ -18,7 +18,7 @@
 Acl::Answer AuthenticateAcl(ACLChecklist *) STUB_RETVAL(ACCESS_DENIED)
 
 #include "auth/AclMaxUserIp.h"
-ACL * ACLMaxUserIP::clone() const STUB_RETVAL(NULL)
+Acl::MatchNode * ACLMaxUserIP::clone() const STUB_RETVAL(nullptr)
 ACLMaxUserIP::ACLMaxUserIP (char const *) STUB
 char const * ACLMaxUserIP::typeString() const STUB_RETVAL(NULL)
 bool ACLMaxUserIP::empty () const STUB_RETVAL(false)
@@ -43,7 +43,7 @@ bool ACLProxyAuth::valid () const STUB_RETVAL(false)
 ProxyAuthLookup * ProxyAuthLookup::Instance() STUB_RETVAL(NULL)
 void ProxyAuthLookup::checkForAsync(ACLChecklist *) const STUB
 void ProxyAuthLookup::LookupDone(void *) STUB
-ACL * ACLProxyAuth::clone() const STUB_RETVAL(NULL)
+Acl::MatchNode * ACLProxyAuth::clone() const STUB_RETVAL(nullptr)
 int ACLProxyAuth::matchForCache(ACLChecklist *) STUB_RETVAL(0)
 int ACLProxyAuth::matchProxyAuth(ACLChecklist *) STUB_RETVAL(0)
 void ACLProxyAuth::parseFlags() STUB

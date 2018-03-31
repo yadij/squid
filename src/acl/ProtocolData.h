@@ -23,12 +23,15 @@ public:
     ACLProtocolData(ACLProtocolData const &);
     ACLProtocolData &operator= (ACLProtocolData const &);
     virtual ~ACLProtocolData();
-    bool match(AnyP::ProtocolType);
-    virtual SBufList dump() const;
-    void parse();
-    bool empty() const {return values.empty();}
-    virtual ACLData<AnyP::ProtocolType> *clone() const;
 
+    /* ACLData<T> API */
+    virtual bool match(AnyP::ProtocolType) override;
+    virtual SBufList dump() const override;
+    virtual void parse() override;
+    virtual ACLData *clone() const override;
+    virtual bool empty() const override { return values.empty(); }
+
+public:
     std::list<AnyP::ProtocolType> values;
 };
 

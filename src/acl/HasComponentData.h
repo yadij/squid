@@ -20,12 +20,12 @@ class ACLHasComponentData : public ACLData<ACLChecklist *>
 public:
     ACLHasComponentData();
 
-    /* ACLData<M> API */
+    /* ACLData<T> API */
     virtual bool match(ACLChecklist *) override;
     virtual SBufList dump() const override;
     virtual void parse() override;
+    virtual ACLData *clone() const override;
     virtual bool empty() const override { return false; }
-    virtual ACLData<ACLChecklist *> *clone() const override;
 
 private:
     enum ComponentKind { coRequest = 0, coResponse, coAle, coEnd };

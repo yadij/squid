@@ -11,11 +11,11 @@
 
 #if USE_AUTH
 
-#include "acl/Acl.h"
 #include "acl/Checklist.h"
 #include "acl/Data.h"
+#include "acl/MatchNode.h"
 
-class ACLExtUser : public ACL
+class ACLExtUser : public Acl::MatchNode
 {
     MEMPROXY_CLASS(ACLExtUser);
 
@@ -23,16 +23,17 @@ public:
     ACLExtUser(ACLData<char const *> *newData, char const *);
     ACLExtUser (ACLExtUser const &old);
     ACLExtUser & operator= (ACLExtUser const &rhs);
-    ~ACLExtUser();
+    virtual ~ACLExtUser();
 
-    /* ACL API */
-    virtual char const *typeString() const;
-    virtual void parse();
-    virtual void parseFlags();
-    virtual int match(ACLChecklist *checklist);
-    virtual SBufList dump() const;
-    virtual bool empty () const;
-    virtual ACL *clone()const;
+    virtual Acl::MatchNode *clone() const;
+
+    /* Acl::MatchNode API */
+    virtual void parseFlags() override;
+    virtual void parse() override;
+    virtual char const *typeString() const override;
+    virtual SBufList dump() const override;
+    virtual bool empty() const override;
+    virtual int match(ACLChecklist *) override;
 
 private:
     ACLData<char const *> *data;

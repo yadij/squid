@@ -11,17 +11,18 @@
 
 #if USE_AUTH
 
-#include "acl/Acl.h"
+#include "acl/MatchNode.h"
 #include "auth/UserRequest.h"
 
-class ACLMaxUserIP : public ACL
+class ACLMaxUserIP : public Acl::MatchNode
 {
     MEMPROXY_CLASS(ACLMaxUserIP);
 
 public:
     explicit ACLMaxUserIP(char const *theClass);
 
-    virtual ACL *clone() const;
+    /* Acl::MatchNode API */
+    virtual Acl::MatchNode *clone() const;
     virtual char const *typeString() const;
     virtual const Acl::Options &options();
     virtual void parse();

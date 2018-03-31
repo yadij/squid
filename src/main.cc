@@ -833,7 +833,7 @@ serverConnectionsOpen(void)
         icmpEngine.Open();
         netdbInit();
         asnInit();
-        ACL::Initialize();
+        Acl::MatchNode::Initialize();
         peerSelectInit();
 
         carpInit();

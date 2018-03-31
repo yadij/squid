@@ -352,7 +352,7 @@ public:
     int forward_max_tries;
     int connect_retries;
 
-    class ACL *aclList;
+    class Acl::MatchNode *aclList;
 
     struct {
         acl_accessPointer http;

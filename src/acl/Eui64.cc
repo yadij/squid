@@ -19,7 +19,7 @@
 #include "globals.h"
 #include "ip/Address.h"
 
-ACL *
+Acl::MatchNode *
 ACLEui64::clone() const
 {
     return new ACLEui64(*this);

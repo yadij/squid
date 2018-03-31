@@ -24,17 +24,16 @@ class NotNode: public InnerNode
     MEMPROXY_CLASS(NotNode);
 
 public:
-    explicit NotNode(ACL *acl);
+    explicit NotNode(Acl::MatchNode *acl);
 
 private:
-    /* ACL API */
-    virtual char const *typeString() const;
-    virtual ACL *clone() const;
-    virtual void parse();
-    virtual SBufList dump() const;
+    virtual Acl::MatchNode *clone() const;
 
     /* Acl::InnerNode API */
-    virtual int doMatch(ACLChecklist *checklist, Nodes::const_iterator start) const;
+    virtual void parse() override;
+    virtual char const *typeString() const override;
+    virtual SBufList dump() const override;
+    virtual int doMatch(ACLChecklist *checklist, Nodes::const_iterator start) const override;
 };
 
 /// An inner ACL expression tree node representing a boolean conjuction (AND)
@@ -45,13 +44,15 @@ class AndNode: public InnerNode
     MEMPROXY_CLASS(AndNode);
 
 public:
-    /* ACL API */
-    virtual char const *typeString() const;
-    virtual ACL *clone() const;
-    virtual void parse();
+    virtual Acl::MatchNode *clone() const;
+
+    /* Acl::InnerNode API */
+    virtual char const *typeString() const override;
+    virtual void parse() override;
 
 private:
-    virtual int doMatch(ACLChecklist *checklist, Nodes::const_iterator start) const;
+    /* Acl::InnerNode API */
+    virtual int doMatch(ACLChecklist *checklist, Nodes::const_iterator start) const override;
 };
 
 /// An inner ACL expression tree node representing a boolean disjuction (OR)
@@ -66,15 +67,17 @@ public:
     /// on its action
     virtual bool bannedAction(ACLChecklist *, Nodes::const_iterator) const;
 
-    /* ACL API */
-    virtual char const *typeString() const;
-    virtual ACL *clone() const;
-    virtual void parse();
+    virtual Acl::MatchNode *clone() const;
+
+    /* Acl::InnerNode API */
+    virtual void parse() override;
+    virtual char const *typeString() const override;
 
 protected:
     mutable Nodes::const_iterator lastMatch_;
 
 private:
+    /* Acl::InnerNode API */
     virtual int doMatch(ACLChecklist *checklist, Nodes::const_iterator start) const;
 };
 

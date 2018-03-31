@@ -23,14 +23,17 @@ class ACLAtStepData : public ACLData<Ssl::BumpStep>
 public:
     ACLAtStepData();
     ACLAtStepData(ACLAtStepData const &);
-    ACLAtStepData &operator= (ACLAtStepData const &);
     virtual ~ACLAtStepData();
-    bool match(Ssl::BumpStep);
-    virtual SBufList dump() const;
-    void parse();
-    bool empty() const;
-    virtual ACLAtStepData *clone() const;
+    ACLAtStepData &operator= (ACLAtStepData const &);
 
+    /* ACLData<T> API */
+    virtual bool match(Ssl::BumpStep) override;
+    virtual SBufList dump() const override;
+    virtual void parse() override;
+    virtual ACLData *clone() const override;
+    virtual bool empty() const override;
+
+public:
     std::list<Ssl::BumpStep> values;
 };
 

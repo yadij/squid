@@ -10,10 +10,9 @@
 #define SQUID_IDENT_ACLIDENT_H
 
 #if USE_IDENT
-
-#include "acl/Acl.h"
 #include "acl/Checklist.h"
 #include "acl/Data.h"
+#include "acl/MatchNode.h"
 
 /// \ingroup ACLAPI
 class IdentLookup : public ACLChecklist::AsyncState
@@ -29,7 +28,7 @@ private:
 };
 
 /// \ingroup ACLAPI
-class ACLIdent : public ACL
+class ACLIdent : public Acl::MatchNode
 {
     MEMPROXY_CLASS(ACLIdent);
 
@@ -39,7 +38,7 @@ public:
     ACLIdent & operator= (ACLIdent const &rhs);
     ~ACLIdent();
 
-    /* ACL API */
+    /* Acl::MatchNode API */
     virtual char const *typeString() const;
     virtual void parse();
     virtual bool isProxyAuth() const {return true;}
@@ -47,7 +46,7 @@ public:
     virtual int match(ACLChecklist *checklist);
     virtual SBufList dump() const;
     virtual bool empty () const;
-    virtual ACL *clone()const;
+    virtual Acl::MatchNode *clone() const;
 
 private:
     ACLData<char const *> *data;

@@ -6,8 +6,8 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef SQUID_ACL_H
-#define SQUID_ACL_H
+#ifndef SQUID_SRC_ACL_MATCHNODE_H
+#define SQUID_SRC_ACL_MATCHNODE_H
 
 #include "acl/Options.h"
 #include "cbdata.h"
@@ -23,30 +23,27 @@ namespace Acl {
 
 /// the ACL type name known to admins
 typedef const char *TypeName;
-/// a "factory" function for making ACL objects (of some ACL child type)
-typedef ACL *(*Maker)(TypeName typeName);
+/// a "factory" function for making Acl::MatchNode objects (of some MatchNode child type)
+typedef MatchNode *(*Maker)(TypeName typeName);
 /// use the given ACL Maker for all ACLs of the named type
 void RegisterMaker(TypeName typeName, Maker maker);
-
-} // namespace Acl
 
 /// A configurable condition. A node in the ACL expression tree.
 /// Can evaluate itself in FilledChecklist context.
 /// Does not change during evaluation.
-/// \ingroup ACLAPI
-class ACL
+class MatchNode
 {
 
 public:
     void *operator new(size_t);
     void operator delete(void *);
 
-    static void ParseAclLine(ConfigParser &parser, ACL ** head);
+    static void ParseAclLine(ConfigParser &parser, MatchNode ** head);
     static void Initialize();
-    static ACL *FindByName(const char *name);
+    static MatchNode *FindByName(const char *name);
 
-    ACL();
-    virtual ~ACL();
+    MatchNode();
+    virtual ~MatchNode();
 
     /// sets user-specified ACL name and squid.conf context
     void context(const char *name, const char *configuration);
@@ -78,12 +75,13 @@ public:
 
     SBufList dumpOptions(); ///< \returns approximate options configuration
 
+public:
     char name[ACL_NAME_SZ];
     char *cfgline;
-    ACL *next; // XXX: remove or at least use refcounting
+    MatchNode *next; // XXX: remove or at least use refcounting
     bool registered; ///< added to the global list of ACLs via aclRegister()
 
-private:
+protected:
     /// Matches the actual data in checklist against this ACL.
     virtual int match(ACLChecklist *checklist) = 0; // XXX: missing const
 
@@ -94,6 +92,8 @@ private:
     /// whether our (i.e. shallow) match() requires checklist to have a reply
     virtual bool requiresReply() const;
 };
+
+} // namespace Acl
 
 /// \ingroup ACLAPI
 class acl_proxy_auth_match_cache
@@ -115,5 +115,5 @@ public:
 /// XXX: find a way to remove or at least use a refcounted ACL pointer
 extern const char *AclMatchedName;  /* NULL */
 
-#endif /* SQUID_ACL_H */
+#endif /* SQUID_SRC_ACL_MATCHNODE_H */
 

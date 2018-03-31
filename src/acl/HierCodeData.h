@@ -21,12 +21,15 @@ public:
     ACLHierCodeData(ACLHierCodeData const &);
     ACLHierCodeData &operator= (ACLHierCodeData const &);
     virtual ~ACLHierCodeData();
-    bool match(hier_code);
-    virtual SBufList dump() const;
-    void parse();
-    bool empty() const;
-    virtual ACLData<hier_code> *clone() const;
 
+    /* ACLData<T> API */
+    virtual bool match(hier_code) override;
+    virtual SBufList dump() const override;
+    virtual void parse() override;
+    virtual ACLData *clone() const override;
+    virtual bool empty() const override;
+
+public:
     /// mask of codes this ACL might match.
     bool values[HIER_MAX];
 };

@@ -35,7 +35,7 @@ void
 testACLMaxUserIP::setUp()
 {
     CPPUNIT_NS::TestFixture::setUp();
-    Acl::RegisterMaker("max_user_ip", [](Acl::TypeName name)->ACL* { return new ACLMaxUserIP(name); });
+    Acl::RegisterMaker("max_user_ip", [](Acl::TypeName name)->Acl::MatchNode* { return new ACLMaxUserIP(name); });
 }
 
 void
@@ -45,9 +45,9 @@ testACLMaxUserIP::testParseLine()
     char * line = xstrdup("test max_user_ip -s 1");
     /* seed the parser */
     ConfigParser::SetCfgLine(line);
-    ACL *anACL = NULL;
+    Acl::MatchNode *anACL = nullptr;
     ConfigParser LegacyParser;
-    ACL::ParseAclLine(LegacyParser, &anACL);
+    Acl::MatchNode::ParseAclLine(LegacyParser, &anACL);
     ACLMaxUserIP *maxUserIpACL = dynamic_cast<ACLMaxUserIP *>(anACL);
     CPPUNIT_ASSERT(maxUserIpACL);
     if (maxUserIpACL) {

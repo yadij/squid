@@ -14,7 +14,7 @@
 
 /* Acl::NotNode */
 
-Acl::NotNode::NotNode(ACL *acl)
+Acl::NotNode::NotNode(Acl::MatchNode *acl)
 {
     assert(acl);
     Must(strlen(acl->name) <= sizeof(name)-2);
@@ -52,7 +52,7 @@ Acl::NotNode::typeString() const
     return "!";
 }
 
-ACL *
+Acl::MatchNode *
 Acl::NotNode::clone() const
 {
     // Not implemented: we are not a named ACL type in squid.conf so nobody
@@ -78,7 +78,7 @@ Acl::AndNode::typeString() const
     return "and";
 }
 
-ACL *
+Acl::MatchNode *
 Acl::AndNode::clone() const
 {
     return new AndNode;
@@ -112,7 +112,7 @@ Acl::OrNode::typeString() const
     return "any-of";
 }
 
-ACL *
+Acl::MatchNode *
 Acl::OrNode::clone() const
 {
     return new OrNode;

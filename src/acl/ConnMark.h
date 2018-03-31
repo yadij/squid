@@ -9,7 +9,7 @@
 #ifndef SQUID_ACLCONNMARK_H
 #define SQUID_ACLCONNMARK_H
 
-#include "acl/Acl.h"
+#include "acl/MatchNode.h"
 #include "ip/forward.h"
 #include "ip/NfMarkConfig.h"
 #include "parser/Tokenizer.h"
@@ -18,17 +18,20 @@
 
 namespace Acl {
 
-class ConnMark : public ACL
+class ConnMark : public Acl::MatchNode
 {
     MEMPROXY_CLASS(ConnMark);
 
 public:
-    /* ACL API */
-    virtual char const *typeString() const override;
+    /// a mark/mask pair for matching CONNMARKs
+    typedef std::pair<nfmark_t, nfmark_t> ConnMarkQuery;
+
+    /* Acl::MatchNode API */
     virtual void parse() override;
-    virtual int match(ACLChecklist *checklist) override;
+    virtual char const *typeString() const override;
     virtual SBufList dump() const override;
     virtual bool empty() const override;
+    virtual int match(ACLChecklist *) override;
 
 private:
     std::vector<Ip::NfMarkConfig> marks; ///< marks/masks in configured order

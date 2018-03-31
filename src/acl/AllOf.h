@@ -22,11 +22,12 @@ class AllOf: public Acl::InnerNode
     MEMPROXY_CLASS(AllOf);
 
 public:
-    /* ACL API */
-    virtual char const *typeString() const;
-    virtual ACL *clone() const;
-    virtual void parse();
-    virtual SBufList dump() const;
+    virtual Acl::MatchNode *clone() const;
+
+    /* Acl::MatchNode API */
+    virtual void parse() override;
+    virtual char const *typeString() const override;
+    virtual SBufList dump() const override;
 
 private:
     /* Acl::InnerNode API */

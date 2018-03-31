@@ -17,7 +17,7 @@
 #include "MasterXaction.h"
 #include "SquidConfig.h"
 
-ACL *
+Acl::MatchNode *
 Acl::TransactionInitiator::clone() const
 {
     return new Acl::TransactionInitiator(*this);

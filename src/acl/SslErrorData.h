@@ -21,12 +21,15 @@ public:
     ACLSslErrorData(ACLSslErrorData const &);
     ACLSslErrorData &operator= (ACLSslErrorData const &);
     virtual ~ACLSslErrorData() {}
-    bool match(const Security::CertErrors *);
-    virtual SBufList dump() const;
-    void parse();
-    bool empty() const { return values.empty(); }
-    virtual  ACLSslErrorData *clone() const;
 
+    /* ACLData<T> API */
+    virtual bool match(const Security::CertErrors *) override;
+    virtual SBufList dump() const override;
+    virtual void parse() override;
+    virtual ACLData *clone() const override;
+    virtual bool empty() const override { return values.empty(); }
+
+public:
     Security::Errors values;
 };
 

@@ -56,7 +56,7 @@ int acl_httpstatus_data::compare(acl_httpstatus_data* const& a, acl_httpstatus_d
     return ret;
 }
 
-ACL *
+Acl::MatchNode *
 ACLHTTPStatus::clone() const
 {
     return new ACLHTTPStatus(*this);

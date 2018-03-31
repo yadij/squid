@@ -242,7 +242,7 @@ static void free_configuration_includes_quoted_values(bool *recognizeQuotedValue
 static void parse_on_unsupported_protocol(acl_accessPointer *access);
 static void dump_on_unsupported_protocol(StoreEntry *entry, const char *name, const acl_accessPointer &access);
 static void free_on_unsupported_protocol(acl_accessPointer *access);
-static void ParseAclWithAction(acl_accessPointer *access, const Acl::Answer &action, const char *desc, ACL *acl = nullptr);
+static void ParseAclWithAction(acl_accessPointer *access, const Acl::Answer &action, const char *desc, Acl::MatchNode *acl = nullptr);
 
 /*
  * LegacyParser is a parser for legacy code that uses the global
@@ -1359,7 +1359,7 @@ free_SBufList(SBufList *list)
 }
 
 static void
-dump_acl(StoreEntry * entry, const char *name, ACL * ae)
+dump_acl(StoreEntry * entry, const char *name, Acl::MatchNode * ae)
 {
     while (ae != NULL) {
         debugs(3, 3, "dump_acl: " << name << " " << ae->name);
@@ -1376,13 +1376,13 @@ dump_acl(StoreEntry * entry, const char *name, ACL * ae)
 }
 
 static void
-parse_acl(ACL ** ae)
+parse_acl(Acl::MatchNode ** ae)
 {
-    ACL::ParseAclLine(LegacyParser, ae);
+    Acl::MatchNode::ParseAclLine(LegacyParser, ae);
 }
 
 static void
-free_acl(ACL ** ae)
+free_acl(Acl::MatchNode ** ae)
 {
     aclDestroyAcls(ae);
 }
@@ -1907,7 +1907,7 @@ dump_AuthSchemes(StoreEntry *entry, const char *name, const acl_accessPointer &a
 #endif /* USE_AUTH */
 
 static void
-ParseAclWithAction(acl_accessPointer *access, const Acl::Answer &action, const char *desc, ACL *acl)
+ParseAclWithAction(acl_accessPointer *access, const Acl::Answer &action, const char *desc, Acl::MatchNode *acl)
 {
     assert(access);
     SBuf name;
@@ -4844,7 +4844,7 @@ static void parse_ftp_epsv(acl_accessPointer *ftp_epsv)
         ftp_epsv->clear();
 
         if (ftpEpsvDeprecatedAction == Acl::Answer(ACCESS_DENIED)) {
-            if (ACL *a = ACL::FindByName("all"))
+            if (auto a = Acl::MatchNode::FindByName("all"))
                 ParseAclWithAction(ftp_epsv, ftpEpsvDeprecatedAction, "ftp_epsv", a);
             else {
                 self_destruct();

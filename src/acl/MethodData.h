@@ -23,12 +23,15 @@ public:
     ACLMethodData(ACLMethodData const &);
     ACLMethodData &operator= (ACLMethodData const &);
     virtual ~ACLMethodData();
-    bool match(HttpRequestMethod);
-    virtual SBufList dump() const;
-    void parse();
-    bool empty() const {return values.empty();}
-    virtual ACLData<HttpRequestMethod> *clone() const;
 
+    /* ACLData<T> API */
+    virtual bool match(HttpRequestMethod) override;
+    virtual SBufList dump() const override;
+    virtual void parse() override;
+    virtual ACLData *clone() const override;
+    virtual bool empty() const override { return values.empty(); }
+
+public:
     std::list<HttpRequestMethod> values;
 
     static int ThePurgeCount; ///< PURGE methods seen by parse()

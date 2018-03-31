@@ -26,12 +26,15 @@ public:
     ACLCertificateData(ACLCertificateData const &);
     ACLCertificateData &operator= (ACLCertificateData const &);
     virtual ~ACLCertificateData();
-    bool match(X509 *);
-    virtual SBufList dump() const;
-    void parse();
-    bool empty() const;
-    virtual ACLData<X509 *> *clone() const;
 
+    /* ACLData<T> API */
+    virtual bool match(X509 *) override;
+    virtual SBufList dump() const override;
+    virtual void parse() override;
+    virtual ACLData *clone() const override;
+    virtual bool empty() const override;
+
+public:
     /// A '|'-delimited list of valid ACL attributes.
     /// A "*" item means that any attribute is acceptable.
     /// Assumed to be a const-string and is never duped/freed.

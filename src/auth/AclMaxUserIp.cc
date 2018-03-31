@@ -23,7 +23,7 @@ ACLMaxUserIP::ACLMaxUserIP(char const *theClass) :
     maximum(0)
 {}
 
-ACL *
+Acl::MatchNode *
 ACLMaxUserIP::clone() const
 {
     return new ACLMaxUserIP(*this);

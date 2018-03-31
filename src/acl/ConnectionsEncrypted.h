@@ -9,13 +9,13 @@
 #ifndef SQUID_ACL_CONNECTIONS_ENCRYPTED_H
 #define SQUID_ACL_CONNECTIONS_ENCRYPTED_H
 
-#include "acl/Acl.h"
 #include "acl/Checklist.h"
+#include "acl/MatchNode.h"
 
 namespace Acl
 {
 
-class ConnectionsEncrypted : public ACL
+class ConnectionsEncrypted : public Acl::MatchNode
 {
     MEMPROXY_CLASS(ConnectionsEncrypted);
 
@@ -25,12 +25,14 @@ public:
     virtual ~ConnectionsEncrypted();
     ConnectionsEncrypted &operator =(ConnectionsEncrypted const &);
 
-    virtual ACL *clone()const;
-    virtual char const *typeString() const;
-    virtual void parse();
-    virtual int match(ACLChecklist *checklist);
-    virtual SBufList dump() const;
-    virtual bool empty () const;
+    virtual Acl::MatchNode *clone() const;
+
+    /* Acl::MatchNode API */
+    virtual void parse() override;
+    virtual char const *typeString() const override;
+    virtual SBufList dump() const override;
+    virtual bool empty() const override;
+    virtual int match(ACLChecklist *) override;
 
 protected:
     char const *class_;

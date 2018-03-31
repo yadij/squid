@@ -23,11 +23,13 @@ class ACLNoteData : public ACLData<NotePairs::Entry *>
 public:
     ACLNoteData();
     virtual ~ACLNoteData();
-    virtual bool match(NotePairs::Entry *);
-    virtual SBufList dump() const;
-    virtual void parse();
-    virtual bool empty() const;
-    virtual ACLData<NotePairs::Entry *> *clone() const;
+
+    /* ACLData<T> API */
+    virtual bool match(NotePairs::Entry *) override;
+    virtual SBufList dump() const override;
+    virtual void parse() override;
+    virtual ACLData *clone() const override;
+    virtual bool empty() const override;
 
 private:
     SBuf name;                   ///< Note name to check. It is always set

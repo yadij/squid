@@ -9,8 +9,8 @@
 #ifndef SQUID_ACLIP_H
 #define SQUID_ACLIP_H
 
-#include "acl/Acl.h"
 #include "acl/Data.h"
+#include "acl/MatchNode.h"
 #include "ip/Address.h"
 #include "splay.h"
 
@@ -41,7 +41,7 @@ private:
     static bool DecodeMask(const char *asc, Ip::Address &mask, int string_format_type);
 };
 
-class ACLIP : public ACL
+class ACLIP : public Acl::MatchNode
 {
 public:
     void *operator new(size_t);
@@ -52,12 +52,12 @@ public:
 
     typedef Splay<acl_ip_data *> IPSplay;
 
+    /* Acl::MatchNode API */
+    virtual void parse() override;
     virtual char const *typeString() const = 0;
-    virtual void parse();
-    //    virtual bool isProxyAuth() const {return true;}
-    virtual int match(ACLChecklist *checklist) = 0;
-    virtual SBufList dump() const;
-    virtual bool empty () const;
+    virtual SBufList dump() const override;
+    virtual bool empty() const override;
+    virtual int match(ACLChecklist *) = 0;
 
 protected:
 

@@ -19,7 +19,7 @@ Acl::AllOf::typeString() const
     return "all-of";
 }
 
-ACL *
+Acl::MatchNode *
 Acl::AllOf::clone() const
 {
     return new AllOf;
@@ -51,7 +51,7 @@ void
 Acl::AllOf::parse()
 {
     Acl::InnerNode *whole = NULL;
-    ACL *oldNode = empty() ? NULL : nodes.front();
+    Acl::MatchNode *oldNode = empty() ? nullptr : nodes.front();
 
     // optimization: this logic reduces subtree hight (number of tree levels)
     if (Acl::OrNode *oldWhole = dynamic_cast<Acl::OrNode*>(oldNode)) {

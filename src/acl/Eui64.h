@@ -9,7 +9,7 @@
 #ifndef SQUID_ACLEUI64_H
 #define SQUID_ACLEUI64_H
 
-#include "acl/Acl.h"
+#include "acl/MatchNode.h"
 
 #include <set>
 
@@ -18,7 +18,7 @@ namespace Eui
 class Eui64;
 };
 
-class ACLEui64 : public ACL
+class ACLEui64 : public Acl::MatchNode
 {
     MEMPROXY_CLASS(ACLEui64);
 
@@ -28,12 +28,14 @@ public:
     ~ACLEui64() {}
     ACLEui64&operator=(ACLEui64 const &);
 
-    virtual ACL *clone()const;
-    virtual char const *typeString() const;
-    virtual void parse();
-    virtual int match(ACLChecklist *checklist);
-    virtual SBufList dump() const;
-    virtual bool empty () const;
+    virtual Acl::MatchNode *clone() const;
+
+    /* Acl::MatchNode API */
+    virtual void parse() override;
+    virtual char const *typeString() const override;
+    virtual SBufList dump() const override;
+    virtual bool empty() const override;
+    virtual int match(ACLChecklist *) override;
 
 protected:
     typedef std::set<Eui::Eui64> Eui64Data_t;

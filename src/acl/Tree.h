@@ -37,8 +37,8 @@ public:
     Acl::Answer lastAction() const;
 
     /// appends and takes control over the rule with a given action
-    void add(ACL *rule, const Acl::Answer &action);
-    void add(ACL *rule); ///< same as InnerNode::add()
+    void add(Acl::MatchNode *rule, const Acl::Answer &action);
+    void add(Acl::MatchNode *rule); ///< same as InnerNode::add()
 
 protected:
     /// Acl::OrNode API

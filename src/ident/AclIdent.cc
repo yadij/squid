@@ -98,7 +98,7 @@ ACLIdent::empty () const
     return data->empty();
 }
 
-ACL *
+Acl::MatchNode *
 ACLIdent::clone() const
 {
     return new ACLIdent(*this);

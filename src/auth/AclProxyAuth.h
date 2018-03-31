@@ -11,9 +11,9 @@
 
 #if USE_AUTH
 
-#include "acl/Acl.h"
 #include "acl/Checklist.h"
 #include "acl/Data.h"
+#include "acl/MatchNode.h"
 
 class ProxyAuthLookup : public ACLChecklist::AsyncState
 {
@@ -27,7 +27,7 @@ private:
     static void LookupDone(void *data);
 };
 
-class ACLProxyAuth : public ACL
+class ACLProxyAuth : public Acl::MatchNode
 {
     MEMPROXY_CLASS(ACLProxyAuth);
 
@@ -37,7 +37,7 @@ public:
     ACLProxyAuth(ACLProxyAuth const &);
     ACLProxyAuth &operator =(ACLProxyAuth const &);
 
-    /* ACL API */
+    /* Acl::MatchNode API */
     virtual char const *typeString() const;
     virtual void parse();
     virtual bool isProxyAuth() const {return true;}
@@ -47,7 +47,7 @@ public:
     virtual bool valid() const;
     virtual bool empty() const;
     virtual bool requiresRequest() const {return true;}
-    virtual ACL *clone() const;
+    virtual Acl::MatchNode *clone() const;
     virtual int matchForCache(ACLChecklist *checklist);
 
 private:

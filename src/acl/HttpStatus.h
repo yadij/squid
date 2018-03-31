@@ -9,8 +9,7 @@
 #ifndef SQUID_ACLHTTPSTATUS_H
 #define SQUID_ACLHTTPSTATUS_H
 
-#include "acl/Acl.h"
-#include "acl/Checklist.h"
+#include "acl/MatchNode.h"
 #include "splay.h"
 
 /// \ingroup ACLAPI
@@ -24,7 +23,7 @@ struct acl_httpstatus_data {
 };
 
 /// \ingroup ACLAPI
-class ACLHTTPStatus : public ACL
+class ACLHTTPStatus : public Acl::MatchNode
 {
     MEMPROXY_CLASS(ACLHTTPStatus);
 
@@ -34,13 +33,15 @@ public:
     ~ACLHTTPStatus();
     ACLHTTPStatus&operator=(ACLHTTPStatus const &);
 
-    virtual ACL *clone()const;
-    virtual char const *typeString() const;
-    virtual void parse();
-    virtual int match(ACLChecklist *checklist);
-    virtual SBufList dump() const;
-    virtual bool empty () const;
-    virtual bool requiresReply() const { return true; }
+    virtual Acl::MatchNode *clone() const;
+
+    /* Acl::MatchNode API */
+    virtual void parse() override;
+    virtual char const *typeString() const override;
+    virtual SBufList dump() const override;
+    virtual bool empty() const override;
+    virtual int match(ACLChecklist *) override;
+    virtual bool requiresReply() const override { return true; }
 
 protected:
     Splay<acl_httpstatus_data*> *data;

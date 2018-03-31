@@ -9,9 +9,9 @@
 /* DEBUG: section 28    Access Control */
 
 #include "squid.h"
-#include "acl/Acl.h"
 #include "acl/Checklist.h"
 #include "acl/Gadgets.h"
+#include "acl/MatchNode.h"
 #include "acl/Options.h"
 #include "anyp/PortCfg.h"
 #include "cache_cf.h"
@@ -48,9 +48,8 @@ TheMakers()
     return Registry;
 }
 
-/// creates an ACL object of the named (and already registered) ACL child type
-static
-ACL *
+/// creates an Acl::MatchNode object of the named (and already registered) child type
+static Acl::MatchNode *
 Make(TypeName typeName)
 {
     const auto pos = TheMakers().find(typeName);
@@ -60,7 +59,7 @@ Make(TypeName typeName)
         assert(false); // not reached
     }
 
-    ACL *result = (pos->second)(pos->first);
+    Acl::MatchNode *result = (pos->second)(pos->first);
     debugs(28, 4, typeName << '=' << result);
     assert(result);
     return result;
@@ -77,34 +76,33 @@ Acl::RegisterMaker(TypeName typeName, Maker maker)
 }
 
 void *
-ACL::operator new (size_t)
+Acl::MatchNode::operator new (size_t)
 {
-    fatal ("unusable ACL::new");
+    fatal ("unusable Acl::MatchNode::new");
     return (void *)1;
 }
 
 void
-ACL::operator delete (void *)
+Acl::MatchNode::operator delete (void *)
 {
-    fatal ("unusable ACL::delete");
+    fatal ("unusable Acl::MatchNode::delete");
 }
 
-ACL *
-ACL::FindByName(const char *name)
+Acl::MatchNode *
+Acl::MatchNode::FindByName(const char *name)
 {
-    ACL *a;
-    debugs(28, 9, "ACL::FindByName '" << name << "'");
+    debugs(28, 9, name);
 
-    for (a = Config.aclList; a; a = a->next)
+    for (auto a = Config.aclList; a; a = a->next)
         if (!strcasecmp(a->name, name))
             return a;
 
-    debugs(28, 9, "ACL::FindByName found no match");
+    debugs(28, 9, "found no match");
 
     return NULL;
 }
 
-ACL::ACL() :
+Acl::MatchNode::MatchNode() :
     cfgline(nullptr),
     next(nullptr),
     registered(false)
@@ -112,13 +110,14 @@ ACL::ACL() :
     *name = 0;
 }
 
-bool ACL::valid () const
+bool
+Acl::MatchNode::valid() const
 {
     return true;
 }
 
 bool
-ACL::matches(ACLChecklist *checklist) const
+Acl::MatchNode::matches(ACLChecklist *checklist) const
 {
     PROF_start(ACL_matches);
     debugs(28, 5, "checking " << name);
@@ -144,7 +143,7 @@ ACL::matches(ACLChecklist *checklist) const
             checklist->verifyAle();
 
         // have to cast because old match() API is missing const
-        result = const_cast<ACL*>(this)->match(checklist);
+        result = const_cast<Acl::MatchNode *>(this)->match(checklist);
     }
 
     const char *extra = checklist->asyncInProgress() ? " async" : "";
@@ -154,7 +153,7 @@ ACL::matches(ACLChecklist *checklist) const
 }
 
 void
-ACL::context(const char *aName, const char *aCfgLine)
+Acl::MatchNode::context(const char *aName, const char *aCfgLine)
 {
     name[0] = '\0';
     if (aName)
@@ -165,11 +164,10 @@ ACL::context(const char *aName, const char *aCfgLine)
 }
 
 void
-ACL::ParseAclLine(ConfigParser &parser, ACL ** head)
+Acl::MatchNode::ParseAclLine(ConfigParser &parser, Acl::MatchNode ** head)
 {
     /* we're already using strtok() to grok the line */
     char *t = NULL;
-    ACL *A = NULL;
     LOCAL_ARRAY(char, aclname, ACL_NAME_SZ);
     int new_acl = 0;
 
@@ -229,6 +227,7 @@ ACL::ParseAclLine(ConfigParser &parser, ACL ** head)
         theType = "client_connection_mark";
     }
 
+    MatchNode *A = nullptr;
     if ((A = FindByName(aclname)) == NULL) {
         debugs(28, 3, "aclParseAclLine: Creating ACL '" << aclname << "'");
         A = Acl::Make(theType);
@@ -283,20 +282,20 @@ ACL::ParseAclLine(ConfigParser &parser, ACL ** head)
 }
 
 bool
-ACL::isProxyAuth() const
+Acl::MatchNode::isProxyAuth() const
 {
     return false;
 }
 
 void
-ACL::parseFlags()
+Acl::MatchNode::parseFlags()
 {
     // ACL kids that carry ACLData which supports parameter flags override this
     Acl::ParseFlags(options(), Acl::NoFlags());
 }
 
 SBufList
-ACL::dumpOptions()
+Acl::MatchNode::dumpOptions()
 {
     SBufList result;
     const auto &myOptions = options();
@@ -315,7 +314,7 @@ ACL::dumpOptions()
 /* ACL result caching routines */
 
 int
-ACL::matchForCache(ACLChecklist *)
+Acl::MatchNode::matchForCache(ACLChecklist *)
 {
     /* This is a fatal to ensure that cacheMatchAcl calls are _only_
      * made for supported acl types */
@@ -333,7 +332,7 @@ ACL::matchForCache(ACLChecklist *)
  * TODO: does a dlink_list perform well enough? Kinkie
  */
 int
-ACL::cacheMatchAcl(dlink_list * cache, ACLChecklist *checklist)
+Acl::MatchNode::cacheMatchAcl(dlink_list * cache, ACLChecklist *checklist)
 {
     acl_proxy_auth_match_cache *auth_match;
     dlink_node *link;
@@ -343,7 +342,7 @@ ACL::cacheMatchAcl(dlink_list * cache, ACLChecklist *checklist)
         auth_match = (acl_proxy_auth_match_cache *)link->data;
 
         if (auth_match->acl_data == this) {
-            debugs(28, 4, "ACL::cacheMatchAcl: cache hit on acl '" << name << "' (" << this << ")");
+            debugs(28, 4, "cache hit on acl '" << name << "' (" << this << ")");
             return auth_match->matchrv;
         }
 
@@ -352,7 +351,7 @@ ACL::cacheMatchAcl(dlink_list * cache, ACLChecklist *checklist)
 
     auth_match = new acl_proxy_auth_match_cache(matchForCache(checklist), this);
     dlinkAddTail(auth_match, &auth_match->link, cache);
-    debugs(28, 4, "ACL::cacheMatchAcl: miss for '" << name << "'. Adding result " << auth_match->matchrv);
+    debugs(28, 4, "miss for '" << name << "'. Adding result " << auth_match->matchrv);
     return auth_match->matchrv;
 }
 
@@ -375,19 +374,19 @@ aclCacheMatchFlush(dlink_list * cache)
 }
 
 bool
-ACL::requiresAle() const
+Acl::MatchNode::requiresAle() const
 {
     return false;
 }
 
 bool
-ACL::requiresReply() const
+Acl::MatchNode::requiresReply() const
 {
     return false;
 }
 
 bool
-ACL::requiresRequest() const
+Acl::MatchNode::requiresRequest() const
 {
     return false;
 }
@@ -396,7 +395,7 @@ ACL::requiresRequest() const
 /* Destroy functions */
 /*********************/
 
-ACL::~ACL()
+Acl::MatchNode::~MatchNode()
 {
     debugs(28, 3, "freeing ACL " << name);
     safe_free(cfgline);
@@ -404,10 +403,10 @@ ACL::~ACL()
 }
 
 void
-ACL::Initialize()
+Acl::MatchNode::Initialize()
 {
-    ACL *a = Config.aclList;
-    debugs(53, 3, "ACL::Initialize");
+    Acl::MatchNode *a = Config.aclList;
+    debugs(53, 3, "called");
 
     while (a) {
         a->prepareForUse();

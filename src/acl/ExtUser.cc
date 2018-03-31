@@ -78,7 +78,7 @@ ACLExtUser::empty () const
     return data->empty();
 }
 
-ACL *
+Acl::MatchNode *
 ACLExtUser::clone() const
 {
     return new ACLExtUser(*this);

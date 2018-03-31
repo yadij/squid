@@ -15,7 +15,7 @@
 #include "Debug.h"
 #include "SquidConfig.h"
 
-ACL *
+Acl::MatchNode *
 ACLMaxConnection::clone() const
 {
     return new ACLMaxConnection(*this);

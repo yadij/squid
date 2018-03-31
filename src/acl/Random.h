@@ -9,9 +9,9 @@
 #ifndef SQUID_ACL_RANDOM_H
 #define SQUID_ACL_RANDOM_H
 
-#include "acl/Acl.h"
+#include "acl/MatchNode.h"
 
-class ACLRandom : public ACL
+class ACLRandom : public Acl::MatchNode
 {
     MEMPROXY_CLASS(ACLRandom);
 
@@ -21,13 +21,15 @@ public:
     ~ACLRandom();
     ACLRandom&operator=(ACLRandom const &);
 
-    virtual ACL *clone()const;
-    virtual char const *typeString() const;
-    virtual void parse();
-    virtual int match(ACLChecklist *checklist);
-    virtual SBufList dump() const;
-    virtual bool empty () const;
-    virtual bool valid() const;
+    virtual Acl::MatchNode *clone() const;
+
+    /* Acl::MatchNode API */
+    virtual void parse() override;
+    virtual char const *typeString() const override;
+    virtual SBufList dump() const override;
+    virtual bool empty() const override;
+    virtual bool valid() const override;
+    virtual int match(ACLChecklist *) override;
 
 protected:
     double data;        // value to be exceeded before this ACL will match

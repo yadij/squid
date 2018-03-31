@@ -9,27 +9,29 @@
 #ifndef SQUID_ACLMAXCONNECTION_H
 #define SQUID_ACLMAXCONNECTION_H
 
-#include "acl/Acl.h"
+#include "acl/MatchNode.h"
 
 /// \ingroup ACLAPI
-class ACLMaxConnection : public ACL
+class ACLMaxConnection : public Acl::MatchNode
 {
     MEMPROXY_CLASS(ACLMaxConnection);
 
 public:
     ACLMaxConnection(char const *);
     ACLMaxConnection(ACLMaxConnection const &);
-    ~ACLMaxConnection();
+    virtual ~ACLMaxConnection();
     ACLMaxConnection&operator=(ACLMaxConnection const &);
 
-    virtual ACL *clone()const;
-    virtual char const *typeString() const;
-    virtual void parse();
-    virtual int match(ACLChecklist *checklist);
-    virtual SBufList dump() const;
-    virtual bool empty () const;
-    virtual bool valid () const;
-    virtual void prepareForUse();
+    virtual Acl::MatchNode *clone() const;
+
+    /* Acl::MatchNode API */
+    virtual void parse() override;
+    virtual char const *typeString() const override;
+    virtual SBufList dump() const override;
+    virtual bool empty() const override;
+    virtual bool valid() const override;
+    virtual void prepareForUse() override;
+    virtual int match(ACLChecklist *) override;
 
 protected:
     char const *class_;

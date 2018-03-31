@@ -20,11 +20,13 @@ public:
     ACLTimeData(ACLTimeData const &);
     ACLTimeData&operator=(ACLTimeData const &);
     virtual ~ACLTimeData();
-    bool match(time_t);
-    virtual SBufList dump() const;
-    void parse();
-    bool empty() const;
-    virtual ACLData<time_t> *clone() const;
+
+    /* ACLData<T> API */
+    virtual bool match(time_t) override;
+    virtual SBufList dump() const override;
+    virtual void parse() override;
+    virtual ACLData *clone() const override;
+    virtual bool empty() const override;
 
 private:
     int weekbits;

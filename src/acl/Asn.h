@@ -30,12 +30,13 @@ public:
     ACLASN() : data(nullptr) {}
     virtual ~ACLASN();
 
-    virtual bool match(Ip::Address);
-    virtual SBufList dump() const;
-    virtual void parse();
-    bool empty() const;
-    virtual ACLData<Ip::Address> *clone() const;
-    virtual void prepareForUse();
+    /* ACLData<T> API */
+    virtual bool match(Ip::Address) override;
+    virtual SBufList dump() const override;
+    virtual void parse() override;
+    virtual ACLData<Ip::Address> *clone() const override;
+    virtual void prepareForUse() override;
+    virtual bool empty() const override;
 
 private:
     CbDataList<int> *data;

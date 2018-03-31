@@ -15,7 +15,7 @@ Acl::AnyOf::typeString() const
     return "any-of";
 }
 
-ACL *
+Acl::MatchNode *
 Acl::AnyOf::clone() const
 {
     return new AnyOf;

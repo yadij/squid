@@ -21,12 +21,14 @@ class ACLRegexData : public ACLData<char const *>
 
 public:
     virtual ~ACLRegexData();
-    virtual bool match(char const *user);
-    virtual SBufList dump() const;
-    virtual void parse();
-    virtual const Acl::ParameterFlags &supportedFlags() const;
-    virtual bool empty() const;
-    virtual ACLData<char const *> *clone() const;
+
+    /* ACLData<T> API */
+    virtual const Acl::ParameterFlags &supportedFlags() const override;
+    virtual bool match(const char *) override;
+    virtual SBufList dump() const override;
+    virtual void parse() override;
+    virtual ACLData *clone() const override;
+    virtual bool empty() const override;
 
 private:
     std::list<RegexPattern> data;

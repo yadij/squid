@@ -31,7 +31,7 @@ Acl::InnerNode::empty() const
 }
 
 void
-Acl::InnerNode::add(ACL *node)
+Acl::InnerNode::add(Acl::MatchNode *node)
 {
     assert(node != NULL);
     nodes.push_back(node);
@@ -55,9 +55,9 @@ Acl::InnerNode::lineParse()
             ++t;
 
         debugs(28, 3, "looking for ACL " << t);
-        ACL *a = ACL::FindByName(t);
+        Acl::MatchNode *a = Acl::MatchNode::FindByName(t);
 
-        if (a == NULL) {
+        if (!a) {
             debugs(28, DBG_CRITICAL, "ACL not found: " << t);
             self_destruct();
             return;

@@ -44,7 +44,7 @@ ACLSslErrorData::parse()
     }
 }
 
-ACLSslErrorData *
+ACLData<const Security::CertErrors *> *
 ACLSslErrorData::clone() const
 {
     return new ACLSslErrorData(*this);

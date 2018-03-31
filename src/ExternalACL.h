@@ -9,8 +9,8 @@
 #ifndef SQUID_EXTERNALACL_H
 #define SQUID_EXTERNALACL_H
 
-#include "acl/Acl.h"
 #include "acl/Checklist.h"
+#include "acl/MatchNode.h"
 #include "base/RefCount.h"
 
 class external_acl;
@@ -33,7 +33,7 @@ private:
     static void LookupDone(void *data, const ExternalACLEntryPointer &result);
 };
 
-class ACLExternal : public ACL
+class ACLExternal : public Acl::MatchNode
 {
     MEMPROXY_CLASS(ACLExternal);
 
@@ -42,23 +42,22 @@ public:
 
     ACLExternal(char const *);
     ACLExternal(ACLExternal const &);
-    ~ACLExternal();
+    virtual ~ACLExternal();
     ACLExternal&operator=(ACLExternal const &);
 
-    virtual ACL *clone()const;
-    virtual char const *typeString() const;
-    virtual void parse();
-    virtual int match(ACLChecklist *checklist);
-    /* This really should be dynamic based on the external class defn */
-    virtual bool requiresAle() const {return true;}
-    virtual bool requiresRequest() const {return true;}
+    virtual Acl::MatchNode *clone() const;
 
-    /* when requiresRequest is made dynamic, review this too */
-    //    virtual bool requiresReply() const {return true;}
-    virtual bool isProxyAuth() const;
-    virtual SBufList dump() const;
-    virtual bool valid () const;
-    virtual bool empty () const;
+    /* Acl::MatchNode API */
+    virtual void parse() override;
+    virtual char const *typeString() const override;
+    virtual bool isProxyAuth() const override;
+    virtual SBufList dump() const override;
+    virtual bool empty() const override;
+    virtual bool valid() const override;
+    virtual int match(ACLChecklist *) override;
+    /* requires*() really should be dynamic based on the external class defn */
+    virtual bool requiresAle() const override { return true; }
+    virtual bool requiresRequest() const override { return true; }
 
 protected:
     external_acl_data *data;

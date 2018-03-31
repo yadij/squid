@@ -12,7 +12,6 @@
 #include "base/CbcPointer.h"
 #include "base/RefCount.h"
 
-class ACL;
 class ACLChecklist;
 class ACLFilledChecklist;
 
@@ -25,6 +24,7 @@ namespace Acl
 class Address;
 class Answer;
 class InnerNode;
+class MatchNode;
 class NotNode;
 class AndNode;
 class OrNode;

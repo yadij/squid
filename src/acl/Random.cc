@@ -17,7 +17,7 @@
 
 #include <random>
 
-ACL *
+Acl::MatchNode *
 ACLRandom::clone() const
 {
     return new ACLRandom(*this);
