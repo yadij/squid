@@ -59,6 +59,8 @@ public:
     virtual bool requiresAle() const override { return true; }
     virtual bool requiresRequest() const override { return true; }
 
+    friend ExternalACLLookup;
+
 protected:
     external_acl_data *data;
     char const *class_;

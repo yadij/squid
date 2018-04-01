@@ -38,7 +38,7 @@ void ACLChecklist::nonBlockingCheck(ACLCB *, void *) STUB
 Acl::Answer const & ACLChecklist::fastCheck() STUB_RETREF(Acl::Answer)
 Acl::Answer const & ACLChecklist::fastCheck(const Acl::TreePointer) STUB_RETREF(Acl::Answer)
 bool ACLChecklist::goAsync(AsyncState *) STUB_RETVAL(false)
-bool ACLChecklist::matchChild(const Acl::InnerNode *, Acl::Nodes::const_iterator, const Acl::MatchNode *) STUB_RETVAL(false)
+bool ACLChecklist::matchChild(const Acl::InnerNode *, Acl::Nodes::const_iterator, const Acl::MatchNodePointer &) STUB_RETVAL(false)
 void ACLChecklist::markFinished(const Acl::Answer &, const char *) STUB
 bool ACLChecklist::bannedAction(const Acl::Answer &) const STUB_RETVAL(false)
 void ACLChecklist::banAction(const Acl::Answer &) STUB
@@ -55,16 +55,16 @@ void InnerNode::prepareForUse() STUB
 bool InnerNode::empty() const STUB
 SBufList InnerNode::dump() const STUB
 void InnerNode::lineParse() STUB
-void InnerNode::add(Acl::MatchNode *) STUB
+void InnerNode::add(const Acl::MatchNodePointer &) STUB
 int InnerNode::match(ACLChecklist *checklist) STUB_RETVAL(0)
 } // namespace Acl
 
 #include "acl/MatchNode.h"
 namespace Acl {
 // void RegisterMaker(TypeName typeName, Maker maker);
-void MatchNode::ParseAclLine(ConfigParser &, Acl::MatchNode **) STUB
+void MatchNode::ParseAclLine(ConfigParser &, MatchNodePointer *) STUB
 void MatchNode::Initialize() STUB
-MatchNode *Acl::MatchNode::FindByName(const char *) STUB_RETVAL(nullptr)
+MatchNodePointer Acl::MatchNode::FindByName(const char *) STUB_RETVAL(MatchNodePointer())
 MatchNode::MatchNode() {STUB_NOP}
 MatchNode::~MatchNode() {STUB_NOP}
 void MatchNode::context(const char *, const char *) STUB

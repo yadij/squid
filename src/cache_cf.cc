@@ -242,7 +242,7 @@ static void free_configuration_includes_quoted_values(bool *recognizeQuotedValue
 static void parse_on_unsupported_protocol(acl_accessPointer *access);
 static void dump_on_unsupported_protocol(StoreEntry *entry, const char *name, const acl_accessPointer &access);
 static void free_on_unsupported_protocol(acl_accessPointer *access);
-static void ParseAclWithAction(acl_accessPointer *access, const Acl::Answer &action, const char *desc, Acl::MatchNode *acl = nullptr);
+static void ParseAclWithAction(acl_accessPointer *access, const Acl::Answer &action, const char *desc, Acl::MatchNodePointer &acl);
 
 /*
  * LegacyParser is a parser for legacy code that uses the global
@@ -1359,9 +1359,10 @@ free_SBufList(SBufList *list)
 }
 
 static void
-dump_acl(StoreEntry * entry, const char *name, Acl::MatchNode * ae)
+dump_acl(StoreEntry * entry, const char *name, const Acl::MatchNodePointer &head)
 {
-    while (ae != NULL) {
+    Acl::MatchNodePointer ae = head;
+    while (ae) {
         debugs(3, 3, "dump_acl: " << name << " " << ae->name);
         storeAppendPrintf(entry, "%s %s %s ",
                           name,
@@ -1376,15 +1377,15 @@ dump_acl(StoreEntry * entry, const char *name, Acl::MatchNode * ae)
 }
 
 static void
-parse_acl(Acl::MatchNode ** ae)
+parse_acl(Acl::MatchNodePointer *ae)
 {
     Acl::MatchNode::ParseAclLine(LegacyParser, ae);
 }
 
 static void
-free_acl(Acl::MatchNode ** ae)
+free_acl(Acl::MatchNodePointer *ae)
 {
-    aclDestroyAcls(ae);
+    *ae = nullptr; // refcounted
 }
 
 void
@@ -1885,7 +1886,8 @@ parse_AuthSchemes(acl_accessPointer *authSchemes)
     }
     Auth::TheConfig.schemeLists.emplace_back(tok, ConfigParser::LastTokenWasQuoted());
     const Acl::Answer action = Acl::Answer(ACCESS_ALLOWED, Auth::TheConfig.schemeLists.size() - 1);
-    ParseAclWithAction(authSchemes, action, "auth_schemes");
+    Acl::MatchNodePointer nil;
+    ParseAclWithAction(authSchemes, action, "auth_schemes", nil);
 }
 
 static void
@@ -1907,7 +1909,7 @@ dump_AuthSchemes(StoreEntry *entry, const char *name, const acl_accessPointer &a
 #endif /* USE_AUTH */
 
 static void
-ParseAclWithAction(acl_accessPointer *access, const Acl::Answer &action, const char *desc, Acl::MatchNode *acl)
+ParseAclWithAction(acl_accessPointer *access, const Acl::Answer &action, const char *desc, Acl::MatchNodePointer &acl)
 {
     assert(access);
     SBuf name;
@@ -4706,7 +4708,8 @@ static void parse_sslproxy_ssl_bump(acl_accessPointer *ssl_bump)
     bumpCfgStyleLast = bumpCfgStyleNow;
 
     // empty rule OK
-    ParseAclWithAction(ssl_bump, action, "ssl_bump");
+    Acl::MatchNodePointer nil;
+    ParseAclWithAction(ssl_bump, action, "ssl_bump", nil);
 }
 
 static void dump_sslproxy_ssl_bump(StoreEntry *entry, const char *name, const acl_accessPointer &ssl_bump)
@@ -4986,7 +4989,8 @@ parse_on_unsupported_protocol(acl_accessPointer *access)
     }
 
     // empty rule OK
-    ParseAclWithAction(access, action, "on_unsupported_protocol");
+    Acl::MatchNodePointer nil;
+    ParseAclWithAction(access, action, "on_unsupported_protocol", nil);
 }
 
 static void

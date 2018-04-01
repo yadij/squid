@@ -25,6 +25,7 @@ class Address;
 class Answer;
 class InnerNode;
 class MatchNode;
+typedef RefCount<Acl::MatchNode> MatchNodePointer;
 class NotNode;
 class AndNode;
 class OrNode;

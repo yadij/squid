@@ -16,7 +16,7 @@
 namespace Acl
 {
 
-typedef std::vector<Acl::MatchNode *> Nodes; ///< a collection of nodes
+typedef std::vector<Acl::MatchNodePointer> Nodes; ///< a collection of nodes
 
 /// An intermediate ACL tree node. Manages a collection of child tree nodes.
 class InnerNode: public Acl::MatchNode
@@ -34,7 +34,7 @@ public:
     void lineParse();
 
     /// appends the node to the collection and takes control over it
-    void add(Acl::MatchNode *node);
+    void add(const Acl::MatchNodePointer &node);
 
     /* Acl::MatchNode API */
     virtual SBufList dump() const override;
@@ -50,7 +50,6 @@ protected:
     /// kids determine what a match means for their type of intermediate nodes
     virtual int doMatch(ACLChecklist *checklist, Nodes::const_iterator start) const = 0;
 
-    // XXX: use refcounting instead of raw pointers
     Nodes nodes; ///< children nodes of this intermediate node
 };
 

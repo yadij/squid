@@ -31,13 +31,13 @@ void RegisterMaker(TypeName typeName, Maker maker);
 /// A configurable condition. A node in the ACL expression tree.
 /// Can evaluate itself in FilledChecklist context.
 /// Does not change during evaluation.
-class MatchNode
+class MatchNode : public RefCountable
 {
 
 public:
-    static void ParseAclLine(ConfigParser &parser, MatchNode ** head);
+    static void ParseAclLine(ConfigParser &parser, MatchNodePointer *head);
     static void Initialize();
-    static MatchNode *FindByName(const char *name);
+    static MatchNodePointer FindByName(const char *name);
 
     MatchNode();
     virtual ~MatchNode();
@@ -75,8 +75,7 @@ public:
 public:
     char name[ACL_NAME_SZ];
     char *cfgline;
-    MatchNode *next; // XXX: remove or at least use refcounting
-    bool registered; ///< added to the global list of ACLs via aclRegister()
+    MatchNodePointer next; // XXX: remove
 
 protected:
     /// Matches the actual data in checklist against this ACL.

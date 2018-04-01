@@ -75,7 +75,7 @@ Acl::RegisterMaker(TypeName typeName, Maker maker)
     TheMakers().emplace(typeName, maker);
 }
 
-Acl::MatchNode *
+Acl::MatchNodePointer
 Acl::MatchNode::FindByName(const char *name)
 {
     debugs(28, 9, name);
@@ -86,13 +86,11 @@ Acl::MatchNode::FindByName(const char *name)
 
     debugs(28, 9, "found no match");
 
-    return NULL;
+    return MatchNodePointer();
 }
 
 Acl::MatchNode::MatchNode() :
-    cfgline(nullptr),
-    next(nullptr),
-    registered(false)
+    cfgline(nullptr)
 {
     *name = 0;
 }
@@ -151,7 +149,7 @@ Acl::MatchNode::context(const char *aName, const char *aCfgLine)
 }
 
 void
-Acl::MatchNode::ParseAclLine(ConfigParser &parser, Acl::MatchNode ** head)
+Acl::MatchNode::ParseAclLine(ConfigParser &parser, Acl::MatchNodePointer *head)
 {
     /* we're already using strtok() to grok the line */
     char *t = NULL;
@@ -214,7 +212,7 @@ Acl::MatchNode::ParseAclLine(ConfigParser &parser, Acl::MatchNode ** head)
         theType = "client_connection_mark";
     }
 
-    MatchNode *A = nullptr;
+    MatchNodePointer A;
     if ((A = FindByName(aclname)) == NULL) {
         debugs(28, 3, "aclParseAclLine: Creating ACL '" << aclname << "'");
         A = Acl::Make(theType);
@@ -263,9 +261,6 @@ Acl::MatchNode::ParseAclLine(ConfigParser &parser, Acl::MatchNode ** head)
     assert(head && *head == Config.aclList);
     A->next = *head;
     *head = A;
-
-    // register for centralized cleanup
-    aclRegister(A);
 }
 
 bool
@@ -392,7 +387,7 @@ Acl::MatchNode::~MatchNode()
 void
 Acl::MatchNode::Initialize()
 {
-    Acl::MatchNode *a = Config.aclList;
+    Acl::MatchNodePointer a(Config.aclList);
     debugs(53, 3, "called");
 
     while (a) {

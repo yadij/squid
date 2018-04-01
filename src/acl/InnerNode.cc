@@ -31,11 +31,10 @@ Acl::InnerNode::empty() const
 }
 
 void
-Acl::InnerNode::add(Acl::MatchNode *node)
+Acl::InnerNode::add(const Acl::MatchNodePointer &node)
 {
-    assert(node != NULL);
+    assert(node);
     nodes.push_back(node);
-    aclRegister(node);
 }
 
 // one call parses one "acl name acltype name1 name2 ..." line
@@ -55,7 +54,7 @@ Acl::InnerNode::lineParse()
             ++t;
 
         debugs(28, 3, "looking for ACL " << t);
-        Acl::MatchNode *a = Acl::MatchNode::FindByName(t);
+        MatchNodePointer a(MatchNode::FindByName(t));
 
         if (!a) {
             debugs(28, DBG_CRITICAL, "ACL not found: " << t);
@@ -65,9 +64,8 @@ Acl::InnerNode::lineParse()
 
         // append(negated ? new NotNode(a) : a);
         if (negated)
-            add(new NotNode(a));
-        else
-            add(a);
+            a = new NotNode(a.getRaw());
+        add(a);
     }
 
     return;

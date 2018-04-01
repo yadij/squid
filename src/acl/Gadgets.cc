@@ -30,10 +30,6 @@
 #include <set>
 #include <algorithm>
 
-typedef std::set<Acl::MatchNode *> AclSet;
-/// Accumulates all ACLs to facilitate their clean deletion despite reuse.
-static AclSet *RegisteredAcls; // TODO: Remove when ACLs are refcounted
-
 /* does name lookup, returns page_id */
 err_type
 aclGetDenyInfoPage(AclDenyInfoList ** head, const char *name, int redirect_allowed)
@@ -222,51 +218,9 @@ aclParseAclList(ConfigParser &, Acl::TreePointer *treep, const char *label)
     *treep = tree;
 }
 
-void
-aclRegister(Acl::MatchNode *acl)
-{
-    if (!acl->registered) {
-        if (!RegisteredAcls)
-            RegisteredAcls = new AclSet;
-        RegisteredAcls->insert(acl);
-        acl->registered = true;
-    }
-}
-
-/// remove registered acl from the centralized deletion set
-static
-void
-aclDeregister(Acl::MatchNode *acl)
-{
-    if (acl->registered) {
-        if (RegisteredAcls)
-            RegisteredAcls->erase(acl);
-        acl->registered = false;
-    }
-}
-
 /*********************/
 /* Destroy functions */
 /*********************/
-
-/// called to delete ALL Acls.
-void
-aclDestroyAcls(Acl::MatchNode ** head)
-{
-    *head = NULL; // Config.aclList
-    if (AclSet *acls = RegisteredAcls) {
-        debugs(28, 8, "deleting all " << acls->size() << " ACLs");
-        while (!acls->empty()) {
-            Acl::MatchNode *acl = *acls->begin();
-            // We use centralized deletion (this function) so ~ACL should not
-            // delete other ACLs, but we still deregister first to prevent any
-            // accesses to the being-deleted ACL via RegisteredAcls.
-            assert(acl->registered); // make sure we are making progress
-            aclDeregister(acl);
-            delete acl;
-        }
-    }
-}
 
 void
 aclDestroyAclList(ACLListPointer *list)

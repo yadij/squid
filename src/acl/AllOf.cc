@@ -51,10 +51,12 @@ void
 Acl::AllOf::parse()
 {
     Acl::InnerNode *whole = NULL;
-    Acl::MatchNode *oldNode = empty() ? nullptr : nodes.front();
+    MatchNodePointer oldNode;
+    if (!empty())
+        oldNode = nodes.front();
 
     // optimization: this logic reduces subtree hight (number of tree levels)
-    if (Acl::OrNode *oldWhole = dynamic_cast<Acl::OrNode*>(oldNode)) {
+    if (Acl::OrNode *oldWhole = dynamic_cast<Acl::OrNode*>(oldNode.getRaw())) {
         // this acl saw multiple lines before; add another one to the old node
         whole = oldWhole;
     } else if (oldNode) {

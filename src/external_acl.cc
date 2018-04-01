@@ -1012,12 +1012,6 @@ externalAclHandleReply(void *data, const Helper::Reply &reply)
 }
 
 void
-ACLExternal::ExternalAclLookup(ACLChecklist *checklist, ACLExternal * me)
-{
-    ExternalACLLookup::Start(checklist, me->data, false);
-}
-
-void
 ExternalACLLookup::Start(ACLChecklist *checklist, external_acl_data *acl, bool inBackground)
 {
     external_acl *def = acl->def;
@@ -1153,9 +1147,9 @@ ExternalACLLookup::checkForAsync(ACLChecklist *checklist)const
      * around somewhere */
     auto acl = Acl::MatchNode::FindByName(AclMatchedName);
     assert(acl);
-    ACLExternal *me = dynamic_cast<ACLExternal *> (acl);
+    ACLExternal *me = dynamic_cast<ACLExternal *> (acl.getRaw());
     assert (me);
-    ACLExternal::ExternalAclLookup(checklist, me);
+    Start(checklist, me->data, false);
 }
 
 /// Called when an async lookup returns
