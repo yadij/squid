@@ -38,16 +38,16 @@ public:
     ACLProxyAuth &operator =(ACLProxyAuth const &);
 
     /* Acl::MatchNode API */
-    virtual char const *typeString() const;
-    virtual void parse();
-    virtual bool isProxyAuth() const {return true;}
-    virtual void parseFlags();
-    virtual int match(ACLChecklist *checklist);
-    virtual SBufList dump() const;
-    virtual bool valid() const;
-    virtual bool empty() const;
-    virtual bool requiresRequest() const {return true;}
-    virtual int matchForCache(ACLChecklist *checklist);
+    virtual void parseFlags() override;
+    virtual void parse() override;
+    virtual char const *typeString() const override;
+    virtual bool isProxyAuth() const override { return true; }
+    virtual SBufList dump() const override;
+    virtual bool empty() const override;
+    virtual bool valid() const override;
+    virtual int matchForCache(ACLChecklist *) override;
+    virtual int match(ACLChecklist *) override;
+    virtual bool requiresRequest() const override { return true; }
 
 private:
     int matchProxyAuth(ACLChecklist *);

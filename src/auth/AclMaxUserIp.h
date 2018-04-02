@@ -21,20 +21,20 @@ class ACLMaxUserIP : public Acl::MatchNode
 public:
     explicit ACLMaxUserIP(char const *theClass);
 
-    /* Acl::MatchNode API */
-    virtual char const *typeString() const;
-    virtual const Acl::Options &options();
-    virtual void parse();
-    virtual int match(ACLChecklist *cl);
-    virtual SBufList dump() const;
-    virtual bool empty() const;
-    virtual bool valid() const;
-    virtual bool requiresRequest() const {return true;}
+    int getMaximum() const { return maximum; }
 
-    int getMaximum() const {return maximum;}
+    /* Acl::MatchNode API */
+    virtual const Acl::Options &options() override;
+    virtual void parse() override;
+    virtual char const *typeString() const override;
+    virtual SBufList dump() const override;
+    virtual bool empty() const override;
+    virtual bool valid() const override;
+    virtual int match(ACLChecklist *) override;
+    virtual bool requiresRequest() const override { return true; }
 
 private:
-    int match(Auth::UserRequest::Pointer auth_user_request, Ip::Address const &src_addr);
+    int match(Auth::UserRequest::Pointer, Ip::Address const &);
 
 public:
     Acl::BooleanOptionValue beStrict; ///< Enforce "one user, one device" policy?
