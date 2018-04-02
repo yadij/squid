@@ -20,8 +20,6 @@ class AnyOf: public Acl::OrNode
     MEMPROXY_CLASS(AnyOf);
 
 public:
-    virtual Acl::MatchNode *clone() const;
-
     /* Acl::OrNode API */
     virtual void parse() override;
     virtual char const *typeString() const override;

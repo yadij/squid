@@ -18,13 +18,11 @@ namespace Acl
 //NotNode::NotNode(Acl::MatchNode *) {STUB}
 
 char const *AndNode::typeString() const STUB_RETVAL("AndNode")
-Acl::MatchNode *AndNode::clone() const STUB_RETVAL(nullptr)
 void AndNode::parse() STUB
 int AndNode::doMatch(ACLChecklist *, Nodes::const_iterator) const STUB_RETVAL(0)
 
 bool OrNode::bannedAction(ACLChecklist *, Nodes::const_iterator) const STUB_RETVAL(false)
 char const *OrNode::typeString() const STUB_RETVAL("OrNode")
-Acl::MatchNode *OrNode::clone() const STUB_RETVAL(nullptr)
 void OrNode::parse() STUB
 int OrNode::doMatch(ACLChecklist *, Nodes::const_iterator) const STUB_RETVAL(0)
 } // namespace Acl

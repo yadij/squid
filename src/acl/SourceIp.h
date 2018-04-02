@@ -16,8 +16,6 @@ class ACLSourceIP : public ACLIP
     MEMPROXY_CLASS(ACLSourceIP);
 
 public:
-    virtual Acl::MatchNode *clone() const;
-
     /* ACLIP API */
     virtual char const *typeString() const override;
     virtual int match(ACLChecklist *) override;

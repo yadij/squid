@@ -16,12 +16,6 @@
 #include "HttpRequest.h"
 #include "SquidConfig.h"
 
-Acl::MatchNode *
-Acl::ConnectionsEncrypted::clone() const
-{
-    return new Acl::ConnectionsEncrypted(*this);
-}
-
 Acl::ConnectionsEncrypted::ConnectionsEncrypted (char const *theClass) : class_ (theClass)
 {}
 

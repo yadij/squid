@@ -30,8 +30,6 @@ class ACLDestinationIP : public ACLIP
     MEMPROXY_CLASS(ACLDestinationIP);
 
 public:
-    virtual Acl::MatchNode *clone() const;
-
     /* ACLIP API */
     virtual const Acl::Options &options() override;
     virtual char const *typeString() const override;

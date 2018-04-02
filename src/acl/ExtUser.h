@@ -25,8 +25,6 @@ public:
     ACLExtUser & operator= (ACLExtUser const &rhs);
     virtual ~ACLExtUser();
 
-    virtual Acl::MatchNode *clone() const;
-
     /* Acl::MatchNode API */
     virtual void parseFlags() override;
     virtual void parse() override;

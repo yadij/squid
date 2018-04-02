@@ -33,8 +33,6 @@ public:
     ~ACLHTTPStatus();
     ACLHTTPStatus&operator=(ACLHTTPStatus const &);
 
-    virtual Acl::MatchNode *clone() const;
-
     /* Acl::MatchNode API */
     virtual void parse() override;
     virtual char const *typeString() const override;

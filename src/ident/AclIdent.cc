@@ -98,12 +98,6 @@ ACLIdent::empty () const
     return data->empty();
 }
 
-Acl::MatchNode *
-ACLIdent::clone() const
-{
-    return new ACLIdent(*this);
-}
-
 IdentLookup IdentLookup::instance_;
 
 IdentLookup *

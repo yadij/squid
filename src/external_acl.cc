@@ -1161,12 +1161,6 @@ ExternalACLLookup::LookupDone(void *data, const ExternalACLEntryPointer &result)
     checklist->resumeNonBlockingCheck(ExternalACLLookup::Instance());
 }
 
-Acl::MatchNode *
-ACLExternal::clone() const
-{
-    return new ACLExternal(*this);
-}
-
 ACLExternal::ACLExternal(char const *theClass) : data(NULL), class_(xstrdup(theClass))
 {}
 

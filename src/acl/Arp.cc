@@ -21,12 +21,6 @@
 
 #include <algorithm>
 
-Acl::MatchNode *
-ACLARP::clone() const
-{
-    return new ACLARP(*this);
-}
-
 ACLARP::ACLARP (char const *theClass) : class_ (theClass)
 {}
 

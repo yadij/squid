@@ -22,7 +22,6 @@ public:
     explicit ACLMaxUserIP(char const *theClass);
 
     /* Acl::MatchNode API */
-    virtual Acl::MatchNode *clone() const;
     virtual char const *typeString() const;
     virtual const Acl::Options &options();
     virtual void parse();

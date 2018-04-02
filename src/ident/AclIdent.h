@@ -46,7 +46,6 @@ public:
     virtual int match(ACLChecklist *checklist);
     virtual SBufList dump() const;
     virtual bool empty () const;
-    virtual Acl::MatchNode *clone() const;
 
 private:
     ACLData<char const *> *data;

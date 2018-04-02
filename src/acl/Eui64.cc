@@ -19,12 +19,6 @@
 #include "globals.h"
 #include "ip/Address.h"
 
-Acl::MatchNode *
-ACLEui64::clone() const
-{
-    return new ACLEui64(*this);
-}
-
 ACLEui64::ACLEui64 (char const *theClass) : class_ (theClass)
 {}
 

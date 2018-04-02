@@ -27,8 +27,6 @@ public:
     explicit NotNode(Acl::MatchNode *acl);
 
 private:
-    virtual Acl::MatchNode *clone() const;
-
     /* Acl::InnerNode API */
     virtual void parse() override;
     virtual char const *typeString() const override;
@@ -44,8 +42,6 @@ class AndNode: public InnerNode
     MEMPROXY_CLASS(AndNode);
 
 public:
-    virtual Acl::MatchNode *clone() const;
-
     /* Acl::InnerNode API */
     virtual char const *typeString() const override;
     virtual void parse() override;
@@ -66,8 +62,6 @@ public:
     /// whether the given rule should be excluded from matching tests based
     /// on its action
     virtual bool bannedAction(ACLChecklist *, Nodes::const_iterator) const;
-
-    virtual Acl::MatchNode *clone() const;
 
     /* Acl::InnerNode API */
     virtual void parse() override;

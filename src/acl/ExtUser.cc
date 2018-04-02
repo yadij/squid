@@ -78,11 +78,5 @@ ACLExtUser::empty () const
     return data->empty();
 }
 
-Acl::MatchNode *
-ACLExtUser::clone() const
-{
-    return new ACLExtUser(*this);
-}
-
 #endif /* USE_AUTH */
 

@@ -155,12 +155,6 @@ ProxyAuthLookup::LookupDone(void *data)
     checklist->resumeNonBlockingCheck(ProxyAuthLookup::Instance());
 }
 
-Acl::MatchNode *
-ACLProxyAuth::clone() const
-{
-    return new ACLProxyAuth(*this);
-}
-
 int
 ACLProxyAuth::matchForCache(ACLChecklist *cl)
 {

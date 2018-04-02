@@ -28,8 +28,6 @@ public:
     ~ACLEui64() {}
     ACLEui64&operator=(ACLEui64 const &);
 
-    virtual Acl::MatchNode *clone() const;
-
     /* Acl::MatchNode API */
     virtual void parse() override;
     virtual char const *typeString() const override;
