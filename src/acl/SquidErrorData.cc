@@ -7,7 +7,6 @@
  */
 
 #include "squid.h"
-#include "acl/Data.h"
 #include "acl/SquidErrorData.h"
 #include "cache_cf.h"
 #include "ConfigParser.h"

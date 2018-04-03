@@ -9,7 +9,6 @@
 #ifndef SQUID_ACLREQUESTHEADERSTRATEGY_H
 #define SQUID_ACLREQUESTHEADERSTRATEGY_H
 
-#include "acl/Data.h"
 #include "acl/FilledChecklist.h"
 #include "acl/Strategy.h"
 #include "HttpRequest.h"

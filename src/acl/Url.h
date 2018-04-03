@@ -9,7 +9,6 @@
 #ifndef SQUID_ACLURL_H
 #define SQUID_ACLURL_H
 
-#include "acl/Data.h"
 #include "acl/Strategised.h"
 
 class ACLUrlStrategy : public ACLStrategy<char const *>

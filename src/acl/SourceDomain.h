@@ -10,7 +10,6 @@
 #define SQUID_ACLSOURCEDOMAIN_H
 
 #include "acl/Checklist.h"
-#include "acl/Data.h"
 #include "acl/Strategy.h"
 #include "dns/forward.h"
 

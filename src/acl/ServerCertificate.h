@@ -10,7 +10,6 @@
 #define SQUID_ACLSERVERCERTIFICATE_H
 
 #include "acl/Checklist.h"
-#include "acl/Data.h"
 #include "acl/Strategised.h"
 #include "ssl/support.h"
 

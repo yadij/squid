@@ -9,7 +9,6 @@
 #ifndef SQUID_ADAPTATIONSERVICEDATA_H
 #define SQUID_ADAPTATIONSERVICEDATA_H
 
-#include "acl/Data.h"
 #include "acl/StringData.h"
 
 /// \ingroup ACLAPI

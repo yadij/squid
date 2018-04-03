@@ -9,7 +9,6 @@
 #ifndef SQUID_ACLSTRATEGISED_H
 #define SQUID_ACLSTRATEGISED_H
 
-#include "acl/Data.h"
 #include "acl/FilledChecklist.h"
 #include "acl/Strategy.h"
 

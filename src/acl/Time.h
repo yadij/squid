@@ -8,7 +8,7 @@
 
 #ifndef SQUID_ACLTIME_H
 #define SQUID_ACLTIME_H
-#include "acl/Data.h"
+
 #include "acl/Strategised.h"
 
 class ACLTimeStrategy : public ACLStrategy<time_t>
