@@ -9,9 +9,9 @@
 /* DEBUG: section 03    Configuration File Parsing */
 
 #include "squid.h"
-#include "acl/AclDenyInfoList.h"
 #include "acl/AclSizeLimit.h"
 #include "acl/Address.h"
+#include "acl/DenyInfo.h"
 #include "acl/Gadgets.h"
 #include "acl/MethodData.h"
 #include "acl/Tree.h"
@@ -189,9 +189,6 @@ static void free_HeaderWithAclList(HeaderWithAclList **header);
 static void parse_note(Notes *);
 static void dump_note(StoreEntry *, const char *, Notes &);
 static void free_note(Notes *);
-static void parse_denyinfo(AclDenyInfoList ** var);
-static void dump_denyinfo(StoreEntry * entry, const char *name, AclDenyInfoList * var);
-static void free_denyinfo(AclDenyInfoList ** var);
 
 #if USE_WCCPv2
 static void parse_IpAddress_list(Ip::Address_list **);
@@ -2437,34 +2434,6 @@ free_cachemgrpasswd(Mgr::ActionPasswordList ** head)
 {
     delete *head;
     *head = nullptr;
-}
-
-static void
-dump_denyinfo(StoreEntry * entry, const char *name, AclDenyInfoList * var)
-{
-    while (var != NULL) {
-        storeAppendPrintf(entry, "%s %s", name, var->err_page_name);
-
-        for (auto *a = var->acl_list; a != NULL; a = a->next)
-            storeAppendPrintf(entry, " %s", a->name);
-
-        storeAppendPrintf(entry, "\n");
-
-        var = var->next;
-    }
-}
-
-static void
-parse_denyinfo(AclDenyInfoList ** var)
-{
-    aclParseDenyInfoLine(var);
-}
-
-void
-free_denyinfo(AclDenyInfoList ** list)
-{
-    delete *list;
-    *list = nullptr;
 }
 
 static void

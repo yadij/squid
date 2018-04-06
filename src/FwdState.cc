@@ -11,6 +11,7 @@
 #include "squid.h"
 #include "AccessLogEntry.h"
 #include "acl/Address.h"
+#include "acl/DenyInfo.h"
 #include "acl/FilledChecklist.h"
 #include "acl/Gadgets.h"
 #include "anyp/PortCfg.h"
@@ -335,7 +336,7 @@ FwdState::Start(const Comm::ConnectionPointer &clientConn, StoreEntry *entry, Ht
         ch.syncAle(request, nullptr);
         if (ch.fastCheck().denied()) {
             err_type page_id;
-            page_id = aclGetDenyInfoPage(&Config.denyInfoList, AclMatchedName, 1);
+            page_id = Acl::DenyInfo::GetPageId(Config.denyInfoList, AclMatchedName, true);
 
             if (page_id == ERR_NONE)
                 page_id = ERR_FORWARDING_DENIED;

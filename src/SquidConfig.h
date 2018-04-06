@@ -404,7 +404,8 @@ public:
         acl_accessPointer serverPconnForNonretriable;
         acl_accessPointer collapsedForwardingAccess;
     } accessList;
-    AclDenyInfoList *denyInfoList;
+
+    Acl::DenyInfoList denyInfoList; ///< list of all deny_info directives
 
     struct {
         size_t list_width;

@@ -7,6 +7,7 @@
  */
 
 #include "squid.h"
+#include "acl/DenyInfo.h"
 #include "SquidConfig.h"
 
 class SquidConfig Config;

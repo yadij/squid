@@ -7,6 +7,7 @@
  */
 
 #include "squid.h"
+#include "acl/DenyInfo.h"
 #include "acl/FilledChecklist.h"
 #include "acl/Gadgets.h"
 #include "base/TextException.h"
@@ -888,8 +889,7 @@ Client::handleAdaptationBlocked(const Adaptation::Answer &answer)
 
     debugs(11,7, HERE << "creating adaptation block response");
 
-    err_type page_id =
-        aclGetDenyInfoPage(&Config.denyInfoList, answer.ruleId.termedBuf(), 1);
+    err_type page_id = Acl::DenyInfo::GetPageId(Config.denyInfoList, answer.ruleId.termedBuf(), true);
     if (page_id == ERR_NONE)
         page_id = ERR_ACCESS_DENIED;
 

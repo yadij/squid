@@ -9,6 +9,7 @@
 /* DEBUG: section 88    Client-side Reply Routines */
 
 #include "squid.h"
+#include "acl/DenyInfo.h"
 #include "acl/FilledChecklist.h"
 #include "acl/Gadgets.h"
 #include "anyp/PortCfg.h"
@@ -2082,8 +2083,7 @@ clientReplyContext::processReplyAccessResult(const Acl::Answer &accessAllowed)
 
     if (!accessAllowed.allowed()) {
         ErrorState *err;
-        err_type page_id;
-        page_id = aclGetDenyInfoPage(&Config.denyInfoList, AclMatchedName, 1);
+        err_type page_id = Acl::DenyInfo::GetPageId(Config.denyInfoList, AclMatchedName, true);
 
         http->logType.update(LOG_TCP_DENIED_REPLY);
 

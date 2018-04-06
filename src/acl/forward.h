@@ -12,10 +12,10 @@
 #include "base/CbcPointer.h"
 #include "base/RefCount.h"
 
+#include <list>
+
 class ACLChecklist;
 class ACLFilledChecklist;
-
-class AclDenyInfoList;
 class AclSizeLimit;
 
 namespace Acl
@@ -23,6 +23,9 @@ namespace Acl
 
 class Address;
 class Answer;
+class DenyInfo;
+typedef RefCount<Acl::DenyInfo> DenyInfoPointer;
+typedef std::list<Acl::DenyInfoPointer> DenyInfoList;
 class InnerNode;
 class MatchNode;
 typedef RefCount<Acl::MatchNode> MatchNodePointer;

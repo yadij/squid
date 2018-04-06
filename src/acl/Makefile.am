@@ -70,6 +70,8 @@ libacls_la_SOURCES = \
 	ConnectionsEncrypted.h \
 	ConnMark.cc \
 	ConnMark.h \
+	DenyInfo.cc \
+	DenyInfo.h \
 	DestinationAsn.h \
 	DestinationDomain.cc \
 	DestinationDomain.h \
@@ -149,7 +151,6 @@ libacls_la_SOURCES = \
 	UserData.cc \
 	UserData.h \
 	AclNameList.h \
-	AclDenyInfoList.h \
 	Gadgets.cc \
 	Gadgets.h \
 	AclSizeLimit.cc \

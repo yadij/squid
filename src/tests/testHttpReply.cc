@@ -7,14 +7,15 @@
  */
 
 #include "squid.h"
-#include <cppunit/TestAssert.h>
-
+#include "acl/DenyInfo.h"
 #include "HttpHeader.h"
 #include "HttpReply.h"
 #include "mime_header.h"
 #include "SquidConfig.h"
 #include "testHttpReply.h"
 #include "unitTestMain.h"
+
+#include <cppunit/TestAssert.h>
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testHttpReply );
 

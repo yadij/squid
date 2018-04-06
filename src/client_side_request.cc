@@ -17,6 +17,7 @@
  */
 
 #include "squid.h"
+#include "acl/DenyInfo.h"
 #include "acl/FilledChecklist.h"
 #include "acl/Gadgets.h"
 #include "anyp/PortCfg.h"
@@ -772,7 +773,7 @@ ClientRequestContext::clientAccessCheckDone(const Acl::Answer &answer)
          * the clientCreateStoreEntry() call just below.  Pedro Ribeiro
          * <pribeiro@isel.pt>
          */
-        page_id = aclGetDenyInfoPage(&Config.denyInfoList, AclMatchedName, answer != ACCESS_AUTH_REQUIRED);
+        page_id = Acl::DenyInfo::GetPageId(Config.denyInfoList, AclMatchedName, answer != ACCESS_AUTH_REQUIRED);
 
         http->logType.update(LOG_TCP_DENIED);
 
