@@ -658,6 +658,7 @@ Security::PeerOptions::updateContextCa(Security::ContextPointer &ctx)
     }
 #endif
     for (auto i : caFiles) {
+        debugs(83, 8, "Loading CA certificate(s) from " << i);
 #if USE_OPENSSL
         if (!SSL_CTX_load_verify_locations(ctx.get(), i.c_str(), nullptr)) {
             const auto x = ERR_get_error();
@@ -676,6 +677,7 @@ Security::PeerOptions::updateContextCa(Security::ContextPointer &ctx)
     if (!flags.tlsDefaultCa)
         return;
 
+    debugs(83, 8, "Loading CA certificate(s) from system defaults");
     if (const char *err = loadSystemTrustedCa(ctx)) {
         debugs(83, DBG_IMPORTANT, "WARNING: Ignoring error setting default trusted CA : " << err);
     }
