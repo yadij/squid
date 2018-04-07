@@ -150,7 +150,6 @@ libacls_la_SOURCES = \
 	UrlPort.h \
 	UserData.cc \
 	UserData.h \
-	AclNameList.h \
 	Gadgets.cc \
 	Gadgets.h \
 	AclSizeLimit.cc \

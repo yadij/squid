@@ -9,7 +9,7 @@
 #ifndef SQUID_SRC_ACL_DENYINFO_H
 #define SQUID_SRC_ACL_DENYINFO_H
 
-#include "acl/AclNameList.h"
+#include "acl/forward.h"
 #include "errorpage.h"
 #include "sbuf/SBuf.h"
 
@@ -26,9 +26,7 @@ public:
     DenyInfo(const char *t) : pageName(t) {
         err_page_id = errorReservePageId(t);
     }
-    ~DenyInfo() {
-        delete acl_list;
-    }
+    ~DenyInfo() = default;
 
     void dump(Packable *) const;
 
@@ -41,7 +39,7 @@ public:
 private:
     err_type err_page_id = ERR_NONE;
     SBuf pageName;
-    AclNameList *acl_list = nullptr;
+    SBufList acl_list;
 };
 
 } // namespace Acl
