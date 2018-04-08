@@ -9,11 +9,11 @@
 /* DEBUG: section 03    Configuration File Parsing */
 
 #include "squid.h"
-#include "acl/AclSizeLimit.h"
 #include "acl/Address.h"
 #include "acl/DenyInfo.h"
 #include "acl/Gadgets.h"
 #include "acl/MethodData.h"
+#include "acl/SizeLimit.h"
 #include "acl/Tree.h"
 #include "anyp/PortCfg.h"
 #include "anyp/UriScheme.h"
@@ -1591,13 +1591,13 @@ free_acl_nfmark(acl_nfmark ** head)
 #endif /* SO_MARK */
 
 static void
-dump_acl_b_size_t(StoreEntry * entry, const char *name, AclSizeLimit * head)
+dump_acl_b_size_t(StoreEntry * entry, const char *name, const Acl::SizeLimitList &head)
 {
-    for (AclSizeLimit *l = head; l; l = l->next) {
-        if (l->size != -1)
-            storeAppendPrintf(entry, "%s %d %s\n", name, (int) l->size, B_BYTES_STR);
+    for (const auto l : head) {
+        if (l->size >= 0)
+            entry->appendf("%s %" PRId64 " %s\n", name, l->size, B_BYTES_STR);
         else
-            storeAppendPrintf(entry, "%s none", name);
+            entry->appendf("%s none", name);
 
         dump_acl_list(entry, l->aclList);
 
@@ -1606,26 +1606,21 @@ dump_acl_b_size_t(StoreEntry * entry, const char *name, AclSizeLimit * head)
 }
 
 static void
-parse_acl_b_size_t(AclSizeLimit ** head)
+parse_acl_b_size_t(Acl::SizeLimitList * head)
 {
-    AclSizeLimit *l = new AclSizeLimit;
+    Acl::SizeLimitPointer l = new Acl::SizeLimit;
 
     parse_b_int64_t(&l->size);
 
     aclParseAclList(LegacyParser, &l->aclList, l->size);
 
-    AclSizeLimit **tail = head; /* sane name below */
-    while (*tail)
-        tail = &(*tail)->next;
-
-    *tail = l;
+    head->push_back(l);
 }
 
 static void
-free_acl_b_size_t(AclSizeLimit ** head)
+free_acl_b_size_t(Acl::SizeLimitList *head)
 {
-    delete *head;
-    *head = NULL;
+    head->clear();
 }
 
 #if USE_DELAY_POOLS

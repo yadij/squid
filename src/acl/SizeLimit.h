@@ -6,25 +6,25 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef SQUID_ACLSIZELIMIT_H_
-#define SQUID_ACLSIZELIMIT_H_
+#ifndef SQUID_SRC_ACL_SIZELIMIT_H
+#define SQUID_SRC_ACL_SIZELIMIT_H
 
 #include "acl/forward.h"
 #include "cbdata.h"
 
+namespace Acl {
+
 /// representation of a class of Size-limit ACLs
-class AclSizeLimit
+class SizeLimit
 {
-    CBDATA_CLASS(AclSizeLimit);
+    CBDATA_CLASS(SizeLimit);
 
 public:
-    AclSizeLimit() : next(NULL), size(0) {}
-    ~AclSizeLimit();
-
-    AclSizeLimit *next;
     ACLListPointer aclList;
-    int64_t size;
+    int64_t size = 0;
 };
 
-#endif /* SQUID_ACLSIZELIMIT_H_ */
+} // namespace Acl
+
+#endif /* SQUID_SRC_ACL_SIZELIMIT_H_ */
 

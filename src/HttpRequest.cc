@@ -10,8 +10,8 @@
 
 #include "squid.h"
 #include "AccessLogEntry.h"
-#include "acl/AclSizeLimit.h"
 #include "acl/FilledChecklist.h"
+#include "acl/SizeLimit.h"
 #include "client_side.h"
 #include "client_side_request.h"
 #include "dns/LookupDetails.h"
@@ -612,7 +612,7 @@ HttpRequest::getRangeOffsetLimit()
     ch.src_addr = client_addr;
     ch.my_addr =  my_addr;
 
-    for (AclSizeLimit *l = Config.rangeOffsetLimit; l; l = l -> next) {
+    for (const auto &l : Config.rangeOffsetLimit) {
         /* if there is no ACL list or if the ACLs listed match use this limit value */
         if (!l->aclList || ch.fastCheck(l->aclList).allowed()) {
             rangeOffsetLimit = l->size; // may be -1

@@ -9,13 +9,13 @@
 #ifndef SQUID_ACL_FORWARD_H
 #define SQUID_ACL_FORWARD_H
 
+#include "base/CbcPointer.h"
 #include "base/RefCount.h"
 
 #include <list>
 
 class ACLChecklist;
 class ACLFilledChecklist;
-class AclSizeLimit;
 
 namespace Acl
 {
@@ -31,6 +31,9 @@ typedef RefCount<Acl::MatchNode> MatchNodePointer;
 class NotNode;
 class AndNode;
 class OrNode;
+class SizeLimit;
+typedef CbcPointer<Acl::SizeLimit> SizeLimitPointer;
+typedef std::list<SizeLimitPointer> SizeLimitList;
 class Tree;
 typedef RefCount<Acl::Tree> TreePointer;
 

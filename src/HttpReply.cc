@@ -9,8 +9,8 @@
 /* DEBUG: section 58    HTTP Reply (Response) */
 
 #include "squid.h"
-#include "acl/AclSizeLimit.h"
 #include "acl/FilledChecklist.h"
+#include "acl/SizeLimit.h"
 #include "base/EnumIterator.h"
 #include "globals.h"
 #include "http/ContentLengthInterpreter.h"
@@ -546,14 +546,14 @@ HttpReply::calcMaxBodySize(HttpRequest& request) const
     bodySizeMax = -1;
 
     // short-circuit ACL testing if there are none configured
-    if (!Config.ReplyBodySize)
+    if (Config.ReplyBodySize.empty())
         return;
 
     ACLFilledChecklist ch(NULL, &request, NULL);
     // XXX: cont-cast becomes irrelevant when checklist is HttpReply::Pointer
     ch.reply = const_cast<HttpReply *>(this);
     HTTPMSGLOCK(ch.reply);
-    for (AclSizeLimit *l = Config.ReplyBodySize; l; l = l -> next) {
+    for (const auto &l : Config.ReplyBodySize) {
         /* if there is no ACL list or if the ACLs listed match use this size value */
         if (!l->aclList || ch.fastCheck(l->aclList).allowed()) {
             debugs(58, 4, HERE << "bodySizeMax=" << bodySizeMax);

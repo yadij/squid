@@ -127,6 +127,8 @@ libacls_la_SOURCES = \
 	ReplyMimeType.h \
 	RequestHeaderStrategy.h \
 	RequestMimeType.h \
+	SizeLimit.cc \
+	SizeLimit.h \
 	SourceAsn.h \
 	SourceDomain.cc \
 	SourceDomain.h \
@@ -151,9 +153,7 @@ libacls_la_SOURCES = \
 	UserData.cc \
 	UserData.h \
 	Gadgets.cc \
-	Gadgets.h \
-	AclSizeLimit.cc \
-	AclSizeLimit.h
+	Gadgets.h
 
 ## Add conditional sources
 ## TODO: move these to their respective dirs when those dirs are created

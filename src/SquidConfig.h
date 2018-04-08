@@ -129,7 +129,7 @@ public:
     int64_t maxRequestBodySize;
     size_t maxRequestBufferSize;
     size_t maxReplyHeaderSize;
-    AclSizeLimit *ReplyBodySize;
+    Acl::SizeLimitList ReplyBodySize;
 
     struct {
         unsigned short icp;
@@ -455,7 +455,7 @@ public:
     } comm_incoming;
     int max_open_disk_fds;
     int uri_whitespace;
-    AclSizeLimit *rangeOffsetLimit;
+    Acl::SizeLimitList rangeOffsetLimit;
 #if MULTICAST_MISS_STREAM
 
     struct {
