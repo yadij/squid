@@ -450,7 +450,7 @@ ClientHttpRequest::logRequest()
     accessLogLog(al, &checklist);
 
     bool updatePerformanceCounters = true;
-    if (Config.accessList.stats_collection.valid()) {
+    if (Config.accessList.stats_collection) {
         ACLFilledChecklist statsCheck(Config.accessList.stats_collection, request, NULL);
         statsCheck.al = al;
         if (al->reply) {
@@ -1461,7 +1461,7 @@ bool ConnStateData::serveDelayedError(Http::Stream *context)
                    "does not match domainname " << request->url.host());
 
             bool allowDomainMismatch = false;
-            if (Config.ssl_client.cert_error.valid()) {
+            if (Config.ssl_client.cert_error) {
                 ACLFilledChecklist check(Config.ssl_client.cert_error, request, dash_str);
                 check.al = http->al;
                 check.sslErrors = new Security::CertErrors(Security::CertError(SQUID_X509_V_ERR_DOMAIN_MISMATCH, srvCert));
@@ -2385,7 +2385,7 @@ ConnStateData::whenClientIpKnown()
         fqdncache_gethostbyaddr(clientConnection->remote, FQDN_LOOKUP_IF_MISS);
 
 #if USE_IDENT
-    if (Ident::TheConfig.identLookup.valid()) {
+    if (Ident::TheConfig.identLookup) {
         ACLFilledChecklist identChecklist(Ident::TheConfig.identLookup, NULL, NULL);
         identChecklist.src_addr = clientConnection->remote;
         identChecklist.my_addr = clientConnection->local;
@@ -2415,8 +2415,8 @@ ConnStateData::whenClientIpKnown()
         for (unsigned int pool = 0; pool < pools.size(); ++pool) {
 
             /* pools require explicit 'allow' to assign a client into them */
-            if (pools[pool]->access.valid()) {
-                ch.changeAcl(pools[pool]->access.get());
+            if (pools[pool]->access) {
+                ch.changeAcl(pools[pool]->access);
                 Acl::Answer answer = ch.fastCheck();
                 if (answer.allowed()) {
 
@@ -2852,7 +2852,7 @@ void ConnStateData::buildSslCertGenerationParams(Ssl::CertificateProperties &cer
                     (ca->alg == Ssl::algSetValidBefore && certProperties.setValidBefore) )
                 continue;
 
-            if (ca->aclList.valid() && checklist.fastCheck(ca->aclList).allowed()) {
+            if (ca->aclList && checklist.fastCheck(ca->aclList).allowed()) {
                 const char *alg = Ssl::CertAdaptAlgorithmStr[ca->alg];
                 const char *param = ca->param;
 
@@ -2875,7 +2875,7 @@ void ConnStateData::buildSslCertGenerationParams(Ssl::CertificateProperties &cer
 
         certProperties.signAlgorithm = Ssl::algSignEnd;
         for (sslproxy_cert_sign *sg = Config.ssl_client.cert_sign; sg != NULL; sg = sg->next) {
-            if (sg->aclList.valid() && checklist.fastCheck(sg->aclList).allowed()) {
+            if (sg->aclList && checklist.fastCheck(sg->aclList).allowed()) {
                 certProperties.signAlgorithm = (Ssl::CertSignAlgorithm)sg->alg;
                 break;
             }
@@ -4103,7 +4103,7 @@ ConnStateData::checkLogging()
 bool
 ConnStateData::mayTunnelUnsupportedProto()
 {
-    return Config.accessList.on_unsupported_protocol.valid()
+    return bool(Config.accessList.on_unsupported_protocol)
 #if USE_OPENSSL
            &&
            ((port->flags.isIntercepted() && port->flags.tunnelSslBumping)

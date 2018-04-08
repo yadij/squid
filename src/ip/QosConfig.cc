@@ -8,6 +8,7 @@
 
 #include "squid.h"
 #include "acl/Gadgets.h"
+#include "acl/Tree.h"
 #include "cache_cf.h"
 #include "comm/Connection.h"
 #include "compat/cmsg.h"
@@ -25,7 +26,6 @@ CBDATA_CLASS_INIT(acl_tos);
 
 acl_tos::~acl_tos()
 {
-    aclDestroyAclList(&aclList);
     delete next;
 }
 
@@ -33,7 +33,6 @@ CBDATA_CLASS_INIT(acl_nfmark);
 
 acl_nfmark::~acl_nfmark()
 {
-    aclDestroyAclList(&aclList);
     delete next;
 }
 

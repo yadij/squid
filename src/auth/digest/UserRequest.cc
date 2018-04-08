@@ -8,6 +8,7 @@
 
 #include "squid.h"
 #include "AccessLogEntry.h"
+#include "acl/Tree.h"
 #include "auth/digest/Config.h"
 #include "auth/digest/User.h"
 #include "auth/digest/UserRequest.h"

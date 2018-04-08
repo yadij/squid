@@ -10,6 +10,7 @@
 
 #include "squid.h"
 #include "AccessLogEntry.h"
+#include "acl/Tree.h"
 #include "adaptation/Answer.h"
 #include "adaptation/History.h"
 #include "adaptation/icap/Client.h"

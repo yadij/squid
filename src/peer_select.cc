@@ -947,8 +947,8 @@ PeerSelector::addSelection(CachePeer *peer, const hier_code code)
 PeerSelector::PeerSelector(PeerSelectionInitiator *initiator):
     request(nullptr),
     entry (NULL),
-    always_direct(Config.accessList.AlwaysDirect.valid()?ACCESS_DUNNO:ACCESS_DENIED),
-    never_direct(Config.accessList.NeverDirect.valid()?ACCESS_DUNNO:ACCESS_DENIED),
+    always_direct(Config.accessList.AlwaysDirect?ACCESS_DUNNO:ACCESS_DENIED),
+    never_direct(Config.accessList.NeverDirect?ACCESS_DUNNO:ACCESS_DENIED),
     direct(DIRECT_UNKNOWN),
     lastError(NULL),
     servers (NULL),

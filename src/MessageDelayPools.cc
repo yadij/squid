@@ -77,8 +77,6 @@ MessageDelayPool::MessageDelayPool(const SBuf &name, int64_t bucketSpeed, int64_
 
 MessageDelayPool::~MessageDelayPool()
 {
-    if (access.valid())
-        aclDestroyAccessList(&access);
 }
 
 void

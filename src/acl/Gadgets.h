@@ -19,10 +19,6 @@ class dlink_list;
 class StoreEntry;
 class wordlist;
 
-/// \ingroup ACLAPI
-void aclDestroyAccessList(acl_accessPointer *list);
-/// \ingroup ACLAPI
-void aclDestroyAclList(ACLListPointer *);
 /// Parses a single line of a "action followed by acls" directive (e.g., http_access).
 /// \ingroup ACLAPI
 void aclParseAccessLine(const char *directive, ConfigParser &parser, Acl::TreePointer *);

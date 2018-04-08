@@ -8,6 +8,7 @@
 
 #include "squid.h"
 #include "acl/Gadgets.h"
+#include "acl/Tree.h"
 #include "CachePeer.h"
 #include "defines.h"
 #include "NeighborTypeDomainList.h"
@@ -26,8 +27,6 @@ CachePeer::~CachePeer()
         xfree(l->domain);
         xfree(l);
     }
-
-    aclDestroyAccessList(&access);
 
 #if USE_CACHE_DIGESTS
     cbdataReferenceDone(digest);

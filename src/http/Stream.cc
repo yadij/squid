@@ -7,6 +7,7 @@
  */
 
 #include "squid.h"
+#include "acl/Tree.h"
 #include "client_side_request.h"
 #include "http/Stream.h"
 #include "HttpHdrContRange.h"
@@ -291,7 +292,7 @@ Http::Stream::sendStartOfMessage(HttpReply *rep, StoreIOBuffer bodyData)
     }
 #if USE_DELAY_POOLS
     for (const auto &pool: MessageDelayPools::Instance()->pools) {
-        if (pool->access.valid()) {
+        if (pool->access) {
             std::unique_ptr<ACLFilledChecklist> chl(clientAclChecklistCreate(pool->access, http));
             chl->reply = rep;
             HTTPMSGLOCK(chl->reply);

@@ -7,6 +7,7 @@
  */
 
 #include "squid.h"
+#include "acl/Tree.h"
 #include "auth/basic/Config.h"
 #include "auth/basic/User.h"
 #include "auth/Config.h"

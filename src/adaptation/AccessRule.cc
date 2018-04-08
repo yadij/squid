@@ -21,11 +21,6 @@ Adaptation::AccessRule::AccessRule(const String &aGroupId): id(++LastId), groupI
 {
 }
 
-Adaptation::AccessRule::~AccessRule()
-{
-    delete acl.get();
-}
-
 void
 Adaptation::AccessRule::parse(ConfigParser &parser)
 {

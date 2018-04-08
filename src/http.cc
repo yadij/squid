@@ -798,7 +798,7 @@ HttpStateData::handle1xx(HttpReply *reply)
 
 #if USE_HTTP_VIOLATIONS
     // check whether the 1xx response forwarding is allowed by squid.conf
-    if (Config.accessList.reply.valid()) {
+    if (Config.accessList.reply) {
         ACLFilledChecklist ch(Config.accessList.reply, originalRequest().getRaw());
         ch.al = fwd->al;
         ch.reply = reply;

@@ -26,7 +26,7 @@ class AccessRule
 {
 public:
     AccessRule(const String &groupId);
-    ~AccessRule();
+    ~AccessRule() {}
 
     void parse(ConfigParser &parser);
     void finalize();

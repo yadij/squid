@@ -30,8 +30,8 @@ ACLChecklist::prepNonBlocking()
      * freed because of a reconfigure), then bail with ACCESS_DUNNO.
      */
 
-    if (!accessList.valid()) {
-        accessList.clear();
+    if (!accessList) {
+        accessList = nullptr; // refcounted
         debugs(28, 4, "ACLChecklist::check: " << this << " accessList is invalid");
         checkCallback(ACCESS_DUNNO);
         return false;
@@ -48,7 +48,7 @@ ACLChecklist::completeNonBlocking()
     if (!finished())
         calcImplicitAnswer();
 
-    accessList.clear();
+    accessList = nullptr; // refcounted
     checkCallback(currentAnswer());
 }
 
@@ -242,7 +242,7 @@ ACLChecklist::nonBlockingCheck(ACLCB * callback_, void *callback_data_)
     /** The ACL List should NEVER be NULL when calling this method.
      * Always caller should check for NULL and handle appropriate to its needs first.
      * We cannot select a sensible default for all callers here. */
-    if (!accessList.valid()) {
+    if (!accessList) {
         debugs(28, DBG_CRITICAL, "SECURITY ERROR: ACL " << this << " checked with nothing to match against!!");
         checkCallback(ACCESS_DUNNO);
         return;
@@ -311,16 +311,16 @@ ACLChecklist::fastCheck(const Acl::TreePointer list)
 
     // Concurrent checks are not supported, but sequential checks are, and they
     // may use a mixture of fastCheck(void) and fastCheck(list) calls.
-    const Acl::TreePointer savedList(changeAcl(list.get()));
+    const Acl::TreePointer savedList(changeAcl(list));
 
     // assume DENY/ALLOW on mis/matches due to action-free accessList
     // matchAndFinish() takes care of the ALLOW case
-    if (accessList.valid())
+    if (accessList)
         matchAndFinish(); // calls markFinished() on success
     if (!finished())
         markFinished(ACCESS_DENIED, "ACLs failed to match");
 
-    changeAcl(savedList.get());
+    changeAcl(savedList);
     occupied_ = false;
     PROF_stop(aclCheckFast);
     return currentAnswer();
@@ -339,7 +339,7 @@ ACLChecklist::fastCheck()
 
     debugs(28, 5, "aclCheckFast: list: " << accessList);
     const Acl::TreePointer savedAcl(accessList);
-    if (savedAcl.valid()) {
+    if (savedAcl) {
         matchAndFinish(); // calls markFinished() on success
 
         // if finished (on a match or in exceptional cases), stop
@@ -365,7 +365,7 @@ ACLChecklist::fastCheck()
 void
 ACLChecklist::calcImplicitAnswer()
 {
-    const Acl::Answer lastAction = (accessList.valid() ? accessList->lastAction() : Acl::Answer(ACCESS_DUNNO));
+    const Acl::Answer lastAction = (accessList ? accessList->lastAction() : Acl::Answer(ACCESS_DUNNO));
     Acl::Answer implicitRuleAnswer = ACCESS_DUNNO;
     if (lastAction == ACCESS_DENIED) // reverse last seen "deny"
         implicitRuleAnswer = ACCESS_ALLOWED;

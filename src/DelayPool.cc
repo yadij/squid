@@ -26,9 +26,6 @@ DelayPool::~DelayPool()
 {
     if (pool)
         freeData();
-
-    if (access.valid())
-        aclDestroyAccessList(&access);
 }
 
 void

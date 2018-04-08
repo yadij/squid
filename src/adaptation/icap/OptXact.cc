@@ -9,6 +9,7 @@
 /* DEBUG: section 93    ICAP (RFC 3507) Client */
 
 #include "squid.h"
+#include "acl/Tree.h"
 #include "adaptation/Answer.h"
 #include "adaptation/icap/Config.h"
 #include "adaptation/icap/Options.h"

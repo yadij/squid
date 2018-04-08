@@ -464,7 +464,7 @@ Auth::UserRequest::tryToAuthenticateAndSetAuthUser(Auth::UserRequest::Pointer * 
 static Auth::ConfigVector &
 schemesConfig(HttpRequest *request, HttpReply *rep)
 {
-    if (!Auth::TheConfig.schemeLists.empty() && Auth::TheConfig.schemeAccess.valid()) {
+    if (!Auth::TheConfig.schemeLists.empty() && Auth::TheConfig.schemeAccess) {
         ACLFilledChecklist ch(NULL, request, NULL);
         ch.reply = rep;
         HTTPMSGLOCK(ch.reply);

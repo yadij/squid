@@ -1388,14 +1388,14 @@ free_acl(Acl::MatchNodePointer *ae)
 void
 dump_acl_list(StoreEntry * entry, const ACLListPointer &head)
 {
-    if (head.valid())
+    if (head)
         dump_SBufList(entry, head->dump());
 }
 
 void
 dump_acl_access(StoreEntry * entry, const char *name, const acl_accessPointer &head)
 {
-    if (head.valid())
+    if (head)
         dump_SBufList(entry, head->treeDump(name, &Acl::AllowOrDeny));
 }
 
@@ -1408,7 +1408,7 @@ parse_acl_access(acl_accessPointer *head)
 static void
 free_acl_access(acl_accessPointer *head)
 {
-    aclDestroyAccessList(head);
+    *head = nullptr; // refcounted
 }
 
 static void
@@ -1897,7 +1897,7 @@ free_AuthSchemes(acl_accessPointer *authSchemes)
 static void
 dump_AuthSchemes(StoreEntry *entry, const char *name, const acl_accessPointer &authSchemes)
 {
-    if (authSchemes.valid())
+    if (authSchemes)
         dump_SBufList(entry, authSchemes->treeDump(name, [](const Acl::Answer &action) {
         return Auth::TheConfig.schemeLists.at(action.kind).rawSchemes;
     }));
@@ -2045,7 +2045,7 @@ dump_peer(StoreEntry * entry, const char *name, CachePeer * p)
                           p->name);
         dump_peer_options(entry, p);
 
-        if (p->access.valid()) {
+        if (p->access) {
             snprintf(xname, 128, "cache_peer_access %s", p->name);
             dump_acl_access(entry, xname, p->access);
         }
@@ -3154,11 +3154,7 @@ check_null_wordlist(wordlist * w)
 }
 #endif
 
-static int
-check_null_acl_access(const acl_accessPointer &a)
-{
-    return !a.set();
-}
+#define check_null_acl_access(A) !(A)
 
 #define free_wordlist wordlistDestroy
 
@@ -4184,7 +4180,7 @@ dump_access_log(StoreEntry * entry, const char *name, CustomLog * logs)
         if (log->rotateCount >= 0)
             storeAppendPrintf(entry, " rotate=%d", log->rotateCount);
 
-        if (log->aclList.valid())
+        if (log->aclList)
             dump_acl_list(entry, log->aclList);
 
         storeAppendPrintf(entry, "\n");
@@ -4200,9 +4196,7 @@ free_access_log(CustomLog ** definitions)
 
         log->logFormat = NULL;
         log->type = Log::Format::CLF_UNKNOWN;
-
-        if (log->aclList.valid())
-            aclDestroyAclList(&log->aclList);
+        log->aclList = nullptr; // refcounted
 
         safe_free(log->filename);
 
@@ -4490,7 +4484,7 @@ static void dump_sslproxy_cert_adapt(StoreEntry *entry, const char *name, sslpro
     for (sslproxy_cert_adapt *ca = cert_adapt; ca != NULL; ca = ca->next) {
         storeAppendPrintf(entry, "%s ", name);
         storeAppendPrintf(entry, "%s{%s} ", Ssl::sslCertAdaptAlgoritm(ca->alg), ca->param);
-        if (ca->aclList.valid())
+        if (ca->aclList)
             dump_acl_list(entry, ca->aclList);
         storeAppendPrintf(entry, "\n");
     }
@@ -4503,8 +4497,7 @@ static void free_sslproxy_cert_adapt(sslproxy_cert_adapt **cert_adapt)
         *cert_adapt = ca->next;
         safe_free(ca->param);
 
-        if (ca->aclList.valid())
-            aclDestroyAclList(&ca->aclList);
+        ca->aclList = nullptr; // refcounted
 
         safe_free(ca);
     }
@@ -4547,7 +4540,7 @@ static void dump_sslproxy_cert_sign(StoreEntry *entry, const char *name, sslprox
     for (cs = cert_sign; cs != NULL; cs = cs->next) {
         storeAppendPrintf(entry, "%s ", name);
         storeAppendPrintf(entry, "%s ", Ssl::certSignAlgorithm(cs->alg));
-        if (cs->aclList.valid())
+        if (cs->aclList)
             dump_acl_list(entry, cs->aclList);
         storeAppendPrintf(entry, "\n");
     }
@@ -4559,8 +4552,7 @@ static void free_sslproxy_cert_sign(sslproxy_cert_sign **cert_sign)
         sslproxy_cert_sign *cs = *cert_sign;
         *cert_sign = cs->next;
 
-        if (cs->aclList.valid())
-            aclDestroyAclList(&cs->aclList);
+        cs->aclList = nullptr; // refcounted
 
         safe_free(cs);
     }
@@ -4683,7 +4675,7 @@ static void parse_sslproxy_ssl_bump(acl_accessPointer *ssl_bump)
 
 static void dump_sslproxy_ssl_bump(StoreEntry *entry, const char *name, const acl_accessPointer &ssl_bump)
 {
-    if (ssl_bump.valid())
+    if (ssl_bump)
         dump_SBufList(entry, ssl_bump->treeDump(name, [](const Acl::Answer &action) {
         return Ssl::BumpModeStr.at(action.kind);
     }));
@@ -4703,7 +4695,7 @@ static void dump_HeaderWithAclList(StoreEntry * entry, const char *name, HeaderW
 
     for (HeaderWithAclList::iterator hwa = headers->begin(); hwa != headers->end(); ++hwa) {
         storeAppendPrintf(entry, "%s %s %s", name, hwa->fieldName.c_str(), hwa->fieldValue.c_str());
-        if (hwa->aclList.valid())
+        if (hwa->aclList)
             dump_acl_list(entry, hwa->aclList);
         storeAppendPrintf(entry, "\n");
     }
@@ -4749,9 +4741,6 @@ static void free_HeaderWithAclList(HeaderWithAclList **header)
         return;
 
     for (HeaderWithAclList::iterator hwa = (*header)->begin(); hwa != (*header)->end(); ++hwa) {
-        if (hwa->aclList.valid())
-            aclDestroyAclList(&hwa->aclList);
-
         if (hwa->valueFormat) {
             delete hwa->valueFormat;
             hwa->valueFormat = NULL;
@@ -4804,7 +4793,7 @@ static void parse_ftp_epsv(acl_accessPointer *ftp_epsv)
     //   2) if this line is "ftp_epsv on|off" and already exist rules of "ftp_epsv allow|deny ..."
     // then abort
     if ((!ftpEpsvIsDeprecatedRule && FtpEspvDeprecated) ||
-            (ftpEpsvIsDeprecatedRule && !FtpEspvDeprecated && ftp_epsv->valid())) {
+            (ftpEpsvIsDeprecatedRule && !FtpEspvDeprecated && *ftp_epsv)) {
         debugs(3, DBG_CRITICAL, "FATAL: do not mix \"ftp_epsv on|off\" cfg lines with \"ftp_epsv allow|deny ...\" cfg lines. Update your ftp_epsv rules.");
         self_destruct();
         return;
@@ -4812,8 +4801,7 @@ static void parse_ftp_epsv(acl_accessPointer *ftp_epsv)
 
     if (ftpEpsvIsDeprecatedRule) {
         // overwrite previous ftp_epsv lines
-        delete ftp_epsv->get();
-        ftp_epsv->clear();
+        *ftp_epsv = nullptr; // refcounted
 
         if (ftpEpsvDeprecatedAction == Acl::Answer(ACCESS_DENIED)) {
             if (auto a = Acl::MatchNode::FindByName("all"))
@@ -4831,7 +4819,7 @@ static void parse_ftp_epsv(acl_accessPointer *ftp_epsv)
 
 static void dump_ftp_epsv(StoreEntry *entry, const char *name, const acl_accessPointer &ftp_epsv)
 {
-    if (ftp_epsv.valid())
+    if (ftp_epsv)
         dump_SBufList(entry, ftp_epsv->treeDump(name, Acl::AllowOrDeny));
 }
 
@@ -4970,7 +4958,7 @@ dump_on_unsupported_protocol(StoreEntry *entry, const char *name, const acl_acce
         "tunnel",
         "respond"
     };
-    if (access.valid()) {
+    if (access) {
         SBufList lines = access->treeDump(name, [](const Acl::Answer &action) {
             return onErrorTunnelMode.at(action.kind);
         });

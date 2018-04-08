@@ -11,6 +11,7 @@
 #include "squid.h"
 
 #if USE_IDENT
+#include "acl/Tree.h"
 #include "comm.h"
 #include "comm/Connection.h"
 #include "comm/ConnOpener.h"

@@ -7,6 +7,7 @@
  */
 
 #include "squid.h"
+#include "acl/Tree.h"
 #include "adaptation/AccessRule.h"
 #include "adaptation/Config.h"
 #include "adaptation/DynamicGroupCfg.h"

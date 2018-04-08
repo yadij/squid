@@ -9,6 +9,7 @@
 /* DEBUG: section 64    HTTP Range Header */
 
 #include "squid.h"
+#include "acl/Tree.h"
 #include "client_side_request.h"
 #include "http/Stream.h"
 #include "HttpHeaderRange.h"

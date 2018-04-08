@@ -7,6 +7,7 @@
  */
 
 #include "squid.h"
+#include "acl/Tree.h"
 #include "auth/Config.h"
 #include "fatal.h"
 #include "parser/Tokenizer.h"

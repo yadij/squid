@@ -16,8 +16,6 @@
 
 ClientDelayPool::~ClientDelayPool()
 {
-    if (access.valid())
-        aclDestroyAccessList(&access);
 }
 
 void ClientDelayPool::dump(StoreEntry * entry, unsigned int poolNumberMinusOne) const

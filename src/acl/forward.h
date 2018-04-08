@@ -9,7 +9,6 @@
 #ifndef SQUID_ACL_FORWARD_H
 #define SQUID_ACL_FORWARD_H
 
-#include "base/CbcPointer.h"
 #include "base/RefCount.h"
 
 #include <list>
@@ -33,7 +32,7 @@ class NotNode;
 class AndNode;
 class OrNode;
 class Tree;
-typedef CbcPointer<Acl::Tree> TreePointer;
+typedef RefCount<Acl::Tree> TreePointer;
 
 /// prepares to parse ACLs configuration
 void Init(void);

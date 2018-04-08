@@ -9,6 +9,7 @@
 /* DEBUG: section 90    HTTP Cache Control Header */
 
 #include "squid.h"
+#include "acl/Tree.h"
 #include "base/LookupTable.h"
 //#include "HttpHdrSc.h" // pulled in by HttpHdrScTarget.h
 #include "HttpHdrScTarget.h"

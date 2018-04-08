@@ -10,6 +10,7 @@
 
 #include "squid.h"
 #include "acl/Gadgets.h"
+#include "acl/Tree.h"
 #include "auth/Config.h"
 #include "auth/CredentialsCache.h"
 #include "auth/Gadgets.h"

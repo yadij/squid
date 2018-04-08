@@ -13,6 +13,7 @@
  * See acl.c for access control and client_side.c for auditing */
 
 #include "squid.h"
+#include "acl/Tree.h"
 #include "auth/Gadgets.h"
 #include "auth/negotiate/Config.h"
 #include "auth/negotiate/Scheme.h"

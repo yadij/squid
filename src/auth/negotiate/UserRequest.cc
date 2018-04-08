@@ -8,6 +8,7 @@
 
 #include "squid.h"
 #include "AccessLogEntry.h"
+#include "acl/Tree.h"
 #include "auth/CredentialsCache.h"
 #include "auth/negotiate/Config.h"
 #include "auth/negotiate/User.h"

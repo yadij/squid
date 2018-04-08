@@ -27,12 +27,11 @@
 
 Note::Value::~Value()
 {
-    aclDestroyAclList(&aclList);
     delete valueFormat;
 }
 
 Note::Value::Value(const char *aVal, const bool quoted, const char *descr, const Method m)
-    : aclList(nullptr), valueFormat(nullptr), theValue(aVal), theMethod(m)
+    : valueFormat(nullptr), theValue(aVal), theMethod(m)
 {
     if (quoted) {
         valueFormat = new Format::Format(descr ? descr : "Notes");
@@ -76,7 +75,7 @@ Note::match(HttpRequest *request, HttpReply *reply, const AccessLogEntry::Pointe
         HTTPMSGLOCK(ch.reply);
 
     for (auto v: values) {
-        assert(v->aclList.valid());
+        assert(v->aclList);
         const auto ret = ch.fastCheck(v->aclList);
         debugs(93, 5, "Check for header name: " << theKey << ": " << v->value() <<
                ", HttpRequest: " << request << " HttpReply: " << reply << " matched: " << ret);
