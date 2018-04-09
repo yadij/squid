@@ -136,8 +136,8 @@ Acl::Init()
     RegisterMaker("method", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<HttpRequestMethod>(new ACLMethodData, new ACLMethodStrategy, name); });
     RegisterMaker("localip", [](TypeName)->Acl::MatchNode* { return new ACLLocalIP; }); // XXX: Add name parameter to ctor
     RegisterMaker("localport", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<int>(new ACLIntRange, new ACLLocalPortStrategy, name); });
-    RegisterMaker("myportname", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<const char *>(new ACLStringData, new ACLMyPortNameStrategy, name); });
-    RegisterMaker("peername", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<const char *>(new ACLStringData, new ACLPeerNameStrategy, name); });
+    RegisterMaker("myportname", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<const char *>(new Acl::StringData, new ACLMyPortNameStrategy, name); });
+    RegisterMaker("peername", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<const char *>(new Acl::StringData, new ACLPeerNameStrategy, name); });
     RegisterMaker("peername_regex", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<char const *>(new ACLRegexData, new ACLPeerNameStrategy, name); });
     RegisterMaker("proto", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<AnyP::ProtocolType>(new ACLProtocolData, new ACLProtocolStrategy, name); });
     RegisterMaker("referer_regex", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<char const *>(new ACLRegexData, new ACLRequestHeaderStrategy<Http::HdrType::REFERER>, name); });
@@ -153,7 +153,7 @@ Acl::Init()
     RegisterMaker("external", [](TypeName name)->Acl::MatchNode* { return new ACLExternal(name); });
     RegisterMaker("squid_error", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<err_type>(new ACLSquidErrorData, new ACLSquidErrorStrategy, name); });
     RegisterMaker("connections_encrypted", [](TypeName name)->Acl::MatchNode* { return new Acl::ConnectionsEncrypted(name); });
-    RegisterMaker("tag", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<const char *>(new ACLStringData, new ACLTagStrategy, name); });
+    RegisterMaker("tag", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<const char *>(new Acl::StringData, new ACLTagStrategy, name); });
     RegisterMaker("note", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<NotePairs::Entry*>(new ACLNoteData, new ACLNoteStrategy, name); });
     RegisterMaker("annotate_client", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<NotePairs::Entry*>(new ACLAnnotationData, new ACLAnnotateClientStrategy, name); });
     RegisterMaker("annotate_transaction", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<NotePairs::Entry*>(new ACLAnnotationData, new ACLAnnotateTransactionStrategy, name); });
@@ -198,7 +198,7 @@ Acl::Init()
 #endif
 
 #if SQUID_SNMP
-    RegisterMaker("snmp_community", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<const char *>(new ACLStringData, new ACLSNMPCommunityStrategy, name); });
+    RegisterMaker("snmp_community", [](TypeName name)->Acl::MatchNode* { return new ACLStrategised<const char *>(new Acl::StringData, new ACLSNMPCommunityStrategy, name); });
 #endif
 }
 

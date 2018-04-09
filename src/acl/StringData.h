@@ -6,23 +6,25 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef SQUID_ACLSTRINGDATA_H
-#define SQUID_ACLSTRINGDATA_H
+#ifndef SQUID_SRC_ACL_STRINGDATA_H
+#define SQUID_SRC_ACL_STRINGDATA_H
 
 #include "acl/Data.h"
 #include "sbuf/SBuf.h"
 
 #include <set>
 
-class ACLStringData : public ACLData<char const *>
+namespace Acl {
+
+class StringData : public ACLData<char const *>
 {
-    MEMPROXY_CLASS(ACLStringData);
+    MEMPROXY_CLASS(StringData);
 
 public:
-    ACLStringData() {}
-    ACLStringData(ACLStringData const &);
-    ACLStringData &operator= (ACLStringData const &);
-    virtual ~ACLStringData() {}
+    StringData() {}
+    StringData(StringData const &);
+    StringData &operator= (StringData const &);
+    virtual ~StringData() {}
 
     bool match(const SBuf &);
     /// Insert a string data value
@@ -40,5 +42,7 @@ private:
     StringValues_t stringValues;
 };
 
-#endif /* SQUID_ACLSTRINGDATA_H */
+} // namespace Acl
+
+#endif /* SQUID_SRC_ACL_STRINGDATA_H */
 

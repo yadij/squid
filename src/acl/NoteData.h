@@ -10,10 +10,9 @@
 #define SQUID_ACLNOTEDATA_H
 
 #include "acl/Data.h"
+#include "acl/forward.h"
 #include "Notes.h"
 #include "SquidString.h"
-
-class ACLStringData;
 
 /// \ingroup ACLAPI
 class ACLNoteData : public ACLData<NotePairs::Entry *>
@@ -33,7 +32,7 @@ public:
 
 private:
     SBuf name;                   ///< Note name to check. It is always set
-    ACLStringData *values; ///< if set, at least one value must match
+    Acl::StringData *values; ///< if set, at least one value must match
 };
 
 #endif /* SQUID_ACLNOTEDATA_H */

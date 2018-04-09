@@ -615,7 +615,7 @@ recv_announce_SOURCES = recv-announce.cc
 ## cache_cf.cc wants AnyP::PortCfg
 ## client_side wants client_db
 ## client_db wants SNMP_SOURCE
-## snmp_core wants ACLStringData
+## snmp_core wants Acl::StringData
 ## tools.cc wants ip/libip.la
 ## client_side.cc wants ip/libip.la
 ## libbase.la wants cbdata.*

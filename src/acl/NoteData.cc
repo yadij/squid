@@ -15,7 +15,7 @@
 #include "sbuf/StringConvert.h"
 #include "wordlist.h"
 
-ACLNoteData::ACLNoteData() : values(new ACLStringData)
+ACLNoteData::ACLNoteData() : values(new Acl::StringData)
 {}
 
 ACLNoteData::~ACLNoteData()
@@ -62,7 +62,7 @@ ACLData<NotePairs::Entry *> *
 ACLNoteData::clone() const
 {
     ACLNoteData * result = new ACLNoteData;
-    result->values = dynamic_cast<ACLStringData*>(values->clone());
+    result->values = dynamic_cast<Acl::StringData*>(values->clone());
     assert(result->values);
     result->name = name;
     return result;

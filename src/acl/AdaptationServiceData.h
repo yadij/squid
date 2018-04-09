@@ -13,14 +13,14 @@
 
 namespace Acl {
 
-class AdaptationServiceData : public ACLStringData
+class AdaptationServiceData : public Acl::StringData
 {
 public:
-    AdaptationServiceData() : ACLStringData() {}
-    AdaptationServiceData(AdaptationServiceData const &old) : ACLStringData(old) {}
+    AdaptationServiceData() : Acl::StringData() {}
+    AdaptationServiceData(AdaptationServiceData const &old) : Acl::StringData(old) {}
     AdaptationServiceData &operator= (AdaptationServiceData const &) = delete;
 
-    /* ACLStringData API */
+    /* Acl::StringData API */
     virtual void parse() override;
     virtual ACLData<char const *> *clone() const override;
 };

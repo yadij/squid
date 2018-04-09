@@ -34,6 +34,7 @@ class OrNode;
 class SizeLimit;
 typedef CbcPointer<Acl::SizeLimit> SizeLimitPointer;
 typedef std::list<SizeLimitPointer> SizeLimitList;
+class StringData;
 class Tree;
 typedef RefCount<Acl::Tree> TreePointer;
 

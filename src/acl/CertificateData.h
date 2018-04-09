@@ -44,7 +44,7 @@ public:
     /// True if the attribute is optional (-xxx options)
     bool attributeIsOptional;
     char *attribute;
-    ACLStringData values;
+    Acl::StringData values;
 
 private:
     /// The callback used to retrieve the data from X509 cert

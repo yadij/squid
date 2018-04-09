@@ -14,39 +14,39 @@
 #include "ConfigParser.h"
 #include "Debug.h"
 
-ACLStringData::ACLStringData(ACLStringData const &old) : stringValues(old.stringValues)
+Acl::StringData::StringData(Acl::StringData const &old) : stringValues(old.stringValues)
 {
 }
 
 void
-ACLStringData::insert(const char *value)
+Acl::StringData::insert(const char *value)
 {
     stringValues.insert(SBuf(value));
 }
 
 bool
-ACLStringData::match(const SBuf &tf)
+Acl::StringData::match(const SBuf &tf)
 {
     if (stringValues.empty() || tf.isEmpty())
         return 0;
 
-    debugs(28, 3, "aclMatchStringList: checking '" << tf << "'");
+    debugs(28, 3, "checking '" << tf << "'");
 
     bool found = (stringValues.find(tf) != stringValues.end());
-    debugs(28, 3, "aclMatchStringList: '" << tf << "' " << (found ? "found" : "NOT found"));
+    debugs(28, 3, tf << "' " << (found ? "found" : "NOT found"));
 
     return found;
 }
 
 // XXX: performance regression due to SBuf(char*) data-copies.
 bool
-ACLStringData::match(char const *toFind)
+Acl::StringData::match(char const *toFind)
 {
     return match(SBuf(toFind));
 }
 
 SBufList
-ACLStringData::dump() const
+Acl::StringData::dump() const
 {
     SBufList sl;
     sl.insert(sl.end(), stringValues.begin(), stringValues.end());
@@ -54,22 +54,22 @@ ACLStringData::dump() const
 }
 
 void
-ACLStringData::parse()
+Acl::StringData::parse()
 {
     while (const char *t = ConfigParser::strtokFile())
         stringValues.insert(SBuf(t));
 }
 
 bool
-ACLStringData::empty() const
+Acl::StringData::empty() const
 {
     return stringValues.empty();
 }
 
 ACLData<char const *> *
-ACLStringData::clone() const
+Acl::StringData::clone() const
 {
     /* Splay trees don't clone yet. */
-    return new ACLStringData(*this);
+    return new Acl::StringData(*this);
 }
 
