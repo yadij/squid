@@ -30,7 +30,7 @@ const Acl::Options &ACLMaxUserIP::options() STUB_RETVAL(Acl::NoOptions())
 
 #include "auth/AclProxyAuth.h"
 ACLProxyAuth::~ACLProxyAuth() STUB
-ACLProxyAuth::ACLProxyAuth(ACLData<char const *> *, char const *) STUB
+ACLProxyAuth::ACLProxyAuth(Acl::Data<char const *> *, char const *) STUB
 ACLProxyAuth::ACLProxyAuth (ACLProxyAuth const &) STUB
 ACLProxyAuth & ACLProxyAuth::operator= (ACLProxyAuth const & a) STUB_RETVAL(const_cast<ACLProxyAuth &>(a))
 char const * ACLProxyAuth::typeString() const STUB_RETVAL(NULL)

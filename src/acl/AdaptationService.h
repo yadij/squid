@@ -16,7 +16,7 @@ class ACLAdaptationServiceStrategy : public ACLStrategy<const char *>
 {
 
 public:
-    virtual int match (ACLData<MatchType> * &, ACLFilledChecklist *) override;
+    virtual int match(Acl::Data<MatchType> * &, ACLFilledChecklist *) override;
 };
 
 #endif /* SQUID_ACLADAPTATIONSERVICE_H */

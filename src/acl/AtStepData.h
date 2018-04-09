@@ -16,7 +16,7 @@
 
 #include <list>
 
-class ACLAtStepData : public ACLData<Ssl::BumpStep>
+class ACLAtStepData : public Acl::Data<Ssl::BumpStep>
 {
     MEMPROXY_CLASS(ACLAtStepData);
 
@@ -26,11 +26,11 @@ public:
     virtual ~ACLAtStepData();
     ACLAtStepData &operator= (ACLAtStepData const &);
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual bool match(Ssl::BumpStep) override;
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData *clone() const override;
+    virtual Acl::Data<Ssl::BumpStep> *clone() const override;
     virtual bool empty() const override;
 
 public:

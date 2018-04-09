@@ -33,7 +33,7 @@ class ACLProxyAuth : public Acl::MatchNode
 
 public:
     ~ACLProxyAuth();
-    ACLProxyAuth(ACLData<char const *> *, char const *);
+    ACLProxyAuth(Acl::Data<char const *> *, char const *);
     ACLProxyAuth(ACLProxyAuth const &);
     ACLProxyAuth &operator =(ACLProxyAuth const &);
 
@@ -51,7 +51,7 @@ public:
 
 private:
     int matchProxyAuth(ACLChecklist *);
-    ACLData<char const *> *data;
+    Acl::Data<char const *> *data;
     char const *type_;
 };
 

@@ -13,7 +13,7 @@
 #include "acl/StringData.h"
 
 int
-ACLPeerNameStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLPeerNameStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     if (!checklist->dst_peer_name.isEmpty())
         return data->match(checklist->dst_peer_name.c_str());

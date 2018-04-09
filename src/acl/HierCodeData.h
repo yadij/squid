@@ -12,7 +12,7 @@
 #include "acl/Data.h"
 #include "hier_code.h"
 
-class ACLHierCodeData : public ACLData<hier_code>
+class ACLHierCodeData : public Acl::Data<hier_code>
 {
     MEMPROXY_CLASS(ACLHierCodeData);
 
@@ -22,11 +22,11 @@ public:
     ACLHierCodeData &operator= (ACLHierCodeData const &);
     virtual ~ACLHierCodeData();
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual bool match(hier_code) override;
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData *clone() const override;
+    virtual Acl::Data<hier_code> *clone() const override;
     virtual bool empty() const override;
 
 public:

@@ -64,7 +64,7 @@ ACLIntRange::match(int i)
     return false;
 }
 
-ACLData<int> *
+Acl::Data<int> *
 ACLIntRange::clone() const
 {
     if (!ranges.empty())

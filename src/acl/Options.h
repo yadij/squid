@@ -26,9 +26,9 @@
 //   They are handled by ACL kids (or equivalent).
 // * Parameter flags may appear after some other parameters and apply only to
 //   the subsequent parameters (until they are overwritten by later flags).
-//   They are handled by ACLData kids.
+//   They are handled by Acl::Data kids.
 // ACL options parsing code skips and leaves leading parameter flags (if any)
-// for ACLData code to process.
+// for Acl::Data code to process.
 
 namespace Acl {
 

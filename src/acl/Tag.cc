@@ -13,7 +13,7 @@
 #include "HttpRequest.h"
 
 int
-ACLTagStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLTagStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     if (checklist->request != NULL)
         return data->match (checklist->request->tag.termedBuf());

@@ -226,7 +226,7 @@ ACLTimeData::empty() const
     return false;
 }
 
-ACLData<time_t> *
+Acl::Data<time_t> *
 ACLTimeData::clone() const
 {
     return new ACLTimeData(*this);

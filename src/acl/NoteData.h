@@ -15,7 +15,7 @@
 #include "SquidString.h"
 
 /// \ingroup ACLAPI
-class ACLNoteData : public ACLData<NotePairs::Entry *>
+class ACLNoteData : public Acl::Data<NotePairs::Entry *>
 {
     MEMPROXY_CLASS(ACLNoteData);
 
@@ -23,11 +23,11 @@ public:
     ACLNoteData();
     virtual ~ACLNoteData();
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual bool match(NotePairs::Entry *) override;
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData *clone() const override;
+    virtual Acl::Data<NotePairs::Entry *> *clone() const override;
     virtual bool empty() const override;
 
 private:

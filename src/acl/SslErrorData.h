@@ -12,7 +12,7 @@
 #include "acl/Data.h"
 #include "security/forward.h"
 
-class ACLSslErrorData : public ACLData<const Security::CertErrors *>
+class ACLSslErrorData : public Acl::Data<const Security::CertErrors *>
 {
     MEMPROXY_CLASS(ACLSslErrorData);
 
@@ -22,11 +22,11 @@ public:
     ACLSslErrorData &operator= (ACLSslErrorData const &);
     virtual ~ACLSslErrorData() {}
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual bool match(const Security::CertErrors *) override;
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData *clone() const override;
+    virtual Acl::Data<const Security::CertErrors *> *clone() const override;
     virtual bool empty() const override { return values.empty(); }
 
 public:

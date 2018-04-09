@@ -14,7 +14,7 @@
 
 #include <list>
 
-class ACLProtocolData : public ACLData<AnyP::ProtocolType>
+class ACLProtocolData : public Acl::Data<AnyP::ProtocolType>
 {
     MEMPROXY_CLASS(ACLProtocolData);
 
@@ -24,11 +24,11 @@ public:
     ACLProtocolData &operator= (ACLProtocolData const &);
     virtual ~ACLProtocolData();
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual bool match(AnyP::ProtocolType) override;
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData *clone() const override;
+    virtual Acl::Data<AnyP::ProtocolType> *clone() const override;
     virtual bool empty() const override { return values.empty(); }
 
 public:

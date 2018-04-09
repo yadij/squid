@@ -22,7 +22,7 @@ void asnInit(void);
 void asnFreeMemory(void);
 
 /// \ingroup ACLAPI
-class ACLASN : public ACLData<Ip::Address>
+class ACLASN : public Acl::Data<Ip::Address>
 {
     MEMPROXY_CLASS(ACLASN);
 
@@ -30,11 +30,11 @@ public:
     ACLASN() : data(nullptr) {}
     virtual ~ACLASN();
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual bool match(Ip::Address) override;
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData<Ip::Address> *clone() const override;
+    virtual Acl::Data<Ip::Address> *clone() const override;
     virtual void prepareForUse() override;
     virtual bool empty() const override;
 

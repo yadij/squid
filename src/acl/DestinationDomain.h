@@ -20,7 +20,7 @@ class ACLDestinationDomainStrategy : public ACLStrategy<char const *>
 
 public:
     /* ACLStrategy API */
-    virtual int match (ACLData<MatchType> * &, ACLFilledChecklist *);
+    virtual int match(Acl::Data<MatchType> * &, ACLFilledChecklist *);
     virtual bool requiresRequest() const {return true;}
     virtual const Acl::Options &options();
 

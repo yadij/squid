@@ -25,7 +25,7 @@ public:
 
     /* Replicate ACL API parts relevant to the matching algorithm. */
     virtual const Acl::Options &options() { return Acl::NoOptions(); }
-    virtual int match (ACLData<M> * &, ACLFilledChecklist *) = 0;
+    virtual int match(Acl::Data<M> * &, ACLFilledChecklist *) = 0;
     virtual bool requiresRequest() const {return false;}
 
     virtual bool requiresReply() const {return false;}

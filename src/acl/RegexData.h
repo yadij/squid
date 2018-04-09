@@ -15,19 +15,19 @@
 
 class RegexPattern;
 
-class ACLRegexData : public ACLData<char const *>
+class ACLRegexData : public Acl::Data<char const *>
 {
     MEMPROXY_CLASS(ACLRegexData);
 
 public:
     virtual ~ACLRegexData();
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual const Acl::ParameterFlags &supportedFlags() const override;
     virtual bool match(const char *) override;
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData *clone() const override;
+    virtual Acl::Data<char const *> *clone() const override;
     virtual bool empty() const override;
 
 private:

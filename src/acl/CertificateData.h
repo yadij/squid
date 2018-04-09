@@ -16,7 +16,7 @@
 #include <list>
 
 /// \ingroup ACLAPI
-class ACLCertificateData : public ACLData<X509 *>
+class ACLCertificateData : public Acl::Data<X509 *>
 {
     MEMPROXY_CLASS(ACLCertificateData);
 
@@ -26,11 +26,11 @@ public:
     ACLCertificateData &operator= (ACLCertificateData const &);
     virtual ~ACLCertificateData();
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual bool match(X509 *) override;
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData *clone() const override;
+    virtual Acl::Data<X509 *> *clone() const override;
     virtual bool empty() const override;
 
 public:

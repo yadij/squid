@@ -92,7 +92,7 @@ ACLHTTPHeaderData::empty() const
     return (hdrId == Http::HdrType::BAD_HDR && hdrName.isEmpty()) || regex_rule->empty();
 }
 
-ACLData<HttpHeader*> *
+Acl::Data<HttpHeader*> *
 ACLHTTPHeaderData::clone() const
 {
     /* Header's don't clone yet. */

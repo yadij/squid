@@ -18,7 +18,7 @@
 template class ACLStrategised<AnyP::ProtocolType>;
 
 int
-ACLProtocolStrategy::match(ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLProtocolStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     return data->match(checklist->request->url.getScheme());
 }

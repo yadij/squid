@@ -33,7 +33,7 @@ class ACLIdent : public Acl::MatchNode
     MEMPROXY_CLASS(ACLIdent);
 
 public:
-    ACLIdent(ACLData<char const *> *newData, char const *);
+    ACLIdent(Acl::Data<char const *> *newData, char const *);
     ACLIdent (ACLIdent const &old);
     ACLIdent & operator= (ACLIdent const &rhs);
     ~ACLIdent();
@@ -48,7 +48,7 @@ public:
     virtual int match(ACLChecklist *) override;
 
 private:
-    ACLData<char const *> *data;
+    Acl::Data<char const *> *data;
     char const *type_;
 };
 

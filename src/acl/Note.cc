@@ -29,7 +29,7 @@ Acl::AnnotationStrategy::options()
 /* ACLNoteStrategy */
 
 int
-ACLNoteStrategy::match(ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLNoteStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     if (const auto request = checklist->request) {
         if (request->hasNotes() && matchNotes(data, request->notes().getRaw()))
@@ -44,7 +44,7 @@ ACLNoteStrategy::match(ACLData<MatchType> * &data, ACLFilledChecklist *checklist
 }
 
 bool
-ACLNoteStrategy::matchNotes(ACLData<MatchType> *noteData, const NotePairs *note) const
+ACLNoteStrategy::matchNotes(Acl::Data<MatchType> *noteData, const NotePairs *note) const
 {
     const NotePairs::Entries &entries = note->expandListEntries(&delimiters.value);
     for (auto e: entries)

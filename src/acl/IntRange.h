@@ -14,18 +14,18 @@
 
 #include <list>
 
-class ACLIntRange : public ACLData<int>
+class ACLIntRange : public Acl::Data<int>
 {
 
 public:
     ACLIntRange() {}
     virtual ~ACLIntRange();
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual bool match(int) override;
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData *clone() const override;
+    virtual Acl::Data<int> *clone() const override;
     virtual bool empty() const override;
 
 private:

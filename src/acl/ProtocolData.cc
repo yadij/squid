@@ -68,7 +68,7 @@ ACLProtocolData::parse()
     }
 }
 
-ACLData<AnyP::ProtocolType> *
+Acl::Data<AnyP::ProtocolType> *
 ACLProtocolData::clone() const
 {
     /* Splay trees don't clone yet. */

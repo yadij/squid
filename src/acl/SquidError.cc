@@ -12,7 +12,7 @@
 #include "HttpRequest.h"
 
 int
-ACLSquidErrorStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLSquidErrorStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     if (checklist->requestErrorType != ERR_MAX)
         return data->match(checklist->requestErrorType);

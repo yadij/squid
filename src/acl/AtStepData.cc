@@ -74,7 +74,7 @@ ACLAtStepData::empty() const
     return values.empty();
 }
 
-ACLData<Ssl::BumpStep> *
+Acl::Data<Ssl::BumpStep> *
 ACLAtStepData::clone() const
 {
     return new ACLAtStepData(*this);

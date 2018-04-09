@@ -14,7 +14,7 @@
 #include "sbuf/SBuf.h"
 #include "SquidString.h"
 
-class ACLHTTPHeaderData : public ACLData<HttpHeader*>
+class ACLHTTPHeaderData : public Acl::Data<HttpHeader*>
 {
     MEMPROXY_CLASS(ACLHTTPHeaderData);
 
@@ -22,17 +22,17 @@ public:
     ACLHTTPHeaderData();
     virtual ~ACLHTTPHeaderData();
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual bool match(HttpHeader *) override;
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData *clone() const override;
+    virtual Acl::Data<HttpHeader*> *clone() const override;
     virtual bool empty() const override;
 
 private:
     Http::HdrType hdrId;            /**< set if header is known */
     SBuf hdrName;                   /**< always set */
-    ACLData<char const *> * regex_rule;
+    Acl::Data<char const *> * regex_rule;
 };
 
 #endif /* SQUID_ACLHTTPHEADERDATA_H */

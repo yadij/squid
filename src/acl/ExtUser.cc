@@ -24,7 +24,10 @@ ACLExtUser::~ACLExtUser()
     delete data;
 }
 
-ACLExtUser::ACLExtUser(ACLData<char const *> *newData, char const *newType) : data (newData), type_ (newType) {}
+ACLExtUser::ACLExtUser(Acl::Data<char const *> *newData, char const *newType) :
+    data(newData),
+    type_(newType)
+{}
 
 ACLExtUser::ACLExtUser (ACLExtUser const &old) : data (old.data->clone()), type_ (old.type_)
 {}

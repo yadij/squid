@@ -16,7 +16,7 @@
 #include "rfc1738.h"
 
 int
-ACLUrlLoginStrategy::match(ACLData<char const *> * &data, ACLFilledChecklist *checklist)
+ACLUrlLoginStrategy::match(Acl::Data<char const *> * &data, ACLFilledChecklist *checklist)
 {
     if (checklist->request->url.userInfo().isEmpty()) {
         debugs(28, 5, "URL has no user-info details. cannot match");

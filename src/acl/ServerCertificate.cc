@@ -19,7 +19,7 @@
 #include "ssl/ServerBump.h"
 
 int
-ACLServerCertificateStrategy::match(ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLServerCertificateStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     Security::CertPointer cert;
     if (checklist->serverCert)

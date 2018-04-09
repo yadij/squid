@@ -12,7 +12,7 @@
 #include "acl/Data.h"
 #include "splay.h"
 
-class ACLDomainData : public ACLData<char const *>
+class ACLDomainData : public Acl::Data<char const *>
 {
     MEMPROXY_CLASS(ACLDomainData);
 
@@ -20,11 +20,11 @@ public:
     ACLDomainData() : domains(nullptr) {}
     virtual ~ACLDomainData();
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual bool match(char const *) override;
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData *clone() const override;
+    virtual Acl::Data<char const *> *clone() const override;
     virtual bool empty() const override;
 
 public:

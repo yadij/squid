@@ -50,7 +50,7 @@ ACLServerNameData::match(const char *host)
 
 }
 
-ACLData<char const *> *
+Acl::Data<char const *> *
 ACLServerNameData::clone() const
 {
     /* Splay trees don't clone yet. */
@@ -66,7 +66,7 @@ int
 check_cert_domain( void *check_data, ASN1_STRING *cn_data)
 {
     char cn[1024];
-    ACLData<MatchType> * data = (ACLData<MatchType> *)check_data;
+    Acl::Data<MatchType> * data = (Acl::Data<MatchType> *)check_data;
 
     if (cn_data->length > (int)sizeof(cn) - 1)
         return 1; // ignore data that does not fit our buffer
@@ -86,7 +86,7 @@ check_cert_domain( void *check_data, ASN1_STRING *cn_data)
 }
 
 int
-ACLServerNameStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLServerNameStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     assert(checklist != NULL && checklist->request != NULL);
 

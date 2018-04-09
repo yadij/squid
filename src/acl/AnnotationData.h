@@ -14,7 +14,7 @@
 #include "Notes.h"
 
 /// \ingroup ACLAPI
-class ACLAnnotationData : public ACLData<NotePairs::Entry *>
+class ACLAnnotationData : public Acl::Data<NotePairs::Entry *>
 {
     MEMPROXY_CLASS(ACLAnnotationData);
 
@@ -24,11 +24,11 @@ public:
     /// Stores annotations into pairs.
     void annotate(NotePairs::Pointer pairs, const CharacterSet *delimiters, const AccessLogEntry::Pointer &al);
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual bool match(NotePairs::Entry *) override { return true; }
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData<NotePairs::Entry *> *clone() const override;
+    virtual Acl::Data<NotePairs::Entry *> *clone() const override;
     virtual bool empty() const override { return notes->empty(); }
 
 private:

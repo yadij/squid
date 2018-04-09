@@ -16,7 +16,7 @@
 #include "HttpRequest.h"
 
 int
-ACLMyPortNameStrategy::match(ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLMyPortNameStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     if (checklist->conn() != NULL && checklist->conn()->port != NULL)
         return data->match(checklist->conn()->port->name);

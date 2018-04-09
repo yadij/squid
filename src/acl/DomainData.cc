@@ -150,7 +150,7 @@ ACLDomainData::empty() const
     return domains->empty();
 }
 
-ACLData<char const *> *
+Acl::Data<char const *> *
 ACLDomainData::clone() const
 {
     /* Splay trees don't clone yet. */

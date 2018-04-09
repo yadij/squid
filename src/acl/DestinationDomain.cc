@@ -52,7 +52,7 @@ ACLDestinationDomainStrategy::options()
 }
 
 int
-ACLDestinationDomainStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLDestinationDomainStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     assert(checklist != NULL && checklist->request != NULL);
 

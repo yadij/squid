@@ -16,7 +16,7 @@
 #include "rfc1738.h"
 
 int
-ACLUrlPathStrategy::match (ACLData<char const *> * &data, ACLFilledChecklist *checklist)
+ACLUrlPathStrategy::match(Acl::Data<char const *> * &data, ACLFilledChecklist *checklist)
 {
     if (checklist->request->url.path().isEmpty())
         return -1;

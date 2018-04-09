@@ -15,7 +15,7 @@
 #include "Notes.h"
 
 int
-ACLAnnotateClientStrategy::match(ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLAnnotateClientStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     if (const auto conn = checklist->conn()) {
         ACLAnnotationData *tdata = dynamic_cast<ACLAnnotationData*>(data);

@@ -20,7 +20,7 @@ class ACLExtUser : public Acl::MatchNode
     MEMPROXY_CLASS(ACLExtUser);
 
 public:
-    ACLExtUser(ACLData<char const *> *newData, char const *);
+    ACLExtUser(Acl::Data<char const *> *newData, char const *);
     ACLExtUser (ACLExtUser const &old);
     ACLExtUser & operator= (ACLExtUser const &rhs);
     virtual ~ACLExtUser();
@@ -34,7 +34,7 @@ public:
     virtual int match(ACLChecklist *) override;
 
 private:
-    ACLData<char const *> *data;
+    Acl::Data<char const *> *data;
     char const *type_;
 };
 

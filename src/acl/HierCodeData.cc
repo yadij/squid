@@ -74,7 +74,7 @@ ACLHierCodeData::empty() const
     return true;
 }
 
-ACLData<hier_code> *
+Acl::Data<hier_code> *
 ACLHierCodeData::clone() const
 {
     return new ACLHierCodeData(*this);

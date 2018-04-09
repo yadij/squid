@@ -569,7 +569,7 @@ ACLASN::parse()
     }
 }
 
-ACLData<Ip::Address> *
+Acl::Data<Ip::Address> *
 ACLASN::clone() const
 {
     if (data)
@@ -583,13 +583,13 @@ ACLASN::clone() const
 template class ACLStrategised<Ip::Address>;
 
 int
-ACLSourceASNStrategy::match (ACLData<Ip::Address> * &data, ACLFilledChecklist *checklist)
+ACLSourceASNStrategy::match(Acl::Data<Ip::Address> * &data, ACLFilledChecklist *checklist)
 {
     return data->match(checklist->src_addr);
 }
 
 int
-ACLDestinationASNStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLDestinationASNStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     const ipcache_addrs *ia = ipcache_gethostbyname(checklist->request->url.host(), IP_LOOKUP_IF_MISS);
 

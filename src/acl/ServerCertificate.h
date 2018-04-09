@@ -17,7 +17,7 @@
 class ACLServerCertificateStrategy : public ACLStrategy<X509 *>
 {
 public:
-    virtual int match (ACLData<MatchType> * &, ACLFilledChecklist *) override;
+    virtual int match(Acl::Data<MatchType> * &, ACLFilledChecklist *) override;
 };
 
 #endif /* SQUID_ACLSERVERCERTIFICATE_H */

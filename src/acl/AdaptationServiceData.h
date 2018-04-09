@@ -22,7 +22,7 @@ public:
 
     /* Acl::StringData API */
     virtual void parse() override;
-    virtual ACLData<char const *> *clone() const override;
+    virtual Acl::Data<char const *> *clone() const override;
 };
 
 } // namespace Acl

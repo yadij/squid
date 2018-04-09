@@ -13,7 +13,7 @@
 #include "HttpRequest.h"
 
 int
-ACLHTTPReqHeaderStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLHTTPReqHeaderStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     return data->match (&checklist->request->header);
 }

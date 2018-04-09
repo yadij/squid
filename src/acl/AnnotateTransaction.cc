@@ -14,7 +14,7 @@
 #include "Notes.h"
 
 int
-ACLAnnotateTransactionStrategy::match(ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLAnnotateTransactionStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     if (const auto request = checklist->request) {
         ACLAnnotationData *tdata = dynamic_cast<ACLAnnotationData*>(data);

@@ -18,7 +18,7 @@
 #include "ssl/ServerBump.h"
 
 int
-ACLAtStepStrategy::match (ACLData<Ssl::BumpStep> * &data, ACLFilledChecklist *checklist)
+ACLAtStepStrategy::match(Acl::Data<Ssl::BumpStep> * &data, ACLFilledChecklist *checklist)
 {
     Ssl::ServerBump *bump = NULL;
     if (checklist->conn() != NULL && (bump = checklist->conn()->serverBump()))

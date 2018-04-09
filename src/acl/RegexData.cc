@@ -266,7 +266,7 @@ ACLRegexData::empty() const
     return data.empty();
 }
 
-ACLData<char const *> *
+Acl::Data<char const *> *
 ACLRegexData::clone() const
 {
     /* Regex's don't clone yet. */

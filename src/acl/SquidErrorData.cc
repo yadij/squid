@@ -65,7 +65,7 @@ ACLSquidErrorData::empty() const
     return errors.empty();
 }
 
-ACLData<err_type> *
+Acl::Data<err_type> *
 ACLSquidErrorData::clone() const
 {
     if (!errors.empty())

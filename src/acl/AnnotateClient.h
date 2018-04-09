@@ -17,7 +17,7 @@ class ACLAnnotateClientStrategy : public Acl::AnnotationStrategy
 {
 public:
     virtual bool requiresRequest() const { return true; }
-    virtual int match(ACLData<MatchType> * &, ACLFilledChecklist *);
+    virtual int match(Acl::Data<MatchType> * &, ACLFilledChecklist *);
 };
 
 #endif /* SQUID_ACLANNOTATECLIENT */

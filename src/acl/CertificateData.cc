@@ -159,7 +159,7 @@ ACLCertificateData::empty() const
     return values.empty();
 }
 
-ACLData<X509 *> *
+Acl::Data<X509 *> *
 ACLCertificateData::clone() const
 {
     /* Splay trees don't clone yet. */

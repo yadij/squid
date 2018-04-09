@@ -272,7 +272,7 @@ Acl::MatchNode::isProxyAuth() const
 void
 Acl::MatchNode::parseFlags()
 {
-    // ACL kids that carry ACLData which supports parameter flags override this
+    // ACL kids that carry Acl::Data which supports parameter flags override this
     Acl::ParseFlags(options(), Acl::NoFlags());
 }
 

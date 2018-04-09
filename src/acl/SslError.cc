@@ -12,7 +12,7 @@
 #include "acl/SslErrorData.h"
 
 int
-ACLSslErrorStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLSslErrorStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     return data->match (checklist->sslErrors);
 }

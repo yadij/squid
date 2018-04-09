@@ -1130,7 +1130,7 @@ oid2addr(oid * id, Ip::Address &addr, u_int size)
 }
 
 int
-ACLSNMPCommunityStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLSNMPCommunityStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     return data->match (checklist->snmp_community);
 }

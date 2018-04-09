@@ -17,7 +17,7 @@ class ACLSourceDomainStrategy : public ACLStrategy<char const *>
 {
 
 public:
-    virtual int match (ACLData<MatchType> * &, ACLFilledChecklist *) override;
+    virtual int match(Acl::Data<MatchType> * &, ACLFilledChecklist *) override;
 };
 
 class SourceDomainLookup : public ACLChecklist::AsyncState

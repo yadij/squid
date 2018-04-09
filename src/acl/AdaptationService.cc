@@ -15,7 +15,7 @@
 #include "HttpRequest.h"
 
 int
-ACLAdaptationServiceStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLAdaptationServiceStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     HttpRequest::Pointer request = checklist->request;
     if (request == NULL)

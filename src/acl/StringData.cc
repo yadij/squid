@@ -66,7 +66,7 @@ Acl::StringData::empty() const
     return stringValues.empty();
 }
 
-ACLData<char const *> *
+Acl::Data<char const *> *
 Acl::StringData::clone() const
 {
     /* Splay trees don't clone yet. */

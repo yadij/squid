@@ -12,7 +12,7 @@
 #include "HttpRequest.h"
 
 int
-ACLUrlPortStrategy::match(ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLUrlPortStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     return data->match(checklist->request->url.port());
 }

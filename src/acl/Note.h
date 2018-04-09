@@ -34,11 +34,11 @@ class ACLNoteStrategy: public Acl::AnnotationStrategy
 {
 
 public:
-    virtual int match (ACLData<MatchType> * &, ACLFilledChecklist *);
+    virtual int match(Acl::Data<MatchType> * &, ACLFilledChecklist *);
     virtual bool requiresRequest() const { return true; }
 
 private:
-    bool matchNotes(ACLData<MatchType> *, const NotePairs *) const;
+    bool matchNotes(Acl::Data<MatchType> *, const NotePairs *) const;
 };
 
 #endif /* SQUID_ACLNOTE_H */

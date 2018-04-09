@@ -58,7 +58,7 @@ ACLNoteData::empty() const
     return name.isEmpty();
 }
 
-ACLData<NotePairs::Entry *> *
+Acl::Data<NotePairs::Entry *> *
 ACLNoteData::clone() const
 {
     ACLNoteData * result = new ACLNoteData;

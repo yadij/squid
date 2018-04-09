@@ -18,7 +18,7 @@
 template class ACLStrategised<hier_code>;
 
 int
-ACLHierCodeStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
+ACLHierCodeStrategy::match(Acl::Data<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     return data->match (checklist->request->hier.code);
 }

@@ -14,7 +14,7 @@
 
 #include <list>
 
-class ACLMethodData : public ACLData<HttpRequestMethod>
+class ACLMethodData : public Acl::Data<HttpRequestMethod>
 {
     MEMPROXY_CLASS(ACLMethodData);
 
@@ -24,11 +24,11 @@ public:
     ACLMethodData &operator= (ACLMethodData const &);
     virtual ~ACLMethodData();
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual bool match(HttpRequestMethod) override;
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData *clone() const override;
+    virtual Acl::Data<HttpRequestMethod> *clone() const override;
     virtual bool empty() const override { return values.empty(); }
 
 public:

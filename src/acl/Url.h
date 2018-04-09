@@ -15,7 +15,7 @@ class ACLUrlStrategy : public ACLStrategy<char const *>
 {
 
 public:
-    virtual int match (ACLData<char const *> * &, ACLFilledChecklist *);
+    virtual int match(Acl::Data<char const *> * &, ACLFilledChecklist *);
     virtual bool requiresRequest() const {return true;}
 };
 

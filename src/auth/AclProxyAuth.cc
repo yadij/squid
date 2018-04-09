@@ -26,7 +26,7 @@ ACLProxyAuth::~ACLProxyAuth()
     delete data;
 }
 
-ACLProxyAuth::ACLProxyAuth(ACLData<char const *> *newData, char const *theType) :
+ACLProxyAuth::ACLProxyAuth(Acl::Data<char const *> *newData, char const *theType) :
     data(newData),
     type_(theType)
 {}

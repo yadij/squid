@@ -14,18 +14,18 @@
 #include "err_type.h"
 
 /// \ingroup ACLAPI
-class ACLSquidErrorData : public ACLData<err_type>
+class ACLSquidErrorData : public Acl::Data<err_type>
 {
 
 public:
-    ACLSquidErrorData(): ACLData<err_type>() {}
+    ACLSquidErrorData(): Acl::Data<err_type>() {}
     virtual ~ACLSquidErrorData() {}
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual bool match(err_type) override;
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData *clone() const override;
+    virtual Acl::Data<err_type> *clone() const override;
     virtual bool empty() const override;
 
 private:

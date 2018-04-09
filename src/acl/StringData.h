@@ -16,7 +16,7 @@
 
 namespace Acl {
 
-class StringData : public ACLData<char const *>
+class StringData : public Acl::Data<char const *>
 {
     MEMPROXY_CLASS(StringData);
 
@@ -30,11 +30,11 @@ public:
     /// Insert a string data value
     void insert(const char *);
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual bool match(const char *) override; ///< \deprecated use match(SBuf&) instead
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData *clone() const override;
+    virtual Acl::Data<char const *> *clone() const override;
     virtual bool empty() const override;
 
 private:

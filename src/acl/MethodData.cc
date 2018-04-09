@@ -63,7 +63,7 @@ ACLMethodData::parse()
     }
 }
 
-ACLData<HttpRequestMethod> *
+Acl::Data<HttpRequestMethod> *
 ACLMethodData::clone() const
 {
     assert(values.empty());

@@ -56,7 +56,7 @@ private:
 
     /// ACL parameter flags in parsing order
     typedef std::vector<OptionName> Names;
-    /// parsed ACL parameter flags that must be preserved for ACLData::parse()
+    /// parsed ACL parameter flags that must be preserved for Acl::Data::parse()
     static Names flagsToSkip;
 
     const Options &options_; ///< caller-supported, linked options

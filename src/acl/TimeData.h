@@ -11,7 +11,7 @@
 
 #include "acl/Data.h"
 
-class ACLTimeData : public ACLData<time_t>
+class ACLTimeData : public Acl::Data<time_t>
 {
     MEMPROXY_CLASS(ACLTimeData);
 
@@ -21,11 +21,11 @@ public:
     ACLTimeData&operator=(ACLTimeData const &);
     virtual ~ACLTimeData();
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual bool match(time_t) override;
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData *clone() const override;
+    virtual Acl::Data<time_t> *clone() const override;
     virtual bool empty() const override;
 
 private:

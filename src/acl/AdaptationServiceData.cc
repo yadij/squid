@@ -38,7 +38,7 @@ Acl::AdaptationServiceData::parse()
     }
 }
 
-ACLData<char const *> *
+Acl::Data<char const *> *
 Acl::AdaptationServiceData::clone() const
 {
     return new Acl::AdaptationServiceData(*this);

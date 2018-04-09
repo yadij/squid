@@ -17,7 +17,7 @@ class ACLServerNameData : public ACLDomainData {
 public:
     ACLServerNameData() : ACLDomainData() {}
     virtual bool match(const char *);
-    virtual ACLData<char const *> *clone() const;
+    virtual Acl::Data<char const *> *clone() const;
 };
 
 class ACLServerNameStrategy : public ACLStrategy<char const *>
@@ -25,7 +25,7 @@ class ACLServerNameStrategy : public ACLStrategy<char const *>
 
 public:
     /* ACLStrategy API */
-    virtual int match (ACLData<MatchType> * &, ACLFilledChecklist *);
+    virtual int match(Acl::Data<MatchType> * &, ACLFilledChecklist *);
     virtual bool requiresRequest() const {return true;}
     virtual const Acl::Options &options();
     virtual bool valid() const;

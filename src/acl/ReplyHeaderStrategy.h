@@ -19,13 +19,13 @@ class ACLReplyHeaderStrategy : public ACLStrategy<char const *>
 {
 
 public:
-    virtual int match (ACLData<char const *> * &, ACLFilledChecklist *);
+    virtual int match(Acl::Data<char const *> * &, ACLFilledChecklist *);
     virtual bool requiresReply() const {return true;}
 };
 
 template <Http::HdrType header>
 int
-ACLReplyHeaderStrategy<header>::match (ACLData<char const *> * &data, ACLFilledChecklist *checklist)
+ACLReplyHeaderStrategy<header>::match(Acl::Data<char const *> * &data, ACLFilledChecklist *checklist)
 {
     char const *theHeader = checklist->reply->header.getStr(header);
 

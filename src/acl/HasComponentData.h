@@ -13,18 +13,18 @@
 #include "acl/Data.h"
 
 /// \ingroup ACLAPI
-class ACLHasComponentData : public ACLData<ACLChecklist *>
+class ACLHasComponentData : public Acl::Data<ACLChecklist *>
 {
     MEMPROXY_CLASS(ACLHasComponentData);
 
 public:
     ACLHasComponentData();
 
-    /* ACLData<T> API */
+    /* Acl::Data<T> API */
     virtual bool match(ACLChecklist *) override;
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual ACLData *clone() const override;
+    virtual Acl::Data<ACLChecklist *> *clone() const override;
     virtual bool empty() const override { return false; }
 
 private:

@@ -21,7 +21,7 @@
 
 /// Splits the ACL API into two individually configurable components:
 /// * ACLStrategy that usually extracts information from the current transaction
-/// * ACLData that usually matches information against admin-configured values
+/// * Acl::Data that usually matches information against admin-configured values
 template <class M>
 class ACLStrategised : public Acl::MatchNode
 {
@@ -30,7 +30,7 @@ class ACLStrategised : public Acl::MatchNode
 public:
     typedef M MatchType;
 
-    ACLStrategised(ACLData<MatchType> *, ACLStrategy<MatchType> *, char const *);
+    ACLStrategised(Acl::Data<MatchType> *, ACLStrategy<MatchType> *, char const *);
     ACLStrategised(ACLStrategised const &&) = delete;
     ~ACLStrategised();
 
@@ -50,7 +50,7 @@ public:
     virtual bool requiresReply() const override { return matcher->requiresReply(); }
 
 private:
-    ACLData<MatchType> *data;
+    Acl::Data<MatchType> *data;
     char const *type_;
     ACLStrategy<MatchType> *matcher;
 };
@@ -64,7 +64,7 @@ ACLStrategised<MatchType>::~ACLStrategised()
 }
 
 template <class MatchType>
-ACLStrategised<MatchType>::ACLStrategised(ACLData<MatchType> *newData, ACLStrategy<MatchType> *theStrategy, char const *theType):
+ACLStrategised<MatchType>::ACLStrategised(Acl::Data<MatchType> *newData, ACLStrategy<MatchType> *theStrategy, char const *theType):
     data(newData),
     type_(theType),
     matcher(theStrategy)

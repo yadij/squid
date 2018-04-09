@@ -16,7 +16,7 @@
 #include "rfc1738.h"
 
 int
-ACLUrlStrategy::match (ACLData<char const *> * &data, ACLFilledChecklist *checklist)
+ACLUrlStrategy::match(Acl::Data<char const *> * &data, ACLFilledChecklist *checklist)
 {
     char *esc_buf = SBufToCstring(checklist->request->effectiveRequestUri());
     rfc1738_unescape(esc_buf);
