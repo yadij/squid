@@ -19,7 +19,7 @@
 #include "Debug.h"
 
 void
-ACLAdaptationServiceData::parse()
+Acl::AdaptationServiceData::parse()
 {
     Adaptation::Config::needHistory = true;
     while (char *t = ConfigParser::strtokFile()) {
@@ -39,8 +39,8 @@ ACLAdaptationServiceData::parse()
 }
 
 ACLData<char const *> *
-ACLAdaptationServiceData::clone() const
+Acl::AdaptationServiceData::clone() const
 {
-    return new ACLAdaptationServiceData(*this);
+    return new Acl::AdaptationServiceData(*this);
 }
 

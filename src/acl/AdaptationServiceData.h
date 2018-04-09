@@ -6,22 +6,26 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef SQUID_ADAPTATIONSERVICEDATA_H
-#define SQUID_ADAPTATIONSERVICEDATA_H
+#ifndef SQUID_SRC_ACL_ADAPTATIONSERVICEDATA_H
+#define SQUID_SRC_ACL_ADAPTATIONSERVICEDATA_H
 
 #include "acl/StringData.h"
 
-/// \ingroup ACLAPI
-class ACLAdaptationServiceData : public ACLStringData
+namespace Acl {
+
+class AdaptationServiceData : public ACLStringData
 {
 public:
-    ACLAdaptationServiceData() : ACLStringData() {}
-    ACLAdaptationServiceData(ACLAdaptationServiceData const &old) : ACLStringData(old) {};
-    // Not implemented
-    ACLAdaptationServiceData &operator= (ACLAdaptationServiceData const &);
-    virtual void parse();
-    virtual ACLData<char const *> *clone() const;
+    AdaptationServiceData() : ACLStringData() {}
+    AdaptationServiceData(AdaptationServiceData const &old) : ACLStringData(old) {}
+    AdaptationServiceData &operator= (AdaptationServiceData const &) = delete;
+
+    /* ACLStringData API */
+    virtual void parse() override;
+    virtual ACLData<char const *> *clone() const override;
 };
 
-#endif /* SQUID_ADAPTATIONSERVICEDATA_H */
+} // namespace Acl
+
+#endif /* SQUID_SRC_ACL_ADAPTATIONSERVICEDATA_H */
 
