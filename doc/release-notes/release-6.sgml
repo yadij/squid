@@ -48,9 +48,9 @@ Most user-facing changes are reflected in squid.conf (see below).
 <p>The <em>Forwarded</em> extension has been standardized to replace
    <em>X-Forwarded-For</em> and similar custom headers. This release contains
    initial support for managing this HTTP extension in Squid with the
-   <em>http_ext_forwarded</em> directive.
+   <em>http_header_forwarded</em> directive.
 
-<p>The default behaviour is <em>transparent</em> - to relay any existing
+<p>The default behaviour is <em>on</em> - to relay any existing
    headers unchanged. Alternatively, the <em>delete</em> option can be
    selected to remove all <em>Forwarded</em> headers.
 
@@ -69,16 +69,28 @@ This section gives an account of those changes in three categories:
 <sect1>New directives<label id="newdirectives">
 <p>
 <descrip>
-	<tag>http_ext_forwarded</tag>
+	<tag>http_header_forwarded</tag>
 	<p>New directive to customize handling of Forwarded headers.
 	   See RFC 7239 for details of this HTTP extension.
+	<p>Option <em>delete</em> removes both Forwarded and
+	   X-Forwarded-For headers from traffic.
+	<p>Option <em>transparent</em> relays any Forwarded and
+	   X-Forwarded-For headers without changes.
+	<p>Option <em>truncate</em> removes any existing
+	   Forwarded and X-Forwarded-For headers, then adds
+	   a new X-Forwarded-For with Client IP.
+	<p>Deprecated Option <em>off</em> removes Forwarded headers and
+	   appends 'unknown' to X-Forwarded-For.
+	<p>Deprecated Option <em>on</em> (the default) removes Forwarded
+	   headers and appends Client IP to X-Forwarded-For.
 
 </descrip>
 
 <sect1>Changes to existing directives<label id="modifieddirectives">
 <p>
 <descrip>
-	<p>There have been no directives changed.
+	<tag>forwarded_for</tag>
+	<p>Replaced by <em>http_header_forwarded</em> directive.
 
 </descrip>
 
