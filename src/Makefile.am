@@ -1422,6 +1422,7 @@ tests_testCacheManager_LDADD = \
 	$(SSLLIB) \
 	$(KRB5LIBS) \
 	$(LIBCPPUNIT_LIBS) \
+	$(LIBSOCKSD_LIBS) \
 	$(COMPAT_LIB) \
 	$(XTRA_LIBS)
 tests_testCacheManager_LDFLAGS = $(LIBADD_DL)
@@ -1596,6 +1597,7 @@ tests_testDiskIO_LDADD = \
 	$(REGEXLIB) \
 	$(SSLLIB) \
 	$(LIBCPPUNIT_LIBS) \
+	$(LIBSOCKSD_LIBS) \
 	$(COMPAT_LIB) \
 	$(XTRA_LIBS)
 tests_testDiskIO_LDFLAGS = $(LIBADD_DL)
@@ -1849,6 +1851,7 @@ tests_testEvent_LDADD = \
 	$(SSLLIB) \
 	$(KRB5LIBS) \
 	$(LIBCPPUNIT_LIBS) \
+	$(LIBSOCKSD_LIBS) \
 	$(COMPAT_LIB) \
 	$(XTRA_LIBS)
 tests_testEvent_LDFLAGS = $(LIBADD_DL)
@@ -2082,6 +2085,7 @@ tests_testEventLoop_LDADD = \
 	$(SSLLIB) \
 	$(KRB5LIBS) \
 	$(LIBCPPUNIT_LIBS) \
+	$(LIBSOCKSD_LIBS) \
 	$(COMPAT_LIB) \
 	$(XTRA_LIBS)
 tests_testEventLoop_LDFLAGS = $(LIBADD_DL)
@@ -2311,6 +2315,7 @@ tests_test_http_range_LDADD = \
 	$(SSLLIB) \
 	$(KRB5LIBS) \
 	$(LIBCPPUNIT_LIBS) \
+	$(LIBSOCKSD_LIBS) \
 	$(COMPAT_LIB) \
 	$(XTRA_LIBS)
 tests_test_http_range_LDFLAGS = $(LIBADD_DL)
@@ -2613,6 +2618,7 @@ tests_testHttpRequest_LDADD = \
 	$(SSLLIB) \
 	$(KRB5LIBS) \
 	$(LIBCPPUNIT_LIBS) \
+	$(LIBSOCKSD_LIBS) \
 	$(COMPAT_LIB) \
 	$(XTRA_LIBS)
 tests_testHttpRequest_LDFLAGS = $(LIBADD_DL)
@@ -3059,6 +3065,7 @@ tests_testUfs_LDADD = \
 	$(REGEXLIB) \
 	$(SSLLIB) \
 	$(LIBCPPUNIT_LIBS) \
+	$(LIBSOCKSD_LIBS) \
 	$(COMPAT_LIB) \
 	$(XTRA_LIBS)
 tests_testUfs_LDFLAGS = $(LIBADD_DL)
@@ -3236,6 +3243,7 @@ tests_testRock_LDADD = \
 	$(REGEXLIB) \
 	$(SSLLIB) \
 	$(LIBCPPUNIT_LIBS) \
+	$(LIBSOCKSD_LIBS) \
 	$(COMPAT_LIB) \
 	$(XTRA_LIBS)
 tests_testRock_LDFLAGS = $(AM_CPPFLAGS) $(LIBADD_DL)
@@ -3473,6 +3481,7 @@ tests_testURL_LDADD = \
 	$(SSLLIB) \
 	$(KRB5LIBS) \
 	$(LIBCPPUNIT_LIBS) \
+	$(LIBSOCKSD_LIBS) \
 	$(COMPAT_LIB) \
 	$(XTRA_LIBS)
 tests_testURL_LDFLAGS = $(LIBADD_DL)
