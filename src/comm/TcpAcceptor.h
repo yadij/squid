@@ -79,6 +79,7 @@ public:
 protected:
     virtual Comm::Flag oldAccept(Comm::ConnectionPointer &details);
     virtual bool setListen();
+    Comm::Flag acceptFollowupActions(Comm::ConnectionPointer &) const;
     const Comm::ConnectionPointer getConn() const { return conn; }
 
     friend class AcceptLimiter;

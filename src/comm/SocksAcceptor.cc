@@ -125,44 +125,8 @@ Comm::SocksAcceptor::oldAccept(Comm::ConnectionPointer &details)
     details->local = *gai;
     Ip::Address::FreeAddr(gai);
 
-    /* fdstat update */
-    // XXX : these are not all HTTP requests. use a note about type and ip:port details->
-    // so we end up with a uniform "(HTTP|FTP-data|HTTPS|...) remote-ip:remote-port"
-    fd_open(sock, FD_SOCKET, "HTTP Request");
-
-    fde *F = &fd_table[sock];
-    details->remote.toStr(F->ipaddr,MAX_IPSTRLEN);
-    F->remote_port = details->remote.port();
-    F->local_addr = details->local;
-    F->sock_family = details->local.isIPv6()?AF_INET6:AF_INET;
-
-    // set socket flags
-    commSetCloseOnExec(sock);
-    commSetNonBlocking(sock);
-
-    /* IFF the socket is (tproxy) transparent, pass the flag down to allow spoofing */
-    F->flags.transparent = fd_table[getConn()->fd].flags.transparent; // XXX: can we remove this line yet?
-
-    // Perform NAT or TPROXY operations to retrieve the real client/dest IP addresses
-    if (getConn()->flags&(COMM_TRANSPARENT|COMM_INTERCEPTION) && !Ip::Interceptor.Lookup(details, getConn())) {
-        debugs(50, DBG_IMPORTANT, "ERROR: NAT/TPROXY lookup failed to locate original IPs on " << details);
-        // Failed.
-        PROF_stop(comm_accept);
-        return Comm::COMM_ERROR;
-    }
-
-#if USE_SQUID_EUI
-    if (Eui::TheConfig.euiLookup) {
-        if (details->remote.isIPv4()) {
-            details->remoteEui48.lookup(details->remote);
-        } else if (details->remote.isIPv6()) {
-            details->remoteEui64.lookup(details->remote);
-        }
-    }
-#endif
-
     PROF_stop(comm_accept);
-    return Comm::OK;
+    return acceptFollowupActions(details);
 }
 
 #endif /* USE_SOCKS */

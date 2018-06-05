@@ -422,20 +422,29 @@ Comm::TcpAcceptor::oldAccept(Comm::ConnectionPointer &details)
     details->local = *gai;
     Ip::Address::FreeAddr(gai);
 
+    PROF_stop(comm_accept);
+    return acceptFollowupActions(details);
+}
+
+Comm::Flag
+Comm::TcpAcceptor::acceptFollowupActions(Comm::ConnectionPointer &details) const
+{
+    const int sock = details->fd;
+
     /* fdstat update */
     // XXX : these are not all HTTP requests. use a note about type and ip:port details->
     // so we end up with a uniform "(HTTP|FTP-data|HTTPS|...) remote-ip:remote-port"
     fd_open(sock, FD_SOCKET, "HTTP Request");
+
+    // set socket flags
+    commSetCloseOnExec(sock);
+    commSetNonBlocking(sock);
 
     fde *F = &fd_table[sock];
     details->remote.toStr(F->ipaddr,MAX_IPSTRLEN);
     F->remote_port = details->remote.port();
     F->local_addr = details->local;
     F->sock_family = details->local.isIPv6()?AF_INET6:AF_INET;
-
-    // set socket flags
-    commSetCloseOnExec(sock);
-    commSetNonBlocking(sock);
 
     /* IFF the socket is (tproxy) transparent, pass the flag down to allow spoofing */
     F->flags.transparent = fd_table[conn->fd].flags.transparent; // XXX: can we remove this line yet?
@@ -444,7 +453,6 @@ Comm::TcpAcceptor::oldAccept(Comm::ConnectionPointer &details)
     if (conn->flags&(COMM_TRANSPARENT|COMM_INTERCEPTION) && !Ip::Interceptor.Lookup(details, conn)) {
         debugs(50, DBG_IMPORTANT, "ERROR: NAT/TPROXY lookup failed to locate original IPs on " << details);
         // Failed.
-        PROF_stop(comm_accept);
         return Comm::COMM_ERROR;
     }
 
@@ -458,7 +466,6 @@ Comm::TcpAcceptor::oldAccept(Comm::ConnectionPointer &details)
     }
 #endif
 
-    PROF_stop(comm_accept);
     return Comm::OK;
 }
 
