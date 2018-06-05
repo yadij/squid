@@ -440,6 +440,11 @@ Comm::Flag
 Comm::TcpAcceptor::acceptFollowupActions(Comm::ConnectionPointer &details) const
 {
     const int sock = details->fd;
+    fde *F = &fd_table[sock];
+
+    // Set here so fd_open() can initialize for SOCKS correctly.
+    // Also to clear (if needed) any value from previous use of the FD.
+    F->flags.socks_io = bool(details->flags & COMM_SOCKS);
 
     /* fdstat update */
     // XXX : these are not all HTTP requests. use a note about type and ip:port details->
@@ -450,7 +455,6 @@ Comm::TcpAcceptor::acceptFollowupActions(Comm::ConnectionPointer &details) const
     commSetCloseOnExec(sock);
     commSetNonBlocking(sock);
 
-    fde *F = &fd_table[sock];
     details->remote.toStr(F->ipaddr,MAX_IPSTRLEN);
     F->remote_port = details->remote.port();
     F->local_addr = details->local;

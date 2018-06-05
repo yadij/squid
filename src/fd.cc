@@ -162,6 +162,26 @@ default_write_method(int fd, const char *buf, int len)
     return i;
 }
 
+#if USE_SOCKS
+static int
+socks_read_method(int fd, char *buf, int len)
+{
+    PROF_start(read);
+    auto i = Rread(fd, buf, len);
+    PROF_stop(read);
+    return i;
+}
+
+static int
+socks_write_method(int fd, const char *buf, int len)
+{
+    PROF_start(write);
+    auto i = Rwrite(fd, buf, len);
+    PROF_stop(write);
+    return i;
+}
+#endif
+
 int
 msghdr_read_method(int fd, char *buf, int)
 {
@@ -230,6 +250,16 @@ fd_open(int fd, unsigned int type, const char *desc)
         F->read_method = &msghdr_read_method;
         F->write_method = &msghdr_write_method;
         break;
+
+#if USE_SOCKS
+    case FD_SOCKET:
+        if (F->flags.socks_io) {
+            F->read_method = &socks_read_method;
+            F->write_method = &socks_write_method;
+            break;
+        }
+        // fall through to default case
+#endif
 
     default:
         F->read_method = &default_read_method;

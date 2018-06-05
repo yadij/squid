@@ -19,9 +19,6 @@
 #include "StatCounters.h"
 
 #include <cerrno>
-#if HAVE_SOCKS_H
-#include <socks.h>
-#endif
 
 CBDATA_NAMESPACED_CLASS_INIT(Comm, SocksAcceptor);
 
@@ -95,6 +92,7 @@ Comm::SocksAcceptor::oldAccept(Comm::ConnectionPointer &details)
     Must(sock >= 0);
     details->fd = sock;
     details->remote = *gai;
+    details->flags |= COMM_SOCKS;
 
     if (clientMaxConnections(details)) {
         Ip::Address::FreeAddr(gai);
