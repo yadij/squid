@@ -12,17 +12,10 @@
 
 #if USE_SOCKS
 #include "anyp/PortCfg.h"
-#include "client_db.h"
 #include "comm/Connection.h"
-#include "comm/comm_internal.h"
 #include "comm/SocksAcceptor.h"
-#include "CommCalls.h"
-#include "eui/Config.h"
 #include "fd.h"
-#include "fde.h"
-#include "ip/Intercept.h"
 #include "profiler/Profiler.h"
-#include "SquidConfig.h"
 #include "StatCounters.h"
 
 #include <cerrno>
@@ -103,13 +96,10 @@ Comm::SocksAcceptor::oldAccept(Comm::ConnectionPointer &details)
     details->fd = sock;
     details->remote = *gai;
 
-    if ( Config.client_ip_max_connections >= 0) {
-        if (clientdbEstablished(details->remote, 0) > Config.client_ip_max_connections) {
-            debugs(50, DBG_IMPORTANT, "WARNING: " << details->remote << " attempting more than " << Config.client_ip_max_connections << " connections.");
-            Ip::Address::FreeAddr(gai);
-            PROF_stop(comm_accept);
-            return Comm::COMM_ERROR;
-        }
+    if (clientMaxConnections(details)) {
+        Ip::Address::FreeAddr(gai);
+        PROF_stop(comm_accept);
+        return Comm::COMM_ERROR;
     }
 
     // lookup the local-end details of this new connection

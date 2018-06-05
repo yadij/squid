@@ -358,6 +358,19 @@ Comm::TcpAcceptor::notify(const Comm::Flag flag, const Comm::ConnectionPointer &
     }
 }
 
+/// \returns true if client has exceeded their maximum permitted connection count
+bool
+Comm::TcpAcceptor::clientMaxConnections(const Comm::ConnectionPointer &details) const
+{
+    if (Config.client_ip_max_connections >= 0) {
+        if (clientdbEstablished(details->remote, 0) > Config.client_ip_max_connections) {
+            debugs(50, DBG_IMPORTANT, "WARNING: " << details->remote << " attempting more than " << Config.client_ip_max_connections << " connections.");
+            return true;
+        }
+    }
+    return false;
+}
+
 /**
  * accept() and process
  * Wait for an incoming connection on our listener socket.
@@ -400,13 +413,10 @@ Comm::TcpAcceptor::oldAccept(Comm::ConnectionPointer &details)
     details->fd = sock;
     details->remote = *gai;
 
-    if ( Config.client_ip_max_connections >= 0) {
-        if (clientdbEstablished(details->remote, 0) > Config.client_ip_max_connections) {
-            debugs(50, DBG_IMPORTANT, "WARNING: " << details->remote << " attempting more than " << Config.client_ip_max_connections << " connections.");
-            Ip::Address::FreeAddr(gai);
-            PROF_stop(comm_accept);
-            return Comm::COMM_ERROR;
-        }
+    if (clientMaxConnections(details)) {
+        Ip::Address::FreeAddr(gai);
+        PROF_stop(comm_accept);
+        return Comm::COMM_ERROR;
     }
 
     // lookup the local-end details of this new connection
