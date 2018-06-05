@@ -89,6 +89,7 @@
 #include "compat/getnameinfo.h"
 #include "compat/inet_ntop.h"
 #include "compat/inet_pton.h"
+#include "compat/socks.h"
 #include "compat/stdvarargs.h"
 
 /* cstdio has a bunch of problems with 64-bit definitions */
