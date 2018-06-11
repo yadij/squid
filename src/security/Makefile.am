@@ -15,6 +15,8 @@ noinst_LTLIBRARIES = libsecurity.la
 libsecurity_la_SOURCES= \
 	BlindPeerConnector.cc \
 	BlindPeerConnector.h \
+	BumpMode.cc \
+	BumpMode.h \
 	CertError.h \
 	Context.h \
 	EncryptorAnswer.cc \

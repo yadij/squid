@@ -123,29 +123,6 @@ GETX509ATTRIBUTE GetX509Fingerprint;
 
 extern const EVP_MD *DefaultSignHash;
 
-/**
-  \ingroup ServerProtocolSSLAPI
- * Supported ssl-bump modes
- */
-enum BumpMode {bumpNone = 0, bumpClientFirst, bumpServerFirst, bumpPeek, bumpStare, bumpBump, bumpSplice, bumpTerminate, /*bumpErr,*/ bumpEnd};
-
-enum BumpStep {bumpStep1, bumpStep2, bumpStep3};
-
-/**
- \ingroup  ServerProtocolSSLAPI
- * Short names for ssl-bump modes
- */
-extern std::vector<const char *>BumpModeStr;
-
-/**
- \ingroup ServerProtocolSSLAPI
- * Return the short name of the ssl-bump mode "bm"
- */
-inline const char *bumpMode(int bm)
-{
-    return (0 <= bm && bm < Ssl::bumpEnd) ? Ssl::BumpModeStr.at(bm) : NULL;
-}
-
 /// certificates indexed by issuer name
 typedef std::multimap<SBuf, X509 *> CertsIndexedList;
 

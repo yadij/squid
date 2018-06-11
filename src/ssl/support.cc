@@ -42,18 +42,6 @@ static Ssl::CertsIndexedList SquidUntrustedCerts;
 
 const EVP_MD *Ssl::DefaultSignHash = NULL;
 
-std::vector<const char *> Ssl::BumpModeStr = {
-    "none",
-    "client-first",
-    "server-first",
-    "peek",
-    "stare",
-    "bump",
-    "splice",
-    "terminate"
-    /*,"err"*/
-};
-
 /**
  \defgroup ServerProtocolSSLInternal Server-Side SSL Internals
  \ingroup ServerProtocolSSLAPI
