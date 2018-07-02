@@ -2040,12 +2040,20 @@ copyOneHeaderFromClientsideRequestToUpstreamRequest(const HttpHeaderEntry *e, co
 
     case Http::HdrType::MAX_FORWARDS:
         /** \par Max-Forwards:
-         * pass only on TRACE or OPTIONS requests */
+         * RFC 7231 section 5.1.2 requires decrement on TRACE or OPTIONS methods.
+         * But only MAY decrement on other methods. Which implies it MAY be used
+         * on other methods, so decrement or pass untouched.
+         */
         if (request->method == Http::METHOD_TRACE || request->method == Http::METHOD_OPTIONS) {
             const int64_t hops = e->getInt64();
-
+            // TODO 'decrement' to MAX_INT64 if the value is greater than signed 64-bit can handle.
             if (hops > 0)
                 hdr_out->putInt64(Http::HdrType::MAX_FORWARDS, hops - 1);
+            else // XXX: targeted at us but we are forwarding...
+                hdr_out->addEntry(e->clone());
+
+        } else {
+            hdr_out->addEntry(e->clone());
         }
 
         break;
