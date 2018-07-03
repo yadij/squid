@@ -1330,8 +1330,7 @@ void Adaptation::Icap::ModXact::finalizeLogInfo()
     al.cache.caddr = virgin_request_->client_addr;
 
     al.http.clientRequest = virgin_request_;
-    al.adapted_request = adapted_request_;
-    HTTPMSGLOCK(al.adapted_request);
+    al.http.adaptedRequest = adapted_request_;
 
     // TODO: preserve virgin reply for better logging of server responses
     al.http.clientReply = adapted_reply_;

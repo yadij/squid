@@ -60,11 +60,9 @@ icapLogRotate()
 void icapLogLog(AccessLogEntry::Pointer &al)
 {
     if (IcapLogfileStatus == LOG_ENABLE) {
-        ACLFilledChecklist checklist(NULL, al->adapted_request, NULL);
-        if (al->http.clientReply) {
-            checklist.reply = al->http.clientReply.getRaw();
-            HTTPMSGLOCK(checklist.reply);
-        }
+        ACLFilledChecklist checklist(nullptr, al->http.adaptedRequest.getRaw());
+        checklist.reply = al->http.clientReply.getRaw();
+        HTTPMSGLOCK(checklist.reply);
         accessLogLogTo(Config.Log.icaplogs, al, &checklist);
     }
 }

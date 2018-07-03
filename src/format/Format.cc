@@ -343,7 +343,7 @@ actualReplyHeader(const AccessLogEntry::Pointer &al)
 #if ICAP_CLIENT
     // al->icap.reqMethod is methodNone in access.log context
     if (!msg && al->icap.reqMethod == Adaptation::methodReqmod)
-        msg = al->adapted_request;
+        msg = al->http.adaptedRequest.getRaw();
 #endif
     return msg;
 }
@@ -634,8 +634,8 @@ Format::Format::assemble(MemBuf &mb, const AccessLogEntry::Pointer &al, int logS
             break;
 
         case LFT_ADAPTED_REQUEST_HEADER:
-            if (al->adapted_request) {
-                sb = StringToSBuf(al->adapted_request->header.getByName(fmt->data.header.header));
+            if (al->http.adaptedRequest) {
+                sb = StringToSBuf(al->http.adaptedRequest->header.getByName(fmt->data.header.header));
                 out = sb.c_str();
                 quote = 1;
             }
@@ -825,8 +825,8 @@ Format::Format::assemble(MemBuf &mb, const AccessLogEntry::Pointer &al, int logS
             break;
 
         case LFT_ADAPTED_REQUEST_HEADER_ELEM:
-            if (al->adapted_request) {
-                sb = StringToSBuf(al->adapted_request->header.getByNameListMember(fmt->data.header.header, fmt->data.header.element, fmt->data.header.separator));
+            if (const auto &req = al->http.adaptedRequest) {
+                sb = StringToSBuf(req->header.getByNameListMember(fmt->data.header.header, fmt->data.header.element, fmt->data.header.separator));
                 out = sb.c_str();
                 quote = 1;
             }
@@ -1054,8 +1054,8 @@ Format::Format::assemble(MemBuf &mb, const AccessLogEntry::Pointer &al, int logS
             break;
 
         case LFT_SERVER_REQ_METHOD:
-            if (al->adapted_request) {
-                sb = al->adapted_request->method.image();
+            if (al->http.adaptedRequest) {
+                sb = al->http.adaptedRequest->method.image();
                 out = sb.c_str();
                 quote = 1;
             }
@@ -1063,48 +1063,46 @@ Format::Format::assemble(MemBuf &mb, const AccessLogEntry::Pointer &al, int logS
 
         case LFT_SERVER_REQ_URI:
             // adapted request URI sent to server/peer
-            if (al->adapted_request) {
-                sb = al->adapted_request->effectiveRequestUri();
+            if (al->http.adaptedRequest) {
+                sb = al->http.adaptedRequest->effectiveRequestUri();
                 out = sb.c_str();
                 quote = 1;
             }
             break;
 
         case LFT_SERVER_REQ_URLSCHEME:
-            if (al->adapted_request) {
-                sb = al->adapted_request->url.getScheme().image();
+            if (al->http.adaptedRequest) {
+                sb = al->http.adaptedRequest->url.getScheme().image();
                 out = sb.c_str();
                 quote = 1;
             }
             break;
 
         case LFT_SERVER_REQ_URLDOMAIN:
-            if (al->adapted_request) {
-                out = al->adapted_request->url.host();
+            if (al->http.adaptedRequest) {
+                out = al->http.adaptedRequest->url.host();
                 quote = 1;
             }
             break;
 
         case LFT_SERVER_REQ_URLPORT:
-            if (al->adapted_request) {
-                outint = al->adapted_request->url.port();
+            if (al->http.adaptedRequest) {
+                outint = al->http.adaptedRequest->url.port();
                 doint = 1;
             }
             break;
 
         case LFT_SERVER_REQ_URLPATH:
-            if (al->adapted_request) {
-                sb = al->adapted_request->url.path();
+            if (al->http.adaptedRequest) {
+                sb = al->http.adaptedRequest->url.path();
                 out = sb.c_str();
                 quote = 1;
             }
             break;
 
         case LFT_SERVER_REQ_VERSION:
-            if (al->adapted_request) {
-                sb.appendf("%u.%u",
-                           al->adapted_request->http_ver.major,
-                           al->adapted_request->http_ver.minor);
+            if (const auto &req = al->http.adaptedRequest) {
+                sb.appendf("%u.%u", req->http_ver.major, req->http_ver.minor);
                 out = tmp;
             }
             break;

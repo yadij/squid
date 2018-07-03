@@ -98,10 +98,9 @@ ACLFilledChecklist::verifyAle() const
             al->http.clientRequest = request;
         }
 
-        if (!al->adapted_request) {
+        if (!al->http.adaptedRequest) {
             showDebugWarning("adapted HttpRequest object");
-            al->adapted_request = request;
-            HTTPMSGLOCK(al->adapted_request);
+            al->http.adaptedRequest = request;
         }
 
         if (al->url.isEmpty()) {
@@ -130,9 +129,8 @@ ACLFilledChecklist::syncAle(HttpRequest *adaptedRequest, const char *logUri) con
 {
     if (!al)
         return;
-    if (adaptedRequest && !al->adapted_request) {
-        al->adapted_request = adaptedRequest;
-        HTTPMSGLOCK(al->adapted_request);
+    if (adaptedRequest && !al->http.adaptedRequest) {
+        al->http.adaptedRequest = adaptedRequest;
     }
     if (logUri && al->url.isEmpty())
         al->url = logUri;

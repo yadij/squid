@@ -83,7 +83,11 @@ public:
         // XXX payload encoding overheads not calculated at all yet.
         MessageSizes clientRequestSz;
 
-        HttpRequestPointer clientRequest; //< virgin HTTP request
+        /// the HTTP request received from client
+        HttpRequestPointer clientRequest;
+
+        /// the HTTP request after adaptation and redirection (if any)
+        HttpRequestPointer adaptedRequest;
 
         /// counters for the response sent to client
         // TODO calculate header and payload better (by parser)
@@ -179,7 +183,6 @@ public:
     SBuf lastAclData; ///< string for external_acl_type %DATA format code
 
     HierarchyLogEntry hier;
-    HttpRequest *adapted_request = nullptr; //< HTTP request after adaptation and redirection
 
     /// key:value pairs set by squid.conf note directive and
     /// key=value pairs returned from URL rewrite/redirect helper

@@ -421,8 +421,8 @@ ClientHttpRequest::logRequest()
 
 #endif
 
-    /* Add notes (if we have a request to annotate) */
     if (request) {
+        /* Add notes (if we have a request to annotate) */
         SBuf matched;
         for (auto h: Config.notes) {
             if (h->match(request, al->http.clientReply.getRaw(), nullptr, matched)) {
@@ -432,6 +432,9 @@ ClientHttpRequest::logRequest()
         }
         // The al->notes and request->notes must point to the same object.
         al->syncNotes(request);
+
+        // TODO: prevent this overriding existing values?
+        al->http.adaptedRequest = request;
     }
 
     ACLFilledChecklist checklist(NULL, request, NULL);
@@ -440,11 +443,6 @@ ClientHttpRequest::logRequest()
         HTTPMSGLOCK(checklist.reply);
     }
 
-    if (request) {
-        HTTPMSGUNLOCK(al->adapted_request);
-        al->adapted_request = request;
-        HTTPMSGLOCK(al->adapted_request);
-    }
     // no need checklist.syncAle(): already synced
     checklist.al = al;
     accessLogLog(al, &checklist);
