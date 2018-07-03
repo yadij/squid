@@ -40,7 +40,6 @@ class AccessLogEntry: public RefCountable
 public:
     typedef RefCount<AccessLogEntry> Pointer;
 
-    AccessLogEntry() {}
     ~AccessLogEntry();
 
     /// Fetch the client IP log string into the given buffer.
@@ -88,6 +87,9 @@ public:
         // TODO calculate header and payload better (by parser)
         // XXX payload encoding overheads not calculated at all yet.
         MessageSizes clientReplySz;
+
+        /// the HTTP reply delivered to client
+        HttpReplyPointer clientReply;
 
     } http;
 
@@ -175,7 +177,6 @@ public:
     SBuf lastAclData; ///< string for external_acl_type %DATA format code
 
     HierarchyLogEntry hier;
-    HttpReply *reply = nullptr;
     HttpRequest *request = nullptr; //< virgin HTTP request
     HttpRequest *adapted_request = nullptr; //< HTTP request after adaptation and redirection
 

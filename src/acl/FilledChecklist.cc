@@ -113,10 +113,9 @@ ACLFilledChecklist::verifyAle() const
         }
     }
 
-    if (reply && !al->reply) {
+    if (reply && !al->http.clientReply) {
         showDebugWarning("HttpReply object");
-        al->reply = reply;
-        HTTPMSGLOCK(al->reply);
+        al->http.clientReply = reply;
     }
 
 #if USE_IDENT

@@ -381,9 +381,9 @@ ClientHttpRequest::logRequest()
     al->url = log_uri;
     debugs(33, 9, "clientLogRequest: al.url='" << al->url << "'");
 
-    if (al->reply) {
-        al->http.code = al->reply->sline.status();
-        al->http.content_type = al->reply->content_type.termedBuf();
+    if (al->http.clientReply) {
+        al->http.code = al->http.clientReply->sline.status();
+        al->http.content_type = al->http.clientReply->content_type.termedBuf();
     } else if (loggingEntry() && loggingEntry()->mem_obj) {
         al->http.code = loggingEntry()->mem_obj->getReply()->sline.status();
         al->http.content_type = loggingEntry()->mem_obj->getReply()->content_type.termedBuf();
@@ -425,7 +425,7 @@ ClientHttpRequest::logRequest()
     if (request) {
         SBuf matched;
         for (auto h: Config.notes) {
-            if (h->match(request, al->reply, NULL, matched)) {
+            if (h->match(request, al->http.clientReply.getRaw(), nullptr, matched)) {
                 request->notes()->add(h->key(), matched);
                 debugs(33, 3, h->key() << " " << matched);
             }
@@ -435,8 +435,8 @@ ClientHttpRequest::logRequest()
     }
 
     ACLFilledChecklist checklist(NULL, request, NULL);
-    if (al->reply) {
-        checklist.reply = al->reply;
+    if (al->http.clientReply) {
+        checklist.reply = al->http.clientReply.getRaw();
         HTTPMSGLOCK(checklist.reply);
     }
 
@@ -453,8 +453,8 @@ ClientHttpRequest::logRequest()
     if (Config.accessList.stats_collection) {
         ACLFilledChecklist statsCheck(Config.accessList.stats_collection, request, NULL);
         statsCheck.al = al;
-        if (al->reply) {
-            statsCheck.reply = al->reply;
+        if (al->http.clientReply) {
+            statsCheck.reply = al->http.clientReply.getRaw();
             HTTPMSGLOCK(statsCheck.reply);
         }
         updatePerformanceCounters = statsCheck.fastCheck().allowed();

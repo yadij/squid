@@ -1334,11 +1334,8 @@ void Adaptation::Icap::ModXact::finalizeLogInfo()
     al.adapted_request = adapted_request_;
     HTTPMSGLOCK(al.adapted_request);
 
-    if (adapted_reply_) {
-        al.reply = adapted_reply_;
-        HTTPMSGLOCK(al.reply);
-    } else
-        al.reply = NULL;
+    // TODO: preserve virgin reply for better logging of server responses
+    al.http.clientReply = adapted_reply_;
 
     if (h->rfc931.size())
         al.cache.rfc931 = h->rfc931.termedBuf();

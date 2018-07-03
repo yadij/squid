@@ -777,10 +777,9 @@ Ftp::Server::handleReply(HttpReply *reply, StoreIOBuffer data)
     Http::StreamPointer context = pipeline.front();
     assert(context != nullptr);
 
-    if (context->http && context->http->al != NULL &&
-            !context->http->al->reply && reply) {
-        context->http->al->reply = reply;
-        HTTPMSGLOCK(context->http->al->reply);
+    if (reply && context->http && context->http->al &&
+            !context->http->al->http.clientReply) {
+        context->http->al->http.clientReply = reply;
     }
 
     static ReplyHandler handlers[] = {

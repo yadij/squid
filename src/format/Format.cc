@@ -339,7 +339,7 @@ sslErrorName(Security::ErrorCode err, char *buf, size_t size)
 static const Http::Message *
 actualReplyHeader(const AccessLogEntry::Pointer &al)
 {
-    const Http::Message *msg = al->reply;
+    const Http::Message *msg = al->http.clientReply.getRaw();
 #if ICAP_CLIENT
     // al->icap.reqMethod is methodNone in access.log context
     if (!msg && al->icap.reqMethod == Adaptation::methodReqmod)
