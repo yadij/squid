@@ -13,6 +13,7 @@
 #include "base/RefCount.h"
 #include "comm/Connection.h"
 #include "HierarchyLogEntry.h"
+#include "http/forward.h"
 #include "http/ProtocolVersion.h"
 #include "http/RequestMethod.h"
 #include "HttpHeader.h"
@@ -31,8 +32,6 @@
 #endif
 
 /* forward decls */
-class HttpReply;
-class HttpRequest;
 class CustomLog;
 
 class AccessLogEntry: public RefCountable
