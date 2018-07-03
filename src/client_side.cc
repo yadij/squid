@@ -332,9 +332,9 @@ prepareLogWithRequestDetails(HttpRequest * request, AccessLogEntry::Pointer &aLo
         aLogEntry->headers.adapted_request = xstrdup(mb.buf);
 
         // the virgin request is saved to aLogEntry->request
-        if (aLogEntry->request) {
+        if (aLogEntry->http.clientRequest) {
             mb.reset();
-            aLogEntry->request->header.packInto(&mb);
+            aLogEntry->http.clientRequest->header.packInto(&mb);
             aLogEntry->headers.request = xstrdup(mb.buf);
         }
 
@@ -364,10 +364,10 @@ prepareLogWithRequestDetails(HttpRequest * request, AccessLogEntry::Pointer &aLo
     // Adapted request, if any, inherits and then collects all the stats, but
     // the virgin request gets logged instead; copy the stats to log them.
     // TODO: avoid losses by keeping these stats in a shared history object?
-    if (aLogEntry->request) {
-        aLogEntry->request->dnsWait = request->dnsWait;
-        aLogEntry->request->errType = request->errType;
-        aLogEntry->request->errDetail = request->errDetail;
+    if (const auto &req = aLogEntry->http.clientRequest) {
+        req->dnsWait = request->dnsWait;
+        req->errType = request->errType;
+        req->errDetail = request->errDetail;
     }
 }
 
@@ -395,9 +395,9 @@ ClientHttpRequest::logRequest()
         al->cache.objectSize = loggingEntry()->contentLen(); // payload duplicate ?? with or without TE ?
 
     al->http.clientRequestSz.header = req_sz;
-    // the virgin request is saved to al->request
-    if (al->request && al->request->body_pipe)
-        al->http.clientRequestSz.payloadData = al->request->body_pipe->producedSize();
+    // the virgin request is saved to al->http.clientRequest
+    if (al->http.clientRequest && al->http.clientRequest->body_pipe)
+        al->http.clientRequestSz.payloadData = al->http.clientRequest->body_pipe->producedSize();
     al->http.clientReplySz.header = out.headers_sz;
     // XXX: calculate without payload encoding or headers !!
     al->http.clientReplySz.payloadData = out.size - out.headers_sz; // pretend its all un-encoded data for now.
@@ -1445,6 +1445,11 @@ bool ConnStateData::serveDelayedError(Http::Stream *context)
         debugs(33, 5, "Responding with delated error for " << http->uri);
         repContext->setReplyToStoreEntry(sslServerBump->entry, "delayed SslBump error");
 
+        // save the original request for logging purposes
+        if (!context->http->al->http.clientRequest) {
+            context->http->al->http.clientRequest = http->request;
+        }
+
         // Get error details from the fake certificate-peeking request.
         http->request->detailError(sslServerBump->request->errType, sslServerBump->request->errDetail);
         context->pullData();
@@ -1487,6 +1492,12 @@ bool ConnStateData::serveDelayedError(Http::Stream *context)
                     SQUID_X509_V_ERR_DOMAIN_MISMATCH,
                     srvCert.get(), nullptr);
                 err->detail = errDetail;
+
+                // Save the original request for logging purposes.
+                if (!context->http->al->http.clientRequest) {
+                    context->http->al->http.clientRequest = request;
+                }
+
                 repContext->setReplyToError(request->method, err);
                 assert(context->http->out.offset == 0);
                 context->pullData();
@@ -2763,9 +2774,7 @@ ConnStateData::postHttpsAccept()
         acl_checklist->al->tcpClient = clientConnection;
         acl_checklist->al->cache.port = port;
         acl_checklist->al->cache.caddr = log_addr;
-        HTTPMSGUNLOCK(acl_checklist->al->request);
-        acl_checklist->al->request = request;
-        HTTPMSGLOCK(acl_checklist->al->request);
+        acl_checklist->al->http.clientRequest = request;
         Http::StreamPointer context = pipeline.front();
         ClientHttpRequest *http = context ? context->http : nullptr;
         const char *log_uri = http ? http->log_uri : nullptr;

@@ -1329,8 +1329,7 @@ void Adaptation::Icap::ModXact::finalizeLogInfo()
 
     al.cache.caddr = virgin_request_->client_addr;
 
-    al.request = virgin_request_;
-    HTTPMSGLOCK(al.request);
+    al.http.clientRequest = virgin_request_;
     al.adapted_request = adapted_request_;
     HTTPMSGLOCK(al.adapted_request);
 

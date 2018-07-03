@@ -789,7 +789,7 @@ FindListeningPortAddress(const HttpRequest *callerRequest, const AccessLogEntry 
 
     const HttpRequest *request = callerRequest;
     if (!request && ale)
-        request = ale->request;
+        request = ale->http.clientRequest.getRaw();
     if (!request)
         return nullptr; // not enough information
 

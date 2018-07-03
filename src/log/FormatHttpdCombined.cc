@@ -27,13 +27,13 @@ Log::Format::HttpdCombined(const AccessLogEntry::Pointer &al, Logfile * logfile)
     const char *referer = NULL;
     const char *agent = NULL;
 
-    if (al->request) {
+    if (const auto &request = al->http.clientRequest) {
 #if USE_AUTH
-        if (al->request->auth_user_request != NULL)
-            user_auth = ::Format::QuoteUrlEncodeUsername(al->request->auth_user_request->username());
+        if (request->auth_user_request)
+            user_auth = ::Format::QuoteUrlEncodeUsername(request->auth_user_request->username());
 #endif
-        referer = al->request->header.getStr(Http::HdrType::REFERER);
-        agent = al->request->header.getStr(Http::HdrType::USER_AGENT);
+        referer = request->header.getStr(Http::HdrType::REFERER);
+        agent = request->header.getStr(Http::HdrType::USER_AGENT);
     }
 
     if (!referer || *referer == '\0')

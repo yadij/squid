@@ -91,12 +91,11 @@ ACLFilledChecklist::verifyAle() const
     }
 
     if (request) {
-        if (!al->request) {
+        if (!al->http.clientRequest) {
             showDebugWarning("HttpRequest object");
-            // XXX: al->request should be original,
-            // but the request may be already adapted
-            al->request = request;
-            HTTPMSGLOCK(al->request);
+            // XXX: al->http.clientRequest should be original,
+            // but 'request' may be already adapted
+            al->http.clientRequest = request;
         }
 
         if (!al->adapted_request) {

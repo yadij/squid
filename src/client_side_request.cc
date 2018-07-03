@@ -1653,9 +1653,8 @@ ClientHttpRequest::initRequest(HttpRequest *aRequest)
     }
     // al is created in the constructor
     assert(al);
-    if (!al->request) {
-        al->request = request;
-        HTTPMSGLOCK(al->request);
+    if (!al->http.clientRequest) {
+        al->http.clientRequest = request;
         al->syncNotes(request);
     }
 }
@@ -1728,6 +1727,19 @@ void
 ClientHttpRequest::doCallouts()
 {
     assert(calloutContext);
+
+    auto &ale = calloutContext->http->al;
+    /*Save the original request for logging purposes*/
+    if (!ale->http.clientRequest) {
+        ale->http.clientRequest = request;
+
+        // Make the previously set client connection ID available as annotation.
+        if (ConnStateData *csd = calloutContext->http->getConn()) {
+            if (!csd->notes()->empty())
+                calloutContext->http->request->notes()->appendNewOnly(csd->notes().getRaw());
+        }
+        ale->syncNotes(calloutContext->http->request);
+    }
 
     if (!calloutContext->error) {
         // CVE-2009-0801: verify the Host: header is consistent with other known details.

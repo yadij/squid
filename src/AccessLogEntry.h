@@ -83,6 +83,8 @@ public:
         // XXX payload encoding overheads not calculated at all yet.
         MessageSizes clientRequestSz;
 
+        HttpRequestPointer clientRequest; //< virgin HTTP request
+
         /// counters for the response sent to client
         // TODO calculate header and payload better (by parser)
         // XXX payload encoding overheads not calculated at all yet.
@@ -177,7 +179,6 @@ public:
     SBuf lastAclData; ///< string for external_acl_type %DATA format code
 
     HierarchyLogEntry hier;
-    HttpRequest *request = nullptr; //< virgin HTTP request
     HttpRequest *adapted_request = nullptr; //< HTTP request after adaptation and redirection
 
     /// key:value pairs set by squid.conf note directive and
@@ -238,7 +239,7 @@ public:
     /// Remember Client URI (or equivalent) when there is no HttpRequest.
     void setVirginUrlForMissingRequest(const SBuf &vu)
     {
-        if (!request)
+        if (!http.clientRequest)
             virginUrlForMissingRequest_ = vu;
     }
 

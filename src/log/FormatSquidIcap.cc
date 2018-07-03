@@ -38,8 +38,10 @@ Log::Format::SquidIcap(const AccessLogEntry::Pointer &al, Logfile * logfile)
     }
 
 #if USE_AUTH
-    if (al->request != NULL && al->request->auth_user_request != NULL)
-        user = ::Format::QuoteUrlEncodeUsername(al->request->auth_user_request->username());
+    if (const auto &request = al->http.clientRequest) {
+        if (request->auth_user_request)
+            user = ::Format::QuoteUrlEncodeUsername(request->auth_user_request->username());
+    }
 #endif
 
     if (!user)

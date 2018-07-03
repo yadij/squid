@@ -19,8 +19,8 @@ AccessLogEntry::getLogClientIp(char *buf, size_t bufsz) const
     Ip::Address log_ip;
 
 #if FOLLOW_X_FORWARDED_FOR
-    if (Config.onoff.log_uses_indirect_client && request)
-        log_ip = request->indirect_client_addr;
+    if (Config.onoff.log_uses_indirect_client && http.clientRequest)
+        log_ip = http.clientRequest->indirect_client_addr;
     else
 #endif
         if (tcpClient)
@@ -85,8 +85,8 @@ AccessLogEntry::getClientIdent() const
 const char *
 AccessLogEntry::getExtUser() const
 {
-    if (request && request->extacl_user.size())
-        return request->extacl_user.termedBuf();
+    if (http.clientRequest && http.clientRequest->extacl_user.size())
+        return http.clientRequest->extacl_user.termedBuf();
 
     if (cache.extuser && *cache.extuser)
         return cache.extuser;
@@ -109,7 +109,6 @@ AccessLogEntry::~AccessLogEntry()
 
     safe_free(lastAclName);
 
-    HTTPMSGUNLOCK(request);
 #if ICAP_CLIENT
     HTTPMSGUNLOCK(icap.reply);
     HTTPMSGUNLOCK(icap.request);
@@ -119,7 +118,7 @@ AccessLogEntry::~AccessLogEntry()
 const SBuf *
 AccessLogEntry::effectiveVirginUrl() const
 {
-    const SBuf *effectiveUrl = request ? &request->effectiveRequestUri() : &virginUrlForMissingRequest_;
+    const SBuf *effectiveUrl = http.clientRequest ? &http.clientRequest->effectiveRequestUri() : &virginUrlForMissingRequest_;
     if (effectiveUrl && !effectiveUrl->isEmpty())
         return effectiveUrl;
     // We can not use ALE::url here because it may contain a request URI after

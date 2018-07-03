@@ -19,8 +19,8 @@ void
 Log::Format::SquidReferer(const AccessLogEntry::Pointer &al, Logfile *logfile)
 {
     const char *referer = NULL;
-    if (al->request)
-        referer = al->request->header.getStr(Http::HdrType::REFERER);
+    if (const auto &request = al->http.clientRequest)
+        referer = request->header.getStr(Http::HdrType::REFERER);
 
     if (!referer || *referer == '\0')
         referer = "-";

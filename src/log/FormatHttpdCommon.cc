@@ -24,8 +24,10 @@ Log::Format::HttpdCommon(const AccessLogEntry::Pointer &al, Logfile * logfile)
 {
     const char *user_auth = NULL;
 #if USE_AUTH
-    if (al->request && al->request->auth_user_request != NULL)
-        user_auth = ::Format::QuoteUrlEncodeUsername(al->request->auth_user_request->username());
+    if (const auto &request = al->http.clientRequest) {
+        if (request->auth_user_request)
+            user_auth = ::Format::QuoteUrlEncodeUsername(request->auth_user_request->username());
+    }
 #endif
     const char *user_ident = ::Format::QuoteUrlEncodeUsername(al->getClientIdent());
 

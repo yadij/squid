@@ -20,8 +20,8 @@ Log::Format::SquidUserAgent(const AccessLogEntry::Pointer &al, Logfile * logfile
 {
     const char *agent = NULL;
 
-    if (al->request)
-        agent = al->request->header.getStr(Http::HdrType::USER_AGENT);
+    if (const auto &request = al->http.clientRequest)
+        agent = request->header.getStr(Http::HdrType::USER_AGENT);
 
     if (!agent || *agent == '\0')
         agent = "-";
