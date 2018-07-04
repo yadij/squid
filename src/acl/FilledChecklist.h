@@ -62,7 +62,7 @@ public:
     void markSourceDomainChecked();
 
     // ACLChecklist API
-    virtual bool hasRequest() const { return request != NULL; }
+    virtual bool hasRequest() const { return bool(request); }
     virtual bool hasReply() const { return reply != NULL; }
     virtual bool hasAle() const { return al != NULL; }
     virtual void syncAle(HttpRequest *adaptedRequest, const char *logUri) const;
@@ -75,7 +75,7 @@ public:
     SBuf dst_peer_name;
     char *dst_rdns;
 
-    HttpRequest *request;
+    HttpRequestPointer request;
     HttpReply *reply;
 
     char rfc931[USER_IDENT_SZ];

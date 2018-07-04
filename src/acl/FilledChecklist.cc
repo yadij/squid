@@ -25,7 +25,6 @@ CBDATA_CLASS_INIT(ACLFilledChecklist);
 
 ACLFilledChecklist::ACLFilledChecklist() :
     dst_rdns(NULL),
-    request (NULL),
     reply (NULL),
 #if USE_AUTH
     auth_user_request (NULL),
@@ -53,8 +52,6 @@ ACLFilledChecklist::~ACLFilledChecklist()
     assert (!asyncInProgress());
 
     safe_free(dst_rdns); // created by xstrdup().
-
-    HTTPMSGUNLOCK(request);
 
     HTTPMSGUNLOCK(reply);
 
@@ -208,7 +205,6 @@ ACLFilledChecklist::markSourceDomainChecked()
  */
 ACLFilledChecklist::ACLFilledChecklist(const acl_access *A, HttpRequest *http_request, const char *ident):
     dst_rdns(NULL),
-    request(NULL),
     reply(NULL),
 #if USE_AUTH
     auth_user_request(NULL),
@@ -235,12 +231,12 @@ ACLFilledChecklist::ACLFilledChecklist(const acl_access *A, HttpRequest *http_re
     setIdent(ident);
 }
 
-void ACLFilledChecklist::setRequest(HttpRequest *httpRequest)
+void
+ACLFilledChecklist::setRequest(HttpRequest *httpRequest)
 {
     assert(!request);
     if (httpRequest) {
         request = httpRequest;
-        HTTPMSGLOCK(request);
 #if FOLLOW_X_FORWARDED_FOR
         if (Config.onoff.acl_uses_indirect_client)
             src_addr = request->indirect_client_addr;
