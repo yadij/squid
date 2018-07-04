@@ -63,7 +63,7 @@ public:
 
     // ACLChecklist API
     virtual bool hasRequest() const { return bool(request); }
-    virtual bool hasReply() const { return reply != NULL; }
+    virtual bool hasReply() const { return bool(reply); }
     virtual bool hasAle() const { return al != NULL; }
     virtual void syncAle(HttpRequest *adaptedRequest, const char *logUri) const;
     virtual void verifyAle() const;
@@ -76,7 +76,7 @@ public:
     char *dst_rdns;
 
     HttpRequestPointer request;
-    HttpReply *reply;
+    HttpReplyPointer reply;
 
     char rfc931[USER_IDENT_SZ];
 #if USE_AUTH

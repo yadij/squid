@@ -465,9 +465,8 @@ static Auth::ConfigVector &
 schemesConfig(HttpRequest *request, HttpReply *rep)
 {
     if (!Auth::TheConfig.schemeLists.empty() && Auth::TheConfig.schemeAccess) {
-        ACLFilledChecklist ch(NULL, request, NULL);
+        ACLFilledChecklist ch(nullptr, request);
         ch.reply = rep;
-        HTTPMSGLOCK(ch.reply);
         const allow_t answer = ch.fastCheck(Auth::TheConfig.schemeAccess);
         if (answer.allowed())
             return Auth::TheConfig.schemeLists.at(answer.kind).authConfigs;

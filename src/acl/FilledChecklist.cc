@@ -14,7 +14,6 @@
 #include "ExternalACLEntry.h"
 #include "http/Stream.h"
 #include "HttpReply.h"
-#include "HttpRequest.h"
 #include "SquidConfig.h"
 #if USE_AUTH
 #include "auth/AclProxyAuth.h"
@@ -25,7 +24,6 @@ CBDATA_CLASS_INIT(ACLFilledChecklist);
 
 ACLFilledChecklist::ACLFilledChecklist() :
     dst_rdns(NULL),
-    reply (NULL),
 #if USE_AUTH
     auth_user_request (NULL),
 #endif
@@ -52,8 +50,6 @@ ACLFilledChecklist::~ACLFilledChecklist()
     assert (!asyncInProgress());
 
     safe_free(dst_rdns); // created by xstrdup().
-
-    HTTPMSGUNLOCK(reply);
 
     cbdataReferenceDone(conn_);
 
@@ -205,7 +201,6 @@ ACLFilledChecklist::markSourceDomainChecked()
  */
 ACLFilledChecklist::ACLFilledChecklist(const acl_access *A, HttpRequest *http_request, const char *ident):
     dst_rdns(NULL),
-    reply(NULL),
 #if USE_AUTH
     auth_user_request(NULL),
 #endif

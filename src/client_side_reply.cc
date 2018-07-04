@@ -879,8 +879,7 @@ clientReplyContext::blockedHit() const
 
     if (const HttpReply *rep = http->storeEntry()->getReply()) {
         std::unique_ptr<ACLFilledChecklist> chl(clientAclChecklistCreate(Config.accessList.sendHit, http));
-        chl->reply = const_cast<HttpReply*>(rep); // ACLChecklist API bug
-        HTTPMSGLOCK(chl->reply);
+        chl->reply = rep;
         return !chl->fastCheck().allowed(); // when in doubt, block
     }
 
@@ -2062,7 +2061,6 @@ clientReplyContext::processReplyAccess ()
     ACLFilledChecklist *replyChecklist =
         clientAclChecklistCreate(Config.accessList.reply, http);
     replyChecklist->reply = reply;
-    HTTPMSGLOCK(replyChecklist->reply);
     replyChecklist->nonBlockingCheck(ProcessReplyAccessResult, this);
 }
 

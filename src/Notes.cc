@@ -72,8 +72,6 @@ Note::match(HttpRequest *request, HttpReply *reply, const AccessLogEntry::Pointe
     ch.al = al;
     ch.reply = reply;
     ch.syncAle(request, nullptr);
-    if (reply)
-        HTTPMSGLOCK(ch.reply);
 
     for (auto v: values) {
         assert(v->aclList);

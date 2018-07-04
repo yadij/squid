@@ -61,8 +61,7 @@ void icapLogLog(AccessLogEntry::Pointer &al)
 {
     if (IcapLogfileStatus == LOG_ENABLE) {
         ACLFilledChecklist checklist(nullptr, al->http.adaptedRequest.getRaw());
-        checklist.reply = al->http.clientReply.getRaw();
-        HTTPMSGLOCK(checklist.reply);
+        checklist.reply = al->http.clientReply;
         accessLogLogTo(Config.Log.icaplogs, al, &checklist);
     }
 }

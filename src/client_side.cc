@@ -438,10 +438,7 @@ ClientHttpRequest::logRequest()
     }
 
     ACLFilledChecklist checklist(NULL, request, NULL);
-    if (al->http.clientReply) {
-        checklist.reply = al->http.clientReply.getRaw();
-        HTTPMSGLOCK(checklist.reply);
-    }
+    checklist.reply = al->http.clientReply;
 
     // no need checklist.syncAle(): already synced
     checklist.al = al;
@@ -451,10 +448,7 @@ ClientHttpRequest::logRequest()
     if (Config.accessList.stats_collection) {
         ACLFilledChecklist statsCheck(Config.accessList.stats_collection, request, NULL);
         statsCheck.al = al;
-        if (al->http.clientReply) {
-            statsCheck.reply = al->http.clientReply.getRaw();
-            HTTPMSGLOCK(statsCheck.reply);
-        }
+        statsCheck.reply = al->http.clientReply;
         updatePerformanceCounters = statsCheck.fastCheck().allowed();
     }
 
