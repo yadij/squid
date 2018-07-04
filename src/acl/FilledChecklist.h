@@ -14,6 +14,7 @@
 #include "acl/forward.h"
 #include "base/CbcPointer.h"
 #include "err_type.h"
+#include "http/forward.h"
 #include "ip/Address.h"
 #if USE_AUTH
 #include "auth/UserRequest.h"
@@ -22,8 +23,6 @@
 
 class CachePeer;
 class ConnStateData;
-class HttpRequest;
-class HttpReply;
 
 /** \ingroup ACLAPI
     ACLChecklist filled with specific data, representing Squid and transaction
