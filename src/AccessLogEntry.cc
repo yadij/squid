@@ -108,7 +108,6 @@ AccessLogEntry::~AccessLogEntry()
     safe_free(lastAclName);
 
 #if ICAP_CLIENT
-    HTTPMSGUNLOCK(icap.reply);
     HTTPMSGUNLOCK(icap.request);
 #endif
 }
@@ -124,4 +123,13 @@ AccessLogEntry::effectiveVirginUrl() const
     // means that we missed a setVirginUrlForMissingRequest() call somewhere.
     return nullptr;
 }
+
+#if ICAP_CLIENT
+AccessLogEntry::IcapLogEntry::IcapLogEntry()
+{
+    memset(&trTime, 0, sizeof(trTime));
+    memset(&ioTime, 0, sizeof(ioTime));
+    memset(&processingTime, 0, sizeof(processingTime));
+}
+#endif
 

@@ -652,9 +652,8 @@ void Adaptation::Icap::Xaction::finalizeLogInfo()
 
     al.icap.request = icapRequest;
     HTTPMSGLOCK(al.icap.request);
-    if (icapReply != NULL) {
-        al.icap.reply = icapReply.getRaw();
-        HTTPMSGLOCK(al.icap.reply);
+    if (icapReply) {
+        al.icap.reply = icapReply;
         al.icap.resStatus = icapReply->sline.status();
     }
 }

@@ -195,11 +195,7 @@ public:
     class IcapLogEntry
     {
     public:
-        IcapLogEntry() {
-            memset(&trTime, 0, sizeof(trTime));
-            memset(&ioTime, 0, sizeof(ioTime));
-            memset(&processingTime, 0, sizeof(processingTime));
-        }
+        IcapLogEntry();
 
         Ip::Address hostAddr; ///< ICAP server IP address
         String serviceName;        ///< ICAP service name
@@ -213,7 +209,7 @@ public:
          */
         int64_t bodyBytesRead = -1;
         HttpRequest* request = nullptr;    ///< ICAP request
-        HttpReply* reply = nullptr;        ///< ICAP reply
+        HttpReplyPointer reply;        ///< ICAP reply
 
         Adaptation::Icap::XactOutcome outcome = Adaptation::Icap::xoUnknown; ///< final transaction status
         /** \brief Transaction response time.
