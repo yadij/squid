@@ -33,18 +33,11 @@ Adaptation::Iterator::Iterator(
     iterations(0),
     adapted(false)
 {
-    if (theCause != NULL)
-        HTTPMSGLOCK(theCause);
-
-    if (theMsg != NULL)
-        HTTPMSGLOCK(theMsg);
 }
 
 Adaptation::Iterator::~Iterator()
 {
     assert(!theLauncher);
-    HTTPMSGUNLOCK(theMsg);
-    HTTPMSGUNLOCK(theCause);
 }
 
 void Adaptation::Iterator::start()
@@ -56,9 +49,9 @@ void Adaptation::Iterator::start()
     // Add adaptation group name once and now, before
     // dynamic groups change it at step() time.
     if (Adaptation::Config::needHistory && !thePlan.exhausted() && (dynamic_cast<ServiceSet *>(theGroup.getRaw()) || dynamic_cast<ServiceChain *>(theGroup.getRaw()))) {
-        HttpRequest *request = dynamic_cast<HttpRequest*>(theMsg);
+        auto request = dynamic_cast<HttpRequest*>(theMsg.getRaw());
         if (!request)
-            request = theCause;
+            request = theCause.getRaw();
         Must(request);
         Adaptation::History::Pointer ah = request->adaptHistory(true);
         auto gid = StringToSBuf(theGroup->id);
@@ -76,14 +69,14 @@ void Adaptation::Iterator::step()
     Must(!theLauncher);
 
     if (thePlan.exhausted()) { // nothing more to do
-        sendAnswer(Answer::Forward(theMsg));
+        sendAnswer(Answer::Forward(theMsg.getRaw()));
         Must(done());
         return;
     }
 
-    HttpRequest *request = dynamic_cast<HttpRequest*>(theMsg);
+    HttpRequest *request = dynamic_cast<HttpRequest*>(theMsg.getRaw());
     if (!request)
-        request = theCause;
+        request = theCause.getRaw();
     assert(request);
     request->clearError();
 
@@ -106,7 +99,7 @@ void Adaptation::Iterator::step()
     }
 
     theLauncher = initiateAdaptation(
-                      service->makeXactLauncher(theMsg, theCause, al));
+                      service->makeXactLauncher(theMsg.getRaw(), theCause.getRaw(), al));
     Must(initiated(theLauncher));
     Must(!done());
 }
@@ -135,19 +128,17 @@ Adaptation::Iterator::handleAdaptedHeader(Http::Message *aMsg)
     // set theCause if we switched to request satisfaction mode
     if (!theCause) { // probably sent a request message
         if (dynamic_cast<HttpReply*>(aMsg)) { // we got a response message
-            if (HttpRequest *cause = dynamic_cast<HttpRequest*>(theMsg)) {
+            if (const auto cause = dynamic_cast<HttpRequest*>(theMsg.getRaw())) {
                 // definately sent request, now use it as the cause
-                theCause = cause; // moving the lock
-                theMsg = 0;
+                theCause = cause;
+                theMsg = nullptr;
                 debugs(93,3, HERE << "in request satisfaction mode");
             }
         }
     }
 
     Must(aMsg);
-    HTTPMSGUNLOCK(theMsg);
     theMsg = aMsg;
-    HTTPMSGLOCK(theMsg);
     adapted = true;
 
     clearAdaptation(theLauncher);
@@ -196,7 +187,7 @@ void Adaptation::Iterator::handleAdaptationError(bool final)
 
     if (canIgnore && srcIntact && adapted) {
         debugs(85,3, HERE << "responding with older adapted msg");
-        sendAnswer(Answer::Forward(theMsg));
+        sendAnswer(Answer::Forward(theMsg.getRaw()));
         mustStop("sent older adapted msg");
         return;
     }
@@ -225,7 +216,7 @@ void Adaptation::Iterator::swanSong()
 
 bool Adaptation::Iterator::updatePlan(bool adopt)
 {
-    HttpRequest *r = theCause ? theCause : dynamic_cast<HttpRequest*>(theMsg);
+    const auto r = theCause ? theCause.getRaw() : dynamic_cast<HttpRequest*>(theMsg.getRaw());
     Must(r);
 
     Adaptation::History::Pointer ah = r->adaptHistory();
@@ -271,13 +262,13 @@ Adaptation::ServiceFilter Adaptation::Iterator::filter() const
     HttpRequest *req = NULL;
     HttpReply *rep = NULL;
 
-    if (HttpRequest *r = dynamic_cast<HttpRequest*>(theMsg)) {
+    if (auto r = dynamic_cast<HttpRequest*>(theMsg.getRaw())) {
         method = methodReqmod;
         req = r;
         rep = NULL;
-    } else if (HttpReply *theReply = dynamic_cast<HttpReply*>(theMsg)) {
+    } else if (auto theReply = dynamic_cast<HttpReply*>(theMsg.getRaw())) {
         method = methodRespmod;
-        req = theCause;
+        req = theCause.getRaw();
         rep = theReply;
     } else {
         Must(false); // should not happen

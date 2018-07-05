@@ -65,8 +65,8 @@ protected:
 
     ServiceGroupPointer theGroup; ///< the service group we are iterating
     ServicePlan thePlan; ///< which services to use and in what order
-    Http::Message *theMsg; ///< the message being adapted (virgin for each step)
-    HttpRequest *theCause; ///< the cause of the original virgin message
+    Http::MessagePointer theMsg; ///< the message being adapted (virgin for each step)
+    HttpRequestPointer theCause; ///< the cause of the original virgin message
     AccessLogEntry::Pointer al; ///< info for the future access.log entry
     CbcPointer<Adaptation::Initiate> theLauncher; ///< current transaction launcher
     int iterations; ///< number of steps initiated
