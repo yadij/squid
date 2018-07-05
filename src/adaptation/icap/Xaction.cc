@@ -651,7 +651,6 @@ void Adaptation::Icap::Xaction::finalizeLogInfo()
     tvSub(al.icap.trTime, icap_tr_start, current_time);
 
     al.icap.request = icapRequest;
-    HTTPMSGLOCK(al.icap.request);
     if (icapReply) {
         al.icap.reply = icapReply;
         al.icap.resStatus = icapReply->sline.status();

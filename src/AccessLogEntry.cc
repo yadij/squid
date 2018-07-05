@@ -106,10 +106,6 @@ AccessLogEntry::~AccessLogEntry()
 
     safe_free(headers.adapted_request);
     safe_free(lastAclName);
-
-#if ICAP_CLIENT
-    HTTPMSGUNLOCK(icap.request);
-#endif
 }
 
 const SBuf *

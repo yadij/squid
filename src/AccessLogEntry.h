@@ -208,7 +208,7 @@ public:
          * message data in ICAP reply (eg 204 responses)
          */
         int64_t bodyBytesRead = -1;
-        HttpRequest* request = nullptr;    ///< ICAP request
+        HttpRequestPointer request;    ///< ICAP request
         HttpReplyPointer reply;        ///< ICAP reply
 
         Adaptation::Icap::XactOutcome outcome = Adaptation::Icap::xoUnknown; ///< final transaction status
