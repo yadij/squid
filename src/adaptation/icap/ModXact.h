@@ -166,7 +166,7 @@ private:
     virtual void start();
 
     /// locates the request, either as a cause or as a virgin message itself
-    const HttpRequest &virginRequest() const; // Must always be available
+    const HttpRequestPointer virginRequest() const; // Must always be available
 
     void estimateVirginBody();
     void makeAdaptedBodyPipe(const char *what);

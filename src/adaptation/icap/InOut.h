@@ -26,38 +26,35 @@ class InOut
 
 public:
     // TODO: s/Header/Message/i ?
-    typedef Http::Message Header;
-
-    InOut(): header(0), cause(0) {}
-
-    ~InOut() {
-        HTTPMSGUNLOCK(cause);
-        HTTPMSGUNLOCK(header);
-    }
+    typedef Http::MessagePointer Header;
 
     void setCause(HttpRequest *r) {
         if (r) {
-            HTTPMSGUNLOCK(cause);
             cause = r;
-            HTTPMSGLOCK(cause);
         } else {
             assert(!cause);
         }
     }
 
-    void setHeader(Header *h) {
-        HTTPMSGUNLOCK(header);
+    void setHeader(const Header &h) {
         header = h;
-        HTTPMSGLOCK(header);
         body_pipe = header->body_pipe;
+    }
+
+    const HttpRequestPointer getRequest() const {
+        if (cause)
+            return cause;
+        if (auto *h = dynamic_cast<HttpRequest*>(header.getRaw()))
+            return HttpRequestPointer(h);
+        return HttpRequestPointer();
     }
 
 public:
     // virgin or adapted message being worked on
-    Header *header;   // parsed HTTP status/request line and headers
+    Header header;   // parsed HTTP status/request line and headers
 
     // HTTP request header for HTTP responses (the cause of the response)
-    HttpRequest *cause;
+    HttpRequestPointer cause;
 
     // Copy of header->body_pipe, in case somebody moves the original.
     BodyPipe::Pointer body_pipe;

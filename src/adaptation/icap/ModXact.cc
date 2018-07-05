@@ -87,7 +87,7 @@ void Adaptation::Icap::ModXact::start()
     Adaptation::Icap::Xaction::start();
 
     // reserve an adaptation history slot (attempts are known at this time)
-    Adaptation::History::Pointer ah = virginRequest().adaptLogHistory();
+    Adaptation::History::Pointer ah = virginRequest()->adaptLogHistory();
     if (ah != NULL)
         adaptHistoryId = ah->recordXactStart(service().cfg().key, icap_tr_start, attempts > 1);
 
@@ -383,12 +383,12 @@ void Adaptation::Icap::ModXact::closeChunk(MemBuf &buf)
     buf.append(ICAP::crlf, 2); // chunk-terminating CRLF
 }
 
-const HttpRequest &Adaptation::Icap::ModXact::virginRequest() const
+const HttpRequestPointer
+Adaptation::Icap::ModXact::virginRequest() const
 {
-    const HttpRequest *request = virgin.cause ?
-                                 virgin.cause : dynamic_cast<const HttpRequest*>(virgin.header);
+    const HttpRequestPointer request(virgin.getRequest());
     Must(request);
-    return *request;
+    return request;
 }
 
 // did the activity reached the end of the virgin body?
@@ -737,7 +737,7 @@ void Adaptation::Icap::ModXact::maybeAllocateHttpMsg()
         setOutcome(service().cfg().method == ICAP::methodReqmod ?
                    xoSatisfied : xoModified);
     } else if (gotEncapsulated("req-hdr")) {
-        adapted.setHeader(new HttpRequest(virginRequest().masterXaction));
+        adapted.setHeader(new HttpRequest(virginRequest()->masterXaction));
         setOutcome(xoModified);
     } else
         throw TexcHere("Neither res-hdr nor req-hdr in maybeAllocateHttpMsg()");
@@ -770,7 +770,7 @@ void Adaptation::Icap::ModXact::startSending()
 {
     disableRepeats("sent headers");
     disableBypass("sent headers", true);
-    sendAnswer(Answer::Forward(adapted.header));
+    sendAnswer(Answer::Forward(adapted.header.getRaw()));
 
     if (state.sending == State::sendingVirgin)
         echoMore();
@@ -835,9 +835,9 @@ void Adaptation::Icap::ModXact::parseIcapHead()
         break;
     }
 
-    const HttpRequest *request = dynamic_cast<HttpRequest*>(adapted.header);
+    const HttpRequest *request = dynamic_cast<HttpRequest*>(adapted.header.getRaw());
     if (!request)
-        request = &virginRequest();
+        request = virginRequest().getRaw();
 
     // update the cross-transactional database if needed (all status codes!)
     if (const char *xxName = Adaptation::Config::masterx_shared_name) {
@@ -958,7 +958,7 @@ void Adaptation::Icap::ModXact::prepEchoing()
     // Instead, we simply write the HTTP message and "clone" it by parsing.
     // TODO: use Http::Message::clone()!
 
-    Http::Message *oldHead = virgin.header;
+    Http::Message *oldHead = virgin.header.getRaw();
     debugs(93, 7, HERE << "cloning virgin message " << oldHead);
 
     MemBuf httpBuf;
@@ -1064,14 +1064,14 @@ void Adaptation::Icap::ModXact::parseHttpHead()
         replyHttpHeaderSize = 0;
         maybeAllocateHttpMsg();
 
-        if (!parseHead(adapted.header))
+        if (!parseHead(adapted.header.getRaw()))
             return; // need more header data
 
         if (adapted.header)
             replyHttpHeaderSize = adapted.header->hdr_sz;
 
-        if (dynamic_cast<HttpRequest*>(adapted.header)) {
-            const HttpRequest *oldR = dynamic_cast<const HttpRequest*>(virgin.header);
+        if (dynamic_cast<HttpRequest*>(adapted.header.getRaw())) {
+            const HttpRequest *oldR = dynamic_cast<const HttpRequest*>(virgin.header.getRaw());
             Must(oldR);
             // TODO: the adapted request did not really originate from the
             // client; give proxy admin an option to prevent copying of
@@ -1081,7 +1081,7 @@ void Adaptation::Icap::ModXact::parseHttpHead()
 
         // Maybe adapted.header==NULL if HttpReply and have Http 0.9 ....
         if (adapted.header)
-            adapted.header->inheritProperties(virgin.header);
+            adapted.header->inheritProperties(virgin.header.getRaw());
     }
 
     decideOnParsingBody();
@@ -1299,7 +1299,7 @@ void Adaptation::Icap::ModXact::swanSong()
         detailError(ERR_DETAIL_ICAP_XACT_OTHER);
 
     // update adaptation history if start was called and we reserved a slot
-    Adaptation::History::Pointer ah = virginRequest().adaptLogHistory();
+    Adaptation::History::Pointer ah = virginRequest()->adaptLogHistory();
     if (ah != NULL && adaptHistoryId >= 0)
         ah->recordXactFinish(adaptHistoryId);
 
@@ -1312,12 +1312,12 @@ void Adaptation::Icap::ModXact::finalizeLogInfo()
 {
     HttpRequest *adapted_request_ = nullptr;
     HttpReply *adapted_reply_ = nullptr;
-    HttpRequest *virgin_request_ = const_cast<HttpRequest*>(&virginRequest());
-    if (!(adapted_request_ = dynamic_cast<HttpRequest*>(adapted.header))) {
+    HttpRequest *virgin_request_ = const_cast<HttpRequest*>(virginRequest().getRaw());
+    if (!(adapted_request_ = dynamic_cast<HttpRequest*>(adapted.header.getRaw()))) {
         // if the request was not adapted, use virgin request to simplify
         // the code further below
         adapted_request_ = virgin_request_;
-        adapted_reply_ = dynamic_cast<HttpReply*>(adapted.header);
+        adapted_reply_ = dynamic_cast<HttpReply*>(adapted.header.getRaw());
     }
 
     Adaptation::Icap::History::Pointer h = virgin_request_->icapHistory();
@@ -1344,10 +1344,10 @@ void Adaptation::Icap::ModXact::finalizeLogInfo()
 #endif
     al.cache.code = h->logType;
 
-    const Http::Message *virgin_msg = dynamic_cast<HttpReply*>(virgin.header);
+    const Http::Message *virgin_msg = dynamic_cast<HttpReply*>(virgin.header.getRaw());
     if (!virgin_msg)
         virgin_msg = virgin_request_;
-    assert(virgin_msg != virgin.cause);
+    assert(virgin_msg != virgin.cause.getRaw());
     al.http.clientRequestSz.header = virgin_msg->hdr_sz;
     if (virgin_msg->body_pipe != NULL)
         al.http.clientRequestSz.payloadData = virgin_msg->body_pipe->producedSize();
@@ -1393,7 +1393,7 @@ void Adaptation::Icap::ModXact::makeRequestHeaders(MemBuf &buf)
     if (!TheConfig.reuse_connections)
         buf.appendf("Connection: close\r\n");
 
-    const HttpRequest *request = &virginRequest();
+    const HttpRequestPointer request(virginRequest());
 
     // we must forward "Proxy-Authenticate" and "Proxy-Authorization"
     // as ICAP headers.
@@ -1440,13 +1440,13 @@ void Adaptation::Icap::ModXact::makeRequestHeaders(MemBuf &buf)
 
     if (request) {
         if (ICAP::methodRespmod == m)
-            encapsulateHead(buf, "req-hdr", httpBuf, request);
+            encapsulateHead(buf, "req-hdr", httpBuf, request.getRaw());
         else if (ICAP::methodReqmod == m)
-            encapsulateHead(buf, "req-hdr", httpBuf, virgin.header);
+            encapsulateHead(buf, "req-hdr", httpBuf, virgin.header.getRaw());
     }
 
     if (ICAP::methodRespmod == m)
-        if (const Http::Message *prime = virgin.header)
+        if (const Http::Message *prime = virgin.header.getRaw())
             encapsulateHead(buf, "res-hdr", httpBuf, prime);
 
     if (!virginBody.expected())
@@ -1479,18 +1479,17 @@ void Adaptation::Icap::ModXact::makeRequestHeaders(MemBuf &buf)
     }
 
     if (TheConfig.send_username && request)
-        makeUsernameHeader(request, buf);
+        makeUsernameHeader(request.getRaw(), buf);
 
     // Adaptation::Config::metaHeaders
     for (auto h: Adaptation::Config::metaHeaders) {
-        HttpRequest *r = virgin.cause ?
-                         virgin.cause : dynamic_cast<HttpRequest*>(virgin.header);
+        const auto r(virgin.getRequest());
         Must(r);
 
-        HttpReply *reply = dynamic_cast<HttpReply*>(virgin.header);
+        HttpReply *reply = dynamic_cast<HttpReply*>(virgin.header.getRaw());
 
         SBuf matched;
-        if (h->match(r, reply, alMaster, matched)) {
+        if (h->match(r.getRaw(), reply, alMaster, matched)) {
             buf.append(h->key().rawContent(), h->key().length());
             buf.append(": ", 2);
             buf.append(matched.rawContent(), matched.length());
@@ -1634,7 +1633,7 @@ void Adaptation::Icap::ModXact::decideOnPreview()
         return;
     }
 
-    const SBuf urlPath(virginRequest().url.path());
+    const SBuf urlPath(virginRequest()->url.path());
     size_t wantedSize;
     if (!service().wantsPreview(urlPath, wantedSize)) {
         debugs(93, 5, "should not offer preview for " << urlPath);
@@ -1816,14 +1815,14 @@ void Adaptation::Icap::ModXact::estimateVirginBody()
 {
     // note: lack of size info may disable previews and 204s
 
-    Http::Message *msg = virgin.header;
+    auto msg = virgin.header;
     Must(msg);
 
     HttpRequestMethod method;
 
     if (virgin.cause)
         method = virgin.cause->method;
-    else if (HttpRequest *req = dynamic_cast<HttpRequest*>(msg))
+    else if (const auto req = dynamic_cast<HttpRequest *>(msg.getRaw()))
         method = req->method;
     else
         method = Http::METHOD_NONE;
@@ -1977,7 +1976,7 @@ void Adaptation::Icap::Preview::wrote(size_t size, bool wroteEof)
 
 bool Adaptation::Icap::ModXact::fillVirginHttpHeader(MemBuf &mb) const
 {
-    if (virgin.header == NULL)
+    if (!virgin.header)
         return false;
 
     virgin.header->firstLineBuf(mb);
@@ -1987,11 +1986,11 @@ bool Adaptation::Icap::ModXact::fillVirginHttpHeader(MemBuf &mb) const
 
 void Adaptation::Icap::ModXact::detailError(int errDetail)
 {
-    HttpRequest *request = dynamic_cast<HttpRequest*>(adapted.header);
+    HttpRequest *request = dynamic_cast<HttpRequest*>(adapted.header.getRaw());
     // if no adapted request, update virgin (and inherit its properties later)
     // TODO: make this and HttpRequest::detailError constant, like adaptHistory
     if (!request)
-        request = const_cast<HttpRequest*>(&virginRequest());
+        request = const_cast<HttpRequest*>(virginRequest().getRaw());
 
     if (request)
         request->detailError(ERR_ICAP_FAILURE, errDetail);
@@ -1999,10 +1998,10 @@ void Adaptation::Icap::ModXact::detailError(int errDetail)
 
 void Adaptation::Icap::ModXact::clearError()
 {
-    HttpRequest *request = dynamic_cast<HttpRequest*>(adapted.header);
+    HttpRequest *request = dynamic_cast<HttpRequest*>(adapted.header.getRaw());
     // if no adapted request, update virgin (and inherit its properties later)
     if (!request)
-        request = const_cast<HttpRequest*>(&virginRequest());
+        request = const_cast<HttpRequest*>(virginRequest().getRaw());
 
     if (request)
         request->clearError();
@@ -2031,7 +2030,7 @@ Adaptation::Icap::Xaction *Adaptation::Icap::ModXactLauncher::createXaction()
     Adaptation::Icap::ServiceRep::Pointer s =
         dynamic_cast<Adaptation::Icap::ServiceRep*>(theService.getRaw());
     Must(s != NULL);
-    return new Adaptation::Icap::ModXact(virgin.header, virgin.cause, al, s);
+    return new Adaptation::Icap::ModXact(virgin.header.getRaw(), virgin.cause.getRaw(), al, s);
 }
 
 void Adaptation::Icap::ModXactLauncher::swanSong()
@@ -2043,18 +2042,12 @@ void Adaptation::Icap::ModXactLauncher::swanSong()
 
 void Adaptation::Icap::ModXactLauncher::updateHistory(bool doStart)
 {
-    HttpRequest *r = virgin.cause ?
-                     virgin.cause : dynamic_cast<HttpRequest*>(virgin.header);
-
-    // r should never be NULL but we play safe; TODO: add Should()
-    if (r) {
-        Adaptation::Icap::History::Pointer h = r->icapHistory();
-        if (h != NULL) {
-            if (doStart)
-                h->start("ICAPModXactLauncher");
-            else
-                h->stop("ICAPModXactLauncher");
-        }
+    HttpRequest *r = virgin.getRequest().getRaw();
+    if (Adaptation::Icap::History::Pointer h = r->icapHistory()) {
+        if (doStart)
+            h->start("ICAPModXactLauncher");
+        else
+            h->stop("ICAPModXactLauncher");
     }
 }
 
