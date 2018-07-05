@@ -12,6 +12,7 @@
 #if USE_CACHE_DIGESTS
 
 #include "cbdata.h"
+#include "http/forward.h"
 #include "StatCounters.h"
 
 class Version
@@ -37,7 +38,6 @@ public:
     int reserved[32 - 6];
 };
 
-class HttpRequest;
 class PeerDigest;
 class store_client;
 
@@ -54,7 +54,7 @@ public:
     StoreEntry *old_entry;
     store_client *sc;
     store_client *old_sc;
-    HttpRequest *request;
+    HttpRequestPointer request;
     int offset;
     uint32_t mask_offset;
     time_t start_time;

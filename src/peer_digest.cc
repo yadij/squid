@@ -101,8 +101,6 @@ DigestFetchState::DigestFetchState(PeerDigest *aPd, HttpRequest *req) :
     bufofs(0),
     state(DIGEST_READ_REPLY)
 {
-    HTTPMSGLOCK(request);
-
     sent.msg = 0;
     sent.bytes = 0;
 
@@ -119,8 +117,6 @@ DigestFetchState::~DigestFetchState()
 
     entry->unlock("DigestFetchState destructed");
     entry = NULL;
-
-    HTTPMSGUNLOCK(request);
 
     assert(pd == NULL);
 }
