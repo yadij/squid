@@ -76,8 +76,6 @@ CBDATA_NAMESPACED_CLASS_INIT(Ssl, IcapPeerConnector);
 Adaptation::Icap::Xaction::Xaction(const char *aTypeName, Adaptation::Icap::ServiceRep::Pointer &aService):
     AsyncJob(aTypeName),
     Adaptation::Initiate(aTypeName),
-    icapRequest(NULL),
-    icapReply(NULL),
     attempts(0),
     connection(NULL),
     theService(aService),
@@ -99,7 +97,6 @@ Adaptation::Icap::Xaction::Xaction(const char *aTypeName, Adaptation::Icap::Serv
            " [icapx" << id << ']'); // we should not call virtual status() here
     const MasterXaction::Pointer mx = new MasterXaction(XactionInitiator::initAdaptation);
     icapRequest = new HttpRequest(mx);
-    HTTPMSGLOCK(icapRequest);
     icap_tr_start = current_time;
     memset(&icap_tio_start, 0, sizeof(icap_tio_start));
     memset(&icap_tio_finish, 0, sizeof(icap_tio_finish));
@@ -109,7 +106,6 @@ Adaptation::Icap::Xaction::~Xaction()
 {
     debugs(93,3, typeName << " destructed, this=" << this <<
            " [icapx" << id << ']'); // we should not call virtual status() here
-    HTTPMSGUNLOCK(icapRequest);
 }
 
 AccessLogEntry::Pointer
@@ -619,7 +615,7 @@ void Adaptation::Icap::Xaction::swanSong()
 void Adaptation::Icap::Xaction::tellQueryAborted()
 {
     if (theInitiator.set()) {
-        Adaptation::Icap::XactAbortInfo abortInfo(icapRequest, icapReply.getRaw(),
+        Adaptation::Icap::XactAbortInfo abortInfo(icapRequest.getRaw(), icapReply.getRaw(),
                 retriable(), repeatable());
         Launcher *launcher = dynamic_cast<Launcher*>(theInitiator.get());
         // launcher may be nil if initiator is invalid

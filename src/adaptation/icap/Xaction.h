@@ -54,7 +54,7 @@ public:
     void noteCommClosed(const CommCloseCbParams &io);
 
     // TODO: create these only when actually sending/receiving
-    HttpRequest *icapRequest; ///< sent (or at least created) ICAP request
+    HttpRequestPointer icapRequest; ///< sent (or at least created) ICAP request
     HttpReply::Pointer icapReply; ///< received ICAP reply, if any
 
     /// the number of times we tried to get to the service, including this time
