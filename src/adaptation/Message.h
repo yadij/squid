@@ -26,28 +26,26 @@ class Message
 {
 
 public:
-    typedef Http::Message Header;
+    typedef Http::MessagePointer Header;
 
-    Message();
-    Message(Header *aHeader);
-    ~Message();
+    Message(const Header &aHeader);
 
     void clear();
-    void set(Header *aHeader);
+    void set(const Header &aHeader);
 
     static void ShortCircuit(Message &src, Message &dest);
 
 public:
     // virgin or adapted message being worked on
-    Header *header;   // parsed HTTP status/request line and headers
+    Header header;   // parsed HTTP status/request line and headers
 
     /// Copy of header->body_pipe, in case somebody moves the original.
     /// \todo Find and fix the code that moves (if any) and remove this.
     BodyPipePointer body_pipe;
 
 private:
-    Message(const Message &); // not implemented
-    Message &operator =(const Message &); // not implemented
+    Message(const Message &) = delete; // not implemented
+    Message &operator =(const Message &) = delete; // not implemented
 };
 
 } // namespace Adaptation;

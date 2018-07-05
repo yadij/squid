@@ -14,34 +14,24 @@
 #include "BodyPipe.h"
 #include "http/Message.h"
 
-Adaptation::Message::Message(): header(NULL)
-{
-}
-
-Adaptation::Message::Message(Header *aHeader): header(NULL)
+Adaptation::Message::Message(const Header &aHeader)
 {
     set(aHeader);
-}
-
-Adaptation::Message::~Message()
-{
-    clear();
 }
 
 void
 Adaptation::Message::clear()
 {
-    HTTPMSGUNLOCK(header);
-    body_pipe = NULL;
+    header = nullptr; // refcounted
+    body_pipe = nullptr; // refcounted
 }
 
 void
-Adaptation::Message::set(Header *aHeader)
+Adaptation::Message::set(const Header &aHeader)
 {
     clear();
     if (aHeader) {
         header = aHeader;
-        HTTPMSGLOCK(header);
         body_pipe = header->body_pipe;
     }
 }
