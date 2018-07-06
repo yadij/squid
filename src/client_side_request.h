@@ -91,7 +91,7 @@ public:
     /// Usually remains nil until the virgin request header is parsed or faked.
     /// Starts as a virgin request; see initRequest().
     /// Adaptation and redirections replace it; see resetRequest().
-    HttpRequest * const request;
+    HttpRequestPointer request;
 
     /// Usually starts as a URI received from the client, with scheme and host
     /// added if needed. Is used to create the virgin request for initRequest().

@@ -264,7 +264,7 @@ constructHelperQuery(const char *name, helper *hlp, HLPCB *replyHandler, ClientH
                                     http->request->method, NULL,
                                     http->getConn() != NULL && http->getConn()->clientConnection != NULL ?
                                     http->getConn()->clientConnection->remote : tmpnoaddr,
-                                    http->request,
+                                    http->request.getRaw(),
                                     NULL,
 #if USE_AUTH
                                     http->getConn() != NULL && http->getConn()->getAuth() != NULL ?

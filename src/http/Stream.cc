@@ -418,7 +418,7 @@ Http::Stream::buildRangeHeader(HttpReply *rep)
 {
     HttpHeader *hdr = rep ? &rep->header : nullptr;
     const char *range_err = nullptr;
-    HttpRequest *request = http->request;
+    const auto request = http->request;
     assert(request->range);
     /* check if we still want to do ranges */
     int64_t roffLimit = request->getRangeOffsetLimit();
@@ -445,15 +445,15 @@ Http::Stream::buildRangeHeader(HttpReply *rep)
      * and client_side_reply determines hits candidates
      */
     else if (http->logType.isTcpHit() &&
-             http->request->header.has(Http::HdrType::IF_RANGE) &&
+             request->header.has(Http::HdrType::IF_RANGE) &&
              !clientIfRangeMatch(http, rep))
         range_err = "If-Range match failed";
 
-    else if (!http->request->range->canonize(rep))
+    else if (!request->range->canonize(rep))
         range_err = "canonization failed";
-    else if (http->request->range->isComplex())
+    else if (request->range->isComplex())
         range_err = "too complex range header";
-    else if (!http->logType.isTcpHit() && http->request->range->offsetLimitExceeded(roffLimit))
+    else if (!http->logType.isTcpHit() && request->range->offsetLimitExceeded(roffLimit))
         range_err = "range outside range_offset_limit";
 
     /* get rid of our range specs on error */
@@ -463,7 +463,7 @@ Http::Stream::buildRangeHeader(HttpReply *rep)
          * offset data, but we won't be requesting it.
          * So, we can either re-request, or generate an error
          */
-        http->request->ignoreRange(range_err);
+        request->ignoreRange(range_err);
     } else {
         /* XXX: TODO: Review, this unconditional set may be wrong. */
         rep->sline.set(rep->sline.version, Http::scPartialContent);
@@ -474,7 +474,7 @@ Http::Stream::buildRangeHeader(HttpReply *rep)
         bool replyMatchRequest = contentRange != nullptr ?
                                  request->range->contains(contentRange->spec) :
                                  true;
-        const int spec_count = http->request->range->specs.size();
+        const int spec_count = request->range->specs.size();
         int64_t actual_clen = -1;
 
         debugs(33, 3, "range spec count: " << spec_count <<
@@ -490,7 +490,7 @@ Http::Stream::buildRangeHeader(HttpReply *rep)
                 (*http->range_iter.pos)->length = contentRange->spec.length;
 
             } else {
-                HttpHdrRange::iterator pos = http->request->range->begin();
+                HttpHdrRange::iterator pos = request->range->begin();
                 assert(*pos);
                 /* append Content-Range */
 

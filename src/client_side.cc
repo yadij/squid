@@ -409,7 +409,7 @@ ClientHttpRequest::logRequest()
     tvSub(al->cache.trTime, al->cache.start_time, current_time);
 
     if (request)
-        prepareLogWithRequestDetails(request, al);
+        prepareLogWithRequestDetails(request.getRaw(), al);
 
 #if USE_OPENSSL && 0
 
@@ -425,19 +425,19 @@ ClientHttpRequest::logRequest()
         /* Add notes (if we have a request to annotate) */
         SBuf matched;
         for (auto h: Config.notes) {
-            if (h->match(request, al->http.clientReply.getRaw(), nullptr, matched)) {
+            if (h->match(request.getRaw(), al->http.clientReply.getRaw(), nullptr, matched)) {
                 request->notes()->add(h->key(), matched);
                 debugs(33, 3, h->key() << " " << matched);
             }
         }
         // The al->notes and request->notes must point to the same object.
-        al->syncNotes(request);
+        al->syncNotes(request.getRaw());
 
         // TODO: prevent this overriding existing values?
         al->http.adaptedRequest = request;
     }
 
-    ACLFilledChecklist checklist(NULL, request, NULL);
+    ACLFilledChecklist checklist(nullptr, request.getRaw());
     checklist.reply = al->http.clientReply;
 
     // no need checklist.syncAle(): already synced
@@ -446,7 +446,8 @@ ClientHttpRequest::logRequest()
 
     bool updatePerformanceCounters = true;
     if (Config.accessList.stats_collection) {
-        ACLFilledChecklist statsCheck(Config.accessList.stats_collection, request, NULL);
+        // TODO re-use above checklist
+        ACLFilledChecklist statsCheck(Config.accessList.stats_collection, request.getRaw());
         statsCheck.al = al;
         statsCheck.reply = al->http.clientReply;
         updatePerformanceCounters = statsCheck.fastCheck().allowed();
@@ -629,7 +630,7 @@ ConnStateData::~ConnStateData()
 void
 clientSetKeepaliveFlag(ClientHttpRequest * http)
 {
-    HttpRequest *request = http->request;
+    const auto request = http->request;
 
     debugs(33, 3, "http_ver = " << request->http_ver);
     debugs(33, 3, "method = " << request->method);
@@ -1427,7 +1428,7 @@ bool ConnStateData::serveDelayedError(Http::Stream *context)
     assert(sslServerBump->entry);
     // Did we create an error entry while processing CONNECT?
     if (!sslServerBump->entry->isEmpty()) {
-        quitAfterError(http->request);
+        quitAfterError(http->request.getRaw());
 
         // Get the saved error entry and send it to the client by replacing the
         // ClientHttpRequest store entry with it.
@@ -1452,24 +1453,24 @@ bool ConnStateData::serveDelayedError(Http::Stream *context)
     // server name at certificate-peeking time. Check for domain mismatch now,
     // when we can extract the intended name from the bumped HTTP request.
     if (const Security::CertPointer &srvCert = sslServerBump->serverCert) {
-        HttpRequest *request = http->request;
+        const auto request = http->request;
         if (!Ssl::checkX509ServerValidity(srvCert.get(), request->url.host())) {
             debugs(33, 2, "SQUID_X509_V_ERR_DOMAIN_MISMATCH: Certificate " <<
                    "does not match domainname " << request->url.host());
 
             bool allowDomainMismatch = false;
             if (Config.ssl_client.cert_error) {
-                ACLFilledChecklist check(Config.ssl_client.cert_error, request, dash_str);
+                ACLFilledChecklist check(Config.ssl_client.cert_error, request.getRaw(), dash_str);
                 check.al = http->al;
                 check.sslErrors = new Security::CertErrors(Security::CertError(SQUID_X509_V_ERR_DOMAIN_MISMATCH, srvCert));
-                check.syncAle(request, http->log_uri);
+                check.syncAle(request.getRaw(), http->log_uri);
                 allowDomainMismatch = check.fastCheck().allowed();
                 delete check.sslErrors;
                 check.sslErrors = NULL;
             }
 
             if (!allowDomainMismatch) {
-                quitAfterError(request);
+                quitAfterError(request.getRaw());
 
                 clientStreamNode *node = context->getClientReplyContext();
                 clientReplyContext *repContext = dynamic_cast<clientReplyContext *>(node->data.getRaw());
@@ -1478,7 +1479,7 @@ bool ConnStateData::serveDelayedError(Http::Stream *context)
                 request->hier = sslServerBump->request->hier;
 
                 // Create an error object and fill it
-                ErrorState *err = new ErrorState(ERR_SECURE_CONNECT_FAIL, Http::scServiceUnavailable, request);
+                ErrorState *err = new ErrorState(ERR_SECURE_CONNECT_FAIL, Http::scServiceUnavailable, request.getRaw());
                 err->src_addr = clientConnection->remote;
                 Ssl::ErrorDetail *errDetail = new Ssl::ErrorDetail(
                     SQUID_X509_V_ERR_DOMAIN_MISMATCH,
@@ -1681,7 +1682,7 @@ clientProcessRequest(ConnStateData *conn, const Http1::RequestParserPointer &hp,
             conn->quitAfterError(request.getRaw());
             repContext->setReplyToError(ERR_TOO_BIG,
                                         Http::scPayloadTooLarge, Http::METHOD_NONE, NULL,
-                                        conn->clientConnection->remote, http->request, NULL, NULL);
+                                        conn->clientConnection->remote, request.getRaw(), nullptr, nullptr);
             assert(context->http->out.offset == 0);
             context->pullData();
             clientProcessRequestFinished(conn, request);
@@ -3405,7 +3406,7 @@ ConnStateData::buildFakeRequest(Http::MethodType const method, SBuf &useHost, un
     request->method = method;
     request->url.host(useHost.c_str());
     request->url.port(usePort);
-    http->initRequest(request.getRaw());
+    http->initRequest(request);
 
     request->manager(this, http->al);
 
@@ -3678,9 +3679,9 @@ clientAclChecklistCreate(const acl_access * acl, ClientHttpRequest * http)
 void
 clientAclChecklistFill(ACLFilledChecklist &checklist, ClientHttpRequest *http)
 {
-    checklist.setRequest(http->request);
+    checklist.setRequest(http->request.getRaw());
     checklist.al = http->al;
-    checklist.syncAle(http->request, http->log_uri);
+    checklist.syncAle(http->request.getRaw(), http->log_uri);
 
     // TODO: If http->getConn is always http->request->clientConnectionManager,
     // then call setIdent() inside checklist.setRequest(). Otherwise, restore

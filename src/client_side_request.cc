@@ -443,7 +443,7 @@ clientFollowXForwardedForCheck(allow_t answer, void *data)
         return;
 
     ClientHttpRequest *http = calloutContext->http;
-    HttpRequest *request = http->request;
+    const auto request = http->request;
 
     if (answer.allowed() && request->x_forwarded_for_iterator.size() != 0) {
 
@@ -569,7 +569,7 @@ ClientRequestContext::hostHeaderVerifyFailed(const char *A, const char *B)
     repContext->setReplyToError(ERR_CONFLICT_HOST, Http::scConflict,
                                 http->request->method, NULL,
                                 http->getConn()->clientConnection->remote,
-                                http->request,
+                                http->request.getRaw(),
                                 NULL,
 #if USE_AUTH
                                 http->getConn() != NULL && http->getConn()->getAuth() != NULL ?
@@ -806,7 +806,7 @@ ClientRequestContext::clientAccessCheckDone(const allow_t &answer)
         error = clientBuildError(page_id, status,
                                  NULL,
                                  http->getConn() != NULL ? http->getConn()->clientConnection->remote : tmpnoaddr,
-                                 http->request
+                                 http->request.getRaw()
                                 );
 
 #if USE_AUTH
@@ -876,7 +876,7 @@ void
 ClientRequestContext::clientRedirectStart()
 {
     debugs(33, 5, HERE << "'" << http->uri << "'");
-    http->al->syncNotes(http->request);
+    http->al->syncNotes(http->request.getRaw());
     if (Config.accessList.redirector) {
         acl_checklist = clientAclChecklistCreate(Config.accessList.redirector, http);
         acl_checklist->nonBlockingCheck(clientRedirectAccessCheckDone, this);
@@ -924,7 +924,7 @@ ClientRequestContext::clientStoreIdStart()
 static int
 clientHierarchical(ClientHttpRequest * http)
 {
-    HttpRequest *request = http->request;
+    const auto request = http->request;
     HttpRequestMethod method = request->method;
 
     // intercepted requests MUST NOT (yet) be sent to peers unless verified
@@ -959,7 +959,7 @@ clientHierarchical(ClientHttpRequest * http)
         return method.respMaybeCacheable();
 
     if (request->url.getScheme() == AnyP::PROTO_GOPHER)
-        return gopherCachable(request);
+        return gopherCachable(request.getRaw());
 
     if (request->url.getScheme() == AnyP::PROTO_CACHE_OBJECT)
         return 0;
@@ -970,7 +970,7 @@ clientHierarchical(ClientHttpRequest * http)
 static void
 clientCheckPinning(ClientHttpRequest * http)
 {
-    HttpRequest *request = http->request;
+    const auto request = http->request;
     HttpHeader *req_hdr = &request->header;
     ConnStateData *http_conn = http->getConn();
 
@@ -1033,7 +1033,7 @@ clientCheckPinning(ClientHttpRequest * http)
 static void
 clientInterpretRequestHeaders(ClientHttpRequest * http)
 {
-    HttpRequest *request = http->request;
+    const auto request = http->request;
     HttpHeader *req_hdr = &request->header;
     bool no_cache = false;
 
@@ -1120,7 +1120,7 @@ clientInterpretRequestHeaders(ClientHttpRequest * http)
 
         if (strListIsSubstr(&s, ThisCache2, ',')) {
             debugObj(33, 1, "WARNING: Forwarding loop detected for:\n",
-                     request, (ObjPackMethod) & httpRequestPack);
+                     request.getRaw(), (ObjPackMethod) & httpRequestPack);
             request->flags.loopDetected = true;
         }
 
@@ -1181,15 +1181,16 @@ clientStoreIdDoneWrapper(void *data, const Helper::Reply &result)
 void
 ClientRequestContext::clientRedirectDone(const Helper::Reply &reply)
 {
-    HttpRequest *old_request = http->request;
     debugs(85, 5, HERE << "'" << http->uri << "' result=" << reply);
     assert(redirect_state == REDIRECT_PENDING);
     redirect_state = REDIRECT_DONE;
 
+    const auto old_request = http->request;
+
     // Put helper response Notes into the transaction state record (ALE) eventually
     // do it early to ensure that no matter what the outcome the notes are present.
     if (http->al)
-        http->al->syncNotes(old_request);
+        http->al->syncNotes(old_request.getRaw());
 
     UpdateRequestNotes(http->getConn(), *old_request, reply.notes);
 
@@ -1271,6 +1272,9 @@ ClientRequestContext::clientRedirectDone(const Helper::Reply &reply)
                                " from request " << old_request << " to " << new_request);
                     }
 
+                    // update the current working ClientHttpRequest fields
+                    xfree(http->uri);
+                    http->uri = SBufToCstring(new_request->effectiveRequestUri());
                     http->resetRequest(new_request);
                     old_request = nullptr;
                 } else {
@@ -1299,15 +1303,16 @@ ClientRequestContext::clientRedirectDone(const Helper::Reply &reply)
 void
 ClientRequestContext::clientStoreIdDone(const Helper::Reply &reply)
 {
-    HttpRequest *old_request = http->request;
     debugs(85, 5, "'" << http->uri << "' result=" << reply);
     assert(store_id_state == REDIRECT_PENDING);
     store_id_state = REDIRECT_DONE;
 
+    const auto old_request = http->request;
+
     // Put helper response Notes into the transaction state record (ALE) eventually
     // do it early to ensure that no matter what the outcome the notes are present.
     if (http->al)
-        http->al->syncNotes(old_request);
+        http->al->syncNotes(old_request.getRaw());
 
     UpdateRequestNotes(http->getConn(), *old_request, reply.notes);
 
@@ -1582,7 +1587,7 @@ ClientHttpRequest::sslBumpEstablish(Comm::Flag errflag)
 #endif
 
     assert(sslBumpNeeded());
-    getConn()->switchToHttps(request, sslBumpNeed_);
+    getConn()->switchToHttps(request.getRaw(), sslBumpNeed_);
 }
 
 void
@@ -1738,7 +1743,7 @@ ClientHttpRequest::doCallouts()
             if (!csd->notes()->empty())
                 calloutContext->http->request->notes()->appendNewOnly(csd->notes().getRaw());
         }
-        ale->syncNotes(calloutContext->http->request);
+        ale->syncNotes(calloutContext->http->request.getRaw());
     }
 
     if (!calloutContext->error) {
@@ -1762,7 +1767,7 @@ ClientHttpRequest::doCallouts()
             calloutContext->adaptation_acl_check_done = true;
             if (Adaptation::AccessCheck::Start(
                         Adaptation::methodReqmod, Adaptation::pointPreCache,
-                        request, NULL, calloutContext->http->al, this))
+                        request.getRaw(), nullptr, calloutContext->http->al, this))
                 return; // will call callback
         }
 #endif
@@ -1815,11 +1820,11 @@ ClientHttpRequest::doCallouts()
 
     // Set appropriate MARKs and CONNMARKs if needed.
     if (getConn() && Comm::IsConnOpen(getConn()->clientConnection)) {
-        ACLFilledChecklist ch(nullptr, request, nullptr);
+        ACLFilledChecklist ch(nullptr, request.getRaw(), nullptr);
         ch.al = calloutContext->http->al;
         ch.src_addr = request->client_addr;
         ch.my_addr = request->my_addr;
-        ch.syncAle(request, log_uri);
+        ch.syncAle(request.getRaw(), log_uri);
 
         if (!calloutContext->toClientMarkingDone) {
             calloutContext->toClientMarkingDone = true;
@@ -1859,7 +1864,7 @@ ClientHttpRequest::doCallouts()
             // We have to serve an error, so bump the client first.
             sslBumpNeed(Ssl::bumpClientFirst);
             // set final error but delay sending until we bump
-            Ssl::ServerBump *srvBump = new Ssl::ServerBump(request, e, Ssl::bumpClientFirst);
+            Ssl::ServerBump *srvBump = new Ssl::ServerBump(request.getRaw(), e, Ssl::bumpClientFirst);
             errorAppendEntry(e, calloutContext->error);
             calloutContext->error = NULL;
             getConn()->setServerBump(srvBump);
@@ -1887,8 +1892,7 @@ ClientHttpRequest::doCallouts()
     delete calloutContext;
     calloutContext = NULL;
 #if HEADERS_LOG
-
-    headersLog(0, 1, request->method, request);
+    headersLog(0, 1, request->method, request.getRaw());
 #endif
 
     debugs(83, 3, HERE << "calling processRequest()");
@@ -1957,7 +1961,7 @@ ClientHttpRequest::startAdaptation(const Adaptation::ServiceGroupPointer &g)
     assert(!virginHeadSource);
     assert(!adaptedBodySource);
     virginHeadSource = initiateAdaptation(
-                           new Adaptation::Iterator(request, NULL, al, g));
+                           new Adaptation::Iterator(request.getRaw(), nullptr, al, g));
 
     // we could try to guess whether we can bypass this adaptation
     // initiation failure, but it should not really happen
@@ -1996,6 +2000,7 @@ ClientHttpRequest::handleAdaptedHeader(Http::Message *msg)
         if (request->effectiveRequestUri() != new_req->effectiveRequestUri())
             new_req->flags.redirected = true;
         resetRequest(new_req);
+
         assert(request->method.id());
     } else if (HttpReply *new_rep = dynamic_cast<HttpReply*>(msg)) {
         debugs(85,3,HERE << "REQMOD reply is HTTP reply");
@@ -2181,7 +2186,7 @@ ClientHttpRequest::calloutsError(const err_type error, const int errDetail)
         calloutContext->error = clientBuildError(error, Http::scInternalServerError,
                                 NULL,
                                 c != NULL ? c->clientConnection->remote : noAddr,
-                                request
+                                request.getRaw()
                                                 );
 #if USE_AUTH
         calloutContext->error->auth_user_request =

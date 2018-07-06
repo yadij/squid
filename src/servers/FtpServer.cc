@@ -134,9 +134,8 @@ Ftp::Server::doProcessRequest()
     ClientHttpRequest *const http = context->http;
     assert(http != NULL);
 
-    HttpRequest *const request = http->request;
-    Must(http->storeEntry() || request);
-    const bool mayForward = !http->storeEntry() && handleRequest(request);
+    Must(http->storeEntry() || http->request);
+    const bool mayForward = !http->storeEntry() && handleRequest(http->request.getRaw());
 
     if (http->storeEntry() != NULL) {
         debugs(33, 4, "got an immediate response");
@@ -301,10 +300,9 @@ Ftp::Server::notePeerConnection(Comm::ConnectionPointer conn)
     Must(context != nullptr);
     ClientHttpRequest *const http = context->http;
     Must(http != NULL);
-    HttpRequest *const request = http->request;
-    Must(request != NULL);
+    Must(http->request);
     // make FTP peer connection exclusive to our request
-    pinBusyConnection(conn, request);
+    pinBusyConnection(conn, http->request);
 }
 
 void
@@ -749,9 +747,9 @@ Ftp::Server::parseOneRequest()
     }
 
     ClientHttpRequest *const http = new ClientHttpRequest(this);
+    http->initRequest(request);
     http->req_sz = tok.parsedSize();
     http->uri = newUri;
-    http->initRequest(request);
 
     Http::Stream *const result =
         new Http::Stream(clientConnection, http);
@@ -1095,7 +1093,7 @@ Ftp::Server::handleEpsvReply(const HttpReply *reply, StoreIOBuffer)
 void
 Ftp::Server::writeErrorReply(const HttpReply *reply, const int scode)
 {
-    const HttpRequest *request = pipeline.front()->http->request;
+    const auto request = pipeline.front()->http->request;
     assert(request);
 
     MemBuf mb;
@@ -1541,10 +1539,10 @@ Ftp::Server::handleUploadRequest(String &, String &)
 
     if (Config.accessList.forceRequestBodyContinuation) {
         ClientHttpRequest *http = pipeline.front()->http;
-        HttpRequest *request = http->request;
-        ACLFilledChecklist bodyContinuationCheck(Config.accessList.forceRequestBodyContinuation, request, NULL);
+        const auto request = http->request;
+        ACLFilledChecklist bodyContinuationCheck(Config.accessList.forceRequestBodyContinuation, request.getRaw());
         bodyContinuationCheck.al = http->al;
-        bodyContinuationCheck.syncAle(request, http->log_uri);
+        bodyContinuationCheck.syncAle(request.getRaw(), http->log_uri);
         if (bodyContinuationCheck.fastCheck().allowed()) {
             request->forcedBodyContinuation = true;
             if (checkDataConnPost()) {
@@ -1648,9 +1646,8 @@ Ftp::Server::setDataCommand()
 {
     ClientHttpRequest *const http = pipeline.front()->http;
     assert(http != NULL);
-    HttpRequest *const request = http->request;
-    assert(request != NULL);
-    HttpHeader &header = request->header;
+    assert(http->request);
+    HttpHeader &header = http->request->header;
     header.delById(Http::HdrType::FTP_COMMAND);
     header.putStr(Http::HdrType::FTP_COMMAND, "PASV");
     header.delById(Http::HdrType::FTP_ARGUMENTS);
@@ -1733,6 +1730,8 @@ Ftp::Server::setReply(const int code, const char *msg)
     assert(http->storeEntry() == NULL);
 
     HttpReply *const reply = Ftp::HttpReplyWrapper(code, msg, Http::scNoContent, 0);
+
+    setLogUri(http, urlCanonicalClean(http->request.getRaw()));
 
     clientStreamNode *const node = context->getClientReplyContext();
     clientReplyContext *const repContext =

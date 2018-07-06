@@ -66,10 +66,9 @@ DelayId::operator bool() const
 DelayId
 DelayId::DelayClient(ClientHttpRequest * http, HttpReply *reply)
 {
-    HttpRequest *r;
     unsigned short pool;
     assert(http);
-    r = http->request;
+    const auto r = http->request;
 
     if (r->client_addr.isNoAddr()) {
         debugs(77, 2, "delayClient: WARNING: Called with 'NO_ADDR' address, ignoring");
@@ -86,7 +85,7 @@ DelayId::DelayClient(ClientHttpRequest * http, HttpReply *reply)
         }
 
         // TODO: do not re-alloc a different checklist for each pool test
-        ACLFilledChecklist ch(DelayPools::delay_data[pool].access, r, NULL);
+        ACLFilledChecklist ch(DelayPools::delay_data[pool].access, r.getRaw());
         ch.reply = reply;
 #if FOLLOW_X_FORWARDED_FOR
         if (Config.onoff.delay_pool_uses_indirect_client)

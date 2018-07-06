@@ -303,7 +303,7 @@ clientReplyContext::processExpired()
 
     StoreEntry *entry = nullptr;
     if (collapsingAllowed) {
-        if (const auto e = storeGetPublicByRequest(http->request, ksRevalidation)) {
+        if (const auto e = storeGetPublicByRequest(http->request.getRaw(), ksRevalidation)) {
             if (e->hittingRequiresCollapsing() && startCollapsingOn(*e, true)) {
                 entry = e;
                 entry->lock("clientReplyContext::processExpired#alreadyRevalidating");
@@ -358,7 +358,7 @@ clientReplyContext::processExpired()
          * this clientReplyContext does
          */
         Comm::ConnectionPointer conn = http->getConn() != NULL ? http->getConn()->clientConnection : NULL;
-        FwdState::Start(conn, http->storeEntry(), http->request, http->al);
+        FwdState::Start(conn, http->storeEntry(), http->request.getRaw(), http->al);
     }
     /* Register with storage manager to receive updates when data comes in. */
 
@@ -544,8 +544,6 @@ clientReplyContext::cacheHit(StoreIOBuffer result)
 
     StoreEntry *e = http->storeEntry();
 
-    HttpRequest *r = http->request;
-
     debugs(88, 3, "clientCacheHit: " << http->uri << ", " << result.length << " bytes");
 
     if (http->storeEntry() == NULL) {
@@ -597,7 +595,9 @@ clientReplyContext::cacheHit(StoreIOBuffer result)
         return;
     }
 
-    switch (varyEvaluateMatch(e, r)) {
+    const auto r = http->request;
+
+    switch (varyEvaluateMatch(e, r.getRaw())) {
 
     case VARY_NONE:
         /* No variance detected. Continue as normal */
@@ -647,7 +647,7 @@ clientReplyContext::cacheHit(StoreIOBuffer result)
         http->logType.update(LOG_TCP_MISS);
         processMiss();
         return;
-    } else if (!http->flags.internal && refreshCheckHTTP(e, r)) {
+    } else if (!http->flags.internal && refreshCheckHTTP(e, r.getRaw())) {
         debugs(88, 5, "clientCacheHit: in refreshCheck() block");
         /*
          * We hold a stale copy; it needs to be validated
@@ -726,7 +726,7 @@ void
 clientReplyContext::processMiss()
 {
     char *url = http->uri;
-    HttpRequest *r = http->request;
+    const auto r = http->request;
     ErrorState *err = NULL;
     debugs(88, 4, r->method << ' ' << url);
 
@@ -767,7 +767,7 @@ clientReplyContext::processMiss()
         http->al->http.code = Http::scForbidden;
         Ip::Address tmp_noaddr;
         tmp_noaddr.setNoAddr();
-        err = clientBuildError(ERR_ACCESS_DENIED, Http::scForbidden, nullptr, conn ? conn->remote : tmp_noaddr, http->request);
+        err = clientBuildError(ERR_ACCESS_DENIED, Http::scForbidden, nullptr, conn ? conn->remote : tmp_noaddr, http->request.getRaw());
         createStoreEntry(r->method, RequestFlags());
         errorAppendEntry(http->storeEntry(), err);
         triggerInitialStoreRead();
@@ -790,7 +790,7 @@ clientReplyContext::processMiss()
         assert(r->clientConnectionManager == http->getConn());
 
         /** Start forwarding to get the new object from network */
-        FwdState::Start(conn, http->storeEntry(), r, http->al);
+        FwdState::Start(conn, http->storeEntry(), r.getRaw(), http->al);
     }
 }
 
@@ -809,7 +809,7 @@ clientReplyContext::processOnlyIfCachedMiss()
     tmp_noaddr.setNoAddr();
     ErrorState *err = clientBuildError(ERR_ONLY_IF_CACHED_MISS, Http::scGatewayTimeout, NULL,
                                        http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr,
-                                       http->request);
+                                       http->request.getRaw());
     removeClientStoreReference(&sc, http);
     startError(err);
 }
@@ -899,7 +899,7 @@ clientReplyContext::purgeRequestFindObjectToPurge()
 
     // TODO: can we use purgeAllCached() here instead of doing the
     // getPublicByRequestMethod() dance?
-    StoreEntry::getPublicByRequestMethod(this, http->request, Http::METHOD_GET);
+    StoreEntry::getPublicByRequestMethod(this, http->request.getRaw(), Http::METHOD_GET);
 }
 
 // Purges all entries with a given url
@@ -928,7 +928,7 @@ clientReplyContext::purgeAllCached()
 {
     // XXX: performance regression, c_str() reallocates
     SBuf url(http->request->effectiveRequestUri());
-    purgeEntriesByUrl(http->request, url.c_str());
+    purgeEntriesByUrl(http->request.getRaw(), url.c_str());
 }
 
 void
@@ -960,7 +960,7 @@ clientReplyContext::purgeFoundGet(StoreEntry *newEntry)
 {
     if (!newEntry) {
         lookingforstore = 2;
-        StoreEntry::getPublicByRequestMethod(this, http->request, Http::METHOD_HEAD);
+        StoreEntry::getPublicByRequestMethod(this, http->request.getRaw(), Http::METHOD_HEAD);
     } else
         purgeFoundObject (newEntry);
 }
@@ -985,7 +985,7 @@ clientReplyContext::purgeFoundObject(StoreEntry *entry)
         tmp_noaddr.setNoAddr(); // TODO: make a global const
         ErrorState *err = clientBuildError(ERR_ACCESS_DENIED, Http::scForbidden, NULL,
                                            http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr,
-                                           http->request);
+                                           http->request.getRaw());
         startError(err);
         return; // XXX: leaking unused entry if some store does not keep it
     }
@@ -1024,8 +1024,8 @@ clientReplyContext::purgeRequest()
         http->logType.update(LOG_TCP_DENIED);
         Ip::Address tmp_noaddr;
         tmp_noaddr.setNoAddr();
-        ErrorState *err = clientBuildError(ERR_ACCESS_DENIED, Http::scForbidden, NULL,
-                                           http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr, http->request);
+        ErrorState *err = clientBuildError(ERR_ACCESS_DENIED, Http::scForbidden, nullptr,
+                                           http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr, http->request.getRaw());
         startError(err);
         return;
     }
@@ -1044,7 +1044,7 @@ clientReplyContext::purgeDoMissPurge()
 {
     http->logType.update(LOG_TCP_MISS);
     lookingforstore = 3;
-    StoreEntry::getPublicByRequestMethod(this,http->request, Http::METHOD_GET);
+    StoreEntry::getPublicByRequestMethod(this, http->request.getRaw(), Http::METHOD_GET);
 }
 
 void
@@ -1056,14 +1056,14 @@ clientReplyContext::purgeDoPurgeGet(StoreEntry *newEntry)
         /* Release the cached URI */
         debugs(88, 4, "clientPurgeRequest: GET '" << newEntry->url() << "'" );
 #if USE_HTCP
-        neighborsHtcpClear(newEntry, NULL, http->request, HttpRequestMethod(Http::METHOD_GET), HTCP_CLR_PURGE);
+        neighborsHtcpClear(newEntry, nullptr, http->request.getRaw(), HttpRequestMethod(Http::METHOD_GET), HTCP_CLR_PURGE);
 #endif
         newEntry->release(true);
         purgeStatus = Http::scOkay;
     }
 
     lookingforstore = 4;
-    StoreEntry::getPublicByRequestMethod(this, http->request, Http::METHOD_HEAD);
+    StoreEntry::getPublicByRequestMethod(this, http->request.getRaw(), Http::METHOD_HEAD);
 }
 
 void
@@ -1072,7 +1072,7 @@ clientReplyContext::purgeDoPurgeHead(StoreEntry *newEntry)
     if (newEntry) {
         debugs(88, 4, "HEAD " << newEntry->url());
 #if USE_HTCP
-        neighborsHtcpClear(newEntry, NULL, http->request, HttpRequestMethod(Http::METHOD_HEAD), HTCP_CLR_PURGE);
+        neighborsHtcpClear(newEntry, nullptr, http->request.getRaw(), HttpRequestMethod(Http::METHOD_HEAD), HTCP_CLR_PURGE);
 #endif
         newEntry->release(true);
         purgeStatus = Http::scOkay;
@@ -1088,7 +1088,7 @@ clientReplyContext::purgeDoPurgeHead(StoreEntry *newEntry)
         if (entry) {
             debugs(88, 4, "Vary GET " << entry->url());
 #if USE_HTCP
-            neighborsHtcpClear(entry, NULL, http->request, HttpRequestMethod(Http::METHOD_GET), HTCP_CLR_PURGE);
+            neighborsHtcpClear(entry, nullptr, http->request.getRaw(), HttpRequestMethod(Http::METHOD_GET), HTCP_CLR_PURGE);
 #endif
             entry->release(true);
             purgeStatus = Http::scOkay;
@@ -1099,7 +1099,7 @@ clientReplyContext::purgeDoPurgeHead(StoreEntry *newEntry)
         if (entry) {
             debugs(88, 4, "Vary HEAD " << entry->url());
 #if USE_HTCP
-            neighborsHtcpClear(entry, NULL, http->request, HttpRequestMethod(Http::METHOD_HEAD), HTCP_CLR_PURGE);
+            neighborsHtcpClear(entry, nullptr, http->request.getRaw(), HttpRequestMethod(Http::METHOD_HEAD), HTCP_CLR_PURGE);
 #endif
             entry->release(true);
             purgeStatus = Http::scOkay;
@@ -1384,7 +1384,6 @@ clientReplyContext::buildReplyHeader()
 {
     HttpHeader *hdr = &reply->header;
     const bool is_hit = http->logType.isTcpHit();
-    HttpRequest *request = http->request;
 #if DONT_FILTER_THESE
     /* but you might want to if you run Squid as an HTTP accelerator */
     /* hdr->delById(HDR_ACCEPT_RANGES); */
@@ -1395,6 +1394,7 @@ clientReplyContext::buildReplyHeader()
         hdr->delById(Http::HdrType::SET_COOKIE);
     // TODO: RFC 2965 : Must honour Cache-Control: no-cache="set-cookie2" and remove header.
 
+    const auto request = http->request;
     // if there is not configured a peer proxy with login=PASS or login=PASSTHRU option enabled
     // remove the Proxy-Authenticate header
     if ( !request->peer_login || (strcmp(request->peer_login,"PASS") != 0 && strcmp(request->peer_login,"PASSTHRU") != 0)) {
@@ -1548,9 +1548,9 @@ clientReplyContext::buildReplyHeader()
          * data on 407/401 responses, and do not check the accel state on 401/407
          * responses
          */
-        Auth::UserRequest::AddReplyAuthHeader(reply, request->auth_user_request, request, 0, 1);
+        Auth::UserRequest::AddReplyAuthHeader(reply, request->auth_user_request, request.getRaw(), 0, 1);
     } else if (request->auth_user_request != NULL)
-        Auth::UserRequest::AddReplyAuthHeader(reply, request->auth_user_request, request, http->flags.accel, 0);
+        Auth::UserRequest::AddReplyAuthHeader(reply, request->auth_user_request, request.getRaw(), http->flags.accel, 0);
 #endif
 
     /* Append X-Cache */
@@ -1637,7 +1637,7 @@ clientReplyContext::buildReplyHeader()
         /* TODO: else case: drop any controls intended specifically for our surrogate ID */
     }
 
-    httpHdrMangleList(hdr, request, http->al, ROR_REPLY);
+    httpHdrMangleList(hdr, request.getRaw(), http->al, ROR_REPLY);
 }
 
 void
@@ -1677,13 +1677,13 @@ clientReplyContext::forgetHit()
 void
 clientReplyContext::identifyStoreObject()
 {
-    HttpRequest *r = http->request;
+    const auto r = http->request;
 
     // client sent CC:no-cache or some other condition has been
     // encountered which prevents delivering a public/cached object.
     if (!r->flags.noCache || r->flags.internal) {
         lookingforstore = 5;
-        StoreEntry::getPublicByRequest (this, r);
+        StoreEntry::getPublicByRequest(this, r.getRaw());
     } else {
         identifyFoundObject(nullptr);
     }
@@ -1696,10 +1696,9 @@ clientReplyContext::identifyStoreObject()
 void
 clientReplyContext::identifyFoundObject(StoreEntry *newEntry)
 {
-    HttpRequest *r = http->request;
     http->storeEntry(newEntry);
     const auto e = http->storeEntry();
-
+    const auto r = http->request;
     /* Release IP-cache entries on reload */
     /** \li If the request has no-cache flag set or some no_cache HACK in operation we
       * 'invalidate' the cached IP entries for this request ???
@@ -1964,7 +1963,7 @@ clientReplyContext::sendBodyTooLargeError()
     http->logType.update(LOG_TCP_DENIED_REPLY);
     ErrorState *err = clientBuildError(ERR_TOO_BIG, Http::scForbidden, NULL,
                                        http->getConn() != NULL ? http->getConn()->clientConnection->remote : tmp_noaddr,
-                                       http->request);
+                                       http->request.getRaw());
     removeClientStoreReference(&(sc), http);
     HTTPMSGUNLOCK(reply);
     startError(err);
@@ -1980,7 +1979,7 @@ clientReplyContext::sendPreconditionFailedError()
     tmp_noaddr.setNoAddr();
     ErrorState *const err =
         clientBuildError(ERR_PRECONDITION_FAILED, Http::scPreconditionFailed,
-                         NULL, http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr, http->request);
+                         nullptr, http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr, http->request.getRaw());
     removeClientStoreReference(&sc, http);
     HTTPMSGUNLOCK(reply);
     startError(err);
@@ -2092,7 +2091,7 @@ clientReplyContext::processReplyAccessResult(const allow_t &accessAllowed)
         tmp_noaddr.setNoAddr();
         err = clientBuildError(page_id, Http::scForbidden, NULL,
                                http->getConn() != NULL ? http->getConn()->clientConnection->remote : tmp_noaddr,
-                               http->request);
+                               http->request.getRaw());
 
         removeClientStoreReference(&sc, http);
 
@@ -2283,13 +2282,12 @@ clientReplyContext::createStoreEntry(const HttpRequestMethod& m, RequestFlags re
      * so make a fake one.
      */
 
-    if (http->request == NULL) {
+    if (!http->request) {
         const MasterXaction::Pointer mx = new MasterXaction(XactionInitiator::initClient);
         // XXX: These fake URI parameters shadow the real (or error:...) URI.
         // TODO: Either always set the request earlier and assert here OR use
         // http->uri (converted to Anyp::Uri) to create this catch-all request.
-        const_cast<HttpRequest *&>(http->request) =  new HttpRequest(m, AnyP::PROTO_NONE, "http", null_string, mx);
-        HTTPMSGLOCK(http->request);
+        http->request = new HttpRequest(m, AnyP::PROTO_NONE, "http", null_string, mx);
     }
 
     StoreEntry *e = storeCreateEntry(storeId(), http->log_uri, reqFlags, m);

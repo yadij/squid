@@ -1087,7 +1087,7 @@ tunnelStart(ClientHttpRequest * http)
     /* Create state structure. */
     TunnelStateData *tunnelState = NULL;
     ErrorState *err = NULL;
-    HttpRequest *request = http->request;
+    const auto request = http->request;
     char *url = http->uri;
 
     /*
@@ -1101,14 +1101,14 @@ tunnelStart(ClientHttpRequest * http)
          * Check if this host is allowed to fetch MISSES from us (miss_access)
          * default is to allow.
          */
-        ACLFilledChecklist ch(Config.accessList.miss, request, NULL);
+        ACLFilledChecklist ch(Config.accessList.miss, request.getRaw());
         ch.al = http->al;
         ch.src_addr = request->client_addr;
         ch.my_addr = request->my_addr;
-        ch.syncAle(request, http->log_uri);
+        ch.syncAle(request.getRaw(), http->log_uri);
         if (ch.fastCheck().denied()) {
             debugs(26, 4, HERE << "MISS access forbidden.");
-            err = new ErrorState(ERR_FORWARDING_DENIED, Http::scForbidden, request);
+            err = new ErrorState(ERR_FORWARDING_DENIED, Http::scForbidden, request.getRaw());
             http->al->http.code = Http::scForbidden;
             errorSend(http->getConn()->clientConnection, err);
             return;
@@ -1123,7 +1123,7 @@ tunnelStart(ClientHttpRequest * http)
 #if USE_DELAY_POOLS
     //server.setDelayId called from tunnelConnectDone after server side connection established
 #endif
-    tunnelState->startSelectingDestinations(request, http->al, nullptr);
+    tunnelState->startSelectingDestinations(request.getRaw(), http->al, nullptr);
 }
 
 void
