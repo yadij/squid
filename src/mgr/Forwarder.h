@@ -16,7 +16,6 @@
 #include "mgr/ActionParams.h"
 
 class CommCloseCbParams;
-class HttpRequest;
 class StoreEntry;
 class ErrorState;
 
@@ -48,7 +47,7 @@ private:
     void sendError(ErrorState* error);
 
 private:
-    HttpRequest* httpRequest; ///< HTTP client request for detailing errors
+    HttpRequestPointer httpRequest; ///< HTTP client request for detailing errors
     StoreEntry* entry; ///< Store entry expecting the response
     Comm::ConnectionPointer conn; ///< HTTP client connection descriptor
     AsyncCall::Pointer closer; ///< comm_close handler for the HTTP connection

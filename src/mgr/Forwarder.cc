@@ -32,10 +32,9 @@ Mgr::Forwarder::Forwarder(const Comm::ConnectionPointer &aConn, const ActionPara
 {
     debugs(16, 5, HERE << conn);
     Must(Comm::IsConnOpen(conn));
-    Must(httpRequest != NULL);
+    Must(httpRequest);
     Must(entry != NULL);
 
-    HTTPMSGLOCK(httpRequest);
     entry->lock("Mgr::Forwarder");
 
     closer = asyncCall(16, 5, "Mgr::Forwarder::noteCommClosed",
@@ -48,8 +47,6 @@ Mgr::Forwarder::~Forwarder()
     SWALLOW_EXCEPTIONS({
         Must(entry);
         entry->unlock("Mgr::Forwarder");
-        Must(httpRequest);
-        HTTPMSGUNLOCK(httpRequest);
     });
 }
 
@@ -72,22 +69,22 @@ void
 Mgr::Forwarder::handleError()
 {
     debugs(16, DBG_CRITICAL, "ERROR: uri " << entry->url() << " exceeds buffer size");
-    sendError(new ErrorState(ERR_INVALID_URL, Http::scUriTooLong, httpRequest));
+    sendError(new ErrorState(ERR_INVALID_URL, Http::scUriTooLong, httpRequest.getRaw()));
     mustStop("long URI");
 }
 
 void
 Mgr::Forwarder::handleTimeout()
 {
-    sendError(new ErrorState(ERR_LIFETIME_EXP, Http::scRequestTimeout, httpRequest));
+    sendError(new ErrorState(ERR_LIFETIME_EXP, Http::scRequestTimeout, httpRequest.getRaw()));
     Ipc::Forwarder::handleTimeout();
 }
 
 void
 Mgr::Forwarder::handleException(const std::exception &e)
 {
-    if (entry != NULL && httpRequest != NULL && Comm::IsConnOpen(conn))
-        sendError(new ErrorState(ERR_INVALID_RESP, Http::scInternalServerError, httpRequest));
+    if (entry && httpRequest && Comm::IsConnOpen(conn))
+        sendError(new ErrorState(ERR_INVALID_RESP, Http::scInternalServerError, httpRequest.getRaw()));
     Ipc::Forwarder::handleException(e);
 }
 
@@ -107,7 +104,7 @@ Mgr::Forwarder::sendError(ErrorState *error)
     debugs(16, 3, HERE);
     Must(error != NULL);
     Must(entry != NULL);
-    Must(httpRequest != NULL);
+    Must(httpRequest);
 
     entry->buffer();
     entry->replaceHttpReply(error->BuildHttpReply());
