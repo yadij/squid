@@ -710,7 +710,7 @@ gopherTimeout(const CommTimeoutCbParams &io)
     GopherStateData *gopherState = static_cast<GopherStateData *>(io.data);
     debugs(10, 4, HERE << io.conn << ": '" << gopherState->entry->url() << "'" );
 
-    gopherState->fwd->fail(new ErrorState(ERR_READ_TIMEOUT, Http::scGatewayTimeout, gopherState->fwd->request));
+    gopherState->fwd->fail(new ErrorState(ERR_READ_TIMEOUT, Http::scGatewayTimeout, gopherState->fwd->request.getRaw()));
 
     if (Comm::IsConnOpen(io.conn))
         io.conn->close();
@@ -772,7 +772,7 @@ gopherReadReply(const Comm::ConnectionPointer &conn, char *buf, size_t len, Comm
 
         ++IOStats.Gopher.read_hist[bin];
 
-        HttpRequest *req = gopherState->fwd->request;
+        const auto req = gopherState->fwd->request;
         if (req->hier.bodyBytesRead < 0) {
             req->hier.bodyBytesRead = 0;
             // first bytes read, update Reply flags:
@@ -790,13 +790,13 @@ gopherReadReply(const Comm::ConnectionPointer &conn, char *buf, size_t len, Comm
                                                  CommIoCbPtrFun(gopherReadReply, gopherState));
             comm_read(conn, buf, read_sz, call);
         } else {
-            ErrorState *err = new ErrorState(ERR_READ_ERROR, Http::scInternalServerError, gopherState->fwd->request);
+            ErrorState *err = new ErrorState(ERR_READ_ERROR, Http::scInternalServerError, gopherState->fwd->request.getRaw());
             err->xerrno = xerrno;
             gopherState->fwd->fail(err);
             gopherState->serverConn->close();
         }
     } else if (len == 0 && entry->isEmpty()) {
-        gopherState->fwd->fail(new ErrorState(ERR_ZERO_SIZE_OBJECT, Http::scServiceUnavailable, gopherState->fwd->request));
+        gopherState->fwd->fail(new ErrorState(ERR_ZERO_SIZE_OBJECT, Http::scServiceUnavailable, gopherState->fwd->request.getRaw()));
         gopherState->serverConn->close();
     } else if (len == 0) {
         /* Connection closed; retrieval done. */
@@ -839,7 +839,7 @@ gopherSendComplete(const Comm::ConnectionPointer &conn, char *, size_t size, Com
 
     if (errflag) {
         ErrorState *err;
-        err = new ErrorState(ERR_WRITE_ERROR, Http::scServiceUnavailable, gopherState->fwd->request);
+        err = new ErrorState(ERR_WRITE_ERROR, Http::scServiceUnavailable, gopherState->fwd->request.getRaw());
         err->xerrno = xerrno;
         err->port = gopherState->fwd->request->url.port();
         err->url = xstrdup(entry->url());
@@ -937,7 +937,7 @@ gopherStart(FwdState * fwd)
     ++ statCounter.server.other.requests;
 
     /* Parse url. */
-    gopher_request_parse(fwd->request,
+    gopher_request_parse(fwd->request.getRaw(),
                          &gopherState->type_id, gopherState->request);
 
     comm_add_close_handler(fwd->serverConnection()->fd, gopherStateFree, gopherState);

@@ -139,7 +139,6 @@ FwdState::FwdState(const Comm::ConnectionPointer &client, StoreEntry * e, HttpRe
     pconnRace(raceImpossible)
 {
     debugs(17, 2, "Forwarding client request " << client << ", url=" << e->url());
-    HTTPMSGLOCK(request);
     serverDestinations.reserve(Config.forward_max_tries);
     e->lock("FwdState");
     flags.connected_okay = false;
@@ -181,7 +180,7 @@ void FwdState::start(Pointer aSelf)
 #endif
 
     // do full route options selection
-    startSelectingDestinations(request, al, entry);
+    startSelectingDestinations(request.getRaw(), al, entry);
 }
 
 /// ends forwarding; relies on refcounting so the effect may not be immediate
@@ -255,7 +254,7 @@ FwdState::completed()
     if (entry->store_status == STORE_PENDING) {
         if (entry->isEmpty()) {
             if (!err) // we quit (e.g., fd closed) before an error or content
-                fail(new ErrorState(ERR_READ_ERROR, Http::scBadGateway, request));
+                fail(new ErrorState(ERR_READ_ERROR, Http::scBadGateway, request.getRaw()));
             assert(err);
             errorAppendEntry(entry, err);
             err = NULL;
@@ -284,8 +283,6 @@ FwdState::~FwdState()
         completed();
 
     doneWithRetries();
-
-    HTTPMSGUNLOCK(request);
 
     delete err;
 
@@ -447,7 +444,7 @@ FwdState::startConnectionOrFail()
 
         debugs(17, 3, HERE << "Connection failed: " << entry->url());
         if (!err) {
-            ErrorState *anErr = new ErrorState(ERR_CANNOT_FORWARD, Http::scInternalServerError, request);
+            ErrorState *anErr = new ErrorState(ERR_CANNOT_FORWARD, Http::scInternalServerError, request.getRaw());
             fail(anErr);
         } // else use actual error from last connection attempt
 
@@ -693,7 +690,7 @@ FwdState::retryOrBail()
     request->hier.stopPeerClock(false);
 
     if (self != NULL && !err && shutting_down && entry->isEmpty()) {
-        ErrorState *anErr = new ErrorState(ERR_SHUTTING_DOWN, Http::scServiceUnavailable, request);
+        ErrorState *anErr = new ErrorState(ERR_SHUTTING_DOWN, Http::scServiceUnavailable, request.getRaw());
         errorAppendEntry(entry, anErr);
     }
 
@@ -817,7 +814,7 @@ FwdState::connectTimeout(int fd)
     assert(fd == serverDestinations[0]->fd);
 
     if (entry->isEmpty()) {
-        ErrorState *anErr = new ErrorState(ERR_CONNECT_FAIL, Http::scGatewayTimeout, request);
+        ErrorState *anErr = new ErrorState(ERR_CONNECT_FAIL, Http::scGatewayTimeout, request.getRaw());
         anErr->xerrno = ETIMEDOUT;
         fail(anErr);
 
@@ -836,11 +833,11 @@ void
 FwdState::syncWithServerConn(const char *host)
 {
     if (Ip::Qos::TheConfig.isAclTosActive())
-        Ip::Qos::setSockTos(serverConn, GetTosToServer(request));
+        Ip::Qos::setSockTos(serverConn, GetTosToServer(request.getRaw()));
 
 #if SO_MARK
     if (Ip::Qos::TheConfig.isAclNfmarkActive())
-        Ip::Qos::setSockNfmark(serverConn, GetNfmarkToServer(request));
+        Ip::Qos::setSockNfmark(serverConn, GetNfmarkToServer(request.getRaw()));
 #endif
 
     syncHierNote(serverConn, host);
@@ -873,7 +870,7 @@ FwdState::connectStart()
     // origin server
     if (serverDestinations[0]->getPeer() && !serverDestinations[0]->getPeer()->options.originserver && request->flags.sslBumped) {
         debugs(50, 4, "fwdConnectStart: Ssl bumped connections through parent proxy are not allowed");
-        ErrorState *anErr = new ErrorState(ERR_CANNOT_FORWARD, Http::scServiceUnavailable, request);
+        ErrorState *anErr = new ErrorState(ERR_CANNOT_FORWARD, Http::scServiceUnavailable, request.getRaw());
         fail(anErr);
         stopAndDestroy("SslBump misconfiguration");
         return;
@@ -886,7 +883,7 @@ FwdState::connectStart()
         ConnStateData *pinned_connection = request->pinnedConnection();
         debugs(17,7, "pinned peer connection: " << pinned_connection);
         // pinned_connection may become nil after a pconn race
-        serverConn = pinned_connection ? pinned_connection->borrowPinnedConnection(request, serverDestinations[0]->getPeer()) : nullptr;
+        serverConn = pinned_connection ? pinned_connection->borrowPinnedConnection(request.getRaw(), serverDestinations[0]->getPeer()) : nullptr;
         if (Comm::IsConnOpen(serverConn)) {
             flags.connected_okay = true;
             ++n_tries;
@@ -907,7 +904,7 @@ FwdState::connectStart()
 
         // Pinned connection failure.
         debugs(17,2,HERE << "Pinned connection failed: " << pinned_connection);
-        ErrorState *anErr = new ErrorState(ERR_ZERO_SIZE_OBJECT, Http::scServiceUnavailable, request);
+        ErrorState *anErr = new ErrorState(ERR_ZERO_SIZE_OBJECT, Http::scServiceUnavailable, request.getRaw());
         fail(anErr);
         stopAndDestroy("pinned connection failure");
         return;
@@ -953,7 +950,7 @@ FwdState::connectStart()
     entry->mem_obj->checkUrlChecksum();
 #endif
 
-    GetMarkingsToServer(request, *serverDestinations[0]);
+    GetMarkingsToServer(request.getRaw(), *serverDestinations[0]);
 
     calls.connector = commCbCall(17,3, "fwdConnectDoneWrapper", CommConnectCbPtrFun(fwdConnectDoneWrapper, this));
     const time_t connTimeout = serverDestinations[0]->connectTimeout(start_t);
@@ -1067,7 +1064,7 @@ FwdState::dispatch()
 
         default:
             debugs(17, DBG_IMPORTANT, "WARNING: Cannot retrieve '" << entry->url() << "'.");
-            ErrorState *anErr = new ErrorState(ERR_UNSUP_REQ, Http::scBadRequest, request);
+            ErrorState *anErr = new ErrorState(ERR_UNSUP_REQ, Http::scBadRequest, request.getRaw());
             fail(anErr);
             // Set the dont_retry flag because this is not a transient (network) error.
             flags.dont_retry = true;
@@ -1138,7 +1135,7 @@ ErrorState *
 FwdState::makeConnectingError(const err_type type) const
 {
     return new ErrorState(type, request->flags.needValidation ?
-                          Http::scGatewayTimeout : Http::scServiceUnavailable, request);
+                          Http::scGatewayTimeout : Http::scServiceUnavailable, request.getRaw());
 }
 
 static void
@@ -1217,9 +1214,9 @@ FwdState::pconnPop(const Comm::ConnectionPointer &dest, const char *domain)
 {
     bool retriable = checkRetriable();
     if (!retriable && Config.accessList.serverPconnForNonretriable) {
-        ACLFilledChecklist ch(Config.accessList.serverPconnForNonretriable, request, NULL);
+        ACLFilledChecklist ch(Config.accessList.serverPconnForNonretriable, request.getRaw());
         ch.al = al;
-        ch.syncAle(request, nullptr);
+        ch.syncAle(request.getRaw(), nullptr);
         retriable = ch.fastCheck().allowed();
     }
     // always call shared pool first because we need to close an idle

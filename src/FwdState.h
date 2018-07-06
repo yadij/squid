@@ -29,7 +29,6 @@ typedef RefCount<AccessLogEntry> AccessLogEntryPointer;
 class PconnPool;
 typedef RefCount<PconnPool> PconnPoolPointer;
 class ErrorState;
-class HttpRequest;
 
 #if USE_OPENSSL
 namespace Ssl
@@ -135,7 +134,7 @@ private:
 
 public:
     StoreEntry *entry;
-    HttpRequest *request;
+    HttpRequestPointer request;
     AccessLogEntryPointer al; ///< info for the future access.log entry
 
     static void abort(void*);

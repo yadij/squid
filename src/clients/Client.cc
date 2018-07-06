@@ -364,7 +364,7 @@ Client::sentRequestBody(const CommIoCbParams &io)
     if (io.flag) {
         debugs(11, DBG_IMPORTANT, "sentRequestBody error: FD " << io.fd << ": " << xstrerr(io.xerrno));
         ErrorState *err;
-        err = new ErrorState(ERR_WRITE_ERROR, Http::scBadGateway, fwd->request);
+        err = new ErrorState(ERR_WRITE_ERROR, Http::scBadGateway, fwd->request.getRaw());
         err->xerrno = io.xerrno;
         fwd->fail(err);
         abortOnData("I/O error while sending request body");

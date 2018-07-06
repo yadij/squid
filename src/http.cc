@@ -156,7 +156,7 @@ HttpStateData::httpTimeout(const CommTimeoutCbParams &)
     debugs(11, 4, serverConnection << ": '" << entry->url() << "'");
 
     if (entry->store_status == STORE_PENDING) {
-        fwd->fail(new ErrorState(ERR_READ_TIMEOUT, Http::scGatewayTimeout, fwd->request));
+        fwd->fail(new ErrorState(ERR_READ_TIMEOUT, Http::scGatewayTimeout, fwd->request.getRaw()));
     }
 
     closeServer();
@@ -1210,7 +1210,7 @@ HttpStateData::readReply(const CommIoCbParams &io)
     // case Comm::COMM_ERROR:
     default: // no other flags should ever occur
         debugs(11, 2, io.conn << ": read failure: " << xstrerr(rd.xerrno));
-        ErrorState *err = new ErrorState(ERR_READ_ERROR, Http::scBadGateway, fwd->request);
+        ErrorState *err = new ErrorState(ERR_READ_ERROR, Http::scBadGateway, fwd->request.getRaw());
         err->xerrno = rd.xerrno;
         fwd->fail(err);
         flags.do_next_read = false;
@@ -1313,7 +1313,7 @@ HttpStateData::continueAfterParsingHeader()
 
     assert(error != ERR_NONE);
     entry->reset();
-    fwd->fail(new ErrorState(error, Http::scBadGateway, fwd->request));
+    fwd->fail(new ErrorState(error, Http::scBadGateway, fwd->request.getRaw()));
     flags.do_next_read = false;
     closeServer();
     mustStop("HttpStateData::continueAfterParsingHeader");
@@ -1597,7 +1597,7 @@ HttpStateData::wroteLast(const CommIoCbParams &io)
     request->hier.notePeerWrite();
 
     if (io.flag) {
-        ErrorState *err = new ErrorState(ERR_WRITE_ERROR, Http::scBadGateway, fwd->request);
+        ErrorState *err = new ErrorState(ERR_WRITE_ERROR, Http::scBadGateway, fwd->request.getRaw());
         err->xerrno = io.xerrno;
         fwd->fail(err);
         closeServer();
@@ -2434,7 +2434,7 @@ HttpStateData::handleRequestBodyProducerAborted()
         // We might also get here if client-side aborts, but then our response
         // should not matter because either client-side will provide its own or
         // there will be no response at all (e.g., if the the client has left).
-        ErrorState *err = new ErrorState(ERR_ICAP_FAILURE, Http::scInternalServerError, fwd->request);
+        ErrorState *err = new ErrorState(ERR_ICAP_FAILURE, Http::scInternalServerError, fwd->request.getRaw());
         err->detailError(ERR_DETAIL_SRV_REQMOD_REQ_BODY);
         fwd->fail(err);
     }
