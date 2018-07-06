@@ -136,8 +136,8 @@ bool
 peerAllowedToUse(const CachePeer * p, PeerSelector * ps)
 {
     assert(ps);
-    HttpRequest *request = ps->request;
-    assert(request != NULL);
+    const auto request = ps->request;
+    assert(request);
 
     if (neighborType(p, request->url) == PEER_SIBLING) {
 #if PEER_MULTICAST_SIBLINGS
@@ -166,9 +166,9 @@ peerAllowedToUse(const CachePeer * p, PeerSelector * ps)
     if (p->access == NULL)
         return true;
 
-    ACLFilledChecklist checklist(p->access, request, NULL);
+    ACLFilledChecklist checklist(p->access, request.getRaw());
     checklist.al = ps->al;
-    checklist.syncAle(request, nullptr);
+    checklist.syncAle(request.getRaw(), nullptr);
     return checklist.fastCheck().allowed();
 }
 
@@ -177,7 +177,6 @@ static int
 peerWouldBePinged(const CachePeer * p, PeerSelector * ps)
 {
     assert(ps);
-    HttpRequest *request = ps->request;
 
     if (p->icp.port == 0)
         return 0;
@@ -197,7 +196,7 @@ peerWouldBePinged(const CachePeer * p, PeerSelector * ps)
     /* the case below seems strange, but can happen if the
      * URL host is on the other side of a firewall */
     if (p->type == PEER_SIBLING)
-        if (!request->flags.hierarchical)
+        if (!ps->request->flags.hierarchical)
             return 0;
 
     if (!peerAllowedToUse(p, ps))
@@ -282,7 +281,6 @@ CachePeer *
 getFirstUpParent(PeerSelector *ps)
 {
     assert(ps);
-    HttpRequest *request = ps->request;
 
     CachePeer *p = NULL;
 
@@ -290,7 +288,7 @@ getFirstUpParent(PeerSelector *ps)
         if (!neighborUp(p))
             continue;
 
-        if (neighborType(p, request->url) != PEER_PARENT)
+        if (neighborType(p, ps->request->url) != PEER_PARENT)
             continue;
 
         if (!peerHTTPOkay(p, ps))
@@ -307,7 +305,6 @@ CachePeer *
 getRoundRobinParent(PeerSelector *ps)
 {
     assert(ps);
-    HttpRequest *request = ps->request;
 
     CachePeer *p;
     CachePeer *q = NULL;
@@ -316,7 +313,7 @@ getRoundRobinParent(PeerSelector *ps)
         if (!p->options.roundrobin)
             continue;
 
-        if (neighborType(p, request->url) != PEER_PARENT)
+        if (neighborType(p, ps->request->url) != PEER_PARENT)
             continue;
 
         if (!peerHTTPOkay(p, ps))
@@ -349,7 +346,6 @@ CachePeer *
 getWeightedRoundRobinParent(PeerSelector *ps)
 {
     assert(ps);
-    HttpRequest *request = ps->request;
 
     CachePeer *p;
     CachePeer *q = NULL;
@@ -359,7 +355,7 @@ getWeightedRoundRobinParent(PeerSelector *ps)
         if (!p->options.weighted_roundrobin)
             continue;
 
-        if (neighborType(p, request->url) != PEER_PARENT)
+        if (neighborType(p, ps->request->url) != PEER_PARENT)
             continue;
 
         if (!peerHTTPOkay(p, ps))
@@ -376,7 +372,7 @@ getWeightedRoundRobinParent(PeerSelector *ps)
             if (!p->options.weighted_roundrobin)
                 continue;
 
-            if (neighborType(p, request->url) != PEER_PARENT)
+            if (neighborType(p, ps->request->url) != PEER_PARENT)
                 continue;
 
             p->rr_count = 0;
@@ -467,12 +463,11 @@ CachePeer *
 getDefaultParent(PeerSelector *ps)
 {
     assert(ps);
-    HttpRequest *request = ps->request;
 
     CachePeer *p = NULL;
 
     for (p = Config.peers; p; p = p->next) {
-        if (neighborType(p, request->url) != PEER_PARENT)
+        if (neighborType(p, ps->request->url) != PEER_PARENT)
             continue;
 
         if (!p->options.default_parent)
@@ -754,10 +749,9 @@ peerDigestLookup(CachePeer * p, PeerSelector * ps)
 {
 #if USE_CACHE_DIGESTS
     assert(ps);
-    HttpRequest *request = ps->request;
-    const cache_key *key = request ? storeKeyPublicByRequest(request) : NULL;
+    const cache_key *key = ps->request ? storeKeyPublicByRequest(ps->request.getRaw()) : nullptr;
     assert(p);
-    assert(request);
+    assert(ps->request);
     debugs(15, 5, "peerDigestLookup: peer " << p->host);
     /* does the peeer have a valid digest? */
 
@@ -799,7 +793,6 @@ neighborsDigestSelect(PeerSelector *ps)
     CachePeer *best_p = NULL;
 #if USE_CACHE_DIGESTS
     assert(ps);
-    HttpRequest *request = ps->request;
 
     int best_rtt = 0;
     int choice_count = 0;
@@ -808,10 +801,10 @@ neighborsDigestSelect(PeerSelector *ps)
     int p_rtt;
     int i;
 
-    if (!request->flags.hierarchical)
+    if (!ps->request->flags.hierarchical)
         return NULL;
 
-    storeKeyPublicByRequest(request);
+    storeKeyPublicByRequest(ps->request.getRaw());
 
     for (i = 0, p = first_ping; i++ < Config.npeers; p = p->next) {
         lookup_t lookup;
@@ -849,10 +842,10 @@ neighborsDigestSelect(PeerSelector *ps)
     }
 
     debugs(15, 4, "neighborsDigestSelect: choices: " << choice_count << " (" << ichoice_count << ")");
-    peerNoteDigestLookup(request, best_p,
+    peerNoteDigestLookup(ps->request.getRaw(), best_p,
                          best_p ? LOOKUP_HIT : (choice_count ? LOOKUP_MISS : LOOKUP_NONE));
-    request->hier.n_choices = choice_count;
-    request->hier.n_ichoices = ichoice_count;
+    ps->request->hier.n_choices = choice_count;
+    ps->request->hier.n_ichoices = ichoice_count;
 #endif
 
     return best_p;
@@ -1408,7 +1401,6 @@ peerCountMcastPeersStart(void *data)
     StoreEntry *fake = storeCreateEntry(url, url, RequestFlags(), Http::METHOD_GET);
     const auto psstate = new PeerSelector(nullptr);
     psstate->request = req;
-    HTTPMSGLOCK(psstate->request);
     psstate->entry = fake;
     psstate->peerCountMcastPeerXXX = cbdataReference(p);
     psstate->ping.start = current_time;

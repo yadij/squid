@@ -121,8 +121,6 @@ PeerSelector::~PeerSelector()
         delete acl_checklist;
     }
 
-    HTTPMSGUNLOCK(request);
-
     if (entry) {
         assert(entry->ping_status != PING_WAITING);
         entry->unlock("peerSelect");
@@ -136,7 +134,6 @@ static int
 peerSelectIcpPing(PeerSelector *ps, int direct, StoreEntry * entry)
 {
     assert(ps);
-    HttpRequest *request = ps->request;
 
     int n;
     assert(entry);
@@ -144,7 +141,7 @@ peerSelectIcpPing(PeerSelector *ps, int direct, StoreEntry * entry)
     assert(direct != DIRECT_YES);
     debugs(44, 3, entry->url());
 
-    if (!request->flags.hierarchical && direct != DIRECT_NO)
+    if (!ps->request->flags.hierarchical && direct != DIRECT_NO)
         return 0;
 
     if (EBIT_TEST(entry->flags, KEY_PRIVATE) && !neighbors_do_private_keys)
@@ -172,7 +169,6 @@ peerSelect(PeerSelectionInitiator *initiator,
     const auto selector = new PeerSelector(initiator);
 
     selector->request = request;
-    HTTPMSGLOCK(selector->request);
     selector->al = al;
 
     selector->entry = entry;
@@ -279,17 +275,16 @@ PeerSelector::resolveSelected()
     // Bypass of browser same-origin access control in intercepted communication
     // To resolve this we must use only the original client destination when going DIRECT
     // on intercepted traffic which failed Host verification
-    const HttpRequest *req = request;
-    const bool isIntercepted = !req->flags.redirected &&
-                               (req->flags.intercepted || req->flags.interceptTproxy);
-    const bool useOriginalDst = Config.onoff.client_dst_passthru || !req->flags.hostVerified;
+    const bool isIntercepted = !request->flags.redirected &&
+                               (request->flags.intercepted || request->flags.interceptTproxy);
+    const bool useOriginalDst = Config.onoff.client_dst_passthru || !request->flags.hostVerified;
     const bool choseDirect = fs && fs->code == HIER_DIRECT;
     if (isIntercepted && useOriginalDst && choseDirect) {
         // check the client is still around before using any of its details
-        if (req->clientConnectionManager.valid()) {
+        if (request->clientConnectionManager.valid()) {
             // construct a "result" adding the ORIGINAL_DST to the set instead of DIRECT
             Comm::ConnectionPointer p = new Comm::Connection();
-            p->remote = req->clientConnectionManager->clientConnection->local;
+            p->remote = request->clientConnectionManager->clientConnection->local;
             fs->code = ORIGINAL_DST; // fs->code is DIRECT. This fixes the display.
             handlePath(p, *fs);
         }
@@ -395,7 +390,7 @@ PeerSelector::noteIps(const Dns::CachedIps *ia, const Dns::LookupDetails &detail
         delete lastError;
         lastError = NULL;
         if (fs->code == HIER_DIRECT) {
-            lastError = new ErrorState(ERR_DNS_FAIL, Http::scServiceUnavailable, request);
+            lastError = new ErrorState(ERR_DNS_FAIL, Http::scServiceUnavailable, request.getRaw());
             lastError->dnsError = details.error;
         }
     }
@@ -464,19 +459,19 @@ PeerSelector::selectMore()
         if (always_direct == ACCESS_DUNNO) {
             debugs(44, 3, "direct = " << DirectStr[direct] << " (always_direct to be checked)");
             /** check always_direct; */
-            ACLFilledChecklist *ch = new ACLFilledChecklist(Config.accessList.AlwaysDirect, request, NULL);
+            ACLFilledChecklist *ch = new ACLFilledChecklist(Config.accessList.AlwaysDirect, request.getRaw());
             ch->al = al;
             acl_checklist = ch;
-            acl_checklist->syncAle(request, nullptr);
+            acl_checklist->syncAle(request.getRaw(), nullptr);
             acl_checklist->nonBlockingCheck(CheckAlwaysDirectDone, this);
             return;
         } else if (never_direct == ACCESS_DUNNO) {
             debugs(44, 3, "direct = " << DirectStr[direct] << " (never_direct to be checked)");
             /** check never_direct; */
-            ACLFilledChecklist *ch = new ACLFilledChecklist(Config.accessList.NeverDirect, request, NULL);
+            ACLFilledChecklist *ch = new ACLFilledChecklist(Config.accessList.NeverDirect, request.getRaw());
             ch->al = al;
             acl_checklist = ch;
-            acl_checklist->syncAle(request, nullptr);
+            acl_checklist->syncAle(request.getRaw(), nullptr);
             acl_checklist->nonBlockingCheck(CheckNeverDirectDone, this);
             return;
         } else if (request->flags.noDirect) {
@@ -553,7 +548,7 @@ PeerSelector::selectPinned()
     if (!request->pinnedConnection())
         return;
     CachePeer *pear = request->pinnedConnection()->pinnedPeer();
-    if (Comm::IsConnOpen(request->pinnedConnection()->validatePinnedConnection(request, pear))) {
+    if (Comm::IsConnOpen(request->pinnedConnection()->validatePinnedConnection(request.getRaw(), pear))) {
         const bool usePinned = pear ? peerAllowedToUse(pear, this) : (direct != DIRECT_NO);
         if (usePinned) {
             addSelection(pear, PINNED);
@@ -598,7 +593,7 @@ PeerSelector::selectSomeNeighbor()
         } else if (peerSelectIcpPing(this, direct, entry)) {
             debugs(44, 3, "Doing ICP pings");
             ping.start = current_time;
-            ping.n_sent = neighborsUdpPing(request,
+            ping.n_sent = neighborsUdpPing(request.getRaw(),
                                            entry,
                                            HandlePingReply,
                                            this,
@@ -1011,7 +1006,7 @@ PeerSelector::handlePath(Comm::ConnectionPointer &path, FwdServer &fs)
     path->setPeer(fs._peer.get());
 
     // check for a configured outgoing address for this destination...
-    getOutgoingAddress(request, path);
+    getOutgoingAddress(request.getRaw(), path);
 
     request->hier.ping = ping; // may be updated later
 

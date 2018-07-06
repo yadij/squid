@@ -163,10 +163,9 @@ peerUserHashSelectParent(PeerSelector *ps)
         return NULL;
 
     assert(ps);
-    HttpRequest *request = ps->request;
 
-    if (request->auth_user_request != NULL)
-        key = request->auth_user_request->username();
+    if (const auto auth = ps->request->auth_user_request)
+        key = auth->username();
 
     if (!key)
         return NULL;

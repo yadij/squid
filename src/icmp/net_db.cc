@@ -1309,18 +1309,17 @@ netdbClosestParent(PeerSelector *ps)
 {
 #if USE_ICMP
     assert(ps);
-    HttpRequest *request = ps->request;
 
     CachePeer *p = NULL;
     netdbEntry *n;
     const ipcache_addrs *ia;
     net_db_peer *h;
     int i;
-    n = netdbLookupHost(request->url.host());
+    n = netdbLookupHost(ps->request->url.host());
 
     if (NULL == n) {
         /* try IP addr */
-        ia = ipcache_gethostbyname(request->url.host(), 0);
+        ia = ipcache_gethostbyname(ps->request->url.host(), 0);
 
         if (NULL != ia)
             n = netdbLookupAddr(ia->current());
@@ -1351,7 +1350,7 @@ netdbClosestParent(PeerSelector *ps)
         if (NULL == p)      /* not found */
             continue;
 
-        if (neighborType(p, request->url) != PEER_PARENT)
+        if (neighborType(p, ps->request->url) != PEER_PARENT)
             continue;
 
         if (!peerHTTPOkay(p, ps))  /* not allowed */

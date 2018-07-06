@@ -84,7 +84,7 @@ public:
     /// a single selection loop iteration: attempts to add more destinations
     void selectMore();
 
-    HttpRequest *request;
+    HttpRequestPointer request;
     AccessLogEntry::Pointer al; ///< info for the future access.log entry
     StoreEntry *entry;
 

@@ -146,7 +146,6 @@ CachePeer *
 carpSelectParent(PeerSelector *ps)
 {
     assert(ps);
-    HttpRequest *request = ps->request;
 
     int k;
     CachePeer *p = NULL;
@@ -158,6 +157,8 @@ carpSelectParent(PeerSelector *ps)
 
     if (n_carp_peers == 0)
         return NULL;
+
+    const auto request = ps->request;
 
     /* calculate hash key */
     debugs(39, 2, "carpSelectParent: Calculating hash for " << request->effectiveRequestUri());
