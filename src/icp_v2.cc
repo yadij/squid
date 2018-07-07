@@ -510,16 +510,13 @@ doV2Query(int fd, Ip::Address &from, char *buf, icp_common_t header)
     uint32_t flags = 0;
     /* We have a valid packet */
     char *url = buf + sizeof(icp_common_t) + sizeof(uint32_t);
-    HttpRequest *icp_request = icpGetRequest(url, header.reqnum, fd, from);
+    HttpRequestPointer icp_request = icpGetRequest(url, header.reqnum, fd, from);
 
     if (!icp_request)
         return;
 
-    HTTPMSGLOCK(icp_request);
-
-    if (!icpAccessAllowed(from, icp_request)) {
+    if (!icpAccessAllowed(from, icp_request.getRaw())) {
         icpDenyAccess(from, url, header.reqnum, fd);
-        HTTPMSGUNLOCK(icp_request);
         return;
     }
 #if USE_ICMP
@@ -534,7 +531,7 @@ doV2Query(int fd, Ip::Address &from, char *buf, icp_common_t header)
 #endif /* USE_ICMP */
 
     /* The peer is allowed to use this cache */
-    ICP2State *state = new ICP2State(header, icp_request);
+    ICP2State *state = new ICP2State(header, icp_request.getRaw());
     state->fd = fd;
     state->from = from;
     state->url = xstrdup(url);
@@ -543,8 +540,6 @@ doV2Query(int fd, Ip::Address &from, char *buf, icp_common_t header)
     state->src_rtt = src_rtt;
 
     StoreEntry::getPublic(state, url, Http::METHOD_GET);
-
-    HTTPMSGUNLOCK(icp_request);
 }
 
 void
