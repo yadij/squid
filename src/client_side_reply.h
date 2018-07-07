@@ -112,7 +112,6 @@ private:
     void pushStreamData(StoreIOBuffer const &result, char *source);
     clientStreamNode * next() const;
     StoreIOBuffer holdingBuffer;
-    HttpReply *reply;
     void processReplyAccess();
     static ACLCB ProcessReplyAccessResult;
     void processReplyAccessResult(const allow_t &accessAllowed);
@@ -136,6 +135,7 @@ private:
     void sendNotModified();
     void sendNotModifiedOrPreconditionFailedError();
 
+    HttpReplyPointer reply;
     StoreEntry *old_entry;
     /* ... for entry to be validated */
     store_client *old_sc;

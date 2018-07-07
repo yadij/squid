@@ -69,7 +69,6 @@ clientReplyContext::~clientReplyContext()
     removeStoreReference(&old_sc, &old_entry);
     safe_free(tempBuffer.data);
     cbdataReferenceDone(http);
-    HTTPMSGUNLOCK(reply);
 }
 
 clientReplyContext::clientReplyContext(ClientHttpRequest *clientContext) :
@@ -85,7 +84,6 @@ clientReplyContext::clientReplyContext(ClientHttpRequest *clientContext) :
     lookup_type(NULL),
 #endif
     ourNode(NULL),
-    reply(NULL),
     old_entry(NULL),
     old_sc(NULL),
     old_lastmod(-1),
@@ -1548,9 +1546,9 @@ clientReplyContext::buildReplyHeader()
          * data on 407/401 responses, and do not check the accel state on 401/407
          * responses
          */
-        Auth::UserRequest::AddReplyAuthHeader(reply, request->auth_user_request, request.getRaw(), 0, 1);
+        Auth::UserRequest::AddReplyAuthHeader(reply.getRaw(), request->auth_user_request, request.getRaw(), 0, 1);
     } else if (request->auth_user_request != NULL)
-        Auth::UserRequest::AddReplyAuthHeader(reply, request->auth_user_request, request.getRaw(), http->flags.accel, 0);
+        Auth::UserRequest::AddReplyAuthHeader(reply.getRaw(), request->auth_user_request, request.getRaw(), http->flags.accel, 0);
 #endif
 
     /* Append X-Cache */
@@ -1646,7 +1644,6 @@ clientReplyContext::cloneReply()
     assert(reply == NULL);
 
     reply = http->storeEntry()->getReply()->clone();
-    HTTPMSGLOCK(reply);
 
     if (reply->sline.protocol == AnyP::PROTO_HTTP) {
         /* RFC 2616 requires us to advertise our version (but only on real HTTP traffic) */
@@ -1965,7 +1962,7 @@ clientReplyContext::sendBodyTooLargeError()
                                        http->getConn() != NULL ? http->getConn()->clientConnection->remote : tmp_noaddr,
                                        http->request.getRaw());
     removeClientStoreReference(&(sc), http);
-    HTTPMSGUNLOCK(reply);
+    reply = nullptr; // refcounted
     startError(err);
 
 }
@@ -1981,7 +1978,7 @@ clientReplyContext::sendPreconditionFailedError()
         clientBuildError(ERR_PRECONDITION_FAILED, Http::scPreconditionFailed,
                          nullptr, http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr, http->request.getRaw());
     removeClientStoreReference(&sc, http);
-    HTTPMSGUNLOCK(reply);
+    reply = nullptr; // refcounted
     startError(err);
 }
 
@@ -2095,8 +2092,7 @@ clientReplyContext::processReplyAccessResult(const allow_t &accessAllowed)
 
         removeClientStoreReference(&sc, http);
 
-        HTTPMSGUNLOCK(reply);
-
+        reply = nullptr; // refcounted
         startError(err);
 
         return;
@@ -2119,7 +2115,7 @@ clientReplyContext::processReplyAccessResult(const allow_t &accessAllowed)
 
     if (http->flags.accel && reply->sline.status() != Http::scForbidden &&
             !alwaysAllowResponse(reply->sline.status()) &&
-            esiEnableProcessing(reply)) {
+            esiEnableProcessing(reply.getRaw())) {
         debugs(88, 2, "Enabling ESI processing for " << http->uri);
         clientStreamInsertHead(&http->client_stream, esiStreamRead,
                                esiProcessStream, esiStreamDetach, esiStreamStatus, NULL);
@@ -2164,7 +2160,7 @@ clientReplyContext::processReplyAccessResult(const allow_t &accessAllowed)
 
     /* TODO??: move the data in the buffer back by the request header size */
     clientStreamCallback((clientStreamNode *)http->client_stream.head->data,
-                         http, reply, localTempBuffer);
+                         http, reply.getRaw(), localTempBuffer);
 
     return;
 }
@@ -2245,7 +2241,7 @@ clientReplyContext::sendMoreData (StoreIOBuffer result)
 
 #if USE_DELAY_POOLS
     if (sc)
-        sc->setDelayId(DelayId::DelayClient(http,reply));
+        sc->setDelayId(DelayId::DelayClient(http,reply.getRaw()));
 #endif
 
     /* handle headers */
