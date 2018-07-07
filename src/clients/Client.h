@@ -187,8 +187,8 @@ private:
     void sendBodyIsTooLargeError();
     void maybePurgeOthers();
 
-    HttpReply *theVirginReply = nullptr;       /**< reply received from the origin server */
-    HttpReply *theFinalReply = nullptr;        /**< adapted reply from ICAP or virgin reply */
+    HttpReplyPointer theVirginReply;       /**< reply received from the origin server */
+    HttpReplyPointer theFinalReply;        /**< adapted reply from ICAP or virgin reply */
 };
 
 #endif /* SQUID_SRC_CLIENTS_CLIENT_H */

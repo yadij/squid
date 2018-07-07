@@ -56,9 +56,6 @@ Client::~Client()
 
     entry->unlock("Client");
 
-    HTTPMSGUNLOCK(theVirginReply);
-    HTTPMSGUNLOCK(theFinalReply);
-
     if (responseBodyBuffer != NULL) {
         delete responseBodyBuffer;
         responseBodyBuffer = NULL;
@@ -103,14 +100,14 @@ HttpReply *
 Client::virginReply()
 {
     assert(theVirginReply);
-    return theVirginReply;
+    return theVirginReply.getRaw();
 }
 
 const HttpReply *
 Client::virginReply() const
 {
     assert(theVirginReply);
-    return theVirginReply;
+    return theVirginReply.getRaw();
 }
 
 HttpReply *
@@ -120,15 +117,14 @@ Client::setVirginReply(HttpReply *rep)
     assert(!theVirginReply);
     assert(rep);
     theVirginReply = rep;
-    HTTPMSGLOCK(theVirginReply);
-    return theVirginReply;
+    return theVirginReply.getRaw();
 }
 
 HttpReply *
 Client::finalReply()
 {
     assert(theFinalReply);
-    return theFinalReply;
+    return theFinalReply.getRaw();
 }
 
 HttpReply *
@@ -139,16 +135,15 @@ Client::setFinalReply(HttpReply *rep)
     assert(!theFinalReply);
     assert(rep);
     theFinalReply = rep;
-    HTTPMSGLOCK(theFinalReply);
 
     // give entry the reply because haveParsedReplyHeaders() expects it there
-    entry->replaceHttpReply(theFinalReply, false); // but do not write yet
+    entry->replaceHttpReply(theFinalReply.getRaw(), false); // but do not write yet
     haveParsedReplyHeaders(); // update the entry/reply (e.g., set timestamps)
     if (!EBIT_TEST(entry->flags, RELEASE_REQUEST) && blockCaching())
         entry->release();
     entry->startWriting(); // write the updated entry to store
 
-    return theFinalReply;
+    return theFinalReply.getRaw();
 }
 
 // called when no more server communication is expected; may quit
@@ -497,8 +492,8 @@ Client::maybePurgeOthers()
     const char *reqUrl = tmp.c_str();
     debugs(88, 5, "maybe purging due to " << request->method << ' ' << tmp);
     purgeEntriesByUrl(request.getRaw(), reqUrl);
-    purgeEntriesByHeader(request.getRaw(), reqUrl, theFinalReply, Http::HdrType::LOCATION);
-    purgeEntriesByHeader(request.getRaw(), reqUrl, theFinalReply, Http::HdrType::CONTENT_LOCATION);
+    purgeEntriesByHeader(request.getRaw(), reqUrl, theFinalReply.getRaw(), Http::HdrType::LOCATION);
+    purgeEntriesByHeader(request.getRaw(), reqUrl, theFinalReply.getRaw(), Http::HdrType::CONTENT_LOCATION);
 }
 
 /// called when we have final (possibly adapted) reply headers; kids extend
