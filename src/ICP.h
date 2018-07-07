@@ -69,7 +69,7 @@ public:
     virtual ~ICPState();
 
     icp_common_t header;
-    HttpRequest *request;
+    HttpRequestPointer request;
     int fd;
 
     Ip::Address from;

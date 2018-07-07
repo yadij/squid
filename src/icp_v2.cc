@@ -145,13 +145,11 @@ ICPState::ICPState(icp_common_t &aHeader, HttpRequest *aRequest):
     fd(-1),
     url(NULL)
 {
-    HTTPMSGLOCK(request);
 }
 
 ICPState::~ICPState()
 {
     safe_free(url);
-    HTTPMSGUNLOCK(request);
 }
 
 bool
@@ -160,7 +158,7 @@ ICPState::confirmAndPrepHit(const StoreEntry &e)
     if (!e.validToSend())
         return false;
 
-    if (!Config.onoff.icp_hit_stale && refreshCheckICP(&e, request))
+    if (!Config.onoff.icp_hit_stale && refreshCheckICP(&e, request.getRaw()))
         return false;
 
     if (e.hittingRequiresCollapsing() && !startCollapsingOn(e, false))
@@ -181,7 +179,7 @@ ICPState::loggingTags()
 void
 ICPState::fillChecklist(ACLFilledChecklist &checklist) const
 {
-    checklist.setRequest(request);
+    checklist.setRequest(request.getRaw());
     icpSyncAle(al, from, url, 0, 0);
     checklist.al = al;
 }
