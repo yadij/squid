@@ -91,8 +91,8 @@ public:
         return os << isRetriable << ',' << isRepeatable;
     }
 
-    HttpRequest *icapRequest;
-    HttpReply *icapReply;
+    HttpRequestPointer icapRequest;
+    HttpReplyPointer icapReply;
     bool isRetriable;
     bool isRepeatable;
 
