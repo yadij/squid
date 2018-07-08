@@ -42,11 +42,6 @@ Auth::Negotiate::UserRequest::~UserRequest()
     safe_free(client_blob);
 
     releaseAuthServer();
-
-    if (request) {
-        HTTPMSGUNLOCK(request);
-        request = NULL;
-    }
 }
 
 const char *
@@ -136,7 +131,7 @@ Auth::Negotiate::UserRequest::startHelperLookup(HttpRequest *, AccessLogEntry::P
 
     debugs(29, 8, HERE << "credentials state is '" << user()->credentials() << "'");
 
-    const char *keyExtras = helperRequestKeyExtras(request, al);
+    const char *keyExtras = helperRequestKeyExtras(request.getRaw(), al);
     int printResult = 0;
     if (user()->credentials() == Auth::Pending) {
         if (keyExtras)
@@ -232,7 +227,6 @@ Auth::Negotiate::UserRequest::authenticate(HttpRequest * aRequest, ConnStateData
         assert(conn->getAuth() == NULL);
         conn->setAuth(this, "new Negotiate handshake request");
         request = aRequest;
-        HTTPMSGLOCK(request);
         break;
 
     case Auth::Pending:
@@ -244,10 +238,7 @@ Auth::Negotiate::UserRequest::authenticate(HttpRequest * aRequest, ConnStateData
          * some helper */
         safe_free(client_blob);
         client_blob = xstrdup(blob);
-        if (request)
-            HTTPMSGUNLOCK(request);
         request = aRequest;
-        HTTPMSGLOCK(request);
         break;
 
     case Auth::Ok:
@@ -389,10 +380,7 @@ Auth::Negotiate::UserRequest::HandleReply(void *data, const Helper::Reply &reply
         break;
     }
 
-    if (lm_request->request) {
-        HTTPMSGUNLOCK(lm_request->request);
-        lm_request->request = NULL;
-    }
+    lm_request->request = nullptr; // refcounted
     r->handler(r->data);
     delete r;
 }
