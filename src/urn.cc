@@ -320,7 +320,7 @@ urnHandleReply(void *data, StoreIOBuffer result)
 
     if (rep->sline.status() != Http::scOkay) {
         debugs(52, 3, "urnHandleReply: failed.");
-        err = new ErrorState(ERR_URN_RESOLVE, Http::scNotFound, urnState->request.getRaw());
+        err = new ErrorState(ERR_URN_RESOLVE, Http::scNotFound, urnState->request);
         err->url = xstrdup(e->url());
         errorAppendEntry(e, err);
         delete rep;
@@ -337,7 +337,7 @@ urnHandleReply(void *data, StoreIOBuffer result)
 
     if (!urls) {     /* unknown URN error */
         debugs(52, 3, "urnTranslateDone: unknown URN " << e->url());
-        err = new ErrorState(ERR_URN_RESOLVE, Http::scNotFound, urnState->request.getRaw());
+        err = new ErrorState(ERR_URN_RESOLVE, Http::scNotFound, urnState->request);
         err->url = xstrdup(e->url());
         errorAppendEntry(e, err);
         urnHandleReplyError(urnState, urlres_e);

@@ -111,7 +111,7 @@ Security::PeerConnector::initialize(Security::SessionPointer &serverSession)
         if (!ctx) {
             debugs(83, DBG_IMPORTANT, "Error initializing TLS connection: No security context.");
         } // else CreateClientSession() did the appropriate debugs() already
-        ErrorState *anErr = new ErrorState(ERR_SOCKET_FAILURE, Http::scInternalServerError, request.getRaw());
+        ErrorState *anErr = new ErrorState(ERR_SOCKET_FAILURE, Http::scInternalServerError, request);
         anErr->xerrno = xerrno;
         noteNegotiationDone(anErr);
         bail(anErr);
@@ -250,7 +250,7 @@ Security::PeerConnector::sslFinalized()
                    " certificate: " << e.what() << "; will now block to " <<
                    "validate that certificate.");
             // fall through to do blocking in-process generation.
-            ErrorState *anErr = new ErrorState(ERR_GATEWAY_FAILURE, Http::scInternalServerError, request.getRaw());
+            ErrorState *anErr = new ErrorState(ERR_GATEWAY_FAILURE, Http::scInternalServerError, request);
 
             noteNegotiationDone(anErr);
             bail(anErr);
@@ -300,9 +300,9 @@ Security::PeerConnector::sslCrtvdHandleReply(Ssl::CertValidationResponse::Pointe
 
     ErrorState *anErr = NULL;
     if (validatorFailed) {
-        anErr = new ErrorState(ERR_GATEWAY_FAILURE, Http::scInternalServerError, request.getRaw());
+        anErr = new ErrorState(ERR_GATEWAY_FAILURE, Http::scInternalServerError, request);
     }  else {
-        anErr =  new ErrorState(ERR_SECURE_CONNECT_FAIL, Http::scServiceUnavailable, request.getRaw());
+        anErr =  new ErrorState(ERR_SECURE_CONNECT_FAIL, Http::scServiceUnavailable, request);
         anErr->detail = errDetails;
         /*anErr->xerrno= Should preserved*/
     }
@@ -586,7 +586,7 @@ Security::PeerConnector::swanSong()
     AsyncJob::swanSong();
     if (callback != NULL) { // paranoid: we have left the caller waiting
         debugs(83, DBG_IMPORTANT, "BUG: Unexpected state while connecting to a cache_peer or origin server");
-        ErrorState *anErr = new ErrorState(ERR_GATEWAY_FAILURE, Http::scInternalServerError, request.getRaw());
+        ErrorState *anErr = new ErrorState(ERR_GATEWAY_FAILURE, Http::scInternalServerError, request);
         bail(anErr);
         assert(!callback);
         return;

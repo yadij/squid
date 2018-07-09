@@ -1420,7 +1420,7 @@ ESIContext::fail ()
     flags.error = 1;
     /* create an error object */
     // XXX: with the in-direction on remote IP. does the http->getConn()->clientConnection exist?
-    ErrorState * err = clientBuildError(errorpage, errorstatus, nullptr, http->getConn()->clientConnection->remote, http->request.getRaw());
+    ErrorState * err = clientBuildError(errorpage, errorstatus, NULL, http->getConn()->clientConnection->remote, http->request.getRaw());
     err->err_msg = errormessage;
     errormessage = NULL;
     rep = err->BuildHttpReply();

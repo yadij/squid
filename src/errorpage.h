@@ -81,12 +81,12 @@ class ErrorState
     CBDATA_CLASS(ErrorState);
 
 public:
-    ErrorState(err_type type, Http::StatusCode, HttpRequest * request);
+    ErrorState(err_type, Http::StatusCode, const HttpRequestPointer &);
     ErrorState() = delete; // not implemented.
     ~ErrorState();
 
     /// Creates a general request forwarding error with the right http_status.
-    static ErrorState *NewForwarding(err_type, HttpRequestPointer &);
+    static ErrorState *NewForwarding(err_type, const HttpRequestPointer &);
 
     /**
      * Allocates and initializes an error response

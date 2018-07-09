@@ -549,14 +549,14 @@ errorPageName(int pageId)
 }
 
 ErrorState *
-ErrorState::NewForwarding(err_type type, HttpRequestPointer &request)
+ErrorState::NewForwarding(err_type type, const HttpRequestPointer &request)
 {
     const Http::StatusCode status = (request && request->flags.needValidation) ?
                                     Http::scGatewayTimeout : Http::scServiceUnavailable;
-    return new ErrorState(type, status, request.getRaw());
+    return new ErrorState(type, status, request);
 }
 
-ErrorState::ErrorState(err_type t, Http::StatusCode status, HttpRequest * req) :
+ErrorState::ErrorState(err_type t, Http::StatusCode status, const HttpRequestPointer &req) :
     type(t),
     page_id(t),
     httpStatus(status),
