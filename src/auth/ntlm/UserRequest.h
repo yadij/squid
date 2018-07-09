@@ -52,7 +52,7 @@ public:
     unsigned char waiting;
 
     /* need access to the request flags to mess around on pconn failure */
-    HttpRequest *request;
+    HttpRequestPointer request;
 
 private:
     static HLPCB HandleReply;
