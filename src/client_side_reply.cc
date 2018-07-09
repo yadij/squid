@@ -53,7 +53,6 @@ CBDATA_CLASS_INIT(clientReplyContext);
 
 /* Local functions */
 extern "C" CSS clientReplyStatus;
-ErrorState *clientBuildError(err_type, Http::StatusCode, char const *, Ip::Address &, HttpRequest *);
 
 /* privates */
 
@@ -765,7 +764,7 @@ clientReplyContext::processMiss()
         http->al->http.code = Http::scForbidden;
         Ip::Address tmp_noaddr;
         tmp_noaddr.setNoAddr();
-        err = clientBuildError(ERR_ACCESS_DENIED, Http::scForbidden, nullptr, conn ? conn->remote : tmp_noaddr, http->request.getRaw());
+        err = clientBuildError(ERR_ACCESS_DENIED, Http::scForbidden, nullptr, conn ? conn->remote : tmp_noaddr, http->request);
         createStoreEntry(r->method, RequestFlags());
         errorAppendEntry(http->storeEntry(), err);
         triggerInitialStoreRead();
@@ -807,7 +806,7 @@ clientReplyContext::processOnlyIfCachedMiss()
     tmp_noaddr.setNoAddr();
     ErrorState *err = clientBuildError(ERR_ONLY_IF_CACHED_MISS, Http::scGatewayTimeout, NULL,
                                        http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr,
-                                       http->request.getRaw());
+                                       http->request);
     removeClientStoreReference(&sc, http);
     startError(err);
 }
@@ -983,7 +982,7 @@ clientReplyContext::purgeFoundObject(StoreEntry *entry)
         tmp_noaddr.setNoAddr(); // TODO: make a global const
         ErrorState *err = clientBuildError(ERR_ACCESS_DENIED, Http::scForbidden, NULL,
                                            http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr,
-                                           http->request.getRaw());
+                                           http->request);
         startError(err);
         return; // XXX: leaking unused entry if some store does not keep it
     }
@@ -1022,8 +1021,8 @@ clientReplyContext::purgeRequest()
         http->logType.update(LOG_TCP_DENIED);
         Ip::Address tmp_noaddr;
         tmp_noaddr.setNoAddr();
-        ErrorState *err = clientBuildError(ERR_ACCESS_DENIED, Http::scForbidden, nullptr,
-                                           http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr, http->request.getRaw());
+        ErrorState *err = clientBuildError(ERR_ACCESS_DENIED, Http::scForbidden, NULL,
+                                           http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr, http->request);
         startError(err);
         return;
     }
@@ -1960,7 +1959,7 @@ clientReplyContext::sendBodyTooLargeError()
     http->logType.update(LOG_TCP_DENIED_REPLY);
     ErrorState *err = clientBuildError(ERR_TOO_BIG, Http::scForbidden, NULL,
                                        http->getConn() != NULL ? http->getConn()->clientConnection->remote : tmp_noaddr,
-                                       http->request.getRaw());
+                                      http->request);
     removeClientStoreReference(&(sc), http);
     reply = nullptr; // refcounted
     startError(err);
@@ -1976,7 +1975,7 @@ clientReplyContext::sendPreconditionFailedError()
     tmp_noaddr.setNoAddr();
     ErrorState *const err =
         clientBuildError(ERR_PRECONDITION_FAILED, Http::scPreconditionFailed,
-                         nullptr, http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr, http->request.getRaw());
+                         NULL, http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr, http->request);
     removeClientStoreReference(&sc, http);
     reply = nullptr; // refcounted
     startError(err);
@@ -2088,7 +2087,7 @@ clientReplyContext::processReplyAccessResult(const allow_t &accessAllowed)
         tmp_noaddr.setNoAddr();
         err = clientBuildError(page_id, Http::scForbidden, NULL,
                                http->getConn() != NULL ? http->getConn()->clientConnection->remote : tmp_noaddr,
-                               http->request.getRaw());
+                               http->request);
 
         removeClientStoreReference(&sc, http);
 
@@ -2325,18 +2324,5 @@ clientReplyContext::createStoreEntry(const HttpRequestMethod& m, RequestFlags re
      * this function CAN NOT be used to manage errors
      */
     http->storeEntry(e);
-}
-
-ErrorState *
-clientBuildError(err_type page_id, Http::StatusCode status, char const *url,
-                 Ip::Address &src_addr, HttpRequest * request)
-{
-    ErrorState *err = new ErrorState(page_id, status, request);
-    err->src_addr = src_addr;
-
-    if (url)
-        err->url = xstrdup(url);
-
-    return err;
 }
 

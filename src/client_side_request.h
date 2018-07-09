@@ -25,6 +25,7 @@
 
 class ClientRequestContext;
 class ConnStateData;
+class ErrorState;
 class MemObject;
 
 /* client_side_request.c - client side request related routines (pure logic) */
@@ -241,6 +242,8 @@ ACLFilledChecklist *clientAclChecklistCreate(const acl_access * acl,ClientHttpRe
 void clientAclChecklistFill(ACLFilledChecklist &, ClientHttpRequest *);
 int clientHttpRequestStatus(int fd, ClientHttpRequest const *http);
 void clientAccessCheck(ClientHttpRequest *);
+/// helper function to build an HTTP error object
+ErrorState *clientBuildError(err_type, Http::StatusCode, char const *url, Ip::Address &, const HttpRequestPointer &);
 
 /* ones that should be elsewhere */
 void tunnelStart(ClientHttpRequest *);

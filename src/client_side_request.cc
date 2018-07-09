@@ -83,8 +83,6 @@ static const char *const crlf = "\r\n";
 static void clientFollowXForwardedForCheck(allow_t answer, void *data);
 #endif /* FOLLOW_X_FORWARDED_FOR */
 
-ErrorState *clientBuildError(err_type, Http::StatusCode, char const *url, Ip::Address &, HttpRequest *);
-
 CBDATA_CLASS_INIT(ClientRequestContext);
 
 /* Local functions */
@@ -806,7 +804,7 @@ ClientRequestContext::clientAccessCheckDone(const allow_t &answer)
         error = clientBuildError(page_id, status,
                                  NULL,
                                  http->getConn() != NULL ? http->getConn()->clientConnection->remote : tmpnoaddr,
-                                 http->request.getRaw()
+                                 http->request
                                 );
 
 #if USE_AUTH
@@ -2186,7 +2184,7 @@ ClientHttpRequest::calloutsError(const err_type error, const int errDetail)
         calloutContext->error = clientBuildError(error, Http::scInternalServerError,
                                 NULL,
                                 c != NULL ? c->clientConnection->remote : noAddr,
-                                request.getRaw()
+                                request
                                                 );
 #if USE_AUTH
         calloutContext->error->auth_user_request =
@@ -2198,5 +2196,18 @@ ClientHttpRequest::calloutsError(const err_type error, const int errDetail)
             c->expectNoForwarding();
     }
     //else if(calloutContext == NULL) is it possible?
+}
+
+ErrorState *
+clientBuildError(err_type page_id, Http::StatusCode status, char const *url,
+                 Ip::Address &src_addr, const HttpRequestPointer &request)
+{
+    ErrorState *err = new ErrorState(page_id, status, request);
+    err->src_addr = src_addr;
+
+    if (url)
+        err->url = xstrdup(url);
+
+    return err;
 }
 
