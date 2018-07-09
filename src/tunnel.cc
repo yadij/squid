@@ -1123,7 +1123,7 @@ tunnelStart(ClientHttpRequest * http)
 #if USE_DELAY_POOLS
     //server.setDelayId called from tunnelConnectDone after server side connection established
 #endif
-    tunnelState->startSelectingDestinations(request.getRaw(), http->al, nullptr);
+    tunnelState->startSelectingDestinations(request, http->al, nullptr);
 }
 
 void

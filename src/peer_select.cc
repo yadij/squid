@@ -186,10 +186,10 @@ peerSelect(PeerSelectionInitiator *initiator,
 }
 
 void
-PeerSelectionInitiator::startSelectingDestinations(HttpRequest *request, const AccessLogEntry::Pointer &ale, StoreEntry *entry)
+PeerSelectionInitiator::startSelectingDestinations(const HttpRequestPointer &request, const AccessLogEntry::Pointer &ale, StoreEntry *entry)
 {
     subscribed = true;
-    peerSelect(this, request, ale, entry);
+    peerSelect(this, request.getRaw(), ale, entry);
     // and wait for noteDestination() and/or noteDestinationsEnd() calls
 }
 

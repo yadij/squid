@@ -180,7 +180,7 @@ void FwdState::start(Pointer aSelf)
 #endif
 
     // do full route options selection
-    startSelectingDestinations(request.getRaw(), al, entry);
+    startSelectingDestinations(request, al, entry);
 }
 
 /// ends forwarding; relies on refcounting so the effect may not be immediate

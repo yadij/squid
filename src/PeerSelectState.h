@@ -48,7 +48,7 @@ public:
     /// Initiates asynchronous peer selection that eventually
     /// results in zero or more noteDestination() calls and
     /// exactly one noteDestinationsEnd() call.
-    void startSelectingDestinations(HttpRequest *request, const AccessLogEntry::Pointer &ale, StoreEntry *entry);
+    void startSelectingDestinations(const HttpRequestPointer &, const AccessLogEntry::Pointer &, StoreEntry *);
 };
 
 class FwdServer;
