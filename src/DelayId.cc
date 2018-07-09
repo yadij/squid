@@ -85,7 +85,7 @@ DelayId::DelayClient(ClientHttpRequest * http, HttpReply *reply)
         }
 
         // TODO: do not re-alloc a different checklist for each pool test
-        ACLFilledChecklist ch(DelayPools::delay_data[pool].access, r.getRaw());
+        ACLFilledChecklist ch(DelayPools::delay_data[pool].access, r, NULL);
         ch.reply = reply;
 #if FOLLOW_X_FORWARDED_FOR
         if (Config.onoff.delay_pool_uses_indirect_client)

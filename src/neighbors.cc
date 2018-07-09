@@ -166,9 +166,9 @@ peerAllowedToUse(const CachePeer * p, PeerSelector * ps)
     if (p->access == NULL)
         return true;
 
-    ACLFilledChecklist checklist(p->access, request.getRaw());
+    ACLFilledChecklist checklist(p->access, request, NULL);
     checklist.al = ps->al;
-    checklist.syncAle(request.getRaw(), nullptr);
+    checklist.syncAle(request, nullptr);
     return checklist.fastCheck().allowed();
 }
 

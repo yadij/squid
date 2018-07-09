@@ -459,19 +459,19 @@ PeerSelector::selectMore()
         if (always_direct == ACCESS_DUNNO) {
             debugs(44, 3, "direct = " << DirectStr[direct] << " (always_direct to be checked)");
             /** check always_direct; */
-            ACLFilledChecklist *ch = new ACLFilledChecklist(Config.accessList.AlwaysDirect, request.getRaw());
+            ACLFilledChecklist *ch = new ACLFilledChecklist(Config.accessList.AlwaysDirect, request, NULL);
             ch->al = al;
             acl_checklist = ch;
-            acl_checklist->syncAle(request.getRaw(), nullptr);
+            acl_checklist->syncAle(request, nullptr);
             acl_checklist->nonBlockingCheck(CheckAlwaysDirectDone, this);
             return;
         } else if (never_direct == ACCESS_DUNNO) {
             debugs(44, 3, "direct = " << DirectStr[direct] << " (never_direct to be checked)");
             /** check never_direct; */
-            ACLFilledChecklist *ch = new ACLFilledChecklist(Config.accessList.NeverDirect, request.getRaw());
+            ACLFilledChecklist *ch = new ACLFilledChecklist(Config.accessList.NeverDirect, request, NULL);
             ch->al = al;
             acl_checklist = ch;
-            acl_checklist->syncAle(request.getRaw(), nullptr);
+            acl_checklist->syncAle(request, nullptr);
             acl_checklist->nonBlockingCheck(CheckNeverDirectDone, this);
             return;
         } else if (request->flags.noDirect) {

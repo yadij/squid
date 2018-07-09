@@ -118,7 +118,7 @@ ACLFilledChecklist::verifyAle() const
 }
 
 void
-ACLFilledChecklist::syncAle(HttpRequest *adaptedRequest, const char *logUri) const
+ACLFilledChecklist::syncAle(const HttpRequestPointer &adaptedRequest, const char *logUri) const
 {
     if (!al)
         return;
@@ -199,7 +199,7 @@ ACLFilledChecklist::markSourceDomainChecked()
  *    *not* delete the list.  After the callback function returns,
  *    checkCallback() will delete the list (i.e., self).
  */
-ACLFilledChecklist::ACLFilledChecklist(const acl_access *A, HttpRequest *http_request, const char *ident):
+ACLFilledChecklist::ACLFilledChecklist(const acl_access *A, const HttpRequestPointer &http_request, const char *ident):
     dst_rdns(NULL),
 #if USE_AUTH
     auth_user_request(NULL),
@@ -227,7 +227,7 @@ ACLFilledChecklist::ACLFilledChecklist(const acl_access *A, HttpRequest *http_re
 }
 
 void
-ACLFilledChecklist::setRequest(HttpRequest *httpRequest)
+ACLFilledChecklist::setRequest(const HttpRequestPointer &httpRequest)
 {
     assert(!request);
     if (httpRequest) {

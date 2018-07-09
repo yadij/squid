@@ -141,7 +141,7 @@ bool Adaptation::Icap::Launcher::canRepeat(Adaptation::Icap::XactAbortInfo &info
         return true;
 
     ACLFilledChecklist *cl =
-        new ACLFilledChecklist(TheConfig.repeat, info.icapRequest.getRaw(), dash_str);
+        new ACLFilledChecklist(TheConfig.repeat, info.icapRequest, dash_str);
     cl->reply = info.icapReply;
 
     bool result = cl->fastCheck().allowed();

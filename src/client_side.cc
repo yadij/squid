@@ -437,7 +437,7 @@ ClientHttpRequest::logRequest()
         al->http.adaptedRequest = request;
     }
 
-    ACLFilledChecklist checklist(nullptr, request.getRaw());
+    ACLFilledChecklist checklist(NULL, request, NULL);
     checklist.reply = al->http.clientReply;
 
     // no need checklist.syncAle(): already synced
@@ -447,7 +447,7 @@ ClientHttpRequest::logRequest()
     bool updatePerformanceCounters = true;
     if (Config.accessList.stats_collection) {
         // TODO re-use above checklist
-        ACLFilledChecklist statsCheck(Config.accessList.stats_collection, request.getRaw());
+        ACLFilledChecklist statsCheck(Config.accessList.stats_collection, request, NULL);
         statsCheck.al = al;
         statsCheck.reply = al->http.clientReply;
         updatePerformanceCounters = statsCheck.fastCheck().allowed();
@@ -1460,10 +1460,10 @@ bool ConnStateData::serveDelayedError(Http::Stream *context)
 
             bool allowDomainMismatch = false;
             if (Config.ssl_client.cert_error) {
-                ACLFilledChecklist check(Config.ssl_client.cert_error, request.getRaw(), dash_str);
+                ACLFilledChecklist check(Config.ssl_client.cert_error, request, dash_str);
                 check.al = http->al;
                 check.sslErrors = new Security::CertErrors(Security::CertError(SQUID_X509_V_ERR_DOMAIN_MISMATCH, srvCert));
-                check.syncAle(request.getRaw(), http->log_uri);
+                check.syncAle(request, http->log_uri);
                 allowDomainMismatch = check.fastCheck().allowed();
                 delete check.sslErrors;
                 check.sslErrors = NULL;
@@ -1511,7 +1511,7 @@ bool
 clientTunnelOnError(ConnStateData *conn, Http::StreamPointer &context, HttpRequest::Pointer &request, const HttpRequestMethod& method, err_type requestError)
 {
     if (conn->mayTunnelUnsupportedProto()) {
-        ACLFilledChecklist checklist(Config.accessList.on_unsupported_protocol, request.getRaw(), nullptr);
+        ACLFilledChecklist checklist(Config.accessList.on_unsupported_protocol, request);
         checklist.al = (context && context->http) ? context->http->al : nullptr;
         checklist.requestErrorType = requestError;
         checklist.src_addr = conn->clientConnection->remote;
@@ -1519,7 +1519,7 @@ clientTunnelOnError(ConnStateData *conn, Http::StreamPointer &context, HttpReque
         checklist.conn(conn);
         ClientHttpRequest *http = context ? context->http : nullptr;
         const char *log_uri = http ? http->log_uri : nullptr;
-        checklist.syncAle(request.getRaw(), log_uri);
+        checklist.syncAle(request, log_uri);
         allow_t answer = checklist.fastCheck();
         if (answer.allowed() && answer.kind == 1) {
             debugs(33, 3, "Request will be tunneled to server");
@@ -2843,7 +2843,7 @@ void ConnStateData::buildSslCertGenerationParams(Ssl::CertificateProperties &cer
         if (X509 *mimicCert = sslServerBump->serverCert.get())
             certProperties.mimicCert.resetAndLock(mimicCert);
 
-        ACLFilledChecklist checklist(NULL, sslServerBump->request.getRaw(),
+        ACLFilledChecklist checklist(NULL, sslServerBump->request,
                                      clientConnection != NULL ? clientConnection->rfc931 : dash_str);
         checklist.sslErrors = cbdataReference(sslServerBump->sslErrors());
 
@@ -3229,7 +3229,7 @@ ConnStateData::startPeekAndSplice()
         sslServerBump->step = Ssl::bumpStep2;
         // Run a accessList check to check if want to splice or continue bumping
 
-        ACLFilledChecklist *acl_checklist = new ACLFilledChecklist(Config.accessList.ssl_bump, sslServerBump->request.getRaw(), nullptr);
+        ACLFilledChecklist *acl_checklist = new ACLFilledChecklist(Config.accessList.ssl_bump, sslServerBump->request);
         acl_checklist->al = http ? http->al : nullptr;
         //acl_checklist->src_addr = params.conn->remote;
         //acl_checklist->my_addr = s->s;
@@ -3237,7 +3237,7 @@ ConnStateData::startPeekAndSplice()
         acl_checklist->banAction(allow_t(ACCESS_ALLOWED, Ssl::bumpClientFirst));
         acl_checklist->banAction(allow_t(ACCESS_ALLOWED, Ssl::bumpServerFirst));
         const char *log_uri = http ? http->log_uri : nullptr;
-        acl_checklist->syncAle(sslServerBump->request.getRaw(), log_uri);
+        acl_checklist->syncAle(sslServerBump->request, log_uri);
         acl_checklist->nonBlockingCheck(httpsSslBumpStep2AccessCheckDone, this);
         return;
     }
@@ -3679,9 +3679,9 @@ clientAclChecklistCreate(const acl_access * acl, ClientHttpRequest * http)
 void
 clientAclChecklistFill(ACLFilledChecklist &checklist, ClientHttpRequest *http)
 {
-    checklist.setRequest(http->request.getRaw());
+    checklist.setRequest(http->request);
     checklist.al = http->al;
-    checklist.syncAle(http->request.getRaw(), http->log_uri);
+    checklist.syncAle(http->request, http->log_uri);
 
     // TODO: If http->getConn is always http->request->clientConnectionManager,
     // then call setIdent() inside checklist.setRequest(). Otherwise, restore

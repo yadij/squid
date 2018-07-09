@@ -14,7 +14,6 @@
 #include "acl/forward.h"
 #include "base/CbcPointer.h"
 #include "err_type.h"
-#include "http/forward.h"
 #include "ip/Address.h"
 #if USE_AUTH
 #include "auth/UserRequest.h"
@@ -34,11 +33,11 @@ class ACLFilledChecklist: public ACLChecklist
 
 public:
     ACLFilledChecklist();
-    ACLFilledChecklist(const acl_access *, HttpRequest *, const char *ident = nullptr);
+    ACLFilledChecklist(const acl_access *, const HttpRequestPointer &, const char *ident = nullptr);
     ~ACLFilledChecklist();
 
     /// configure client request-related fields for the first time
-    void setRequest(HttpRequest *);
+    void setRequest(const HttpRequestPointer &);
     /// configure rfc931 user identity for the first time
     void setIdent(const char *userIdentity);
 
@@ -65,7 +64,7 @@ public:
     virtual bool hasRequest() const { return bool(request); }
     virtual bool hasReply() const { return bool(reply); }
     virtual bool hasAle() const { return al != NULL; }
-    virtual void syncAle(HttpRequest *adaptedRequest, const char *logUri) const;
+    virtual void syncAle(const HttpRequestPointer &adaptedRequest, const char *logUri) const;
     virtual void verifyAle() const;
 
 public:

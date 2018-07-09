@@ -256,9 +256,9 @@ Http::One::Server::processParsedRequest(Http::StreamPointer &context)
         }
 
         if (Config.accessList.forceRequestBodyContinuation) {
-            ACLFilledChecklist bodyContinuationCheck(Config.accessList.forceRequestBodyContinuation, request.getRaw(), NULL);
+            ACLFilledChecklist bodyContinuationCheck(Config.accessList.forceRequestBodyContinuation, request);
             bodyContinuationCheck.al = http->al;
-            bodyContinuationCheck.syncAle(request.getRaw(), http->log_uri);
+            bodyContinuationCheck.syncAle(request, http->log_uri);
             if (bodyContinuationCheck.fastCheck().allowed()) {
                 debugs(33, 5, "Body Continuation forced");
                 request->forcedBodyContinuation = true;

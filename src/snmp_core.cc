@@ -18,6 +18,7 @@
 #include "comm/Loops.h"
 #include "comm/UdpOpenDialer.h"
 #include "fatal.h"
+#include "HttpRequest.h"
 #include "ip/Address.h"
 #include "ip/tools.h"
 #include "snmp/Forwarder.h"
@@ -398,7 +399,7 @@ snmpDecodePacket(SnmpRequest * rq)
     /* Check if we have explicit permission to access SNMP data.
      * default (set above) is to deny all */
     if (Community) {
-        ACLFilledChecklist checklist(Config.accessList.snmp, NULL, NULL);
+        ACLFilledChecklist checklist(Config.accessList.snmp, HttpRequestPointer());
         checklist.src_addr = rq->from;
         checklist.snmp_community = (char *) Community;
 

@@ -1820,11 +1820,11 @@ ClientHttpRequest::doCallouts()
 
     // Set appropriate MARKs and CONNMARKs if needed.
     if (getConn() && Comm::IsConnOpen(getConn()->clientConnection)) {
-        ACLFilledChecklist ch(nullptr, request.getRaw(), nullptr);
+        ACLFilledChecklist ch(nullptr, request, nullptr);
         ch.al = calloutContext->http->al;
         ch.src_addr = request->client_addr;
         ch.my_addr = request->my_addr;
-        ch.syncAle(request.getRaw(), log_uri);
+        ch.syncAle(request, log_uri);
 
         if (!calloutContext->toClientMarkingDone) {
             calloutContext->toClientMarkingDone = true;
