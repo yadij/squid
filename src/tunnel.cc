@@ -1303,7 +1303,7 @@ TunnelStateData::startConnecting()
         return;
     }
 
-    GetMarkingsToServer(request.getRaw(), *dest);
+    GetMarkingsToServer(request, *dest);
 
     const time_t connectTimeout = dest->connectTimeout(startTime);
     AsyncCall::Pointer call = commCbCall(26,3, "tunnelConnectDone", CommConnectCbPtrFun(tunnelConnectDone, this));

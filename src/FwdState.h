@@ -42,16 +42,16 @@ class CertValidationResponse;
  * Returns the TOS value that we should be setting on the connection
  * to the server, based on the ACL.
  */
-tos_t GetTosToServer(HttpRequest * request);
+tos_t GetTosToServer(const HttpRequestPointer &);
 
 /**
  * Returns the Netfilter mark value that we should be setting on the
  * connection to the server, based on the ACL.
  */
-nfmark_t GetNfmarkToServer(HttpRequest * request);
+nfmark_t GetNfmarkToServer(const HttpRequestPointer &);
 
 /// Sets initial TOS value and Netfilter for the future outgoing connection.
-void GetMarkingsToServer(HttpRequest * request, Comm::Connection &conn);
+void GetMarkingsToServer(const HttpRequestPointer &, Comm::Connection &);
 
 class HelperReply;
 

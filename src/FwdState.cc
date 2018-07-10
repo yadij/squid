@@ -833,11 +833,11 @@ void
 FwdState::syncWithServerConn(const char *host)
 {
     if (Ip::Qos::TheConfig.isAclTosActive())
-        Ip::Qos::setSockTos(serverConn, GetTosToServer(request.getRaw()));
+        Ip::Qos::setSockTos(serverConn, GetTosToServer(request));
 
 #if SO_MARK
     if (Ip::Qos::TheConfig.isAclNfmarkActive())
-        Ip::Qos::setSockNfmark(serverConn, GetNfmarkToServer(request.getRaw()));
+        Ip::Qos::setSockNfmark(serverConn, GetNfmarkToServer(request));
 #endif
 
     syncHierNote(serverConn, host);
@@ -950,7 +950,7 @@ FwdState::connectStart()
     entry->mem_obj->checkUrlChecksum();
 #endif
 
-    GetMarkingsToServer(request.getRaw(), *serverDestinations[0]);
+    GetMarkingsToServer(request, *serverDestinations[0]);
 
     calls.connector = commCbCall(17,3, "fwdConnectDoneWrapper", CommConnectCbPtrFun(fwdConnectDoneWrapper, this));
     const time_t connTimeout = serverDestinations[0]->connectTimeout(start_t);
@@ -1341,14 +1341,14 @@ getOutgoingAddress(HttpRequest * request, Comm::ConnectionPointer conn)
 }
 
 tos_t
-GetTosToServer(HttpRequest * request)
+GetTosToServer(const HttpRequestPointer &request)
 {
     ACLFilledChecklist ch(NULL, request, NULL);
     return aclMapTOS(Ip::Qos::TheConfig.tosToServer, &ch);
 }
 
 nfmark_t
-GetNfmarkToServer(HttpRequest * request)
+GetNfmarkToServer(const HttpRequestPointer &request)
 {
     ACLFilledChecklist ch(NULL, request, NULL);
     const auto mc = aclFindNfMarkConfig(Ip::Qos::TheConfig.nfmarkToServer, &ch);
@@ -1356,7 +1356,7 @@ GetNfmarkToServer(HttpRequest * request)
 }
 
 void
-GetMarkingsToServer(HttpRequest * request, Comm::Connection &conn)
+GetMarkingsToServer(const HttpRequestPointer &request, Comm::Connection &conn)
 {
     // Get the server side TOS and Netfilter mark to be set on the connection.
     if (Ip::Qos::TheConfig.isAclTosActive()) {
