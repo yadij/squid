@@ -906,14 +906,14 @@ clientReplyContext::purgeRequestFindObjectToPurge()
  * keys depend on vary headers.
  */
 void
-purgeEntriesByUrl(HttpRequest * req, const char *url)
+purgeEntriesByUrl(const HttpRequestPointer &request, const char *url)
 {
     for (HttpRequestMethod m(Http::METHOD_NONE); m != Http::METHOD_ENUM_END; ++m) {
         if (m.respMaybeCacheable()) {
             const cache_key *key = storeKeyPublic(url, m);
             debugs(88, 5, m << ' ' << url << ' ' << storeKeyText(key));
 #if USE_HTCP
-            neighborsHtcpClear(nullptr, url, req, m, HTCP_CLR_INVALIDATION);
+            neighborsHtcpClear(nullptr, url, request.getRaw(), m, HTCP_CLR_INVALIDATION);
 #endif
             Store::Root().evictIfFound(key);
         }
@@ -925,7 +925,7 @@ clientReplyContext::purgeAllCached()
 {
     // XXX: performance regression, c_str() reallocates
     SBuf url(http->request->effectiveRequestUri());
-    purgeEntriesByUrl(http->request.getRaw(), url.c_str());
+    purgeEntriesByUrl(http->request, url.c_str());
 }
 
 void

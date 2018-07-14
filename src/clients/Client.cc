@@ -34,7 +34,7 @@
 #endif
 
 // implemented in client_side_reply.cc until sides have a common parent
-void purgeEntriesByUrl(HttpRequest * req, const char *url);
+void purgeEntriesByUrl(const HttpRequestPointer &, const char *url);
 
 Client::Client(FwdState *theFwdState) :
     AsyncJob("Client"),
@@ -444,12 +444,12 @@ sameUrlHosts(const char *url1, const char *url2)
 
 // purges entries that match the value of a given HTTP [response] header
 static void
-purgeEntriesByHeader(HttpRequest *req, const char *reqUrl, Http::Message *rep, Http::HdrType hdr)
+purgeEntriesByHeader(const HttpRequestPointer &request, const char *reqUrl, const HttpReplyPointer &reply, Http::HdrType hdr)
 {
     const char *hdrUrl, *absUrl;
 
     absUrl = NULL;
-    hdrUrl = rep->header.getStr(hdr);
+    hdrUrl = reply->header.getStr(hdr);
     if (hdrUrl == NULL) {
         return;
     }
@@ -468,7 +468,7 @@ purgeEntriesByHeader(HttpRequest *req, const char *reqUrl, Http::Message *rep, H
         return;
     }
 
-    purgeEntriesByUrl(req, hdrUrl);
+    purgeEntriesByUrl(request, hdrUrl);
 
     if (absUrl != NULL) {
         safe_free(absUrl);
@@ -491,9 +491,9 @@ Client::maybePurgeOthers()
     SBuf tmp(request->effectiveRequestUri());
     const char *reqUrl = tmp.c_str();
     debugs(88, 5, "maybe purging due to " << request->method << ' ' << tmp);
-    purgeEntriesByUrl(request.getRaw(), reqUrl);
-    purgeEntriesByHeader(request.getRaw(), reqUrl, theFinalReply.getRaw(), Http::HdrType::LOCATION);
-    purgeEntriesByHeader(request.getRaw(), reqUrl, theFinalReply.getRaw(), Http::HdrType::CONTENT_LOCATION);
+    purgeEntriesByUrl(request, reqUrl);
+    purgeEntriesByHeader(request, reqUrl, theFinalReply, Http::HdrType::LOCATION);
+    purgeEntriesByHeader(request, reqUrl, theFinalReply, Http::HdrType::CONTENT_LOCATION);
 }
 
 /// called when we have final (possibly adapted) reply headers; kids extend
