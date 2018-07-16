@@ -4009,7 +4009,7 @@ ConnStateData::clientPinnedConnectionRead(const CommIoCbParams &io)
 }
 
 const Comm::ConnectionPointer
-ConnStateData::validatePinnedConnection(HttpRequest *request, const CachePeer *aPeer)
+ConnStateData::validatePinnedConnection(const HttpRequestPointer &request, const CachePeer *aPeer)
 {
     debugs(33, 7, HERE << pinning.serverConnection);
 
@@ -4034,7 +4034,7 @@ ConnStateData::validatePinnedConnection(HttpRequest *request, const CachePeer *a
 }
 
 Comm::ConnectionPointer
-ConnStateData::borrowPinnedConnection(HttpRequest *request, const CachePeer *aPeer)
+ConnStateData::borrowPinnedConnection(const HttpRequestPointer &request, const CachePeer *aPeer)
 {
     debugs(33, 7, pinning.serverConnection);
     if (validatePinnedConnection(request, aPeer) != NULL)
