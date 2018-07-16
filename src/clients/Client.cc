@@ -460,8 +460,7 @@ purgeEntriesByHeader(const HttpRequestPointer &request, const char *reqUrl, cons
      * as per RFC 2616 13.10.
      */
     if (urlIsRelative(hdrUrl)) {
-        absUrl = urlMakeAbsolute(req, hdrUrl);
-        if (absUrl != NULL) {
+        if ((absUrl = urlMakeAbsolute(request.getRaw(), hdrUrl))) {
             hdrUrl = absUrl;
         }
     } else if (!sameUrlHosts(reqUrl, hdrUrl)) {

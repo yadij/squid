@@ -593,7 +593,7 @@ PeerSelector::selectSomeNeighbor()
         } else if (peerSelectIcpPing(this, direct, entry)) {
             debugs(44, 3, "Doing ICP pings");
             ping.start = current_time;
-            ping.n_sent = neighborsUdpPing(request.getRaw(),
+            ping.n_sent = neighborsUdpPing(request,
                                            entry,
                                            HandlePingReply,
                                            this,

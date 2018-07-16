@@ -13,12 +13,11 @@
 
 #include "anyp/forward.h"
 #include "enums.h"
+#include "http/forward.h"
 #include "ICP.h"
 #include "lookup_t.h"
 #include "typedefs.h" //for IRCB
 
-class HttpRequest;
-class HttpRequestMethod;
 class CachePeer;
 class StoreEntry;
 class PeerSelector;
@@ -28,7 +27,7 @@ CachePeer *getFirstUpParent(PeerSelector *);
 CachePeer *getNextPeer(CachePeer *);
 CachePeer *getSingleParent(PeerSelector *);
 int neighborsCount(PeerSelector *);
-int neighborsUdpPing(HttpRequest *,
+int neighborsUdpPing(const HttpRequestPointer &,
                      StoreEntry *,
                      IRCB * callback,
                      PeerSelector *ps,
@@ -40,7 +39,7 @@ void neighborsUdpAck(const cache_key *, icp_common_t *, const Ip::Address &);
 void neighborAdd(const char *, const char *, int, int, int, int, int);
 void neighbors_init(void);
 #if USE_HTCP
-void neighborsHtcpClear(StoreEntry *, const char *, HttpRequest *, const HttpRequestMethod &, htcp_clr_reason);
+void neighborsHtcpClear(StoreEntry *, const char *, const HttpRequestPointer &, const HttpRequestMethod &, htcp_clr_reason);
 #endif
 CachePeer *peerFindByName(const char *);
 CachePeer *peerFindByNameAndPort(const char *, unsigned short);
@@ -51,7 +50,7 @@ void peerClearRRStart(void);
 void peerClearRR(void);
 lookup_t peerDigestLookup(CachePeer * p, PeerSelector *);
 CachePeer *neighborsDigestSelect(PeerSelector *);
-void peerNoteDigestLookup(HttpRequest * request, CachePeer * p, lookup_t lookup);
+void peerNoteDigestLookup(const HttpRequestPointer &, CachePeer *, lookup_t);
 void peerNoteDigestGone(CachePeer * p);
 int neighborUp(const CachePeer * e);
 const char *neighborTypeStr(const CachePeer * e);

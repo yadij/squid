@@ -581,7 +581,7 @@ neighbors_init(void)
 }
 
 int
-neighborsUdpPing(HttpRequest * request,
+neighborsUdpPing(const HttpRequestPointer &request,
                  StoreEntry * entry,
                  IRCB * callback,
                  PeerSelector *ps,
@@ -638,7 +638,7 @@ neighborsUdpPing(HttpRequest * request,
             }
 
             debugs(15, 3, "neighborsUdpPing: sending HTCP query");
-            if (htcpQuery(entry, request, p) <= 0)
+            if (htcpQuery(entry, request.getRaw(), p) <= 0)
                 continue; // unable to send.
         } else
 #endif
@@ -842,7 +842,7 @@ neighborsDigestSelect(PeerSelector *ps)
     }
 
     debugs(15, 4, "neighborsDigestSelect: choices: " << choice_count << " (" << ichoice_count << ")");
-    peerNoteDigestLookup(ps->request.getRaw(), best_p,
+    peerNoteDigestLookup(ps->request, best_p,
                          best_p ? LOOKUP_HIT : (choice_count ? LOOKUP_MISS : LOOKUP_NONE));
     ps->request->hier.n_choices = choice_count;
     ps->request->hier.n_ichoices = ichoice_count;
@@ -852,7 +852,7 @@ neighborsDigestSelect(PeerSelector *ps)
 }
 
 void
-peerNoteDigestLookup(HttpRequest * request, CachePeer * p, lookup_t lookup)
+peerNoteDigestLookup(const HttpRequestPointer &request, CachePeer *p, lookup_t lookup)
 {
 #if USE_CACHE_DIGESTS
     if (p)
@@ -1774,7 +1774,7 @@ neighborsHtcpReply(const cache_key * key, HtcpReplyData * htcp, const Ip::Addres
  * Send HTCP CLR messages to all peers configured to receive them.
  */
 void
-neighborsHtcpClear(StoreEntry * e, const char *uri, HttpRequest * req, const HttpRequestMethod &method, htcp_clr_reason reason)
+neighborsHtcpClear(StoreEntry * e, const char *uri, const HttpRequestPointer &request, const HttpRequestMethod &method, htcp_clr_reason reason)
 {
     CachePeer *p;
     char buf[128];
@@ -1790,7 +1790,7 @@ neighborsHtcpClear(StoreEntry * e, const char *uri, HttpRequest * req, const Htt
             continue;
         }
         debugs(15, 3, "neighborsHtcpClear: sending CLR to " << p->in_addr.toUrl(buf, 128));
-        htcpClear(e, uri, req, method, p, reason);
+        htcpClear(e, uri, request.getRaw(), method, p, reason);
     }
 }
 
