@@ -270,7 +270,6 @@ clientReplyContext::triggerInitialStoreRead()
 void
 clientReplyContext::processExpired()
 {
-    const char *url = storeId();
     debugs(88, 3, "clientReplyContext::processExpired: '" << http->uri << "'");
     const time_t lastmod = http->storeEntry()->lastModified();
     assert(lastmod >= 0);
@@ -315,13 +314,15 @@ clientReplyContext::processExpired()
         }
     }
 
+    const SBuf url(storeId());
+    const SBuf logUri(http->log_uri);
+
     if (entry) {
-        entry->ensureMemObject(url, http->log_uri, http->request->method);
+        entry->ensureMemObject(url, logUri, http->request->method);
         debugs(88, 5, "collapsed on existing revalidation entry: " << *entry);
         collapsedRevalidation = crSlave;
     } else {
-        entry = storeCreateEntry(url,
-                                 http->log_uri, http->request->flags, http->request->method);
+        entry = storeCreateEntry(url, logUri, http->request->flags, http->request->method);
         /* NOTE, don't call StoreEntry->lock(), storeCreateEntry() does it */
 
         if (collapsingAllowed && mayInitiateCollapsing() &&
@@ -914,7 +915,7 @@ purgeEntriesByUrl(HttpRequest * req, const char *url)
 {
     for (HttpRequestMethod m(Http::METHOD_NONE); m != Http::METHOD_ENUM_END; ++m) {
         if (m.respMaybeCacheable()) {
-            const cache_key *key = storeKeyPublic(url, m);
+            const cache_key *key = storeKeyPublic(SBuf(url), m);
             debugs(88, 5, m << ' ' << url << ' ' << storeKeyText(key));
 #if USE_HTCP
             neighborsHtcpClear(nullptr, url, req, m, HTCP_CLR_INVALIDATION);
@@ -996,7 +997,7 @@ clientReplyContext::purgeFoundObject(StoreEntry *entry)
     http->storeEntry(entry);
 
     http->storeEntry()->lock("clientReplyContext::purgeFoundObject");
-    http->storeEntry()->ensureMemObject(storeId(), http->log_uri,
+    http->storeEntry()->ensureMemObject(SBuf(storeId()), SBuf(http->log_uri),
                                         http->request->method);
 
     sc = storeClientListAdd(http->storeEntry(), this);
@@ -1082,9 +1083,8 @@ clientReplyContext::purgeDoPurgeHead(StoreEntry *newEntry)
     /* And for Vary, release the base URI if none of the headers was included in the request */
     if (!http->request->vary_headers.isEmpty()
             && http->request->vary_headers.find('=') != SBuf::npos) {
-        // XXX: performance regression, c_str() reallocates
-        SBuf tmp(http->request->effectiveRequestUri());
-        StoreEntry *entry = storeGetPublic(tmp.c_str(), Http::METHOD_GET);
+        // XXX: use request->storeId() instead of URI? (and on HEAD lookup below)
+        StoreEntry *entry = storeGetPublic(http->request->effectiveRequestUri(), Http::METHOD_GET);
 
         if (entry) {
             debugs(88, 4, "Vary GET " << entry->url());
@@ -1095,7 +1095,7 @@ clientReplyContext::purgeDoPurgeHead(StoreEntry *newEntry)
             purgeStatus = Http::scOkay;
         }
 
-        entry = storeGetPublic(tmp.c_str(), Http::METHOD_HEAD);
+        entry = storeGetPublic(http->request->effectiveRequestUri(), Http::METHOD_HEAD);
 
         if (entry) {
             debugs(88, 4, "Vary HEAD " << entry->url());
@@ -1843,7 +1843,7 @@ clientReplyContext::doGetMoreData()
 
         http->storeEntry()->lock("clientReplyContext::doGetMoreData");
 
-        http->storeEntry()->ensureMemObject(storeId(), http->log_uri, http->request->method);
+        http->storeEntry()->ensureMemObject(SBuf(storeId()), SBuf(http->log_uri), http->request->method);
 
         sc = storeClientListAdd(http->storeEntry(), this);
 #if USE_DELAY_POOLS
@@ -2294,7 +2294,7 @@ clientReplyContext::createStoreEntry(const HttpRequestMethod& m, RequestFlags re
         HTTPMSGLOCK(http->request);
     }
 
-    StoreEntry *e = storeCreateEntry(storeId(), http->log_uri, reqFlags, m);
+    StoreEntry *e = storeCreateEntry(SBuf(storeId()), SBuf(http->log_uri), reqFlags, m);
 
     // Make entry collapsable ASAP, to increase collapsing chances for others,
     // TODO: every must-revalidate and similar request MUST reach the origin,

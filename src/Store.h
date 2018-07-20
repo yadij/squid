@@ -135,10 +135,10 @@ public:
     void createMemObject();
 
     /// initialize mem_obj with URIs/method; assert if mem_obj already exists
-    void createMemObject(const char *storeId, const char *logUri, const HttpRequestMethod &aMethod);
+    void createMemObject(const SBuf &storeId, const SBuf &logUri, const HttpRequestMethod &aMethod);
 
     /// initialize mem_obj (if needed) and set URIs/method (if missing)
-    void ensureMemObject(const char *storeId, const char *logUri, const HttpRequestMethod &aMethod);
+    void ensureMemObject(const SBuf &storeId, const SBuf &logUri, const HttpRequestMethod &aMethod);
 
     void dump(int debug_lvl) const;
     void hashDelete();
@@ -225,7 +225,7 @@ public:
     static size_t inUseCount();
     static void getPublicByRequestMethod(StoreClient * aClient, HttpRequest * request, const HttpRequestMethod& method);
     static void getPublicByRequest(StoreClient * aClient, HttpRequest * request);
-    static void getPublic(StoreClient * aClient, const char *uri, const HttpRequestMethod& method);
+    static void getPublic(StoreClient * aClient, const SBuf &uri, const HttpRequestMethod& method);
 
     void *operator new(size_t byteCount);
     void operator delete(void *address);
@@ -381,7 +381,7 @@ const char *storeEntryFlags(const StoreEntry *);
 void storeEntryReplaceObject(StoreEntry *, HttpReply *);
 
 /// \ingroup StoreAPI
-StoreEntry *storeGetPublic(const char *uri, const HttpRequestMethod& method);
+StoreEntry *storeGetPublic(const SBuf &uri, const HttpRequestMethod& method);
 
 /// \ingroup StoreAPI
 StoreEntry *storeGetPublicByRequest(HttpRequest * request, const KeyScope keyScope = ksDefault);
@@ -391,11 +391,11 @@ StoreEntry *storeGetPublicByRequestMethod(HttpRequest * request, const HttpReque
 
 /// \ingroup StoreAPI
 /// Like storeCreatePureEntry(), but also locks the entry and sets entry key.
-StoreEntry *storeCreateEntry(const char *, const char *, const RequestFlags &, const HttpRequestMethod&);
+StoreEntry *storeCreateEntry(const SBuf &storeId, const SBuf &logUrl, const RequestFlags &, const HttpRequestMethod&);
 
 /// \ingroup StoreAPI
 /// Creates a new StoreEntry with mem_obj and sets initial flags/states.
-StoreEntry *storeCreatePureEntry(const char *storeId, const char *logUrl, const HttpRequestMethod&);
+StoreEntry *storeCreatePureEntry(const SBuf &storeId, const SBuf &logUrl, const HttpRequestMethod&);
 
 /// \ingroup StoreAPI
 void storeInit(void);

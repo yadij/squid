@@ -166,13 +166,9 @@ HttpStateData::httpTimeout(const CommTimeoutCbParams &)
 static StoreEntry *
 findPreviouslyCachedEntry(StoreEntry *newEntry) {
     assert(newEntry->mem_obj);
-    if (newEntry->mem_obj->request)
-        return storeGetPublicByRequest(newEntry->mem_obj->request.getRaw());
-
-    SBuf tmp = newEntry->mem_obj->storeId();
-    // XXX: performance regression. c_str() reallocates
-    const char *id = tmp.c_str();
-    return storeGetPublic(id, newEntry->mem_obj->method);
+    return newEntry->mem_obj->request ?
+           storeGetPublicByRequest(newEntry->mem_obj->request.getRaw()) :
+           storeGetPublic(newEntry->mem_obj->storeId(), newEntry->mem_obj->method);
 }
 
 /// Remove an existing public store entry if the incoming response (to be
@@ -264,12 +260,8 @@ httpMaybeRemovePublic(StoreEntry * e, Http::StatusCode status)
      */
     if (e->mem_obj->request)
         pe = storeGetPublicByRequestMethod(e->mem_obj->request.getRaw(), Http::METHOD_HEAD);
-    else {
-        SBuf tmp = e->mem_obj->storeId();
-        // XXX: performance regression. c_str() reallocates
-        const char *id = tmp.c_str();
-        pe = storeGetPublic(id, Http::METHOD_HEAD);
-    }
+    else
+        pe = storeGetPublic(e->mem_obj->storeId(), Http::METHOD_HEAD);
 
     if (pe != NULL) {
         assert(e != pe);

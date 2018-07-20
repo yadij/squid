@@ -1283,7 +1283,7 @@ netdbExchangeStart(void *data)
     }
 
     netdbExchangeState *ex = new netdbExchangeState(p, req);
-    ex->e = storeCreateEntry(uri, uri, RequestFlags(), Http::METHOD_GET);
+    ex->e = storeCreateEntry(SBuf(uri), SBuf(), RequestFlags(), Http::METHOD_GET);
     assert(NULL != ex->e);
 
     StoreIOBuffer tempBuffer;

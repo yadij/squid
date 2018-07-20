@@ -1838,10 +1838,7 @@ ClientHttpRequest::doCallouts()
 #endif
 
     if (calloutContext->error) {
-        // XXX: prformance regression. c_str() reallocates
-        SBuf storeUriBuf(request->storeId());
-        const char *storeUri = storeUriBuf.c_str();
-        StoreEntry *e = storeCreateEntry(storeUri, storeUri, request->flags, request->method);
+        StoreEntry *e = storeCreateEntry(request->storeId(), SBuf(), request->flags, request->method);
 #if USE_OPENSSL
         if (sslBumpNeeded()) {
             // We have to serve an error, so bump the client first.

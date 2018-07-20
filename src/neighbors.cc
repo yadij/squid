@@ -1407,7 +1407,7 @@ peerCountMcastPeersStart(void *data)
     const MasterXaction::Pointer mx = new MasterXaction(XactionInitiator::initPeerMcast);
     HttpRequest *req = HttpRequest::FromUrl(url, mx);
     assert(req != nullptr);
-    StoreEntry *fake = storeCreateEntry(url, url, RequestFlags(), Http::METHOD_GET);
+    StoreEntry *fake = storeCreateEntry(req->effectiveRequestUri(), SBuf(), RequestFlags(), Http::METHOD_GET);
     const auto psstate = new PeerSelector(nullptr);
     psstate->request = req;
     HTTPMSGLOCK(psstate->request);

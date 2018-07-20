@@ -55,8 +55,8 @@ int StoreEntry::locked() const STUB_RETVAL(0)
 int StoreEntry::validToSend() const STUB_RETVAL(0)
 bool StoreEntry::memoryCachable() STUB_RETVAL(false)
 void StoreEntry::createMemObject() STUB
-void StoreEntry::createMemObject(const char *, const char *, const HttpRequestMethod &aMethod) STUB
-void StoreEntry::ensureMemObject(const char *, const char *, const HttpRequestMethod &) STUB
+void StoreEntry::createMemObject(const SBuf &, const SBuf &, const HttpRequestMethod &aMethod) STUB
+void StoreEntry::ensureMemObject(const SBuf &, const SBuf &, const HttpRequestMethod &) STUB
 void StoreEntry::dump(int debug_lvl) const STUB
 void StoreEntry::hashDelete() STUB
 void StoreEntry::hashInsert(const cache_key *) STUB
@@ -76,7 +76,7 @@ Store::Disk &StoreEntry::disk() const STUB_RETREF(Store::Disk)
 size_t StoreEntry::inUseCount() STUB_RETVAL(0)
 void StoreEntry::getPublicByRequestMethod(StoreClient * aClient, HttpRequest * request, const HttpRequestMethod& method) STUB
 void StoreEntry::getPublicByRequest(StoreClient * aClient, HttpRequest * request) STUB
-void StoreEntry::getPublic(StoreClient * aClient, const char *uri, const HttpRequestMethod& method) STUB
+void StoreEntry::getPublic(StoreClient *, const SBuf &, const HttpRequestMethod &) STUB
 void *StoreEntry::operator new(size_t byteCount)
 {
     STUB
@@ -118,11 +118,11 @@ std::ostream &operator <<(std::ostream &os, const StoreEntry &)
 
 size_t storeEntryInUse() STUB_RETVAL(0)
 void storeEntryReplaceObject(StoreEntry *, HttpReply *) STUB
-StoreEntry *storeGetPublic(const char *uri, const HttpRequestMethod& method) STUB_RETVAL(NULL)
+StoreEntry *storeGetPublic(const SBuf &, const HttpRequestMethod &) STUB_RETVAL(nullptr)
 StoreEntry *storeGetPublicByRequest(HttpRequest * request, const KeyScope scope) STUB_RETVAL(NULL)
 StoreEntry *storeGetPublicByRequestMethod(HttpRequest * request, const HttpRequestMethod& method, const KeyScope scope) STUB_RETVAL(NULL)
-StoreEntry *storeCreateEntry(const char *, const char *, const RequestFlags &, const HttpRequestMethod&) STUB_RETVAL(NULL)
-StoreEntry *storeCreatePureEntry(const char *storeId, const char *logUrl, const HttpRequestMethod&) STUB_RETVAL(nullptr)
+StoreEntry *storeCreateEntry(const SBuf &, const SBuf &, const RequestFlags &, const HttpRequestMethod &) STUB_RETVAL(nullptr)
+StoreEntry *storeCreatePureEntry(const SBuf &, const SBuf &, const HttpRequestMethod &) STUB_RETVAL(nullptr)
 void storeConfigure(void) STUB
 int expiresMoreThan(time_t, time_t) STUB_RETVAL(0)
 void storeAppendPrintf(StoreEntry *, const char *,...) STUB

@@ -356,7 +356,7 @@ MimeIcon::load()
     if (type == NULL)
         fatal("Unknown icon format while reading mime.conf\n");
 
-    StoreEntry::getPublic(this, url_, Http::METHOD_GET);
+    StoreEntry::getPublic(this, SBuf(url_), Http::METHOD_GET);
 }
 
 void
@@ -395,7 +395,7 @@ MimeIcon::created(StoreEntry *newEntry)
         status = Http::scNoContent;
     }
 
-    StoreEntry *e = storeCreatePureEntry(url_, url_, Http::METHOD_GET);
+    StoreEntry *e = storeCreatePureEntry(SBuf(url_), SBuf(), Http::METHOD_GET);
     e->lock("MimeIcon::created");
     EBIT_SET(e->flags, ENTRY_SPECIAL);
     const auto madePublic = e->setPublicKey();

@@ -54,7 +54,7 @@ doV3Query(int fd, Ip::Address &from, char *buf, icp_common_t header)
     state->from = from;
     state->url = xstrdup(url);
 
-    StoreEntry::getPublic (state, url, Http::METHOD_GET);
+    StoreEntry::getPublic(state, SBuf(url), Http::METHOD_GET);
 }
 
 ICP3State::~ICP3State()

@@ -19,6 +19,7 @@
 #include "mgr/Command.h"
 #include "mgr/Request.h"
 #include "mgr/Response.h"
+#include "sbuf/StringConvert.h"
 #include "SquidTime.h"
 #include "Store.h"
 
@@ -55,8 +56,7 @@ StoreEntry*
 Mgr::Action::createStoreEntry() const
 {
     const ActionParams &params = command().params;
-    const char *uri = params.httpUri.termedBuf();
-    return storeCreateEntry(uri, uri, params.httpFlags, params.httpMethod);
+    return storeCreateEntry(StringToSBuf(params.httpUri), SBuf(), params.httpFlags, params.httpMethod);
 }
 
 void

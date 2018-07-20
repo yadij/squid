@@ -26,11 +26,14 @@ addSwapDir(TestSwapDirPointer aStore)
     ++Config.cacheSwap.n_configured;
 }
 
+static const SBuf dummy_storeId("dummy_storeId");
+static const SBuf nil;
+
 void
 testStoreHashIndex::testStats()
 {
     StoreEntry *logEntry = new StoreEntry;
-    logEntry->createMemObject("dummy_storeId", NULL, HttpRequestMethod());
+    logEntry->createMemObject(dummy_storeId, nil, HttpRequestMethod());
     logEntry->store_status = STORE_PENDING;
     Store::Init();
     TestSwapDirPointer aStore (new TestSwapDir);
@@ -50,7 +53,7 @@ void
 testStoreHashIndex::testMaxSize()
 {
     StoreEntry *logEntry = new StoreEntry;
-    logEntry->createMemObject("dummy_storeId", NULL, HttpRequestMethod());
+    logEntry->createMemObject(dummy_storeId, nil, HttpRequestMethod());
     logEntry->store_status = STORE_PENDING;
     Store::Init();
     TestSwapDirPointer aStore (new TestSwapDir);

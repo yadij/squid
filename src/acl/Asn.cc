@@ -245,10 +245,12 @@ asnCacheStart(int as)
     // XXX: performance regression, c_str() reallocates
     const auto asres = xstrdup(whoisUrl.absolute().c_str());
 
+    SBuf asresBuf(asres);
+
     // XXX: Missing a hittingRequiresCollapsing() && startCollapsingOn() check.
-    auto e = storeGetPublic(asres, Http::METHOD_GET);
+    auto e = storeGetPublic(asresBuf, Http::METHOD_GET);
     if (!e) {
-        e = storeCreateEntry(asres, asres, RequestFlags(), Http::METHOD_GET);
+        e = storeCreateEntry(asresBuf, SBuf(), RequestFlags(), Http::METHOD_GET);
         asState->sc = storeClientListAdd(e, asState);
         FwdState::fwdStart(Comm::ConnectionPointer(), e, asState->request.getRaw());
     } else {

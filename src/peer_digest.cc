@@ -364,12 +364,14 @@ peerDigestRequest(PeerDigest * pd)
         debugs(72, 5, "found old " << *old_e);
 
         old_e->lock("peerDigestRequest");
-        old_e->ensureMemObject(url, url, req->method);
+        // TODO: use req->storeId() instead of url?
+        old_e->ensureMemObject(SBuf(url), SBuf(url), req->method);
 
         fetch->old_sc = storeClientListAdd(old_e, fetch);
     }
 
-    e = fetch->entry = storeCreateEntry(url, url, req->flags, req->method);
+    // TODO: use req->storeId() instead of url?
+    e = fetch->entry = storeCreateEntry(SBuf(url), SBuf(), req->flags, req->method);
     debugs(72, 5, "created " << *e);
     assert(EBIT_TEST(e->flags, KEY_PRIVATE));
     fetch->sc = storeClientListAdd(e, fetch);

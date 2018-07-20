@@ -186,7 +186,7 @@ UrnState::start(HttpRequest * r, StoreEntry * e)
     if (urlres_r == NULL)
         return;
 
-    StoreEntry::getPublic (this, urlres, Http::METHOD_GET);
+    StoreEntry::getPublic(this, SBuf(urlres), Http::METHOD_GET);
 }
 
 void
@@ -200,7 +200,7 @@ void
 UrnState::created(StoreEntry *e)
 {
     if (!e || (e->hittingRequiresCollapsing() && !startCollapsingOn(*e, false))) {
-        urlres_e = storeCreateEntry(urlres, urlres, RequestFlags(), Http::METHOD_GET);
+        urlres_e = storeCreateEntry(SBuf(urlres), SBuf(), RequestFlags(), Http::METHOD_GET);
         sc = storeClientListAdd(urlres_e, this);
         FwdState::Start(Comm::ConnectionPointer(), urlres_e, urlres_r.getRaw(), ale);
         // TODO: StoreClients must either store/lock or abandon found entries.
@@ -455,7 +455,7 @@ urnParseReply(const char *inbuf, const HttpRequestMethod& m)
         list[i].host = xstrdup(host);
         // TODO: Use storeHas() or lock/unlock entry to avoid creating unlocked
         // ones.
-        list[i].flags.cached = storeGetPublic(list[i].url, m) ? 1 : 0;
+        list[i].flags.cached = storeGetPublic(SBuf(list[i].url), m) ? 1 : 0;
         ++i;
     }
 

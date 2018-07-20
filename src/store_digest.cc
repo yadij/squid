@@ -419,7 +419,7 @@ storeDigestRewriteStart(void *datanotused)
     RequestFlags flags;
     flags.cachable = true;
 
-    StoreEntry *e = storeCreateEntry(url, url, flags, Http::METHOD_GET);
+    StoreEntry *e = storeCreateEntry(SBuf(url), SBuf(), flags, Http::METHOD_GET);
     assert(e);
     sd_state.rewrite_lock = e;
     debugs(71, 3, "storeDigestRewrite: url: " << url << " key: " << e->getMD5Text());

@@ -173,12 +173,12 @@ testRock::storeInit()
     CPPUNIT_ASSERT_EQUAL(0, StoreController::store_dirs_rebuilding);
 }
 
-static const char *
+static SBuf &
 storeId(const int i)
 {
-    static char buf[64];
-    snprintf(buf, sizeof(buf), "dummy url %i", i);
-    buf[sizeof(buf) - 1] = '\0';
+    static SBuf buf;
+    buf.clear();
+    buf.appendf("dummy url %i", i);
     return buf;
 }
 
@@ -187,8 +187,8 @@ testRock::createEntry(const int i)
 {
     RequestFlags flags;
     flags.cachable = true;
-    StoreEntry *const pe =
-        storeCreateEntry(storeId(i), "dummy log url", flags, Http::METHOD_GET);
+    static const SBuf dummyLogUri("dummy log url");
+    StoreEntry *const pe = storeCreateEntry(storeId(i), dummyLogUri, flags, Http::METHOD_GET);
     HttpReply *const rep = const_cast<HttpReply *>(pe->getReply());
     rep->setHeaders(Http::scOkay, "dummy test object", "x-squid-internal/test", 0, -1, squid_curtime + 100000);
 

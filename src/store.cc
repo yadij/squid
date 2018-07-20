@@ -506,14 +506,14 @@ StoreEntry::getPublicByRequest (StoreClient *aClient, HttpRequest * request)
 }
 
 void
-StoreEntry::getPublic (StoreClient *aClient, const char *uri, const HttpRequestMethod& method)
+StoreEntry::getPublic(StoreClient *aClient, const SBuf &uri, const HttpRequestMethod& method)
 {
     assert (aClient);
     aClient->created(storeGetPublic(uri, method));
 }
 
 StoreEntry *
-storeGetPublic(const char *uri, const HttpRequestMethod& method)
+storeGetPublic(const SBuf &uri, const HttpRequestMethod& method)
 {
     return Store::Root().find(storeKeyPublic(uri, method));
 }
@@ -670,13 +670,8 @@ const cache_key *
 StoreEntry::calcPublicKey(const KeyScope keyScope)
 {
     assert(mem_obj);
-    if (mem_obj->request)
-        return storeKeyPublicByRequest(mem_obj->request.getRaw(), keyScope);
-
-    // XXX: performance regression. c_str() reallocates
-    SBuf tmp = mem_obj->storeId();
-    const char *id = tmp.c_str();
-    return storeKeyPublic(id, mem_obj->method, keyScope);
+    return mem_obj->request ? storeKeyPublicByRequest(mem_obj->request.getRaw(), keyScope) :
+           storeKeyPublic(mem_obj->storeId(), mem_obj->method, keyScope);
 }
 
 /// Updates mem_obj->request->vary_headers to reflect the current Vary.
@@ -694,10 +689,6 @@ StoreEntry::adjustVary()
 
     HttpRequestPointer request(mem_obj->request);
 
-    // XXX: performance regression. c_str() reallocates
-    SBuf tmp = mem_obj->storeId();
-    const char *storeId = tmp.c_str();
-
     if (mem_obj->vary_headers.isEmpty()) {
         /* First handle the case where the object no longer varies */
         request->vary_headers.clear();
@@ -707,7 +698,7 @@ StoreEntry::adjustVary()
              * to record the new variance key
              */
             request->vary_headers.clear();       /* free old "bad" variance key */
-            if (StoreEntry *pe = storeGetPublic(storeId, mem_obj->method))
+            if (StoreEntry *pe = storeGetPublic(mem_obj->storeId(), mem_obj->method))
                 pe->release(true);
         }
 
@@ -718,12 +709,9 @@ StoreEntry::adjustVary()
 
     // TODO: storeGetPublic() calls below may create unlocked entries.
     // We should add/use storeHas() API or lock/unlock those entries.
-    if (!mem_obj->vary_headers.isEmpty() && !storeGetPublic(storeId, mem_obj->method)) {
+    if (!mem_obj->vary_headers.isEmpty() && !storeGetPublic(mem_obj->storeId(), mem_obj->method)) {
         /* Create "vary" base object */
-        // XXX: performance regression. c_str() reallocates
-        SBuf tmpUrl = mem_obj->logUri();
-        const char *logUrl = tmp.c_str();
-        StoreEntry *pe = storeCreateEntry(storeId, logUrl, request->flags, request->method);
+        StoreEntry *pe = storeCreateEntry(mem_obj->storeId(), mem_obj->logUri(), request->flags, request->method);
         // XXX: storeCreateEntry() already tries to make `pe` public under
         // certain conditions. If those conditions do not apply to Vary markers,
         // then refactor to call storeCreatePureEntry() above.  Otherwise,
@@ -767,13 +755,13 @@ StoreEntry::adjustVary()
 }
 
 StoreEntry *
-storeCreatePureEntry(const char *url, const char *log_url, const HttpRequestMethod& method)
+storeCreatePureEntry(const SBuf &storeId, const SBuf &log_url, const HttpRequestMethod &method)
 {
     StoreEntry *e = NULL;
-    debugs(20, 3, "storeCreateEntry: '" << url << "'");
+    debugs(20, 3, storeId);
 
     e = new StoreEntry();
-    e->createMemObject(url, log_url, method);
+    e->createMemObject(storeId, log_url, method);
 
     e->store_status = STORE_PENDING;
     e->refcount = 0;
@@ -785,7 +773,7 @@ storeCreatePureEntry(const char *url, const char *log_url, const HttpRequestMeth
 }
 
 StoreEntry *
-storeCreateEntry(const char *url, const char *logUrl, const RequestFlags &flags, const HttpRequestMethod& method)
+storeCreateEntry(const SBuf &url, const SBuf &logUrl, const RequestFlags &flags, const HttpRequestMethod &method)
 {
     StoreEntry *e = storeCreatePureEntry(url, logUrl, method);
     e->lock("storeCreateEntry");
@@ -1627,18 +1615,18 @@ StoreEntry::createMemObject()
 }
 
 void
-StoreEntry::createMemObject(const char *aUrl, const char *aLogUrl, const HttpRequestMethod &aMethod)
+StoreEntry::createMemObject(const SBuf &aUrl, const SBuf &aLogUrl, const HttpRequestMethod &aMethod)
 {
     assert(!mem_obj);
     ensureMemObject(aUrl, aLogUrl, aMethod);
 }
 
 void
-StoreEntry::ensureMemObject(const char *aUrl, const char *aLogUrl, const HttpRequestMethod &aMethod)
+StoreEntry::ensureMemObject(const SBuf &aUrl, const SBuf &aLogUrl, const HttpRequestMethod &aMethod)
 {
     if (!mem_obj)
         mem_obj = new MemObject();
-    mem_obj->setUris(SBuf(aUrl), SBuf(aLogUrl), aMethod);
+    mem_obj->setUris(aUrl, aLogUrl, aMethod);
 }
 
 /** disable sending content to the clients.
