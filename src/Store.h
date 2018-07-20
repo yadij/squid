@@ -120,7 +120,7 @@ public:
     /// whether the entire entry is now on disk (possibly marked for deletion)
     bool swappedOut() const { return swap_status == SWAPOUT_DONE; }
     void swapOutFileClose(int how);
-    const char *url() const;
+    const SBuf &url() const;
     /// Satisfies cachability requirements shared among disk and RAM caches.
     /// Encapsulates common checks of mayStartSwapOut() and memoryCachable().
     /// TODO: Rename and make private so only those two methods can call this.

@@ -306,10 +306,13 @@ CacheManager::Start(const Comm::ConnectionPointer &client, HttpRequest * request
 {
     debugs(16, 3, "CacheManager::Start: '" << entry->url() << "'" );
 
-    Mgr::Command::Pointer cmd = ParseUrl(entry->url());
+    // XXX: performance regression. c_str() reallocates
+    SBuf tmp = entry->url();
+    const char *uri = tmp.c_str();
+    Mgr::Command::Pointer cmd = ParseUrl(uri);
     if (!cmd) {
         ErrorState *err = new ErrorState(ERR_INVALID_URL, Http::scNotFound, request);
-        err->url = xstrdup(entry->url());
+        err->url = xstrdup(uri);
         errorAppendEntry(entry, err);
         entry->expires = squid_curtime;
         return;
@@ -386,7 +389,7 @@ CacheManager::Start(const Comm::ConnectionPointer &client, HttpRequest * request
     // special case: /squid-internal-mgr/ index page
     if (!strcmp(cmd->profile->name, "index")) {
         ErrorState err(MGR_INDEX, Http::scOkay, request);
-        err.url = xstrdup(entry->url());
+        err.url = xstrdup(uri);
         HttpReply *rep = err.BuildHttpReply();
         if (strncmp(rep->body.content(),"Internal Error:", 15) == 0)
             rep->sline.set(Http::ProtocolVersion(1,1), Http::scNotFound);

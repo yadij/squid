@@ -387,7 +387,10 @@ gopherToHTML(GopherStateData * gopherState, char *inbuf, int len)
     entry = gopherState->entry;
 
     if (gopherState->conversion == GopherStateData::HTML_INDEX_PAGE) {
-        char *html_url = html_quote(entry->url());
+        // XXX: performance regression. c_str() reallocates
+        SBuf tmp = entry->url();
+        const char *urlStr = tmp.c_str();
+        char *html_url = html_quote(urlStr);
         gopherHTMLHeader(entry, "Gopher Index %s", html_url);
         storeAppendPrintf(entry,
                           "<p>This is a searchable Gopher index. Use the search\n"
@@ -402,7 +405,10 @@ gopherToHTML(GopherStateData * gopherState, char *inbuf, int len)
     }
 
     if (gopherState->conversion == GopherStateData::HTML_CSO_PAGE) {
-        char *html_url = html_quote(entry->url());
+        // XXX: performance regression. c_str() reallocates
+        SBuf tmp = entry->url();
+        const char *urlStr = tmp.c_str();
+        char *html_url = html_quote(urlStr);
         gopherHTMLHeader(entry, "CSO Search of %s", html_url);
         storeAppendPrintf(entry,
                           "<P>A CSO database usually contains a phonebook or\n"
@@ -842,7 +848,9 @@ gopherSendComplete(const Comm::ConnectionPointer &conn, char *, size_t size, Com
         err = new ErrorState(ERR_WRITE_ERROR, Http::scServiceUnavailable, gopherState->fwd->request);
         err->xerrno = xerrno;
         err->port = gopherState->fwd->request->url.port();
-        err->url = xstrdup(entry->url());
+        SBuf tmp = entry->url();
+        // XXX: performance regression. c_str() reallocates
+        err->url = xstrdup(tmp.c_str());
         gopherState->fwd->fail(err);
         gopherState->serverConn->close();
         return;

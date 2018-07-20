@@ -166,9 +166,13 @@ HttpStateData::httpTimeout(const CommTimeoutCbParams &)
 static StoreEntry *
 findPreviouslyCachedEntry(StoreEntry *newEntry) {
     assert(newEntry->mem_obj);
-    return newEntry->mem_obj->request ?
-           storeGetPublicByRequest(newEntry->mem_obj->request.getRaw()) :
-           storeGetPublic(newEntry->mem_obj->storeId(), newEntry->mem_obj->method);
+    if (newEntry->mem_obj->request)
+        return storeGetPublicByRequest(newEntry->mem_obj->request.getRaw());
+
+    SBuf tmp = newEntry->mem_obj->storeId();
+    // XXX: performance regression. c_str() reallocates
+    const char *id = tmp.c_str();
+    return storeGetPublic(id, newEntry->mem_obj->method);
 }
 
 /// Remove an existing public store entry if the incoming response (to be
@@ -260,8 +264,12 @@ httpMaybeRemovePublic(StoreEntry * e, Http::StatusCode status)
      */
     if (e->mem_obj->request)
         pe = storeGetPublicByRequestMethod(e->mem_obj->request.getRaw(), Http::METHOD_HEAD);
-    else
-        pe = storeGetPublic(e->mem_obj->storeId(), Http::METHOD_HEAD);
+    else {
+        SBuf tmp = e->mem_obj->storeId();
+        // XXX: performance regression. c_str() reallocates
+        const char *id = tmp.c_str();
+        pe = storeGetPublic(id, Http::METHOD_HEAD);
+    }
 
     if (pe != NULL) {
         assert(e != pe);
@@ -325,8 +333,11 @@ HttpStateData::reusableReply(HttpStateData::ReuseDecision &decision)
      * of this is to simplify the refresh pattern lookup and USE_HTTP_VIOLATIONS
      * condition
      */
+    SBuf storeIdTmp = entry->mem_obj->storeId();
+    // XXX: performance regression. c_str() reallocates
+    const char *storeId = storeIdTmp.c_str();
 #define REFRESH_OVERRIDE(flag) \
-    ((R = (R ? R : refreshLimits(entry->mem_obj->storeId()))) , \
+    ((R = (R ? R : refreshLimits(storeId))) , \
     (R && R->flags.flag))
 #else
 #define REFRESH_OVERRIDE(flag) 0
@@ -663,7 +674,9 @@ HttpStateData::processReplyHeader()
     /** Creates a blank header. If this routine is made incremental, this will not do */
 
     /* NP: all exit points to this function MUST call ctx_exit(ctx) */
-    Ctx ctx = ctx_enter(entry->mem_obj->urlXXX());
+    SBuf tmp = entry->mem_obj->urlXXX();
+    const char *tmpUrl = tmp.c_str();
+    Ctx ctx = ctx_enter(tmpUrl);
 
     debugs(11, 3, "processReplyHeader: key '" << entry->getMD5Text() << "'");
 
@@ -897,7 +910,10 @@ HttpStateData::haveParsedReplyHeaders()
 {
     Client::haveParsedReplyHeaders();
 
-    Ctx ctx = ctx_enter(entry->mem_obj->urlXXX());
+    // XXX: performance regression. c_str() reallocates
+    SBuf tmp = entry->mem_obj->urlXXX();
+    const char *tmpUrl = tmp.c_str();
+    Ctx ctx = ctx_enter(tmpUrl);
     HttpReply *rep = finalReply();
     const Http::StatusCode statusCode = rep->sline.status();
 
@@ -1896,9 +1912,9 @@ HttpStateData::httpBuildRequestHeader(HttpRequest * request,
 
         /* Add max-age only without no-cache */
         if (!cc->hasMaxAge() && !cc->hasNoCache()) {
+            SBuf tmp(entry ? entry->url() : request->effectiveRequestUri());
             // XXX: performance regression. c_str() reallocates
-            SBuf tmp(request->effectiveRequestUri());
-            cc->maxAge(getMaxAge(entry ? entry->url() : tmp.c_str()));
+            cc->maxAge(getMaxAge(tmp.c_str()));
         }
 
         /* Enforce sibling relations */

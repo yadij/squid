@@ -318,10 +318,13 @@ urnHandleReply(void *data, StoreIOBuffer result)
     rep->parseCharBuf(buf, k);
     debugs(52, 3, "reply exists, code=" << rep->sline.status() << ".");
 
+    SBuf entryUrl(e->url());
+
     if (rep->sline.status() != Http::scOkay) {
         debugs(52, 3, "urnHandleReply: failed.");
         err = new ErrorState(ERR_URN_RESOLVE, Http::scNotFound, urnState->request.getRaw());
-        err->url = xstrdup(e->url());
+        // XXX: performance regression. c_str() reallocates
+        err->url = xstrdup(entryUrl.c_str());
         errorAppendEntry(e, err);
         delete rep;
         urnHandleReplyError(urnState, urlres_e);
@@ -338,7 +341,8 @@ urnHandleReply(void *data, StoreIOBuffer result)
     if (!urls) {     /* unknown URN error */
         debugs(52, 3, "urnTranslateDone: unknown URN " << e->url());
         err = new ErrorState(ERR_URN_RESOLVE, Http::scNotFound, urnState->request.getRaw());
-        err->url = xstrdup(e->url());
+        // XXX: performance regression. c_str() reallocates
+        err->url = xstrdup(entryUrl.c_str());
         errorAppendEntry(e, err);
         urnHandleReplyError(urnState, urlres_e);
         return;
@@ -354,10 +358,10 @@ urnHandleReply(void *data, StoreIOBuffer result)
     e->buffer();
     mb = new MemBuf;
     mb->init();
-    mb->appendf( "<TITLE>Select URL for %s</TITLE>\n"
+    mb->appendf( "<TITLE>Select URL for " SQUIDSBUFPH "</TITLE>\n"
                  "<STYLE type=\"text/css\"><!--BODY{background-color:#ffffff;font-family:verdana,sans-serif}--></STYLE>\n"
-                 "<H2>Select URL for %s</H2>\n"
-                 "<TABLE BORDER=\"0\" WIDTH=\"100%%\">\n", e->url(), e->url());
+                 "<H2>Select URL for " SQUIDSBUFPH "</H2>\n"
+                 "<TABLE BORDER=\"0\" WIDTH=\"100%%\">\n", SQUIDSBUFPRINT(entryUrl), SQUIDSBUFPRINT(entryUrl));
 
     for (i = 0; i < urlcnt; ++i) {
         u = &urls[i];

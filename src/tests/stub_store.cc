@@ -47,7 +47,8 @@ void StoreEntry::negativeCache() STUB
 bool StoreEntry::cacheNegatively() STUB
 void StoreEntry::swapOut() STUB
 void StoreEntry::swapOutFileClose(int how) STUB
-const char *StoreEntry::url() const STUB_RETVAL(NULL)
+static SBuf nilUrl;
+const SBuf &StoreEntry::url() const STUB_RETVAL(nilUrl)
 bool StoreEntry::checkCachable() STUB_RETVAL(false)
 int StoreEntry::checkNegativeHit() const STUB_RETVAL(0)
 int StoreEntry::locked() const STUB_RETVAL(0)

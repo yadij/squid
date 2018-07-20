@@ -974,7 +974,10 @@ FwdState::dispatch()
      */
     assert(Comm::IsConnOpen(serverConn));
 
-    fd_note(serverConnection()->fd, entry->url());
+    // XXX: performance regression. c_str() reallocates
+    SBuf tmp = entry->url();
+    const char *msgText = tmp.c_str();
+    fd_note(serverConnection()->fd, msgText);
 
     fd_table[serverConnection()->fd].noteUse();
 

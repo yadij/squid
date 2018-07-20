@@ -34,9 +34,9 @@ MemObject::MemObject() {
     memset(&start_ping, 0, sizeof(start_ping));
 } // NOP instead of elided due to Store
 
-const char *MemObject::storeId() const STUB_RETVAL(NULL)
-const char *MemObject::logUri() const STUB_RETVAL(NULL)
-void MemObject::setUris(char const *aStoreId, char const *aLogUri, const HttpRequestMethod &aMethod) STUB
+const SBuf &MemObject::storeId() const STUB_RETVAL(storeId_)
+const SBuf &MemObject::logUri() const STUB_RETVAL(logUri_)
+void MemObject::setUris(const SBuf &, const SBuf &, const HttpRequestMethod &) STUB
 void MemObject::reset() STUB
 void MemObject::delayRead(DeferredRead const &aRead) STUB
 bool MemObject::readAheadPolicyCanRead() const STUB_RETVAL(false)

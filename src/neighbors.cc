@@ -593,7 +593,6 @@ neighborsUdpPing(HttpRequest * request,
                  int *exprep,
                  int *timeout)
 {
-    const char *url = entry->url();
     MemObject *mem = entry->mem_obj;
     CachePeer *p = NULL;
     int i;
@@ -618,6 +617,9 @@ neighborsUdpPing(HttpRequest * request,
 
     reqnum = icpSetCacheKey((const cache_key *)entry->key);
 
+    // XXX: performance regression. c_str() reallocates
+    SBuf tmpUrl = entry->url();
+    const char *url = tmpUrl.c_str();
     for (i = 0, p = first_ping; i++ < Config.npeers; p = p->next) {
         if (p == NULL)
             p = Config.peers;

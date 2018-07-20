@@ -1495,7 +1495,9 @@ htcpQuery(StoreEntry * e, HttpRequest * req, CachePeer * p)
     htcpStuff stuff(++msg_id_counter, HTCP_TST, RR_REQUEST, 1);
     SBuf sb = req->method.image();
     stuff.S.method = sb.c_str();
-    stuff.S.uri = (char *) e->url();
+    // XXX: performance regression. c_str() may reallocate
+    SBuf tmpUri = e->url();
+    stuff.S.uri = const_cast<char *>(tmpUri.c_str());
     stuff.S.version = vbuf;
     HttpStateData::httpBuildRequestHeader(req, e, NULL, &hdr, flags);
     MemBuf mb;
@@ -1553,7 +1555,10 @@ htcpClear(StoreEntry * e, const char *uri, HttpRequest * req, const HttpRequestM
         }
         stuff.S.uri = xstrdup(uri);
     } else {
-        stuff.S.uri = (char *) e->url();
+        SBuf tmp = e->url();
+        // XXX: performance regression. c_str() reallocates
+        // XXX: performance regression. xstrdup() reallocates
+        stuff.S.uri = xstrdup(tmp.c_str());
     }
     stuff.S.version = vbuf;
     if (reason != HTCP_CLR_INVALIDATION) {
@@ -1569,9 +1574,7 @@ htcpClear(StoreEntry * e, const char *uri, HttpRequest * req, const HttpRequestM
     if (reason != HTCP_CLR_INVALIDATION) {
         mb.clean();
     }
-    if (e == NULL) {
-        xfree(stuff.S.uri);
-    }
+    xfree(stuff.S.uri);
     if (!pktlen) {
         debugs(31, 3, "htcpClear: htcpBuildPacket() failed");
         return;

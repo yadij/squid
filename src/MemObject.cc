@@ -24,17 +24,15 @@
 #include "DelayPools.h"
 #endif
 
-/* TODO: make this global or private */
 #if URL_CHECKSUM_DEBUG
-static unsigned int url_checksum(const char *url);
-unsigned int
-url_checksum(const char *url)
+static unsigned int
+url_checksum(const SBuf &url)
 {
     unsigned int ck;
     SquidMD5_CTX M;
     static unsigned char digest[16];
     SquidMD5Init(&M);
-    SquidMD5Update(&M, (unsigned char *) url, strlen(url));
+    SquidMD5Update(&M, url.rawContent(), url.length());
     SquidMD5Final(digest, &M);
     memcpy(&ck, digest, sizeof(ck));
     return ck;
@@ -50,31 +48,33 @@ MemObject::inUseCount()
     return Pool().inUseCount();
 }
 
-const char *
+const SBuf &
 MemObject::storeId() const
 {
-    if (!storeId_.size()) {
+    if (storeId_.isEmpty()) {
         debugs(20, DBG_IMPORTANT, "Bug: Missing MemObject::storeId value");
         dump();
-        storeId_ = "[unknown_URI]";
+        static SBuf unknown("[unknown_URI]");
+        storeId_ = unknown;
     }
-    return storeId_.termedBuf();
+
+    return storeId_;
 }
 
-const char *
+const SBuf &
 MemObject::logUri() const
 {
-    return logUri_.size() ? logUri_.termedBuf() : storeId();
+    return logUri_.isEmpty() ? storeId() : logUri_;
 }
 
 bool
 MemObject::hasUris() const
 {
-    return storeId_.size();
+    return !storeId_.isEmpty();
 }
 
 void
-MemObject::setUris(char const *aStoreId, char const *aLogUri, const HttpRequestMethod &aMethod)
+MemObject::setUris(const SBuf &aStoreId, const SBuf &aLogUri, const HttpRequestMethod &aMethod)
 {
     if (hasUris())
         return;
@@ -83,8 +83,8 @@ MemObject::setUris(char const *aStoreId, char const *aLogUri, const HttpRequestM
     debugs(88, 3, this << " storeId: " << storeId_);
 
     // fast pointer comparison for a common storeCreateEntry(url,url,...) case
-    if (!aLogUri || aLogUri == aStoreId)
-        logUri_.clean(); // use storeId_ by default to minimize copying
+    if (aLogUri.isEmpty() || aLogUri == aStoreId)
+        logUri_.clear(); // use storeId_ by default to minimize copying
     else
         logUri_ = aLogUri;
 
@@ -106,7 +106,11 @@ MemObject::MemObject()
 MemObject::~MemObject()
 {
     debugs(20, 3, "MemObject destructed, this=" << this);
-    const Ctx ctx = ctx_enter(hasUris() ? urlXXX() : "[unknown_ctx]");
+    static SBuf unknownCtx("[unknown_ctx]");
+    SBuf tmp = hasUris() ? urlXXX() : unknownCtx;
+    // XXX: performance regression. c_str() reallocates
+    const char *tmpUrl = tmp.c_str();
+    const Ctx ctx = ctx_enter(tmpUrl);
 
 #if URL_CHECKSUM_DEBUG
     checkUrlChecksum();
@@ -192,7 +196,7 @@ struct StoreClientStats : public unary_function<store_client, void> {
 void
 MemObject::stat(MemBuf * mb) const
 {
-    mb->appendf("\t" SQUIDSBUFPH " %s\n", SQUIDSBUFPRINT(method.image()), logUri());
+    mb->appendf("\t" SQUIDSBUFPH " " SQUIDSBUFPH "\n", SQUIDSBUFPRINT(method.image()), SQUIDSBUFPRINT(logUri()));
     if (!vary_headers.isEmpty())
         mb->appendf("\tvary_headers: " SQUIDSBUFPH "\n", SQUIDSBUFPRINT(vary_headers));
     mb->appendf("\tinmem_lo: %" PRId64 "\n", inmem_lo);

@@ -47,7 +47,7 @@ public:
     /// the trio because the entry filling code may expect them to be constant.
     /// XXX: Avoid this method. We plan to remove it and make the trio constant
     /// after addressing the XXX in MemStore::get().
-    void setUris(char const *aStoreId, char const *aLogUri, const HttpRequestMethod &aMethod);
+    void setUris(const SBuf &aStoreId, const SBuf &aLogUri, const HttpRequestMethod &aMethod);
 
     /// whether setUris() has been called
     bool hasUris() const;
@@ -90,14 +90,14 @@ public:
     /// Before StoreID, code assumed that MemObject stores Request URI.
     /// After StoreID, some old code still incorrectly assumes that.
     /// Use this method to mark that incorrect assumption.
-    const char *urlXXX() const { return storeId(); }
+    const SBuf &urlXXX() const { return storeId(); }
 
     /// Entry StoreID (usually just Request URI); if a buggy code requests this
     /// before the information is available, returns an "[unknown_URI]" string.
-    const char *storeId() const;
+    const SBuf &storeId() const;
 
     /// client request URI used for logging; storeId() by default
-    const char *logUri() const;
+    const SBuf &logUri() const;
 
     HttpRequestMethod method;
     mem_hdr data_hdr;
@@ -179,8 +179,8 @@ public:
 private:
     HttpReplyPointer reply_;
 
-    mutable String storeId_; ///< StoreId for our entry (usually request URI)
-    mutable String logUri_;  ///< URI used for logging (usually request URI)
+    mutable SBuf storeId_; ///< StoreId for our entry (usually request URI)
+    mutable SBuf logUri_;  ///< URI used for logging (usually request URI)
 
     DeferredReadManager deferredReads;
 };

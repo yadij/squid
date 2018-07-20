@@ -670,8 +670,13 @@ const cache_key *
 StoreEntry::calcPublicKey(const KeyScope keyScope)
 {
     assert(mem_obj);
-    return mem_obj->request ? storeKeyPublicByRequest(mem_obj->request.getRaw(), keyScope) :
-           storeKeyPublic(mem_obj->storeId(), mem_obj->method, keyScope);
+    if (mem_obj->request)
+        return storeKeyPublicByRequest(mem_obj->request.getRaw(), keyScope);
+
+    // XXX: performance regression. c_str() reallocates
+    SBuf tmp = mem_obj->storeId();
+    const char *id = tmp.c_str();
+    return storeKeyPublic(id, mem_obj->method, keyScope);
 }
 
 /// Updates mem_obj->request->vary_headers to reflect the current Vary.
@@ -689,6 +694,10 @@ StoreEntry::adjustVary()
 
     HttpRequestPointer request(mem_obj->request);
 
+    // XXX: performance regression. c_str() reallocates
+    SBuf tmp = mem_obj->storeId();
+    const char *storeId = tmp.c_str();
+
     if (mem_obj->vary_headers.isEmpty()) {
         /* First handle the case where the object no longer varies */
         request->vary_headers.clear();
@@ -698,7 +707,7 @@ StoreEntry::adjustVary()
              * to record the new variance key
              */
             request->vary_headers.clear();       /* free old "bad" variance key */
-            if (StoreEntry *pe = storeGetPublic(mem_obj->storeId(), mem_obj->method))
+            if (StoreEntry *pe = storeGetPublic(storeId, mem_obj->method))
                 pe->release(true);
         }
 
@@ -709,9 +718,12 @@ StoreEntry::adjustVary()
 
     // TODO: storeGetPublic() calls below may create unlocked entries.
     // We should add/use storeHas() API or lock/unlock those entries.
-    if (!mem_obj->vary_headers.isEmpty() && !storeGetPublic(mem_obj->storeId(), mem_obj->method)) {
+    if (!mem_obj->vary_headers.isEmpty() && !storeGetPublic(storeId, mem_obj->method)) {
         /* Create "vary" base object */
-        StoreEntry *pe = storeCreateEntry(mem_obj->storeId(), mem_obj->logUri(), request->flags, request->method);
+        // XXX: performance regression. c_str() reallocates
+        SBuf tmpUrl = mem_obj->logUri();
+        const char *logUrl = tmp.c_str();
+        StoreEntry *pe = storeCreateEntry(storeId, logUrl, request->flags, request->method);
         // XXX: storeCreateEntry() already tries to make `pe` public under
         // certain conditions. If those conditions do not apply to Vary markers,
         // then refactor to call storeCreatePureEntry() above.  Otherwise,
@@ -1596,13 +1608,15 @@ StoreEntry::setMemStatus(mem_status_t new_status)
     mem_status = new_status;
 }
 
-const char *
+const SBuf &
 StoreEntry::url() const
 {
-    if (mem_obj == NULL)
-        return "[null_mem_obj]";
-    else
-        return mem_obj->storeId();
+    if (!mem_obj) {
+        static const SBuf nil("[null_mem_obj]");
+        return nil;
+    }
+
+    return mem_obj->storeId();
 }
 
 void
@@ -1624,7 +1638,7 @@ StoreEntry::ensureMemObject(const char *aUrl, const char *aLogUrl, const HttpReq
 {
     if (!mem_obj)
         mem_obj = new MemObject();
-    mem_obj->setUris(aUrl, aLogUrl, aMethod);
+    mem_obj->setUris(SBuf(aUrl), SBuf(aLogUrl), aMethod);
 }
 
 /** disable sending content to the clients.
