@@ -1277,7 +1277,7 @@ parseHttpRequest(ConnStateData *csd, const Http1::RequestParserPointer &hp)
         ClientHttpRequest *http = new ClientHttpRequest(csd);
         http->req_sz = hp->Http2magic.length();
         http->uri = xstrdup("*");
-        http->setLogUriToRawUri(http->uri, Http::METHOD_PRI);
+        http->setLogUriToRawUri(http->uri, hp->method());
 
         auto *result = new Http::Stream(csd->clientConnection, http);
 

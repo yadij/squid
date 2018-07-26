@@ -569,13 +569,12 @@ main(int argc, char *argv[])
 
         /* Send the HTTP request */
         debugVerbose(2, "Sending HTTP request ... ");
-        const size_t msgLen = msg.str().length();
         if (useHttp2) {
             // send HEADERS frame containing msg
             struct Http2::FrameHeader fh;
             fh.streamId(1);
             fh.type(Http2::HEADERS);
-            fh.length(msgLen);
+            fh.length(messageHeader.length());
             fh.flags( Http2::FLAG_END_HEADERS |
                       (!put_file? Http2::FLAG_END_STREAM : 0)
                      );
