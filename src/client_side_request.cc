@@ -1274,7 +1274,6 @@ ClientRequestContext::clientRedirectDone(const Helper::Reply &reply)
                     xfree(http->uri);
                     http->uri = SBufToCstring(new_request->effectiveRequestUri());
                     http->resetRequest(new_request);
-                    old_request = nullptr;
                 } else {
                     debugs(85, DBG_CRITICAL, "ERROR: URL-rewrite produces invalid request: " <<
                            old_request->method << " " << urlNote << " " << old_request->http_ver);
@@ -1647,7 +1646,7 @@ ClientHttpRequest::loggingEntry(StoreEntry *newEntry)
 }
 
 void
-ClientHttpRequest::initRequest(HttpRequest *aRequest)
+ClientHttpRequest::initRequest(const HttpRequestPointer &aRequest)
 {
     assignRequest(aRequest);
     if (const auto csd = getConn()) {
@@ -1658,12 +1657,12 @@ ClientHttpRequest::initRequest(HttpRequest *aRequest)
     assert(al);
     if (!al->http.clientRequest) {
         al->http.clientRequest = request;
-        al->syncNotes(request);
+        al->syncNotes(request.getRaw());
     }
 }
 
 void
-ClientHttpRequest::resetRequest(HttpRequest *newRequest)
+ClientHttpRequest::resetRequest(const HttpRequestPointer &newRequest)
 {
     assert(request != newRequest);
     clearRequest();
@@ -1673,21 +1672,18 @@ ClientHttpRequest::resetRequest(HttpRequest *newRequest)
 }
 
 void
-ClientHttpRequest::assignRequest(HttpRequest *newRequest)
+ClientHttpRequest::assignRequest(const HttpRequestPointer &newRequest)
 {
     assert(newRequest);
     assert(!request);
-    const_cast<HttpRequest *&>(request) = newRequest;
-    HTTPMSGLOCK(request);
+    request = newRequest;
     setLogUriToRequestUri();
 }
 
 void
 ClientHttpRequest::clearRequest()
 {
-    HttpRequest *oldRequest = request;
-    HTTPMSGUNLOCK(oldRequest);
-    const_cast<HttpRequest *&>(request) = nullptr;
+    request = nullptr;
     absorbLogUri(nullptr);
 }
 

@@ -1731,7 +1731,7 @@ Ftp::Server::setReply(const int code, const char *msg)
 
     HttpReply *const reply = Ftp::HttpReplyWrapper(code, msg, Http::scNoContent, 0);
 
-    setLogUri(http, urlCanonicalClean(http->request.getRaw()));
+    http->setLogUriToRequestUri();
 
     clientStreamNode *const node = context->getClientReplyContext();
     clientReplyContext *const repContext =

@@ -76,12 +76,12 @@ public:
     /// Initializes the current request with the virgin request.
     /// Call this method when the virgin request becomes known.
     /// To update the current request later, use resetRequest().
-    void initRequest(HttpRequest *);
+    void initRequest(const HttpRequestPointer &);
 
     /// Resets the current request to the latest adapted or redirected
     /// request. Call this every time adaptation or redirection changes
     /// the request. To set the virgin request, use initRequest().
-    void resetRequest(HttpRequest *);
+    void resetRequest(const HttpRequestPointer &);
 
     /** Details of the client socket which produced us.
      * Treat as read-only for the lifetime of this HTTP request.
@@ -178,7 +178,7 @@ private:
     void clearRequest();
     /// initializes the current unassigned request to the virgin request
     /// sets the current request, asserting that it was unset
-    void assignRequest(HttpRequest *aRequest);
+    void assignRequest(const HttpRequestPointer &aRequest);
 
     int64_t maxReplyBodySize_;
     StoreEntry *entry_;
