@@ -22,6 +22,7 @@
 #include "compat/cmsg.h"
 #include "DescriptorSet.h"
 #include "event.h"
+#include "fatal.h"
 #include "fd.h"
 #include "fde.h"
 #include "globals.h"

@@ -10,6 +10,7 @@
 
 #include "squid.h"
 #include "comm/Loops.h"
+#include "fatal.h"
 #include "fd.h"
 #include "fde.h"
 #include "fs_io.h"

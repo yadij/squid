@@ -13,6 +13,7 @@
 #include "mgr/Registration.h"
 #include "sbuf/DetailedStats.h"
 #include "SBufStatsAction.h"
+#include "Store.h"
 
 SBufStatsAction::SBufStatsAction(const Mgr::CommandPointer &cmd_):
     Action(cmd_)

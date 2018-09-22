@@ -24,6 +24,7 @@
 #include "SquidConfig.h"
 #include "SquidString.h"
 #include "StatCounters.h"
+#include "Store.h"
 #include "tools.h"
 #include "wordlist.h"
 

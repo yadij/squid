@@ -11,6 +11,7 @@
 #include "squid.h"
 
 #if USE_UNLINKD
+#include "fatal.h"
 #include "fd.h"
 #include "fde.h"
 #include "fs_io.h"

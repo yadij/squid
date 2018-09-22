@@ -11,6 +11,7 @@
 
 #include "base/ByteCounter.h"
 #include "StatHist.h"
+#include "SquidTime.h"
 
 #if USE_CACHE_DIGESTS
 /** statistics for cache digests and other hit "predictors" */

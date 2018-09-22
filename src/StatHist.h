@@ -9,8 +9,7 @@
 #ifndef STATHIST_H_
 #define STATHIST_H_
 
-/* for StoreEntry */
-#include "Store.h"
+class StoreEntry;
 
 /// function signature for in/out StatHist adaptation
 typedef double hbase_f(double);

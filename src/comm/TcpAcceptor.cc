@@ -20,6 +20,7 @@
 #include "comm/TcpAcceptor.h"
 #include "CommCalls.h"
 #include "eui/Config.h"
+#include "fatal.h"
 #include "fd.h"
 #include "fde.h"
 #include "globals.h"
