@@ -27,8 +27,6 @@
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testIpAddress );
 
-#include "tests/stub_SBuf.cc"
-
 /* so that we don't break POD dependency just for the test */
 struct timeval current_time;
 double current_dtime;

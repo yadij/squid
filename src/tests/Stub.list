@@ -53,6 +53,7 @@ STUB_SOURCE= tests/STUB.h \
 	tests/stub_liblog.cc \
 	tests/stub_libmem.cc \
 	tests/stub_libmgr.cc \
+	tests/stub_libsbuf.cc \
 	tests/stub_libsecurity.cc \
 	tests/stub_libsslsquid.cc \
 	tests/stub_main_cc.cc \
@@ -65,8 +66,6 @@ STUB_SOURCE= tests/STUB.h \
 	tests/stub_pconn.cc \
 	tests/stub_Port.cc \
 	tests/stub_redirect.cc \
-	tests/stub_SBuf.cc \
-	tests/stub_SBufDetailedStats.cc \
 	tests/stub_stat.cc \
 	tests/stub_StatHist.cc \
 	tests/stub_stmem.cc \

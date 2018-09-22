@@ -61,11 +61,13 @@ STUBS = \
 	stub_cbdata.cc \
 	stub_debug.cc \
 	stub_MemBuf.cc \
-	stub_SBuf.cc \
 	stub_tools.cc \
 	stub_fatal.cc \
 	STUB.h
-DEBUG_SOURCE = test_tools.cc $(STUBS)
+DEBUG_SOURCE = \
+	test_tools.cc \
+	stub_SBuf.cc \
+	$(STUBS)
 CLEANFILES += $(STUBS) stub_libmem.cc
 
 stub_cbdata.cc: $(top_srcdir)/src/tests/stub_cbdata.cc
@@ -76,9 +78,6 @@ stub_debug.cc: $(top_srcdir)/src/tests/stub_debug.cc
 
 stub_MemBuf.cc: $(top_srcdir)/src/tests/stub_MemBuf.cc
 	cp $(top_srcdir)/src/tests/stub_MemBuf.cc $@
-
-stub_SBuf.cc: $(top_srcdir)/src/tests/stub_SBuf.cc
-	cp $(top_srcdir)/src/tests/stub_SBuf.cc $@
 
 stub_tools.cc: $(top_srcdir)/src/tests/stub_tools.cc
 	cp $(top_srcdir)/src/tests/stub_tools.cc $@

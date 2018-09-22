@@ -881,10 +881,7 @@ check_PROGRAMS+=\
 	tests/testMem \
 	tests/testNetDb \
 	tests/testStore \
-	tests/testString \
 	tests/testURL \
-	tests/testSBuf \
-	tests/testSBufList \
 	tests/testConfigParser \
 	tests/testStatHist \
 	tests/testLookupTable \
@@ -896,9 +893,6 @@ endif
 if ENABLE_FS_UFS
 check_PROGRAMS += tests/testUfs
 endif
-
-## NP: required to run the above list. check_PROGRAMS only builds the binaries...
-TESTS += $(check_PROGRAMS)
 
 ### Template for new Unit Test Program
 ## - add tests/testX to check_PROGRAMS above.
@@ -961,7 +955,6 @@ tests_testHttpReply_SOURCES=\
 	Notes.cc \
 	SquidString.h \
 	SquidTime.h \
-	tests/stub_SBufDetailedStats.cc \
 	String.cc \
 	StrList.h \
 	StrList.cc \
@@ -1066,7 +1059,6 @@ tests_testACLMaxUserIP_SOURCES= \
 	StrList.cc \
 	tests/stub_StatHist.cc \
 	stmem.cc \
-	tests/stub_SBufDetailedStats.cc \
 	String.cc \
 	StoreIOState.cc \
 	tests/stub_StoreMeta.cc \
@@ -1158,10 +1150,10 @@ tests_testBoilerplate_SOURCES = \
 	tests/testBoilerplate.h \
 	tests/stub_debug.cc \
 	tests/stub_libmem.cc \
-	tests/stub_SBuf.cc \
 	tests/stub_time.cc
 nodist_tests_testBoilerplate_SOURCES = \
 	tests/stub_cbdata.cc \
+	tests/stub_libsbuf.cc \
 	tests/stub_MemBuf.cc \
 	$(TESTSOURCES)
 tests_testBoilerplate_LDADD= \
@@ -1182,8 +1174,9 @@ nodist_tests_testCharacterSet_SOURCES = \
 	tests/stub_cbdata.cc \
 	tests/stub_debug.cc \
 	tests/stub_libmem.cc \
+	tests/stub_libsbuf.cc \
 	tests/stub_MemBuf.cc \
-	tests/stub_SBuf.cc
+	tests/stub_StatHist.cc
 tests_testCharacterSet_LDFLAGS = $(LIBADD_DL)
 tests_testCharacterSet_LDADD= \
 	base/libbase.la \
@@ -1322,7 +1315,6 @@ tests_testCacheManager_SOURCES = \
 	refresh.h \
 	refresh.cc \
 	RemovalPolicy.cc \
-	tests/stub_SBufDetailedStats.cc \
 	$(SNMP_SOURCE) \
 	SquidMath.h \
 	SquidMath.cc \
@@ -1487,7 +1479,6 @@ tests_testDiskIO_SOURCES = \
 	StatHist.h \
 	tests/stub_StatHist.cc \
 	stmem.cc \
-	tests/stub_SBufDetailedStats.cc \
 	StoreFileSystem.cc \
 	StoreIOState.cc \
 	tests/stub_StoreMeta.cc \
@@ -1607,10 +1598,11 @@ tests_testDns_SOURCES= \
 nodist_tests_testDns_SOURCES= \
 	tests/stub_debug.cc \
 	tests/stub_libmem.cc \
-	tests/stub_SBuf.cc \
+	tests/stub_StatHist.cc \
 	tests/stub_tools.cc
 tests_testDns_LDADD= \
 	dns/libdns.la \
+	sbuf/libsbuf.la \
 	base/libbase.la \
 	$(top_builddir)/lib/libmiscutil.la \
 	$(LIBCPPUNIT_LIBS) \
@@ -1746,7 +1738,6 @@ tests_testEvent_SOURCES = \
 	RemovalPolicy.cc \
 	StrList.h \
 	StrList.cc \
-	tests/stub_SBufDetailedStats.cc \
 	$(SNMP_SOURCE) \
 	SquidMath.cc \
 	SquidMath.h \
@@ -1977,7 +1968,6 @@ tests_testEventLoop_SOURCES = \
 	tests/stub_redirect.cc \
 	refresh.h \
 	refresh.cc \
-	tests/stub_SBufDetailedStats.cc \
 	$(SNMP_SOURCE) \
 	SquidMath.h \
 	SquidMath.cc \
@@ -2206,7 +2196,6 @@ tests_test_http_range_SOURCES = \
 	refresh.h \
 	refresh.cc \
 	RemovalPolicy.cc \
-	tests/stub_SBufDetailedStats.cc \
 	$(SNMP_SOURCE) \
 	SquidMath.h \
 	SquidMath.cc \
@@ -2325,7 +2314,7 @@ nodist_tests_testTokenizer_SOURCES = \
 	tests/stub_debug.cc \
 	tests/stub_libmem.cc \
 	tests/stub_time.cc \
-	tests/stub_SBufDetailedStats.cc
+	tests/stub_StatHist.cc
 tests_testTokenizer_LDFLAGS = $(LIBADD_DL)
 tests_testTokenizer_LDADD = \
 	parser/libparser.la \
@@ -2345,7 +2334,6 @@ tests_testHttp1Parser_SOURCES = \
 	mime_header.h \
 	String.cc \
 	cache_cf.h \
-	tests/stub_SBufDetailedStats.cc \
 	tests/stub_cache_cf.cc \
 	tests/stub_cache_manager.cc \
 	tests/stub_comm.cc \
@@ -2367,6 +2355,7 @@ tests_testHttp1Parser_SOURCES = \
 	wordlist.h \
 	wordlist.cc
 nodist_tests_testHttp1Parser_SOURCES = \
+	tests/stub_StatHist.cc \
 	$(TESTSOURCES)
 tests_testHttp1Parser_LDADD= \
 	http/libhttp.la \
@@ -2518,7 +2507,6 @@ tests_testHttpRequest_SOURCES = \
 	refresh.h \
 	refresh.cc \
 	RemovalPolicy.cc \
-	tests/stub_SBufDetailedStats.cc \
 	$(SNMP_SOURCE) \
 	SquidMath.h \
 	SquidMath.cc \
@@ -2625,7 +2613,7 @@ nodist_tests_testIcmp_SOURCES = \
 	SquidTime.h \
 	tests/stub_debug.cc \
 	tests/stub_libmem.cc \
-	tests/stub_SBuf.cc \
+	tests/stub_libsbuf.cc \
 	time.cc \
 	globals.cc
 tests_testIcmp_LDFLAGS = $(LIBADD_DL)
@@ -2644,7 +2632,7 @@ nodist_tests_testNetDb_SOURCES = \
 	SquidTime.h \
 	tests/stub_debug.cc \
 	tests/stub_libmem.cc \
-	tests/stub_SBuf.cc \
+	tests/stub_libsbuf.cc \
 	time.cc \
 	globals.cc
 tests_testNetDb_LDFLAGS = $(LIBADD_DL)
@@ -2664,10 +2652,12 @@ tests_testIpAddress_SOURCES= \
 nodist_tests_testIpAddress_SOURCES= \
 	ip/Address.h \
 	tests/stub_debug.cc \
+	tests/stub_StatHist.cc \
 	tests/stub_libmem.cc \
 	tests/stub_tools.cc
 tests_testIpAddress_LDADD= \
 	ip/libip.la \
+	sbuf/libsbuf.la \
 	base/libbase.la \
 	$(LIBCPPUNIT_LIBS) \
 	$(COMPAT_LIB) \
@@ -2737,7 +2727,6 @@ tests_testStore_SOURCES= \
 	StoreSwapLogData.cc \
 	store_key_md5.h \
 	store_key_md5.cc \
-	tests/stub_SBufDetailedStats.cc \
 	String.cc \
 	StrList.h \
 	StrList.cc \
@@ -2839,11 +2828,11 @@ tests_testStore_LDFLAGS = $(LIBADD_DL)
 ## string needs mem.cc.
 ## mem.cc needs ClientInfo.h
 ## libsquid pulls in SquidConfig and children. stub them.
+check_PROGRAMS += tests/testString
 tests_testString_SOURCES = \
 	ClientInfo.h \
 	MemBuf.cc \
 	String.cc \
-	tests/stub_SBufDetailedStats.cc \
 	tests/testString.cc \
 	tests/testString.h \
 	cache_cf.h \
@@ -2859,6 +2848,7 @@ tests_testString_SOURCES = \
 	wordlist.h \
 	wordlist.cc
 nodist_tests_testString_SOURCES = \
+	tests/stub_StatHist.cc \
 	$(TESTSOURCES)
 tests_testString_LDADD = \
 	base/libbase.la \
@@ -2970,7 +2960,6 @@ tests_testUfs_SOURCES = \
 	tests/stub_cache_cf.cc \
 	tests/stub_helper.cc \
 	cbdata.cc \
-	tests/stub_SBufDetailedStats.cc \
 	String.cc \
 	tests/stub_debug.cc \
 	tests/stub_client_side_request.cc \
@@ -3149,7 +3138,6 @@ tests_testRock_SOURCES = \
 	store_key_md5.cc \
 	store_swapmeta.cc \
 	store_swapout.cc \
-	tests/stub_SBufDetailedStats.cc \
 	String.cc \
 	StrList.h \
 	StrList.cc \
@@ -3363,7 +3351,6 @@ tests_testURL_SOURCES = \
 	refresh.h \
 	refresh.cc \
 	RemovalPolicy.cc \
-	tests/stub_SBufDetailedStats.cc \
 	$(SNMP_SOURCE) \
 	SquidMath.h \
 	SquidMath.cc \
@@ -3475,47 +3462,50 @@ tests_testURL_LDADD = \
 	$(XTRA_LIBS)
 tests_testURL_LDFLAGS = $(LIBADD_DL)
 
+check_PROGRAMS += tests/testSBuf
 tests_testSBuf_SOURCES= \
-	tests/testSBuf.h \
-	tests/testSBuf.cc \
-	tests/SBufFindTest.h \
 	tests/SBufFindTest.cc \
-	tests/stub_SBufDetailedStats.cc \
-	tests/stub_time.cc \
+	tests/SBufFindTest.h \
+	tests/testSBuf.cc \
+	tests/testSBuf.h
+nodist_tests_testSBuf_SOURCES= \
 	tests/stub_debug.cc \
 	tests/stub_fatal.cc \
-	tests/stub_libmem.cc
-nodist_tests_testSBuf_SOURCES=$(TESTSOURCES)
-tests_testSBuf_LDFLAGS = $(LIBADD_DL)
+	tests/stub_libmem.cc \
+	tests/stub_StatHist.cc \
+	tests/stub_time.cc \
+	$(TESTSOURCES)
 tests_testSBuf_LDADD= \
 	sbuf/libsbuf.la \
 	base/libbase.la \
 	$(LIBCPPUNIT_LIBS) \
 	$(COMPAT_LIB) \
 	$(XTRA_LIBS)
+tests_testSBuf_LDFLAGS = $(LIBADD_DL)
 
+check_PROGRAMS += tests/testSBufList
 tests_testSBufList_SOURCES= \
-	tests/testSBufList.h \
 	tests/testSBufList.cc \
-	tests/stub_SBufDetailedStats.cc \
-	tests/stub_time.cc \
+	tests/testSBufList.h
+nodist_tests_testSBufList_SOURCES= \
 	tests/stub_debug.cc \
 	tests/stub_fatal.cc \
-	tests/stub_libmem.cc
-nodist_tests_testSBufList_SOURCES=$(TESTSOURCES)
-tests_testSBufList_LDFLAGS = $(LIBADD_DL)
+	tests/stub_libmem.cc \
+	tests/stub_StatHist.cc \
+	tests/stub_time.cc \
+	$(TESTSOURCES)
 tests_testSBufList_LDADD=\
 	sbuf/libsbuf.la \
 	base/libbase.la \
 	$(LIBCPPUNIT_LIBS) \
 	$(COMPAT_LIB) \
 	$(XTRA_LIBS)
+tests_testSBufList_LDFLAGS = $(LIBADD_DL)
 
 tests_testConfigParser_SOURCES = \
 	ClientInfo.h \
 	tests/stub_MemBuf.cc \
 	tests/stub_time.cc \
-	tests/stub_SBufDetailedStats.cc \
 	String.cc \
 	ConfigParser.cc \
 	fatal.h \
@@ -3533,6 +3523,7 @@ tests_testConfigParser_SOURCES = \
 	wordlist.h \
 	wordlist.cc
 nodist_tests_testConfigParser_SOURCES = \
+	tests/stub_StatHist.cc \
 	$(TESTSOURCES)
 tests_testConfigParser_LDADD = \
 	libsquid.la \
@@ -3552,7 +3543,6 @@ tests_testStatHist_SOURCES = \
 	fatal.h \
 	tests/stub_fatal.cc \
 	tests/stub_MemBuf.cc \
-	tests/stub_SBufDetailedStats.cc \
 	StatHist.cc \
 	StatHist.h \
 	String.cc \
@@ -3591,9 +3581,10 @@ tests_testLookupTable_SOURCES = \
 	tests/testLookupTable.cc \
 	tests/stub_debug.cc \
 	tests/stub_libmem.cc \
-	tests/stub_SBufDetailedStats.cc \
 	base/LookupTable.h
-nodist_tests_testLookupTable_SOURCES = $(TESTSOURCES)
+nodist_tests_testLookupTable_SOURCES = \
+	tests/stub_StatHist.cc \
+	$(TESTSOURCES)
 tests_testLookupTable_LDFLAGS = $(LIBADD_DL)
 tests_testLookupTable_LDADD = \
 	sbuf/libsbuf.la \
@@ -3606,10 +3597,11 @@ tests_testEnumIterator_SOURCES = \
 	base/EnumIterator.h \
 	tests/stub_debug.cc \
 	tests/stub_libmem.cc \
-	tests/stub_SBuf.cc \
 	tests/testEnumIterator.h \
 	tests/testEnumIterator.cc
 nodist_tests_testEnumIterator_SOURCES = \
+	tests/stub_libsbuf.cc \
+	tests/stub_StatHist.cc \
 	$(TESTSOURCES)
 tests_testEnumIterator_LDFLAGS = $(LIBADD_DL)
 tests_testEnumIterator_LDADD = \
@@ -3625,7 +3617,8 @@ nodist_tests_testYesNoNone_SOURCES = \
 	tests/STUB.h \
 	tests/stub_debug.cc \
 	tests/stub_libmem.cc \
-	tests/stub_SBuf.cc \
+	tests/stub_libsbuf.cc \
+	tests/stub_StatHist.cc \
 	base/YesNoNone.h
 tests_testYesNoNone_LDADD= \
 	base/libbase.la \
@@ -3639,7 +3632,8 @@ tests_testMem_SOURCES = \
 	tests/testMem.h
 nodist_tests_testMem_SOURCES = \
 	tests/stub_debug.cc \
-	tests/stub_SBuf.cc \
+	tests/stub_libsbuf.cc \
+	tests/stub_StatHist.cc \
 	tests/stub_time.cc \
 	$(TESTSOURCES)
 tests_testMem_LDADD= \
@@ -3651,7 +3645,8 @@ tests_testMem_LDADD= \
 	$(XTRA_LIBS)
 tests_testMem_LDFLAGS = $(LIBADD_DL)
 
-TESTS += testHeaders
+## NP: required to run the tests above. check_PROGRAMS only builds the binaries...
+TESTS += $(check_PROGRAMS) testHeaders
 
 ## Special Universal .h dependency test script
 ## aborts if error encountered
