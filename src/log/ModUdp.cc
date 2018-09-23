@@ -155,7 +155,7 @@ logfile_mod_udp_open(Logfile * lf, const char *path, size_t bufsz, int fatal_fla
         } else {
             debugs(50, DBG_IMPORTANT, "Invalid UDP logging address '" << lf->path << "'");
             safe_free(strAddr);
-            return FALSE;
+            return 0;
         }
     }
     safe_free(strAddr);
@@ -174,7 +174,7 @@ logfile_mod_udp_open(Logfile * lf, const char *path, size_t bufsz, int fatal_fla
             fatalf("Unable to open UDP socket for logging\n");
         } else {
             debugs(50, DBG_IMPORTANT, "Unable to open UDP socket for logging");
-            return FALSE;
+            return 0;
         }
     } else if (!comm_connect_addr(ll->fd, addr)) {
         xerrno = errno;
@@ -182,7 +182,7 @@ logfile_mod_udp_open(Logfile * lf, const char *path, size_t bufsz, int fatal_fla
             fatalf("Unable to connect to %s for UDP log: %s\n", lf->path, xstrerr(xerrno));
         } else {
             debugs(50, DBG_IMPORTANT, "Unable to connect to " << lf->path << " for UDP log: " << xstrerr(xerrno));
-            return FALSE;
+            return 0;
         }
     }
     if (ll->fd == -1) {

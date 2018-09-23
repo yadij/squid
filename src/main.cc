@@ -138,14 +138,14 @@
 #if USE_WIN32_SERVICE
 #include <process.h>
 
-static int opt_install_service = FALSE;
-static int opt_remove_service = FALSE;
-static int opt_command_line = FALSE;
+static int opt_install_service = 0;
+static int opt_remove_service = 0;
+static int opt_command_line = 0;
 void WIN32_svcstatusupdate(DWORD, DWORD);
 void WINAPI WIN32_svcHandler(DWORD);
 #endif
 
-static int opt_signal_service = FALSE;
+static int opt_signal_service = 0;
 static char *opt_syslog_facility = NULL;
 static int icpPortNumOverride = 1;  /* Want to detect "-u 0" */
 static int configured_once = 0;
@@ -503,8 +503,8 @@ mainHandleCommandLineOption(const int optId, const char *optValue)
 
     case 'i':
         /** \par i
-         * Set global option opt_install_service (to TRUE) */
-        opt_install_service = TRUE;
+         * Set global option opt_install_service */
+        opt_install_service = 1;
         break;
 #endif
 
@@ -626,8 +626,8 @@ mainHandleCommandLineOption(const int optId, const char *optValue)
 
     case 'r':
         /** \par r
-         * Set global option opt_remove_service (to TRUE) */
-        opt_remove_service = TRUE;
+         * Set global option opt_remove_service */
+        opt_remove_service = 1;
 
         break;
 

@@ -702,12 +702,11 @@ fwdServerClosedWrapper(const CommCloseCbParams &params)
 
 /**** PRIVATE *****************************************************************/
 
-/*
- * FwdState::checkRetry
- *
- * Return TRUE if the request SHOULD be retried.  This method is
- * called when the HTTP connection fails, or when the connection
+/**
+ * Called when the HTTP connection fails, or when the connection
  * is closed before reading the end of HTTP headers from the server.
+ *
+ * \returns true if the request SHOULD be retried.
  */
 bool
 FwdState::checkRetry()
@@ -1318,13 +1317,12 @@ FwdState::dispatch()
     }
 }
 
-/*
- * FwdState::reforward
- *
- * returns TRUE if the transaction SHOULD be re-forwarded to the
- * next choice in the serverDestinations list.  This method is called when
- * peer communication completes normally, or experiences
+/**
+ * Called when peer communication completes normally, or experiences
  * some error after receiving the end of HTTP headers.
+ *
+ * \returns true if the transaction SHOULD be re-forwarded to the
+ * next choice in the serverDestinations list.
  */
 int
 FwdState::reforward()

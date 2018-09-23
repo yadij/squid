@@ -179,7 +179,7 @@ peerAllowedToUse(const CachePeer * p, PeerSelector * ps)
     return checklist.fastCheck().allowed();
 }
 
-/* Return TRUE if it is okay to send an ICP request to this CachePeer.   */
+/// \retval 1 if it is okay to send an ICP request to this CachePeer.
 static int
 peerWouldBePinged(const CachePeer * p, PeerSelector * ps)
 {
@@ -254,7 +254,7 @@ peerConnClosed(CachePeer *p)
     }
 }
 
-/* Return TRUE if it is okay to send an HTTP request to this CachePeer. */
+/// \retval 1 if it is okay to send an HTTP request to this CachePeer.
 int
 peerHTTPOkay(const CachePeer * p, PeerSelector * ps)
 {
