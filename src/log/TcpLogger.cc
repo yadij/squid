@@ -461,7 +461,7 @@ Log::TcpLogger::Open(Logfile * lf, const char *path, size_t bufsz, int fatalFlag
         } else {
             debugs(50, DBG_IMPORTANT, "Invalid TCP logging address '" << lf->path << "'");
             safe_free(strAddr);
-            return FALSE;
+            return 0;
         }
     }
     safe_free(strAddr);

@@ -9,13 +9,6 @@
 #ifndef SQUID_DEFINES_H
 #define SQUID_DEFINES_H
 
-#ifndef TRUE
-#define TRUE 1
-#endif
-#ifndef FALSE
-#define FALSE 0
-#endif
-
 #ifndef BUFSIZ
 #define BUFSIZ  4096            /* make unreasonable guess */
 #endif
