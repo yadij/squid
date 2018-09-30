@@ -17,6 +17,7 @@
 #include "adaptation/icap/ServiceRep.h"
 #include "base/TextException.h"
 #include "comm/Connection.h"
+#include "comm/IdleConnList.h"
 #include "ConfigParser.h"
 #include "Debug.h"
 #include "fde.h"

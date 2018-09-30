@@ -38,5 +38,8 @@ void SetSelect(int, unsigned int, PF *, void *, time_t);
 
 }; // namespace Comm
 
+// TODO move into Comm::
+class IdleConnList;
+
 #endif /* _SQUID_COMM_FORWARD_H */
 

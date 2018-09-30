@@ -20,6 +20,8 @@ libcomm_la_SOURCES= \
 	Connection.h \
 	Flag.h \
 	forward.h \
+	IdleConnList.cc \
+	IdleConnList.h \
 	IoCallback.cc \
 	IoCallback.h \
 	Loops.h \
