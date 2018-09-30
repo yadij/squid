@@ -64,19 +64,19 @@ private:
      * The worst-case pop() and scans occur on timeout and link closure events
      * where timing is less critical. Occasional slow additions are okay.
      */
-    Comm::ConnectionPointer *theList_;
+    Comm::ConnectionPointer *theList_ = nullptr;
 
     /// Number of entries theList can currently hold without re-allocating (capacity).
-    int capacity_;
+    int capacity_ = 0;
     ///< Number of in-use entries in theList
-    int size_;
+    int size_ = 0;
 
     /** The pool containing this sub-list.
      * The parent performs all stats accounting, and
      * will delete us when it dies. It persists for the
      * full duration of our existence.
      */
-    PconnPool *parent_;
+    PconnPool *parent_ = nullptr;
 
     char fakeReadBuf_[4096]; // TODO: kill magic number.
 };

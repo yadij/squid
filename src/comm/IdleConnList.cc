@@ -23,7 +23,6 @@ CBDATA_CLASS_INIT(IdleConnList);
 
 IdleConnList::IdleConnList(const char *aKey, PconnPool *thePool) :
     capacity_(PCONN_FDS_SZ),
-    size_(0),
     parent_(thePool)
 {
     //Initialize hash_link members
