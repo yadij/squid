@@ -144,9 +144,11 @@ IdleConnList::push(const Comm::ConnectionPointer &conn)
     if (parent_)
         parent_->noteConnectionAdded();
 
+    static char fakeReadBuf[4096]; // TODO: kill magic number.
     AsyncCall::Pointer readCall = commCbCall(5,4, "IdleConnList::Read",
                                   CommIoCbPtrFun(IdleConnList::Read, this));
-    comm_read(conn, fakeReadBuf_, sizeof(fakeReadBuf_), readCall);
+    comm_read(conn, fakeReadBuf, sizeof(fakeReadBuf), readCall);
+
     AsyncCall::Pointer timeoutCall = commCbCall(5,4, "IdleConnList::Timeout",
                                      CommTimeoutCbPtrFun(IdleConnList::Timeout, this));
     commSetConnTimeout(conn, conn->timeLeft(Config.Timeout.serverIdlePconn), timeoutCall);

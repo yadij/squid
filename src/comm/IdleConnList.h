@@ -72,8 +72,6 @@ private:
      * full duration of our existence.
      */
     PconnPool *parent_ = nullptr;
-
-    char fakeReadBuf_[4096]; // TODO: kill magic number.
 };
 
 #endif /* _SQUID_SRC_COMM_IDLECONNLIST_H */
