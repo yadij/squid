@@ -75,7 +75,7 @@ IdleConnList::findIndexOf(const Comm::ConnectionPointer &conn) const
  * \retval false The index is not an in-use entry.
  */
 bool
-IdleConnList::removeAt(int index)
+IdleConnList::removeAt(size_t index)
 {
     if (index < 0 || index >= size_)
         return false;
@@ -103,7 +103,7 @@ IdleConnList::closeN(size_t n)
     if (n < 1) {
         debugs(48, 2, "Nothing to do.");
         return;
-    } else if (n >= (size_t)size_) {
+    } else if (n >= size_) {
         debugs(48, 2, "Closing all entries.");
         while (size_ > 0) {
             const Comm::ConnectionPointer conn = theList_[--size_];
@@ -161,7 +161,7 @@ IdleConnList::push(const Comm::ConnectionPointer &conn)
         capacity_ <<= 1;
         const Comm::ConnectionPointer *oldList = theList_;
         theList_ = new Comm::ConnectionPointer[capacity_];
-        for (int index = 0; index < size_; ++index)
+        for (size_t index = 0; index < size_; ++index)
             theList_[index] = oldList[index];
 
         delete[] oldList;
@@ -183,7 +183,7 @@ IdleConnList::push(const Comm::ConnectionPointer &conn)
 /// Determine whether an entry in the idle list is available for use.
 /// Returns false if the entry is unset, closed or closing.
 bool
-IdleConnList::isAvailable(int i) const
+IdleConnList::isAvailable(size_t i) const
 {
     const Comm::ConnectionPointer &conn = theList_[i];
 
@@ -201,7 +201,7 @@ IdleConnList::isAvailable(int i) const
 Comm::ConnectionPointer
 IdleConnList::pop()
 {
-    for (int i=size_-1; i>=0; --i) {
+    for (size_t i = size_-1; i >= 0; --i) {
 
         if (!isAvailable(i))
             continue;

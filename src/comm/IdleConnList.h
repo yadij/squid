@@ -44,15 +44,15 @@ public:
 
     void clearHandlers(const Comm::ConnectionPointer &);
 
-    int count() const { return size_; }
+    size_t count() const { return size_; }
     void closeN(size_t count);
 
     // IndependentRunner API
     virtual void endingShutdown();
 
 private:
-    bool isAvailable(int i) const;
-    bool removeAt(int index);
+    bool isAvailable(size_t i) const;
+    bool removeAt(size_t index);
     int findIndexOf(const Comm::ConnectionPointer &) const;
     void findAndClose(const Comm::ConnectionPointer &);
     static IOCB Read;
@@ -67,9 +67,9 @@ private:
     Comm::ConnectionPointer *theList_ = nullptr;
 
     /// Number of entries theList can currently hold without re-allocating (capacity).
-    int capacity_ = 0;
+    size_t capacity_ = 0;
     ///< Number of in-use entries in theList
-    int size_ = 0;
+    size_t size_ = 0;
 
     /** The pool containing this sub-list.
      * The parent performs all stats accounting, and
