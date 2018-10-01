@@ -44,15 +44,15 @@ public:
 
     void clearHandlers(const Comm::ConnectionPointer &);
 
-    size_t count() const { return size_; }
+    size_t count() const { return theList_.size(); }
     void closeN(size_t count);
 
     // IndependentRunner API
     virtual void endingShutdown();
 
 private:
-    bool isAvailable(size_t i) const;
-    bool removeAt(size_t index);
+    bool isAvailable(size_t) const;
+    bool removeAt(size_t);
     int findIndexOf(const Comm::ConnectionPointer &) const;
     void findAndClose(const Comm::ConnectionPointer &);
     static IOCB Read;
@@ -64,12 +64,7 @@ private:
      * The worst-case pop() and scans occur on timeout and link closure events
      * where timing is less critical. Occasional slow additions are okay.
      */
-    Comm::ConnectionPointer *theList_ = nullptr;
-
-    /// Number of entries theList can currently hold without re-allocating (capacity).
-    size_t capacity_ = 0;
-    ///< Number of in-use entries in theList
-    size_t size_ = 0;
+    Comm::ConnectionList theList_;
 
     /** The pool containing this sub-list.
      * The parent performs all stats accounting, and
