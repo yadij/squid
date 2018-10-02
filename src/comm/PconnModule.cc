@@ -15,9 +15,6 @@
 // for StoreEntry
 #include "Store.h"
 
-//TODO: re-attach to MemPools. WAS: static MemAllocator *pconn_fds_pool = NULL;
-PconnModule * PconnModule::instance = NULL;
-
 PconnModule::PconnModule() : pools()
 {
     registerWithCacheManager();
@@ -26,10 +23,8 @@ PconnModule::PconnModule() : pools()
 PconnModule *
 PconnModule::GetInstance()
 {
-    if (instance == NULL)
-        instance = new PconnModule;
-
-    return instance;
+    static PconnModule instance;
+    return &instance;
 }
 
 void

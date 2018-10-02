@@ -41,8 +41,6 @@ public:
 private:
     typedef std::set<PconnPool*> Pools; ///< unordered PconnPool collection
     Pools pools; ///< all live pools
-
-    static PconnModule * instance;
 };
 
 #endif /* _SQUID_SRC_COMM_PCONNMODULE_H */
