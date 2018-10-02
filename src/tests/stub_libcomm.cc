@@ -67,7 +67,6 @@ void Comm::QuickPollRequired(void) STUB
 PconnModule * PconnModule::GetInstance() STUB_RETVAL(nullptr)
 void PconnModule::DumpWrapper(StoreEntry *) STUB
 PconnModule::PconnModule() {STUB}
-void PconnModule::registerWithCacheManager() STUB
 void PconnModule::add(PconnPool *) STUB
 void PconnModule::dump(StoreEntry *) STUB
 

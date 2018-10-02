@@ -15,9 +15,11 @@
 // for StoreEntry
 #include "Store.h"
 
-PconnModule::PconnModule() : pools()
+PconnModule::PconnModule()
 {
-    registerWithCacheManager();
+    Mgr::RegisterAction("pconn",
+                        "Persistent Connection Utilization Histograms",
+                        DumpWrapper, 0, 1);
 }
 
 PconnModule *
@@ -25,14 +27,6 @@ PconnModule::GetInstance()
 {
     static PconnModule instance;
     return &instance;
-}
-
-void
-PconnModule::registerWithCacheManager(void)
-{
-    Mgr::RegisterAction("pconn",
-                        "Persistent Connection Utilization Histograms",
-                        DumpWrapper, 0, 1);
 }
 
 void
@@ -50,14 +44,14 @@ PconnModule::remove(PconnPool *aPool)
 void
 PconnModule::dump(StoreEntry *e)
 {
-    typedef Pools::const_iterator PCI;
     int i = 0; // TODO: Why number pools if they all have names?
-    for (PCI p = pools.begin(); p != pools.end(); ++p, ++i) {
+    for (auto p : pools) {
         // TODO: Let each pool dump itself the way it wants to.
-        storeAppendPrintf(e, "\n Pool %d Stats\n", i);
-        (*p)->dumpHist(e);
-        storeAppendPrintf(e, "\n Pool %d Hash Table\n",i);
-        (*p)->dumpHash(e);
+        e->appendf("\n Pool %d Stats\n", i);
+        p->dumpHist(e);
+        e->appendf("\n Pool %d Hash Table\n", i);
+        p->dumpHash(e);
+        ++i;
     }
 }
 

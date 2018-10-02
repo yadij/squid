@@ -21,8 +21,9 @@ class PconnPool;
  */
 class PconnModule
 {
-
 public:
+    PconnModule();
+
     /** the module is a singleton until we have instance based cachemanager
      * management
      */
@@ -30,17 +31,16 @@ public:
     /** A thunk to the still C like CacheManager callback api. */
     static void DumpWrapper(StoreEntry *);
 
-    PconnModule();
-    void registerWithCacheManager(void);
-
+    /// register a pool for cache manager report generation
     void add(PconnPool *);
-    void remove(PconnPool *); ///< unregister and forget about this pool object
+
+    /// unregister and forget about this pool object
+    void remove(PconnPool *);
 
     OBJH dump;
 
 private:
-    typedef std::set<PconnPool*> Pools; ///< unordered PconnPool collection
-    Pools pools; ///< all live pools
+    std::set<PconnPool*> pools; ///< collection of registered pools
 };
 
 #endif /* _SQUID_SRC_COMM_PCONNMODULE_H */
