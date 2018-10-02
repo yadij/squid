@@ -13,6 +13,7 @@
 #include "comm.h"
 #include "comm/Connection.h"
 #include "comm/IdleConnList.h"
+#include "comm/PconnModule.h"
 #include "comm/Read.h"
 #include "fd.h"
 #include "fde.h"
@@ -23,9 +24,6 @@
 #include "PeerPoolMgr.h"
 #include "SquidConfig.h"
 #include "Store.h"
-
-//TODO: re-attach to MemPools. WAS: static MemAllocator *pconn_fds_pool = NULL;
-PconnModule * PconnModule::instance = NULL;
 
 /* ========== PconnPool PRIVATE FUNCTIONS ============================================ */
 
@@ -212,65 +210,5 @@ PconnPool::noteUses(int uses)
         uses = PCONN_HIST_SZ - 1;
 
     ++hist[uses];
-}
-
-/* ========== PconnModule ============================================ */
-
-/*
- * This simple class exists only for the cache manager
- */
-
-PconnModule::PconnModule(): pools()
-{
-    registerWithCacheManager();
-}
-
-PconnModule *
-PconnModule::GetInstance()
-{
-    if (instance == NULL)
-        instance = new PconnModule;
-
-    return instance;
-}
-
-void
-PconnModule::registerWithCacheManager(void)
-{
-    Mgr::RegisterAction("pconn",
-                        "Persistent Connection Utilization Histograms",
-                        DumpWrapper, 0, 1);
-}
-
-void
-PconnModule::add(PconnPool *aPool)
-{
-    pools.insert(aPool);
-}
-
-void
-PconnModule::remove(PconnPool *aPool)
-{
-    pools.erase(aPool);
-}
-
-void
-PconnModule::dump(StoreEntry *e)
-{
-    typedef Pools::const_iterator PCI;
-    int i = 0; // TODO: Why number pools if they all have names?
-    for (PCI p = pools.begin(); p != pools.end(); ++p, ++i) {
-        // TODO: Let each pool dump itself the way it wants to.
-        storeAppendPrintf(e, "\n Pool %d Stats\n", i);
-        (*p)->dumpHist(e);
-        storeAppendPrintf(e, "\n Pool %d Hash Table\n",i);
-        (*p)->dumpHash(e);
-    }
-}
-
-void
-PconnModule::DumpWrapper(StoreEntry *e)
-{
-    PconnModule::GetInstance()->dump(e);
 }
 

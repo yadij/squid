@@ -63,6 +63,14 @@ void Comm::SetSelect(int, unsigned int, PF *, void *, time_t) STUB
 Comm::Flag Comm::DoSelect(int) STUB_RETVAL(Comm::COMM_ERROR)
 void Comm::QuickPollRequired(void) STUB
 
+#include "comm/PconnModule.h"
+PconnModule * PconnModule::GetInstance() STUB_RETVAL(nullptr)
+void PconnModule::DumpWrapper(StoreEntry *) STUB
+PconnModule::PconnModule() {STUB}
+void PconnModule::registerWithCacheManager() STUB
+void PconnModule::add(PconnPool *) STUB
+void PconnModule::dump(StoreEntry *) STUB
+
 #include "comm/Read.h"
 void Comm::Read(const Comm::ConnectionPointer &conn, AsyncCall::Pointer &callback) STUB
 bool Comm::MonitorsRead(int fd) STUB_RETVAL(false)

@@ -96,37 +96,5 @@ private:
     int theCount; ///< the number of pooled connections
 };
 
-class StoreEntry;
-class PconnPool;
-
-/** \ingroup PConnAPI
- * The global registry of persistent connection pools.
- */
-class PconnModule
-{
-
-public:
-    /** the module is a singleton until we have instance based cachemanager
-     * management
-     */
-    static PconnModule * GetInstance();
-    /** A thunk to the still C like CacheManager callback api. */
-    static void DumpWrapper(StoreEntry *e);
-
-    PconnModule();
-    void registerWithCacheManager(void);
-
-    void add(PconnPool *);
-    void remove(PconnPool *); ///< unregister and forget about this pool object
-
-    OBJH dump;
-
-private:
-    typedef std::set<PconnPool*> Pools; ///< unordered PconnPool collection
-    Pools pools; ///< all live pools
-
-    static PconnModule * instance;
-};
-
 #endif /* SQUID_PCONN_H */
 

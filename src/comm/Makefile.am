@@ -31,6 +31,8 @@ libcomm_la_SOURCES= \
 	ModPoll.cc \
 	ModSelect.cc \
 	ModSelectWin32.cc \
+	PconnModule.cc \
+	PconnModule.h \
 	Read.cc \
 	Read.h \
 	TcpAcceptor.cc \
