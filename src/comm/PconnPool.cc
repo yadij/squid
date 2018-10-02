@@ -9,23 +9,13 @@
 /* DEBUG: section 48    Persistent Connections */
 
 #include "squid.h"
-#include "CachePeer.h"
-#include "comm.h"
 #include "comm/Connection.h"
 #include "comm/IdleConnList.h"
+#include "comm/PconnPool.h"
 #include "comm/PconnModule.h"
-#include "comm/Read.h"
 #include "fd.h"
-#include "fde.h"
-#include "globals.h"
-#include "mgr/Registration.h"
-#include "neighbors.h"
-#include "pconn.h"
 #include "PeerPoolMgr.h"
-#include "SquidConfig.h"
 #include "Store.h"
-
-/* ========== PconnPool PRIVATE FUNCTIONS ============================================ */
 
 const char *
 PconnPool::key(const Comm::ConnectionPointer &destLink, const char *domain)
@@ -72,8 +62,6 @@ PconnPool::dumpHash(StoreEntry *e) const
         ++i;
     }
 }
-
-/* ========== PconnPool PUBLIC FUNCTIONS ============================================ */
 
 PconnPool::PconnPool(const char *aDescr, const CbcPointer<PeerPoolMgr> &aMgr):
     table(NULL), descr(aDescr),

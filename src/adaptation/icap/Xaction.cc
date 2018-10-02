@@ -27,7 +27,6 @@
 #include "HttpReply.h"
 #include "icap_log.h"
 #include "ipcache.h"
-#include "pconn.h"
 #include "security/PeerConnector.h"
 #include "SquidConfig.h"
 #include "SquidTime.h"

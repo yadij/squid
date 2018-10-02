@@ -15,6 +15,7 @@
 
 class HttpRequest;
 class CachePeer;
+class CommCloseCbParams;
 class CommConnectCbParams;
 
 /// Maintains an fixed-size "standby" PconnPool for a single CachePeer.

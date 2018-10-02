@@ -49,7 +49,6 @@
 #include "neighbors.h"
 #include "NeighborTypeDomainList.h"
 #include "Parsing.h"
-#include "pconn.h"
 #include "PeerDigest.h"
 #include "PeerPoolMgr.h"
 #include "redirect.h"

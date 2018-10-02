@@ -29,7 +29,6 @@
 #include "ip/Intercept.h"
 #include "ip/QosConfig.h"
 #include "ip/tools.h"
-#include "pconn.h"
 #include "profiler/Profiler.h"
 #include "sbuf/SBuf.h"
 #include "SquidConfig.h"

@@ -6,43 +6,20 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef SQUID_PCONN_H
-#define SQUID_PCONN_H
+#ifndef _SQUID_SRC_COMM_PCONNPOOL_H
+#define _SQUID_SRC_COMM_PCONNPOOL_H
 
 #include "base/CbcPointer.h"
-#include "base/RunnersRegistry.h"
 #include "comm/forward.h"
-#include "mgr/forward.h"
-
-#include <set>
-
-/**
- \defgroup PConnAPI Persistent Connection API
- \ingroup Component
- *
- \todo CLEANUP: Break multiple classes out of the generic pconn.h header
- */
-
-class PconnPool;
-class PeerPoolMgr;
-
-#include "cbdata.h"
-#include "hash.h"
-/* for IOCB */
-#include "comm.h"
-
-/// \ingroup PConnAPI
-#define PCONN_HIST_SZ (1<<16)
-
-#include "ip/forward.h"
-
-class StoreEntry;
-class IdleConnLimit;
-
 /* for hash_table */
 #include "hash.h"
 
-/** \ingroup PConnAPI
+#define PCONN_HIST_SZ (1<<16)
+
+class PeerPoolMgr;
+class StoreEntry;
+
+/**
  * Manages idle persistent connections to a caller-defined set of
  * servers (e.g., all HTTP servers). Uses a collection of IdleConnLists
  * internally to list the individual open connections to each server.

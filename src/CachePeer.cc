@@ -9,9 +9,9 @@
 #include "squid.h"
 #include "acl/Gadgets.h"
 #include "CachePeer.h"
+#include "comm/PconnPool.h"
 #include "defines.h"
 #include "NeighborTypeDomainList.h"
-#include "pconn.h"
 #include "PeerPoolMgr.h"
 
 CBDATA_CLASS_INIT(CachePeer);

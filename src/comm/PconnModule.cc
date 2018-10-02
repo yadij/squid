@@ -10,8 +10,8 @@
 
 #include "squid.h"
 #include "comm/PconnModule.h"
+#include "comm/PconnPool.h"
 #include "mgr/Registration.h"
-#include "pconn.h"
 // for StoreEntry
 #include "Store.h"
 
@@ -45,7 +45,7 @@ void
 PconnModule::dump(StoreEntry *e)
 {
     int i = 0; // TODO: Why number pools if they all have names?
-    for (auto p : pools) {
+    for (const auto p : pools) {
         // TODO: Let each pool dump itself the way it wants to.
         e->appendf("\n Pool %d Stats\n", i);
         p->dumpHist(e);

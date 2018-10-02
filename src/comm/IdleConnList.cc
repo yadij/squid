@@ -11,9 +11,9 @@
 #include "squid.h"
 #include "comm/Connection.h"
 #include "comm/IdleConnList.h"
+#include "comm/PconnPool.h"
 #include "comm/Read.h"
 #include "fde.h"
-#include "pconn.h"
 #include "SquidConfig.h"
 
 /// pconn set size, increase for better memcache hit rate

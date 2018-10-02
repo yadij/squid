@@ -389,8 +389,6 @@ squid_SOURCES = \
 	Parsing.cc \
 	Parsing.h \
 	$(XPROF_STATS_SOURCE) \
-	pconn.cc \
-	pconn.h \
 	PeerDigest.h \
 	peer_digest.cc \
 	peer_proxy_negotiate_auth.h \
@@ -1101,7 +1099,6 @@ tests_testACLMaxUserIP_SOURCES= \
 	tests/stub_MemStore.cc \
 	mime.h \
 	tests/stub_mime.cc \
-	tests/stub_pconn.cc \
 	tests/stub_Port.cc \
 	repl_modules.h \
 	tests/stub_store.cc \
@@ -1304,7 +1301,6 @@ tests_testCacheManager_SOURCES = \
 	Notes.cc \
 	Notes.h \
 	Parsing.cc \
-	pconn.cc \
 	peer_digest.cc \
 	peer_proxy_negotiate_auth.h \
 	peer_proxy_negotiate_auth.cc \
@@ -1535,7 +1531,6 @@ tests_testDiskIO_SOURCES = \
 	mime.h \
 	tests/stub_mime.cc \
 	tests/stub_neighbors.cc \
-	tests/stub_pconn.cc \
 	tests/stub_Port.cc \
 	tests/stub_stat.cc \
 	tests/stub_store_client.cc \
@@ -1728,7 +1723,6 @@ tests_testEvent_SOURCES = \
 	Notes.cc \
 	Notes.h \
 	Parsing.cc \
-	pconn.cc \
 	peer_digest.cc \
 	peer_proxy_negotiate_auth.h \
 	peer_proxy_negotiate_auth.cc \
@@ -1961,7 +1955,6 @@ tests_testEventLoop_SOURCES = \
 	Notes.cc \
 	Notes.h \
 	Parsing.cc \
-	pconn.cc \
 	peer_digest.cc \
 	peer_proxy_negotiate_auth.h \
 	peer_proxy_negotiate_auth.cc \
@@ -2200,7 +2193,6 @@ tests_test_http_range_SOURCES = \
 	peer_userhash.cc \
 	Pipeline.cc \
 	Pipeline.h \
-	pconn.cc \
 	redirect.h \
 	tests/stub_redirect.cc \
 	refresh.h \
@@ -2499,7 +2491,6 @@ tests_testHttpRequest_SOURCES = \
 	Notes.cc \
 	Notes.h \
 	Parsing.cc \
-	pconn.cc \
 	peer_digest.cc \
 	peer_proxy_negotiate_auth.h \
 	peer_proxy_negotiate_auth.cc \
@@ -2904,7 +2895,6 @@ tests_testUfs_SOURCES = \
 	tests/stub_libicmp.cc \
 	tests/stub_liblog.cc \
 	tests/stub_neighbors.cc \
-	tests/stub_pconn.cc \
 	tests/stub_Port.cc \
 	tests/stub_UdsOp.cc \
 	internal.h \
@@ -3186,7 +3176,6 @@ tests_testRock_SOURCES = \
 	tests/stub_mime.cc \
 	tests/stub_neighbors.cc \
 	tests/stub_Port.cc \
-	tests/stub_pconn.cc \
 	tests/stub_store_client.cc \
 	store_rebuild.h \
 	tests/stub_store_rebuild.cc \
@@ -3347,7 +3336,6 @@ tests_testURL_SOURCES = \
 	Notes.h \
 	Notes.cc \
 	Parsing.cc \
-	pconn.cc \
 	peer_digest.cc \
 	peer_proxy_negotiate_auth.h \
 	peer_proxy_negotiate_auth.cc \
@@ -3565,7 +3553,6 @@ tests_testStatHist_SOURCES = \
 	tests/stub_MemObject.cc \
 	mime.h \
 	tests/stub_mime.cc \
-	tests/stub_pconn.cc \
 	tests/stub_stmem.cc \
 	repl_modules.h \
 	tests/stub_store.cc \

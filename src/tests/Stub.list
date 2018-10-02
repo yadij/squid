@@ -62,7 +62,6 @@ STUB_SOURCE= tests/STUB.h \
 	tests/stub_MemStore.cc \
 	tests/stub_mime.cc \
 	tests/stub_neighbors.cc \
-	tests/stub_pconn.cc \
 	tests/stub_Port.cc \
 	tests/stub_redirect.cc \
 	tests/stub_SBuf.cc \

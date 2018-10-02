@@ -70,6 +70,18 @@ PconnModule::PconnModule() {STUB}
 void PconnModule::add(PconnPool *) STUB
 void PconnModule::dump(StoreEntry *) STUB
 
+#include "comm/PconnPool.h"
+PconnPool::PconnPool(const char *, const CbcPointer<PeerPoolMgr>&) STUB
+PconnPool::~PconnPool() STUB
+void PconnPool::moduleInit() STUB
+void PconnPool::push(const Comm::ConnectionPointer &, const char *) STUB
+Comm::ConnectionPointer PconnPool::pop(const Comm::ConnectionPointer &, const char *, bool) STUB_RETVAL(Comm::ConnectionPointer())
+void PconnPool::count(int) STUB
+void PconnPool::noteUses(int) STUB
+void PconnPool::dumpHist(StoreEntry *) const STUB
+void PconnPool::dumpHash(StoreEntry *) const STUB
+void PconnPool::unlinkList(IdleConnList *) STUB
+
 #include "comm/Read.h"
 void Comm::Read(const Comm::ConnectionPointer &conn, AsyncCall::Pointer &callback) STUB
 bool Comm::MonitorsRead(int fd) STUB_RETVAL(false)

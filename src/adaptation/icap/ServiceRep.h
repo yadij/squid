@@ -16,8 +16,9 @@
 #include "base/AsyncJobCalls.h"
 #include "cbdata.h"
 #include "comm.h"
+#include "comm/forward.h"
 #include "FadingCounter.h"
-#include "pconn.h"
+
 #include <deque>
 
 namespace Adaptation

@@ -60,7 +60,6 @@
 #include "neighbors.h"
 #include "parser/Tokenizer.h"
 #include "Parsing.h"
-#include "pconn.h"
 #include "peer_sourcehash.h"
 #include "peer_userhash.h"
 #include "PeerSelectState.h"
