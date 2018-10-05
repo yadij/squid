@@ -45,7 +45,7 @@ Adaptation::Icap::ServiceRep::ServiceRep(const ServiceConfigPointer &svcCfg):
     isDetached(false)
 {
     setMaxConnections();
-    theIdleConns = new IdleConnList("ICAP Service", NULL);
+    theIdleConns = new Comm::IdleConnList("ICAP Service", nullptr);
 }
 
 Adaptation::Icap::ServiceRep::~ServiceRep()

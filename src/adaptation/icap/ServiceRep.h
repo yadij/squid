@@ -140,7 +140,7 @@ private:
     int theMaxConnections; ///< the maximum allowed connections to the service
     // TODO: use a better type like the FadingCounter for connOverloadReported
     mutable bool connOverloadReported; ///< whether we reported exceeding theMaxConnections
-    IdleConnList *theIdleConns; ///< idle persistent connection pool
+    Comm::IdleConnList *theIdleConns; ///< idle persistent connection pool
 
     FadingCounter theSessionFailures;
     const char *isSuspended; // also stores suspension reason for debugging

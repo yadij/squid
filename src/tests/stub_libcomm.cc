@@ -41,12 +41,13 @@ Comm::ConnOpener::ConnOpener(Comm::ConnectionPointer &, AsyncCall::Pointer &, ti
     bool Comm::IsConnOpen(const Comm::ConnectionPointer &) STUB_RETVAL(false)
 
 #include "comm/IdleConnList.h"
-IdleConnList::IdleConnList(const char *, PconnPool *) STUB
-IdleConnList::~IdleConnList() STUB
-void IdleConnList::push(const Comm::ConnectionPointer &) STUB
-Comm::ConnectionPointer IdleConnList::findUseable(const Comm::ConnectionPointer &) STUB_RETVAL(Comm::ConnectionPointer())
-void IdleConnList::clearHandlers(const Comm::ConnectionPointer &) STUB
-void IdleConnList::endingShutdown() STUB
+CBDATA_NAMESPACED_CLASS_INIT(Comm, IdleConnList);
+Comm::IdleConnList::IdleConnList(const char *, PconnPool *) {STUB}
+Comm::IdleConnList::~IdleConnList() STUB
+void Comm::IdleConnList::push(const Comm::ConnectionPointer &) STUB
+Comm::ConnectionPointer Comm::IdleConnList::findUseable(const Comm::ConnectionPointer &) STUB_RETVAL(Comm::ConnectionPointer())
+void Comm::IdleConnList::clearHandlers(const Comm::ConnectionPointer &) STUB
+void Comm::IdleConnList::endingShutdown() STUB
 
 #include "comm/IoCallback.h"
     void Comm::IoCallback::setCallback(iocb_type, AsyncCall::Pointer &, char *, FREE *, int) STUB
@@ -80,7 +81,7 @@ void PconnPool::count(int) STUB
 void PconnPool::noteUses(int) STUB
 void PconnPool::dumpHist(StoreEntry *) const STUB
 void PconnPool::dumpHash(StoreEntry *) const STUB
-void PconnPool::unlinkList(IdleConnList *) STUB
+void PconnPool::unlinkList(Comm::IdleConnList *) STUB
 
 #include "comm/Read.h"
 void Comm::Read(const Comm::ConnectionPointer &conn, AsyncCall::Pointer &callback) STUB

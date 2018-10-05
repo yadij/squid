@@ -28,6 +28,8 @@ typedef RefCount<Comm::Connection> ConnectionPointer;
 
 typedef std::vector<Comm::ConnectionPointer> ConnectionList;
 
+class IdleConnList;
+
 bool IsConnOpen(const Comm::ConnectionPointer &conn);
 
 // callback handler to process an FD which is available for writing.
@@ -37,9 +39,6 @@ PF HandleWrite;
 void SetSelect(int, unsigned int, PF *, void *, time_t);
 
 }; // namespace Comm
-
-// TODO move into Comm::
-class IdleConnList;
 
 #endif /* _SQUID_COMM_FORWARD_H */
 

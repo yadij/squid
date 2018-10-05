@@ -19,9 +19,9 @@
 /// pconn set size, increase for better memcache hit rate
 #define PCONN_FDS_SZ    8
 
-CBDATA_CLASS_INIT(IdleConnList);
+CBDATA_NAMESPACED_CLASS_INIT(Comm, IdleConnList);
 
-IdleConnList::IdleConnList(const char *aKey, PconnPool *thePool) :
+Comm::IdleConnList::IdleConnList(const char *aKey, PconnPool *thePool) :
     parent_(thePool)
 {
     //Initialize hash_link members
@@ -34,7 +34,7 @@ IdleConnList::IdleConnList(const char *aKey, PconnPool *thePool) :
 // TODO: re-attach to MemPools. WAS: theList = (?? *)pconn_fds_pool->alloc();
 }
 
-IdleConnList::~IdleConnList()
+Comm::IdleConnList::~IdleConnList()
 {
     if (parent_)
         parent_->unlinkList(this);
@@ -54,7 +54,7 @@ IdleConnList::~IdleConnList()
  * \retval >=0  The connection array index
  */
 int
-IdleConnList::findIndexOf(const Comm::ConnectionPointer &conn) const
+Comm::IdleConnList::findIndexOf(const Comm::ConnectionPointer &conn) const
 {
     for (int index = count() - 1; index >= 0; --index) {
         if (conn->fd == theList_[index]->fd) {
@@ -72,7 +72,7 @@ IdleConnList::findIndexOf(const Comm::ConnectionPointer &conn) const
  * \retval false The index is not an in-use entry.
  */
 bool
-IdleConnList::removeAt(size_t index)
+Comm::IdleConnList::removeAt(size_t index)
 {
     if (index >= count())
         return false;
@@ -92,7 +92,7 @@ IdleConnList::removeAt(size_t index)
 
 // almost a duplicate of removeFD. But drops multiple entries.
 void
-IdleConnList::closeN(size_t n)
+Comm::IdleConnList::closeN(size_t n)
 {
     if (n < 1) {
         debugs(48, 2, "Nothing to do.");
@@ -129,15 +129,15 @@ IdleConnList::closeN(size_t n)
 }
 
 void
-IdleConnList::clearHandlers(const Comm::ConnectionPointer &conn)
+Comm::IdleConnList::clearHandlers(const Comm::ConnectionPointer &conn)
 {
     debugs(48, 3, "removing close handler for " << conn);
-    comm_read_cancel(conn->fd, IdleConnList::Read, this);
+    comm_read_cancel(conn->fd, Comm::IdleConnList::Read, this);
     commUnsetConnTimeout(conn);
 }
 
 void
-IdleConnList::push(const Comm::ConnectionPointer &conn)
+Comm::IdleConnList::push(const Comm::ConnectionPointer &conn)
 {
     theList_.push_back(conn);
 
@@ -145,19 +145,19 @@ IdleConnList::push(const Comm::ConnectionPointer &conn)
         parent_->noteConnectionAdded();
 
     static char fakeReadBuf[4096]; // TODO: kill magic number.
-    AsyncCall::Pointer readCall = commCbCall(5,4, "IdleConnList::Read",
-                                  CommIoCbPtrFun(IdleConnList::Read, this));
+    AsyncCall::Pointer readCall = commCbCall(5,4, "Comm::IdleConnList::Read",
+                                  CommIoCbPtrFun(Comm::IdleConnList::Read, this));
     comm_read(conn, fakeReadBuf, sizeof(fakeReadBuf), readCall);
 
-    AsyncCall::Pointer timeoutCall = commCbCall(5,4, "IdleConnList::Timeout",
-                                     CommTimeoutCbPtrFun(IdleConnList::Timeout, this));
+    AsyncCall::Pointer timeoutCall = commCbCall(5,4, "Comm::IdleConnList::Timeout",
+                                     CommTimeoutCbPtrFun(Comm::IdleConnList::Timeout, this));
     commSetConnTimeout(conn, conn->timeLeft(Config.Timeout.serverIdlePconn), timeoutCall);
 }
 
 /// Determine whether an entry in the idle list is available for use.
 /// Returns false if the entry is unset, closed or closing.
 bool
-IdleConnList::isAvailable(size_t i) const
+Comm::IdleConnList::isAvailable(size_t i) const
 {
     const Comm::ConnectionPointer &conn = theList_[i];
 
@@ -173,7 +173,7 @@ IdleConnList::isAvailable(size_t i) const
 }
 
 Comm::ConnectionPointer
-IdleConnList::pop()
+Comm::IdleConnList::pop()
 {
     for (size_t i = count()-1; i >= 0; --i) {
 
@@ -205,7 +205,7 @@ IdleConnList::pop()
  * quite a bit of CPU. Just keep it in mind.
  */
 Comm::ConnectionPointer
-IdleConnList::findUseable(const Comm::ConnectionPointer &aKey)
+Comm::IdleConnList::findUseable(const Comm::ConnectionPointer &aKey)
 {
     assert(theList_.size());
 
@@ -244,7 +244,7 @@ IdleConnList::findUseable(const Comm::ConnectionPointer &aKey)
 
 /* might delete list */
 void
-IdleConnList::findAndClose(const Comm::ConnectionPointer &conn)
+Comm::IdleConnList::findAndClose(const Comm::ConnectionPointer &conn)
 {
     const int index = findIndexOf(conn);
     if (index >= 0) {
@@ -258,7 +258,7 @@ IdleConnList::findAndClose(const Comm::ConnectionPointer &conn)
 }
 
 void
-IdleConnList::Read(const Comm::ConnectionPointer &conn, char *, size_t len, Comm::Flag flag, int, void *data)
+Comm::IdleConnList::Read(const Comm::ConnectionPointer &conn, char *, size_t len, Comm::Flag flag, int, void *data)
 {
     debugs(48, 3, len << " bytes from " << conn);
 
@@ -274,7 +274,7 @@ IdleConnList::Read(const Comm::ConnectionPointer &conn, char *, size_t len, Comm
 }
 
 void
-IdleConnList::Timeout(const CommTimeoutCbParams &io)
+Comm::IdleConnList::Timeout(const CommTimeoutCbParams &io)
 {
     debugs(48, 3, io.conn);
     auto *list = static_cast<IdleConnList *>(io.data);
@@ -283,7 +283,7 @@ IdleConnList::Timeout(const CommTimeoutCbParams &io)
 }
 
 void
-IdleConnList::endingShutdown()
+Comm::IdleConnList::endingShutdown()
 {
     closeN(count());
 }

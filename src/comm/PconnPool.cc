@@ -106,7 +106,7 @@ PconnPool::push(const Comm::ConnectionPointer &conn, const char *domain)
     const auto aKey = Key(conn, domain);
     auto &list = data[aKey];
     if (!list) {
-        list = new IdleConnList(aKey, this);
+        list = new Comm::IdleConnList(aKey, this);
         debugs(48, 3, "new IdleConnList for {" << aKey << "}" );
     } else {
         debugs(48, 3, "found IdleConnList for {" << aKey << "}" );
@@ -179,7 +179,7 @@ PconnPool::closeN(int n)
 }
 
 void
-PconnPool::unlinkList(IdleConnList *list)
+PconnPool::unlinkList(Comm::IdleConnList *list)
 {
     theCount -= list->count();
     assert(theCount >= 0);

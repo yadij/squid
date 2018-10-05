@@ -17,6 +17,9 @@
 
 class PconnPool;
 
+namespace Comm
+{
+
 /**
  * A list of connections currently open to a particular destination end-point.
  */
@@ -73,6 +76,8 @@ private:
      */
     PconnPool *parent_ = nullptr;
 };
+
+} // namespace Comm
 
 #endif /* _SQUID_SRC_COMM_IDLECONNLIST_H */
 

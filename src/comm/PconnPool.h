@@ -21,7 +21,7 @@ class StoreEntry;
 
 /**
  * Manages idle persistent connections to a caller-defined set of
- * servers (e.g., all HTTP servers). Uses a collection of IdleConnLists
+ * servers (e.g., all HTTP servers). Uses a collection of Comm::IdleConnLists
  * internally to list the individual open connections to each server.
  * Controls lists existence and limits the total number of
  * idle connections across the collection.
@@ -51,7 +51,7 @@ public:
     void count(int uses);
     void dumpHist(StoreEntry *e) const;
     void dumpHash(StoreEntry *e) const;
-    void unlinkList(IdleConnList *list);
+    void unlinkList(Comm::IdleConnList *list);
     void noteUses(int uses);
     /// closes any n connections, regardless of their destination
     void closeN(int n);
@@ -72,7 +72,7 @@ private:
     CbcPointer<PeerPoolMgr> mgr; ///< optional pool manager (for notifications)
 
     /// collection of connections grouped by Key()
-    std::map<key_type, IdleConnList *> data;
+    std::map<key_type, Comm::IdleConnList *> data;
 
     /// The number of pooled connections. Each table entry stores a list of
     /// multiple connections, so data::size() is not usable as the count.
