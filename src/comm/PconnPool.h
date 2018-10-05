@@ -64,13 +64,19 @@ public:
 
 private:
 
-    static const char *key(const Comm::ConnectionPointer &destLink, const char *domain);
+    typedef const char *key_type;
+    static const key_type Key(const Comm::ConnectionPointer &destLink, const char *domain);
 
     int hist[PCONN_HIST_SZ];
-    hash_table *table;
     const char *descr;
     CbcPointer<PeerPoolMgr> mgr; ///< optional pool manager (for notifications)
-    int theCount; ///< the number of pooled connections
+
+    /// collection of connections grouped by Key()
+    std::map<key_type, IdleConnList *> data;
+
+    /// The number of pooled connections. Each table entry stores a list of
+    /// multiple connections, so data::size() is not usable as the count.
+    int theCount;
 };
 
 #endif /* SQUID_PCONN_H */
