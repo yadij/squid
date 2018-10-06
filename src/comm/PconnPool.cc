@@ -24,8 +24,8 @@
  * Always produces a value. The value produced is not guaranteed to be
  * valid past any subsequent call to this function.
  */
-const PconnPool::key_type
-PconnPool::Key(const Comm::ConnectionPointer &destLink, const char *domain)
+const Comm::PconnPool::key_type
+Comm::PconnPool::Key(const Comm::ConnectionPointer &destLink, const char *domain)
 {
     LOCAL_ARRAY(char, buf, SQUIDHOSTNAMELEN * 3 + 10);
 
@@ -40,7 +40,7 @@ PconnPool::Key(const Comm::ConnectionPointer &destLink, const char *domain)
 }
 
 void
-PconnPool::dumpHist(StoreEntry * e) const
+Comm::PconnPool::dumpHist(StoreEntry * e) const
 {
     storeAppendPrintf(e,
                       "%s persistent connection counts:\n"
@@ -58,7 +58,7 @@ PconnPool::dumpHist(StoreEntry * e) const
 }
 
 void
-PconnPool::dumpHash(StoreEntry *e) const
+Comm::PconnPool::dumpHash(StoreEntry *e) const
 {
     size_t pos = 0;
     for (const auto itr : data) {
@@ -67,7 +67,7 @@ PconnPool::dumpHash(StoreEntry *e) const
     }
 }
 
-PconnPool::PconnPool(const char *aDescr, const CbcPointer<PeerPoolMgr> &aMgr):
+Comm::PconnPool::PconnPool(const char *aDescr, const CbcPointer<PeerPoolMgr> &aMgr):
     descr(aDescr),
     mgr(aMgr),
     theCount(0)
@@ -75,12 +75,12 @@ PconnPool::PconnPool(const char *aDescr, const CbcPointer<PeerPoolMgr> &aMgr):
     for (int i = 0; i < PCONN_HIST_SZ; ++i)
         hist[i] = 0;
 
-    Comm::PconnModule::GetInstance()->add(this);
+    PconnModule::GetInstance()->add(this);
 }
 
-PconnPool::~PconnPool()
+Comm::PconnPool::~PconnPool()
 {
-    Comm::PconnModule::GetInstance()->remove(this);
+    PconnModule::GetInstance()->remove(this);
     // TODO make data store Pointer instead of raw-pointers
     for (auto i : data) {
         delete i.second;
@@ -90,7 +90,7 @@ PconnPool::~PconnPool()
 }
 
 void
-PconnPool::push(const Comm::ConnectionPointer &conn, const char *domain)
+Comm::PconnPool::push(const Comm::ConnectionPointer &conn, const char *domain)
 {
     if (fdUsageHigh()) {
         debugs(48, 3, HERE << "Not many unused FDs");
@@ -125,7 +125,7 @@ PconnPool::push(const Comm::ConnectionPointer &conn, const char *domain)
 }
 
 Comm::ConnectionPointer
-PconnPool::pop(const Comm::ConnectionPointer &dest, const char *domain, bool keepOpen)
+Comm::PconnPool::pop(const Comm::ConnectionPointer &dest, const char *domain, bool keepOpen)
 {
     const auto aKey = Key(dest, domain);
 
@@ -150,14 +150,14 @@ PconnPool::pop(const Comm::ConnectionPointer &dest, const char *domain, bool kee
 }
 
 void
-PconnPool::notifyManager(const char *reason)
+Comm::PconnPool::notifyManager(const char *reason)
 {
     if (mgr.valid())
         PeerPoolMgr::Checkpoint(mgr, reason);
 }
 
 void
-PconnPool::closeN(int n)
+Comm::PconnPool::closeN(int n)
 {
     if (count() < 1)
         return; // nothing to close
@@ -179,7 +179,7 @@ PconnPool::closeN(int n)
 }
 
 void
-PconnPool::unlinkList(Comm::IdleConnList *list)
+Comm::PconnPool::unlinkList(Comm::IdleConnList *list)
 {
     theCount -= list->count();
     assert(theCount >= 0);
@@ -193,7 +193,7 @@ PconnPool::unlinkList(Comm::IdleConnList *list)
 }
 
 void
-PconnPool::noteUses(int uses)
+Comm::PconnPool::noteUses(int uses)
 {
     if (uses >= PCONN_HIST_SZ)
         uses = PCONN_HIST_SZ - 1;

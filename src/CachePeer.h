@@ -11,6 +11,7 @@
 
 #include "acl/forward.h"
 #include "base/CbcPointer.h"
+#include "comm/forward.h"
 #include "enums.h"
 #include "icp_opcode.h"
 #include "ip/Address.h"
@@ -24,7 +25,6 @@
 #endif
 
 class NeighborTypeDomainList;
-class PconnPool;
 class PeerDigest;
 class PeerPoolMgr;
 
@@ -179,7 +179,7 @@ public:
 
     /// optional "cache_peer standby=limit" feature
     struct {
-        PconnPool *pool = nullptr;    ///< idle connection pool for this peer
+        Comm::PconnPool *pool = nullptr; ///< idle connection pool for this peer
         CbcPointer<PeerPoolMgr> mgr;  ///< pool manager
         int limit = 0;                ///< the limit itself
         bool waitingForClose = false; ///< a conn must close before we open a standby conn

@@ -284,7 +284,7 @@ PeerPoolMgrsRr::syncConfig()
         assert(!p->standby.pool);
         if (p->standby.limit) {
             p->standby.mgr = new PeerPoolMgr(p);
-            p->standby.pool = new PconnPool(p->name, p->standby.mgr);
+            p->standby.pool = new Comm::PconnPool(p->name, p->standby.mgr);
             AsyncJob::Start(p->standby.mgr.get());
         }
     }

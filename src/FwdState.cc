@@ -74,7 +74,7 @@ static OBJH fwdStats;
 #define MAX_FWD_STATS_IDX 9
 static int FwdReplyCodes[MAX_FWD_STATS_IDX + 1][Http::scInvalidHeader + 1];
 
-static PconnPool *fwdPconnPool = new PconnPool("server-peers", NULL);
+static Comm::PconnPool *fwdPconnPool = new Comm::PconnPool("server-peers", nullptr);
 CBDATA_CLASS_INIT(FwdState);
 
 class FwdStatePeerAnswerDialer: public CallDialer, public Security::PeerConnector::CbDialer

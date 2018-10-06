@@ -72,16 +72,16 @@ void Comm::PconnModule::add(PconnPool *) STUB
 void Comm::PconnModule::dump(StoreEntry *) STUB
 
 #include "comm/PconnPool.h"
-PconnPool::PconnPool(const char *, const CbcPointer<PeerPoolMgr>&) STUB
-PconnPool::~PconnPool() STUB
-void PconnPool::moduleInit() STUB
-void PconnPool::push(const Comm::ConnectionPointer &, const char *) STUB
-Comm::ConnectionPointer PconnPool::pop(const Comm::ConnectionPointer &, const char *, bool) STUB_RETVAL(Comm::ConnectionPointer())
-void PconnPool::count(int) STUB
-void PconnPool::noteUses(int) STUB
-void PconnPool::dumpHist(StoreEntry *) const STUB
-void PconnPool::dumpHash(StoreEntry *) const STUB
-void PconnPool::unlinkList(Comm::IdleConnList *) STUB
+Comm::PconnPool::PconnPool(const char *, const CbcPointer<PeerPoolMgr>&) STUB
+Comm::PconnPool::~PconnPool() STUB
+void Comm::PconnPool::moduleInit() STUB
+void Comm::PconnPool::push(const Comm::ConnectionPointer &, const char *) STUB
+Comm::ConnectionPointer Comm::PconnPool::pop(const Comm::ConnectionPointer &, const char *, bool) STUB_RETVAL(Comm::ConnectionPointer())
+void Comm::PconnPool::count(int) STUB
+void Comm::PconnPool::noteUses(int) STUB
+void Comm::PconnPool::dumpHist(StoreEntry *) const STUB
+void Comm::PconnPool::dumpHash(StoreEntry *) const STUB
+void Comm::PconnPool::unlinkList(Comm::IdleConnList *) STUB
 
 #include "comm/Read.h"
 void Comm::Read(const Comm::ConnectionPointer &conn, AsyncCall::Pointer &callback) STUB

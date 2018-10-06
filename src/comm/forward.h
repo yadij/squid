@@ -35,6 +35,9 @@ bool IsConnOpen(const Comm::ConnectionPointer &conn);
 // callback handler to process an FD which is available for writing.
 PF HandleWrite;
 
+class PconnModule;
+class PconnPool;
+
 /// Mark an FD to be watched for its IO status.
 void SetSelect(int, unsigned int, PF *, void *, time_t);
 

@@ -26,8 +26,6 @@
 
 class AccessLogEntry;
 typedef RefCount<AccessLogEntry> AccessLogEntryPointer;
-class PconnPool;
-typedef RefCount<PconnPool> PconnPoolPointer;
 class ErrorState;
 class HttpRequest;
 

@@ -9,11 +9,11 @@
 #ifndef _SQUID_SRC_COMM_PCONNMODULE_H
 #define _SQUID_SRC_COMM_PCONNMODULE_H
 
+#include "comm/forward.h"
 // for OBJH
 #include "mgr/forward.h"
 
 class StoreEntry;
-class PconnPool;
 
 namespace Comm
 {

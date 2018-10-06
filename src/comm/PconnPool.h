@@ -19,6 +19,9 @@
 class PeerPoolMgr;
 class StoreEntry;
 
+namespace Comm
+{
+
 /**
  * Manages idle persistent connections to a caller-defined set of
  * servers (e.g., all HTTP servers). Uses a collection of Comm::IdleConnLists
@@ -78,6 +81,8 @@ private:
     /// multiple connections, so data::size() is not usable as the count.
     int theCount;
 };
+
+} // namespace Comm
 
 #endif /* SQUID_PCONN_H */
 
