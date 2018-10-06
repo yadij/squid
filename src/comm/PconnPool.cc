@@ -75,12 +75,12 @@ PconnPool::PconnPool(const char *aDescr, const CbcPointer<PeerPoolMgr> &aMgr):
     for (int i = 0; i < PCONN_HIST_SZ; ++i)
         hist[i] = 0;
 
-    PconnModule::GetInstance()->add(this);
+    Comm::PconnModule::GetInstance()->add(this);
 }
 
 PconnPool::~PconnPool()
 {
-    PconnModule::GetInstance()->remove(this);
+    Comm::PconnModule::GetInstance()->remove(this);
     // TODO make data store Pointer instead of raw-pointers
     for (auto i : data) {
         delete i.second;

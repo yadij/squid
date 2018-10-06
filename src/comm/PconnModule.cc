@@ -15,34 +15,34 @@
 // for StoreEntry
 #include "Store.h"
 
-PconnModule::PconnModule()
+Comm::PconnModule::PconnModule()
 {
     Mgr::RegisterAction("pconn",
                         "Persistent Connection Utilization Histograms",
                         DumpWrapper, 0, 1);
 }
 
-PconnModule *
-PconnModule::GetInstance()
+Comm::PconnModule *
+Comm::PconnModule::GetInstance()
 {
     static PconnModule instance;
     return &instance;
 }
 
 void
-PconnModule::add(PconnPool *aPool)
+Comm::PconnModule::add(PconnPool *aPool)
 {
     pools.insert(aPool);
 }
 
 void
-PconnModule::remove(PconnPool *aPool)
+Comm::PconnModule::remove(PconnPool *aPool)
 {
     pools.erase(aPool);
 }
 
 void
-PconnModule::dump(StoreEntry *e)
+Comm::PconnModule::dump(StoreEntry *e)
 {
     int i = 0; // TODO: Why number pools if they all have names?
     for (const auto p : pools) {
@@ -56,8 +56,8 @@ PconnModule::dump(StoreEntry *e)
 }
 
 void
-PconnModule::DumpWrapper(StoreEntry *e)
+Comm::PconnModule::DumpWrapper(StoreEntry *e)
 {
-    PconnModule::GetInstance()->dump(e);
+    Comm::PconnModule::GetInstance()->dump(e);
 }
 

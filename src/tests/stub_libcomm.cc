@@ -65,11 +65,11 @@ Comm::Flag Comm::DoSelect(int) STUB_RETVAL(Comm::COMM_ERROR)
 void Comm::QuickPollRequired(void) STUB
 
 #include "comm/PconnModule.h"
-PconnModule * PconnModule::GetInstance() STUB_RETVAL(nullptr)
-void PconnModule::DumpWrapper(StoreEntry *) STUB
-PconnModule::PconnModule() {STUB}
-void PconnModule::add(PconnPool *) STUB
-void PconnModule::dump(StoreEntry *) STUB
+Comm::PconnModule * Comm::PconnModule::GetInstance() STUB_RETVAL(nullptr)
+void Comm::PconnModule::DumpWrapper(StoreEntry *) STUB
+Comm::PconnModule::PconnModule() {STUB}
+void Comm::PconnModule::add(PconnPool *) STUB
+void Comm::PconnModule::dump(StoreEntry *) STUB
 
 #include "comm/PconnPool.h"
 PconnPool::PconnPool(const char *, const CbcPointer<PeerPoolMgr>&) STUB

@@ -15,6 +15,9 @@
 class StoreEntry;
 class PconnPool;
 
+namespace Comm
+{
+
 /**
  * The global registry of persistent connection pools.
  * This simple class exists only for the cache manager
@@ -42,6 +45,8 @@ public:
 private:
     std::set<PconnPool*> pools; ///< collection of registered pools
 };
+
+} // namespace Comm
 
 #endif /* _SQUID_SRC_COMM_PCONNMODULE_H */
 
