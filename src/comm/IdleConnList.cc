@@ -30,8 +30,6 @@ Comm::IdleConnList::IdleConnList(const char *aKey, PconnPool *thePool) :
     theList_.reserve(PCONN_FDS_SZ);
 
     registerRunner();
-
-// TODO: re-attach to MemPools. WAS: theList = (?? *)pconn_fds_pool->alloc();
 }
 
 Comm::IdleConnList::~IdleConnList()
