@@ -23,12 +23,12 @@ namespace Comm
 /**
  * A list of connections currently open to a particular destination end-point.
  */
-class IdleConnList: public hash_link, private IndependentRunner
+class IdleConnList : private IndependentRunner
 {
     CBDATA_CLASS(IdleConnList);
 
 public:
-    IdleConnList(const char *key, PconnPool *parent);
+    IdleConnList(const Comm::PconnKey &name, PconnPool *parent);
     ~IdleConnList();
 
     /// Pass control of the connection to the idle list.
@@ -75,6 +75,9 @@ private:
      * full duration of our existence.
      */
     PconnPool *parent_ = nullptr;
+
+    /// the name (key) our parent uses to describe this list
+    Comm::PconnKey name;
 };
 
 } // namespace Comm

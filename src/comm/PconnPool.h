@@ -11,8 +11,6 @@
 
 #include "base/CbcPointer.h"
 #include "comm/forward.h"
-/* for hash_table */
-#include "hash.h"
 
 #define PCONN_HIST_SZ (1<<16)
 
@@ -67,15 +65,14 @@ public:
 
 private:
 
-    typedef const char *key_type;
-    static const key_type Key(const Comm::ConnectionPointer &destLink, const char *domain);
+    static const PconnKey Key(const Comm::ConnectionPointer &destLink, const char *domain);
 
     int hist[PCONN_HIST_SZ];
     const char *descr;
     CbcPointer<PeerPoolMgr> mgr; ///< optional pool manager (for notifications)
 
     /// collection of connections grouped by Key()
-    std::map<key_type, Comm::IdleConnList *> data;
+    std::map<Comm::PconnKey, Comm::IdleConnList *> data;
 
     /// The number of pooled connections. Each table entry stores a list of
     /// multiple connections, so data::size() is not usable as the count.

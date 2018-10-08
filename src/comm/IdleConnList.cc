@@ -14,6 +14,7 @@
 #include "comm/PconnPool.h"
 #include "comm/Read.h"
 #include "fde.h"
+#include "sbuf/SBuf.h"
 #include "SquidConfig.h"
 
 /// pconn set size, increase for better memcache hit rate
@@ -21,12 +22,10 @@
 
 CBDATA_NAMESPACED_CLASS_INIT(Comm, IdleConnList);
 
-Comm::IdleConnList::IdleConnList(const char *aKey, PconnPool *thePool) :
-    parent_(thePool)
+Comm::IdleConnList::IdleConnList(const Comm::PconnKey &aName, PconnPool *thePool) :
+    parent_(thePool),
+    name(aName)
 {
-    //Initialize hash_link members
-    key = xstrdup(aKey);
-
     theList_.reserve(PCONN_FDS_SZ);
 
     registerRunner();
@@ -41,8 +40,6 @@ Comm::IdleConnList::~IdleConnList()
         parent_ = nullptr; // prevent reentrant notifications and deletions
         closeN(count());
     }
-
-    xfree(key);
 }
 
 /** Search the list. Matches by FD socket number.
@@ -56,12 +53,12 @@ Comm::IdleConnList::findIndexOf(const Comm::ConnectionPointer &conn) const
 {
     for (int index = count() - 1; index >= 0; --index) {
         if (conn->fd == theList_[index]->fd) {
-            debugs(48, 3, "found " << conn << " at index " << index);
+            debugs(48, 3, "found " << conn << " at index " << index << " pconn to " << name);
             return index;
         }
     }
 
-    debugs(48, 2, conn << " NOT FOUND!");
+    debugs(48, 2, conn << " NOT FOUND! for " << name);
     return -1;
 }
 
@@ -72,6 +69,7 @@ Comm::IdleConnList::findIndexOf(const Comm::ConnectionPointer &conn) const
 bool
 Comm::IdleConnList::removeAt(size_t index)
 {
+    debugs(48, 3, "remove index " << index << " of " << count() << " pconn to " << name);
     if (index >= count())
         return false;
 
@@ -80,7 +78,7 @@ Comm::IdleConnList::removeAt(size_t index)
     if (parent_) {
         parent_->noteConnectionRemoved();
         if (count() == 0) {
-            debugs(48, 3, "deleting " << hashKeyStr(this));
+            debugs(48, 3, "deleting " << name);
             delete this;
         }
     }
@@ -121,7 +119,7 @@ Comm::IdleConnList::closeN(size_t n)
     }
 
     if (parent_ && count() == 0) {
-        debugs(48, 3, "deleting " << hashKeyStr(this));
+        debugs(48, 3, "deleting " << name);
         delete this;
     }
 }

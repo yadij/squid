@@ -20,23 +20,23 @@
 /**
  * Generate the hash key for storing or looking up the provided connection
  * object for use with the given domain.
- *
- * Always produces a value. The value produced is not guaranteed to be
- * valid past any subsequent call to this function.
  */
-const Comm::PconnPool::key_type
+const Comm::PconnKey
 Comm::PconnPool::Key(const Comm::ConnectionPointer &destLink, const char *domain)
 {
-    LOCAL_ARRAY(char, buf, SQUIDHOSTNAMELEN * 3 + 10);
+    static char ipstr[MAX_IPSTRLEN];
+    *ipstr = 0;
+    destLink->remote.toUrl(ipstr, MAX_IPSTRLEN);
 
-    destLink->remote.toUrl(buf, SQUIDHOSTNAMELEN * 3 + 10);
+    SBuf keyOut;
+    keyOut.append(ipstr);
     if (domain) {
-        const int used = strlen(buf);
-        snprintf(buf+used, SQUIDHOSTNAMELEN * 3 + 10-used, "/%s", domain);
+        keyOut.append("/", 1);
+        keyOut.append(domain);
     }
 
-    debugs(48,6,"key(" << destLink << ", " << (domain?domain:"[no domain]") << ") is {" << buf << "}" );
-    return buf;
+    debugs(48,6,"key(" << destLink << ", " << (domain?domain:"[no domain]") << ") is {" << keyOut << "}" );
+    return keyOut;
 }
 
 void
@@ -62,7 +62,7 @@ Comm::PconnPool::dumpHash(StoreEntry *e) const
 {
     size_t pos = 0;
     for (const auto itr : data) {
-        e->appendf("\t item %" PRIuSIZE":\t%s\n", pos, itr.first);
+        e->appendf("\t item %" PRIuSIZE":\t" SQUIDSBUFPH "\n", pos, SQUIDSBUFPRINT(itr.first));
         ++pos;
     }
 }
@@ -107,16 +107,16 @@ Comm::PconnPool::push(const Comm::ConnectionPointer &conn, const char *domain)
     auto &list = data[aKey];
     if (!list) {
         list = new Comm::IdleConnList(aKey, this);
-        debugs(48, 3, "new IdleConnList for {" << aKey << "}" );
+        debugs(48, 3, "list=" << list << " new IdleConnList for {" << aKey << "}" );
     } else {
-        debugs(48, 3, "found IdleConnList for {" << aKey << "}" );
+        debugs(48, 3, "list=" << list << " found IdleConnList for {" << aKey << "}" );
     }
 
     list->push(conn);
     assert(!comm_has_incomplete_write(conn->fd));
 
     LOCAL_ARRAY(char, desc, FD_DESC_SZ);
-    snprintf(desc, FD_DESC_SZ, "Idle server: %s", aKey);
+    snprintf(desc, FD_DESC_SZ, "Idle server: " SQUIDSBUFPH, SQUIDSBUFPRINT(aKey));
     fd_note(conn->fd, desc);
     debugs(48, 3, HERE << "pushed " << conn << " for " << aKey);
 
@@ -135,12 +135,11 @@ Comm::PconnPool::pop(const Comm::ConnectionPointer &dest, const char *domain, bo
         // failure notifications resume standby conn creation after fdUsageHigh
         notifyManager("pop failure");
         return Comm::ConnectionPointer();
-    } else {
-        debugs(48, 3, "found " << aKey << (keepOpen ? " to use" : " to kill"));
     }
 
     /* may delete list */
     auto popped = list->second->findUseable(dest);
+    debugs(48, 3, "list=" << list->second << " found " << aKey << (keepOpen ? " to use" : " to kill") << " popped " << popped);
     if (!keepOpen && Comm::IsConnOpen(popped))
         popped->close();
 

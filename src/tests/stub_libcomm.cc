@@ -42,7 +42,7 @@ Comm::ConnOpener::ConnOpener(Comm::ConnectionPointer &, AsyncCall::Pointer &, ti
 
 #include "comm/IdleConnList.h"
 CBDATA_NAMESPACED_CLASS_INIT(Comm, IdleConnList);
-Comm::IdleConnList::IdleConnList(const char *, PconnPool *) {STUB}
+Comm::IdleConnList::IdleConnList(const Comm::PconnKey &, PconnPool *) {STUB}
 Comm::IdleConnList::~IdleConnList() STUB
 void Comm::IdleConnList::push(const Comm::ConnectionPointer &) STUB
 Comm::ConnectionPointer Comm::IdleConnList::findUseable(const Comm::ConnectionPointer &) STUB_RETVAL(Comm::ConnectionPointer())
