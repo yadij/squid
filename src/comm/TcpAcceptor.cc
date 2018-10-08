@@ -208,6 +208,19 @@ Comm::TcpAcceptor::handleClosure(const CommCloseCbParams &)
     Must(done());
 }
 
+/// whether the given accept() errno result can be ignored
+bool
+Comm::TcpAcceptor::ignoreError(int err) const
+{
+    // ECONNABORTED means the remote endpoint disconnected already.
+    // nothing to be done but ignore and keep listening
+    if (err == ECONNABORTED)
+        return true;
+
+    // also ignore generic ignorable I/O errors
+    return ignoreErrno(err);
+}
+
 /**
  * This private callback is called whenever a filedescriptor is ready
  * to dupe itself and fob off an accept()ed connection
@@ -366,7 +379,7 @@ Comm::TcpAcceptor::oldAccept(Comm::ConnectionPointer &details)
 
         PROF_stop(comm_accept);
 
-        if (ignoreErrno(errcode)) {
+        if (ignoreError(errcode)) {
             debugs(50, 5, status() << ": " << xstrerr(errcode));
             return Comm::NOMESSAGE;
         } else if (ENFILE == errno || EMFILE == errno) {

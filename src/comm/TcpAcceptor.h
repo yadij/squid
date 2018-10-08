@@ -105,6 +105,7 @@ private:
     void handleClosure(const CommCloseCbParams &io);
     /// whether we are listening on one of the squid.conf *ports
     bool intendedForUserConnections() const { return bool(listenPort_); }
+    bool ignoreError(int) const;
 };
 
 } // namespace Comm
