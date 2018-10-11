@@ -10,10 +10,10 @@
 
 #include "squid.h"
 #include "DiskIO/DiskDaemon/diomsg.h"
-#include "hash.h"
 
 #include <cerrno>
 #include <iostream>
+#include <map>
 #if HAVE_SYS_IPC_H
 #include <sys/ipc.h>
 #endif
@@ -35,19 +35,17 @@ xassert(const char *msg, const char *file, int line)
 const int diomsg::msg_snd_rcv_sz = sizeof(diomsg) - sizeof(mtyp_t);
 #define DEBUG(LEVEL) if ((LEVEL) <= DebugLevel)
 
-class file_state : public hash_link
+class file_state
 {
 public:
-    file_state(int anId, int anFd) : id(anId), fd(anFd) {
-        key = &id;          /* gack */
-    }
+    file_state(int anId, int anFd) : id(anId), fd(anFd) {}
 
     int id = 0;
     int fd = 0;
     off_t offset = 0;
 };
 
-static hash_table *hash = NULL;
+static std::map<int, file_state *> Files;
 static pid_t mypid;
 static char *shmbuf;
 static int DebugLevel = 0;
@@ -56,7 +54,6 @@ static int
 do_open(diomsg * r, int, const char *buf)
 {
     int fd;
-    file_state *fs;
     /*
      * note r->offset holds open() flags
      */
@@ -71,8 +68,12 @@ do_open(diomsg * r, int, const char *buf)
         return -errno;
     }
 
-    fs = new file_state(r->id, fd);
-    hash_join(hash, (hash_link *) fs);
+    const auto exists = Files.at(r->id);
+    assert(!exists);
+
+    const auto fs = new file_state(r->id, fd);
+    Files.emplace(r->id, fs);
+
     DEBUG(2) {
         fprintf(stderr, "%d OPEN  id %d, FD %d, fs %p\n",
                 (int) mypid,
@@ -86,11 +87,8 @@ do_open(diomsg * r, int, const char *buf)
 static int
 do_close(diomsg * r, int)
 {
-    int fd;
-    file_state *fs;
-    fs = (file_state *) hash_lookup(hash, &r->id);
-
-    if (NULL == fs) {
+    const auto fs = Files.find(r->id);
+    if (fs == Files.end() || !fs->second) {
         errno = EBADF;
         DEBUG(1) {
             fprintf(stderr, "%d CLOSE id %d: ", (int) mypid, r->id);
@@ -100,16 +98,16 @@ do_close(diomsg * r, int)
         return -errno;
     }
 
-    fd = fs->fd;
-    hash_remove_link(hash, (hash_link *) fs);
+    int fd = fs->second->fd;
     DEBUG(2) {
         fprintf(stderr, "%d CLOSE id %d, FD %d, fs %p\n",
                 (int) mypid,
                 r->id,
-                fs->fd,
-                fs);
+                fd,
+                fs->second);
     }
-    delete fs;
+    delete fs->second;
+    Files.erase(fs);
     return close(fd);
 }
 
@@ -118,10 +116,9 @@ do_read(diomsg * r, int, char *buf)
 {
     int x;
     int readlen = r->size;
-    file_state *fs;
-    fs = (file_state *) hash_lookup(hash, &r->id);
 
-    if (NULL == fs) {
+    const auto itr = Files.find(r->id);
+    if (itr == Files.end() || !itr->second) {
         errno = EBADF;
         DEBUG(1) {
             fprintf(stderr, "%d READ  id %d: ", (int) mypid, r->id);
@@ -130,6 +127,7 @@ do_read(diomsg * r, int, char *buf)
 
         return -errno;
     }
+    const auto fs = itr->second;
 
     if (r->offset > -1 && r->offset != fs->offset) {
         DEBUG(2) {
@@ -168,10 +166,9 @@ do_write(diomsg * r, int, const char *buf)
 {
     int wrtlen = r->size;
     int x;
-    file_state *fs;
-    fs = (file_state *) hash_lookup(hash, &r->id);
 
-    if (NULL == fs) {
+    const auto itr = Files.find(r->id);
+    if (itr == Files.end() || !itr->second) {
         errno = EBADF;
         DEBUG(1) {
             fprintf(stderr, "%d WRITE id %d: ", (int) mypid, r->id);
@@ -180,6 +177,7 @@ do_write(diomsg * r, int, const char *buf)
 
         return -errno;
     }
+    const auto fs = itr->second;
 
     if (r->offset > -1 && r->offset != fs->offset) {
         if (lseek(fs->fd, r->offset, SEEK_SET) < 0) {
@@ -278,22 +276,6 @@ msg_handle(diomsg * r, int rl, diomsg * s)
     }
 }
 
-static int
-fsCmp(const void *a, const void *b)
-{
-    const int *A = (const int *)a;
-    const int *B = (const int *)b;
-    return *A != *B;
-}
-
-static unsigned int
-fsHash(const void *key, unsigned int n)
-{
-    /* note, n must be a power of 2! */
-    const int *k = (const int *)key;
-    return (*k & (--n));
-}
-
 extern "C" {
     static void alarm_handler(int) {}
 };
@@ -346,8 +328,6 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    hash = hash_create(fsCmp, 1 << 4, fsHash);
-    assert(hash);
     if (fcntl(0, F_SETFL, SQUID_NONBLOCK) < 0) {
         perror(xstrerr(errno));
         exit(EXIT_FAILURE);
