@@ -68,8 +68,8 @@ do_open(diomsg * r, int, const char *buf)
         return -errno;
     }
 
-    const auto exists = Files.at(r->id);
-    assert(!exists);
+    const auto exists = Files.find(r->id);
+    assert(exists == Files.end());
 
     const auto fs = new file_state(r->id, fd);
     Files.emplace(r->id, fs);
