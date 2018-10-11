@@ -23,15 +23,6 @@ libDiskDaemon_la_SOURCES = \
 	DiskDaemonDiskIOModule.h
 
 diskd_SOURCES = diskd.cc
-nodist_diskd_SOURCES = time.cc
 diskd_LDADD = \
-	$(top_builddir)/lib/libmisccontainers.la \
-	$(top_builddir)/lib/libmiscencoding.la \
-	$(top_builddir)/lib/libmiscutil.la \
 	$(COMPAT_LIB) \
 	$(XTRA_LIBS)
-
-time.cc: $(top_srcdir)/src/time.cc
-	cp $(top_srcdir)/src/time.cc time.cc
-
-CLEANFILES += time.cc
