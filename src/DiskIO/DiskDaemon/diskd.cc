@@ -35,14 +35,16 @@ xassert(const char *msg, const char *file, int line)
 const int diomsg::msg_snd_rcv_sz = sizeof(diomsg) - sizeof(mtyp_t);
 #define DEBUG(LEVEL) if ((LEVEL) <= DebugLevel)
 
-typedef struct _file_state file_state;
+class file_state : public hash_link
+{
+public:
+    file_state(int anId, int anFd) : id(anId), fd(anFd) {
+        key = &id;          /* gack */
+    }
 
-struct _file_state {
-    void *key;
-    file_state *next;
-    int id;
-    int fd;
-    off_t offset;
+    int id = 0;
+    int fd = 0;
+    off_t offset = 0;
 };
 
 static hash_table *hash = NULL;
@@ -69,10 +71,7 @@ do_open(diomsg * r, int, const char *buf)
         return -errno;
     }
 
-    fs = (file_state *)xcalloc(1, sizeof(*fs));
-    fs->id = r->id;
-    fs->key = &fs->id;          /* gack */
-    fs->fd = fd;
+    fs = new file_state(r->id, fd);
     hash_join(hash, (hash_link *) fs);
     DEBUG(2) {
         fprintf(stderr, "%d OPEN  id %d, FD %d, fs %p\n",
@@ -110,7 +109,7 @@ do_close(diomsg * r, int)
                 fs->fd,
                 fs);
     }
-    xfree(fs);
+    delete fs;
     return close(fd);
 }
 
