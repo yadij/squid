@@ -15,6 +15,7 @@
 #include "fde.h"
 #include "http/Stream.h"
 #include "HttpRequest.h"
+#include "security/Certificate.h"
 #include "security/NegotiationHistory.h"
 #include "SquidConfig.h"
 #include "ssl/bio.h"
@@ -301,8 +302,7 @@ Ssl::PeekingPeerConnector::noteNegotiationError(const int result, const int ssl_
     // unsupported server Hello message (TODO: make configurable).
     if (!SSL_get_ex_data(session.get(), ssl_ex_index_ssl_error_detail) &&
             (srvBio->bumpMode() == Ssl::bumpPeek  || srvBio->bumpMode() == Ssl::bumpStare) && srvBio->holdWrite()) {
-        Security::CertPointer serverCert(SSL_get_peer_certificate(session.get()));
-        if (serverCert) {
+        if (auto serverCert = Security::GetPeerCertFrom(session)) {
             debugs(81, 3, "Error ("  << Security::ErrorString(ssl_lib_error) <<  ") but, hold write on SSL connection on FD " << fd);
             checkForPeekAndSplice();
             return;
@@ -321,8 +321,7 @@ Ssl::PeekingPeerConnector::handleServerCertificate()
 
     if (ConnStateData *csd = request->clientConnectionManager.valid()) {
         const int fd = serverConnection()->fd;
-        Security::SessionPointer session(fd_table[fd].ssl);
-        Security::CertPointer serverCert(SSL_get_peer_certificate(session.get()));
+        auto serverCert = Security::GetPeerCertFrom(fd_table[fd].ssl);
         if (!serverCert)
             return;
 
@@ -344,8 +343,7 @@ Ssl::PeekingPeerConnector::serverCertificateVerified()
             serverCert.resetAndLock(serverBump->serverCert.get());
         else {
             const int fd = serverConnection()->fd;
-            Security::SessionPointer session(fd_table[fd].ssl);
-            serverCert.resetWithoutLocking(SSL_get_peer_certificate(session.get()));
+            serverCert = Security::GetPeerCertFrom(fd_table[fd].ssl);
         }
         if (serverCert) {
             csd->resetSslCommonName(Ssl::CommonHostName(serverCert.get()));

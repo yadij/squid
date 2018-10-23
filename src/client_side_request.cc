@@ -50,6 +50,7 @@
 #include "profiler/Profiler.h"
 #include "redirect.h"
 #include "rfc1738.h"
+#include "security/Certificate.h"
 #include "SquidConfig.h"
 #include "SquidTime.h"
 #include "Store.h"
@@ -173,12 +174,10 @@ ClientHttpRequest::ClientHttpRequest(ConnStateData * aConn) :
         al->cache.port = aConn->port;
         al->cache.caddr = aConn->log_addr;
 
-#if USE_OPENSSL
-        if (aConn->clientConnection != NULL && aConn->clientConnection->isOpen()) {
-            if (auto ssl = fd_table[aConn->clientConnection->fd].ssl.get())
-                al->cache.sslClientCert.resetWithoutLocking(SSL_get_peer_certificate(ssl));
+        if (aConn->clientConnection && aConn->clientConnection->isOpen()) {
+            if (auto ssl = fd_table[aConn->clientConnection->fd].ssl)
+                al->cache.sslClientCert = Security::GetPeerCertFrom(ssl);
         }
-#endif
     }
     dlinkAdd(this, &active, &ClientActiveRequests);
 }

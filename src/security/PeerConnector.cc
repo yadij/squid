@@ -16,6 +16,7 @@
 #include "fde.h"
 #include "http/Stream.h"
 #include "HttpRequest.h"
+#include "security/Certificate.h"
 #include "security/NegotiationHistory.h"
 #include "security/PeerConnector.h"
 #include "SquidConfig.h"
@@ -351,7 +352,7 @@ Security::PeerConnector::sslCrtvdCheckForErrors(Ssl::CertValidationResponse cons
             } else {
                 debugs(83, 5, "confirming SSL error " << i->error_no);
                 X509 *brokenCert = i->cert.get();
-                Security::CertPointer peerCert(SSL_get_peer_certificate(session.get()));
+                auto peerCert = Security::GetPeerCertFrom(session);
                 const char *aReason = i->error_reason.empty() ? NULL : i->error_reason.c_str();
                 errDetails = new Ssl::ErrorDetail(i->error_no, peerCert.get(), brokenCert, aReason);
             }
@@ -528,10 +529,9 @@ Security::PeerConnector::noteNegotiationError(const int ret, const int ssl_error
         // Copy errFromFailure to a new Ssl::ErrorDetail object
         anErr->detail = new Ssl::ErrorDetail(*errFromFailure);
     } else {
-        // server_cert can be NULL here
-        X509 *server_cert = SSL_get_peer_certificate(session.get());
-        anErr->detail = new Ssl::ErrorDetail(SQUID_ERR_SSL_HANDSHAKE, server_cert, NULL);
-        X509_free(server_cert);
+        // server_cert can be nil here
+        auto server_cert = Security::GetPeerCertFrom(session);
+        anErr->detail = new Ssl::ErrorDetail(SQUID_ERR_SSL_HANDSHAKE, server_cert.get(), nullptr);
     }
 
     if (ssl_lib_error != SSL_ERROR_NONE)

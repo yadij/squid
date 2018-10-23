@@ -142,10 +142,8 @@ public:
         struct timeval trTime; ///< The response time
         const char *rfc931 = nullptr;
         const char *extuser = nullptr;
-#if USE_OPENSSL
         const char *ssluser = nullptr;
         Security::CertPointer sslClientCert; ///< cert received from the client
-#endif
         AnyP::PortCfgPointer port;
     } cache;
 

@@ -103,6 +103,7 @@
 #include "mime_header.h"
 #include "parser/Tokenizer.h"
 #include "profiler/Profiler.h"
+#include "security/Certificate.h"
 #include "security/NegotiationHistory.h"
 #include "servers/forward.h"
 #include "SquidConfig.h"
@@ -2631,16 +2632,12 @@ clientNegotiateSSL(int fd, void *data)
     conn->clientConnection->tlsNegotiations()->retrieveNegotiatedInfo(session);
 
 #if USE_OPENSSL
-    X509 *client_cert = SSL_get_peer_certificate(session.get());
-
-    if (client_cert) {
+    if (auto client_cert = Security::GetPeerCertFrom(session)) {
         debugs(83, 3, "FD " << fd << " client certificate: subject: " <<
-               X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0));
+               X509_NAME_oneline(X509_get_subject_name(client_cert.get()), 0, 0));
 
         debugs(83, 3, "FD " << fd << " client certificate: issuer: " <<
-               X509_NAME_oneline(X509_get_issuer_name(client_cert), 0, 0));
-
-        X509_free(client_cert);
+               X509_NAME_oneline(X509_get_issuer_name(client_cert.get()), 0, 0));
     } else {
         debugs(83, 5, "FD " << fd << " has no client certificate.");
     }
