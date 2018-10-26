@@ -19,7 +19,21 @@ Security::GetPeerCertFrom(const Security::SessionPointer &s)
     cert.resetWithoutLocking(SSL_get_peer_certificate(s.get()));
 
 #elif USE_GNUTLS
-    // TODO: implement. for now leaves cert as nil.
+    unsigned int cert_list_size = 0;
+    auto cert_list = gnutls_certificate_get_peers(s.get(), &cert_list_size);
+    if (cert_list_size > 0) {
+        // emulate OpenSSL by ignoring all but first certificate
+        gnutls_x509_crt_t crt;
+        gnutls_x509_crt_init(&crt);
+        if (gnutls_x509_crt_import(crt, &cert_list[0], GNUTLS_X509_FMT_DER) == GNUTLS_E_SUCCESS) {
+            cert = Security::CertPointer(crt, [](gnutls_x509_crt_t p) {
+                    debugs(83, 5, "gnutls_deinit cert=" << (void*)p);
+                    gnutls_x509_crt_deinit(p);
+                });
+        } else {
+            gnutls_x509_crt_deinit(crt);
+        }
+    }
 
 #else
     // leave cert as nil
