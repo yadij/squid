@@ -26,6 +26,8 @@
 #include "acl/AtStepData.h"
 #endif
 #include "acl/Asn.h"
+#include "acl/Certificate.h"
+#include "acl/CertificateData.h"
 #include "acl/Checklist.h"
 #include "acl/ConnectionsEncrypted.h"
 #include "acl/Data.h"
@@ -69,14 +71,13 @@
 #include "acl/ReplyMimeType.h"
 #include "acl/RequestHeaderStrategy.h"
 #include "acl/RequestMimeType.h"
+#include "acl/ServerCertificate.h"
 #include "acl/SourceAsn.h"
 #include "acl/SourceDomain.h"
 #include "acl/SourceIp.h"
 #include "acl/SquidError.h"
 #include "acl/SquidErrorData.h"
 #if USE_OPENSSL
-#include "acl/Certificate.h"
-#include "acl/CertificateData.h"
 #include "acl/ServerName.h"
 #include "acl/SslError.h"
 #include "acl/SslErrorData.h"
@@ -84,9 +85,6 @@
 #include "acl/Strategised.h"
 #include "acl/Strategy.h"
 #include "acl/StringData.h"
-#if USE_OPENSSL
-#include "acl/ServerCertificate.h"
-#endif
 #include "acl/Tag.h"
 #include "acl/Time.h"
 #include "acl/TimeData.h"

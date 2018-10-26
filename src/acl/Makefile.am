@@ -65,6 +65,10 @@ libacls_la_SOURCES = \
 	AnyOf.h \
 	Asn.cc \
 	Asn.h \
+	CertificateData.cc \
+	CertificateData.h  \
+	Certificate.cc \
+	Certificate.h  \
 	ConnectionsEncrypted.cc \
 	ConnectionsEncrypted.h \
 	ConnMark.cc \
@@ -124,6 +128,8 @@ libacls_la_SOURCES = \
 	ReplyMimeType.h \
 	RequestHeaderStrategy.h \
 	RequestMimeType.h \
+	ServerCertificate.cc \
+	ServerCertificate.h \
 	SourceAsn.h \
 	SourceDomain.cc \
 	SourceDomain.h \
@@ -164,12 +170,6 @@ SSL_ACLS = \
 	AtStep.h \
 	AtStepData.cc \
 	AtStepData.h \
-        CertificateData.cc \
-        CertificateData.h  \
-        Certificate.cc \
-        Certificate.h  \
-	ServerCertificate.cc \
-	ServerCertificate.h \
 	ServerName.cc \
 	ServerName.h \
         SslError.cc \
