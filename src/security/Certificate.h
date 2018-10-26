@@ -21,6 +21,14 @@ namespace Security
 /// endpoint  a TLS session.
 Security::CertPointer GetPeerCertFrom(const Security::SessionPointer &);
 
+/**
+ * Retrieve the NID for a named or numerical OID of
+ * an X.509 certificate Distinguished Name attribute
+ *
+ * \retval 0 unable to create a NID value for the attribute name / OID
+ */
+int GetCertAttributeNID(char *newAttribute);
+
 /// API for functions called by ACLCertificateData to fetch X.509 certificate fields
 typedef char const *GETX509ATTRIBUTE(const CertPointer &, const char *);
 

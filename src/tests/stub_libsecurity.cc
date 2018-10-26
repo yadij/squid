@@ -27,6 +27,7 @@ void BlindPeerConnector::noteNegotiationDone(ErrorState *) STUB
 namespace Security
 {
 Security::CertPointer GetPeerCertFrom(const Security::SessionPointer &) STUB_RETVAL(Security::CertPointer())
+int GetCertAttributeNID(char *) STUB_RETVAL(0)
 const char *GetX509CAAttribute(const Security::CertPointer &, const char *) STUB_RETVAL(nullptr)
 const char *GetX509Fingerprint(const Security::CertPointer &, const char *) STUB_RETVAL(nullptr)
 const char *GetX509UserAttribute(const Security::CertPointer &, const char *) STUB_RETVAL(nullptr)

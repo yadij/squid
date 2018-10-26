@@ -28,6 +28,35 @@ Security::GetPeerCertFrom(const Security::SessionPointer &s)
     return cert;
 }
 
+int
+Security::GetCertAttributeNID(char *newAttribute)
+{
+#if USE_OPENSSL
+    auto nid = OBJ_txt2nid(newAttribute);
+    if (nid == 0) {
+        const auto span = strspn(newAttribute, "0123456789.");
+        if(newAttribute[span] == '\0') { // looks like a numerical OID
+            // create a new object based on this attribute
+
+            // NOTE: Not a [bad] leak: If the same attribute
+            // has been added before, the OBJ_txt2nid call
+            // would return a valid nid value.
+            // TODO: call OBJ_cleanup() on reconfigure?
+            nid = OBJ_create(newAttribute, newAttribute,  newAttribute);
+            debugs(28, 7, "New X.509 Certificate attribute created with nid=" << nid << ", name: " << newAttribute);
+        }
+    }
+    return nid;
+
+#elif USE_GNUTLS
+    // TODO: implement. for now trigger invalid NID error handling
+    return 0;
+
+#else
+    return 0;
+#endif
+}
+
 #if USE_OPENSSL
 // TODO: rename to match coding style guidelines
 static const char *
