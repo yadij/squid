@@ -12,25 +12,26 @@
 #include "acl/Acl.h"
 #include "acl/Data.h"
 #include "acl/StringData.h"
-#include "ssl/support.h"
-#include <string>
+#include "security/Certificate.h"
+
 #include <list>
+#include <string>
 
 /// \ingroup ACLAPI
-class ACLCertificateData : public ACLData<X509 *>
+class ACLCertificateData : public ACLData<const Security::CertPointer &>
 {
     MEMPROXY_CLASS(ACLCertificateData);
 
 public:
-    ACLCertificateData(Ssl::GETX509ATTRIBUTE *, const char *attributes, bool optionalAttr = false);
+    ACLCertificateData(Security::GETX509ATTRIBUTE *, const char *attributes, bool optionalAttr = false);
     ACLCertificateData(ACLCertificateData const &);
     ACLCertificateData &operator= (ACLCertificateData const &);
     virtual ~ACLCertificateData();
-    bool match(X509 *);
+    bool match(const Security::CertPointer &);
     virtual SBufList dump() const;
     void parse();
     bool empty() const;
-    virtual ACLData<X509 *> *clone() const;
+    virtual ACLData<const Security::CertPointer &> *clone() const;
 
     /// A '|'-delimited list of valid ACL attributes.
     /// A "*" item means that any attribute is acceptable.
@@ -46,7 +47,7 @@ public:
 
 private:
     /// The callback used to retrieve the data from X509 cert
-    Ssl::GETX509ATTRIBUTE *sslAttributeCall;
+    Security::GETX509ATTRIBUTE *sslAttributeCall;
 };
 
 #endif /* SQUID_ACLCERTIFICATEDATA_H */

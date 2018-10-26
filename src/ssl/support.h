@@ -110,18 +110,6 @@ const char *sslGetUserCertificateChainPEM(SSL *ssl);
 
 namespace Ssl
 {
-/// \ingroup ServerProtocolSSLAPI
-typedef char const *GETX509ATTRIBUTE(X509 *, const char *);
-
-/// \ingroup ServerProtocolSSLAPI
-GETX509ATTRIBUTE GetX509UserAttribute;
-
-/// \ingroup ServerProtocolSSLAPI
-GETX509ATTRIBUTE GetX509CAAttribute;
-
-/// \ingroup ServerProtocolSSLAPI
-GETX509ATTRIBUTE GetX509Fingerprint;
-
 extern const EVP_MD *DefaultSignHash;
 
 /**

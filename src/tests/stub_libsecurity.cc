@@ -24,7 +24,13 @@ void BlindPeerConnector::noteNegotiationDone(ErrorState *) STUB
 }
 
 #include "security/Certificate.h"
-Security::CertPointer Security::GetPeerCertFrom(const Security::SessionPointer &) STUB_RETVAL(Security::CertPointer())
+namespace Security
+{
+Security::CertPointer GetPeerCertFrom(const Security::SessionPointer &) STUB_RETVAL(Security::CertPointer())
+const char *GetX509CAAttribute(const Security::CertPointer &, const char *) STUB_RETVAL(nullptr)
+const char *GetX509Fingerprint(const Security::CertPointer &, const char *) STUB_RETVAL(nullptr)
+const char *GetX509UserAttribute(const Security::CertPointer &, const char *) STUB_RETVAL(nullptr)
+}
 
 #include "security/EncryptorAnswer.h"
 Security::EncryptorAnswer::~EncryptorAnswer() {}

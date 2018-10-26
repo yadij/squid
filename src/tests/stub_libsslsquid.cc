@@ -63,9 +63,6 @@ const char *sslGetUserCertificatePEM(SSL *ssl) STUB_RETVAL(NULL)
 const char *sslGetUserCertificateChainPEM(SSL *ssl) STUB_RETVAL(NULL)
 namespace Ssl
 {
-//GETX509ATTRIBUTE GetX509UserAttribute;
-//GETX509ATTRIBUTE GetX509CAAttribute;
-//GETX509ATTRIBUTE GetX509Fingerprint;
 std::vector<const char *> BumpModeStr = {""};
 bool generateUntrustedCert(Security::CertPointer &, Security::PrivateKeyPointer &, Security::CertPointer const &, Security::PrivateKeyPointer const &) STUB_RETVAL(false)
 Security::ContextPointer GenerateSslContext(CertificateProperties const &, Security::ServerOptions &, bool) STUB_RETVAL(Security::ContextPointer())

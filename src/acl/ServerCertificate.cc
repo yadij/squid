@@ -7,16 +7,15 @@
  */
 
 #include "squid.h"
-
-#if USE_OPENSSL
-
 #include "acl/CertificateData.h"
 #include "acl/Checklist.h"
 #include "acl/ServerCertificate.h"
 #include "client_side.h"
 #include "fde.h"
 #include "http/Stream.h"
+#if USE_OPENSSL
 #include "ssl/ServerBump.h"
+#endif
 
 int
 ACLServerCertificateStrategy::match(ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
@@ -24,14 +23,13 @@ ACLServerCertificateStrategy::match(ACLData<MatchType> * &data, ACLFilledCheckli
     Security::CertPointer cert;
     if (checklist->serverCert)
         cert = checklist->serverCert;
+#if USE_OPENSSL
     else if (checklist->conn() != NULL && checklist->conn()->serverBump())
         cert = checklist->conn()->serverBump()->serverCert;
-
+#endif
     if (!cert)
         return 0;
 
-    return data->match(cert.get());
+    return data->match(cert);
 }
-
-#endif /* USE_OPENSSL */
 

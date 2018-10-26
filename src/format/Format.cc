@@ -24,6 +24,7 @@
 #include "rfc1738.h"
 #include "sbuf/StringConvert.h"
 #include "security/CertError.h"
+#include "security/Certificate.h"
 #include "security/NegotiationHistory.h"
 #include "SquidTime.h"
 #include "Store.h"
@@ -1267,11 +1268,11 @@ Format::Format::assemble(MemBuf &mb, const AccessLogEntry::Pointer &al, int logS
         case LFT_SSL_SERVER_CERT_SUBJECT:
             if (al->request && al->request->clientConnectionManager.valid()) {
                 if (Ssl::ServerBump * srvBump = al->request->clientConnectionManager->serverBump()) {
-                    if (X509 *serverCert = srvBump->serverCert.get()) {
+                    if (auto serverCert = srvBump->serverCert) {
                         if (fmt->type == LFT_SSL_SERVER_CERT_SUBJECT)
-                            out = Ssl::GetX509UserAttribute(serverCert, "DN");
+                            out = Security::GetX509UserAttribute(serverCert, "DN");
                         else
-                            out = Ssl::GetX509CAAttribute(serverCert, "DN");
+                            out = Security::GetX509CAAttribute(serverCert, "DN");
                     }
                 }
             }

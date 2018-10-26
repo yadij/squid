@@ -16,7 +16,12 @@
 #include "Debug.h"
 #include "wordlist.h"
 
-ACLCertificateData::ACLCertificateData(Ssl::GETX509ATTRIBUTE *sslStrategy, const char *attrs, bool optionalAttr) : validAttributesStr(attrs), attributeIsOptional(optionalAttr), attribute (NULL), values (), sslAttributeCall (sslStrategy)
+ACLCertificateData::ACLCertificateData(Security::GETX509ATTRIBUTE *sslStrategy, const char *attrs, bool optionalAttr) :
+    validAttributesStr(attrs),
+    attributeIsOptional(optionalAttr),
+    attribute(nullptr),
+    values(),
+    sslAttributeCall(sslStrategy)
 {
     if (attrs) {
         size_t current = 0;
@@ -30,7 +35,10 @@ ACLCertificateData::ACLCertificateData(Ssl::GETX509ATTRIBUTE *sslStrategy, const
     }
 }
 
-ACLCertificateData::ACLCertificateData(ACLCertificateData const &old) : attribute (NULL), values (old.values), sslAttributeCall (old.sslAttributeCall)
+ACLCertificateData::ACLCertificateData(ACLCertificateData const &old) :
+    attribute(nullptr),
+    values(old.values),
+    sslAttributeCall(old.sslAttributeCall)
 {
     validAttributesStr = old.validAttributesStr;
     validAttributes.assign (old.validAttributes.begin(), old.validAttributes.end());
@@ -59,7 +67,7 @@ splaystrcmp (T&l, T&r)
 }
 
 bool
-ACLCertificateData::match(X509 *cert)
+ACLCertificateData::match(const Security::CertPointer &cert)
 {
     if (!cert)
         return 0;
@@ -159,7 +167,7 @@ ACLCertificateData::empty() const
     return values.empty();
 }
 
-ACLData<X509 *> *
+ACLData<const Security::CertPointer &> *
 ACLCertificateData::clone() const
 {
     /* Splay trees don't clone yet. */

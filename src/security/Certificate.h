@@ -21,6 +21,16 @@ namespace Security
 /// endpoint  a TLS session.
 Security::CertPointer GetPeerCertFrom(const Security::SessionPointer &);
 
+/// API for functions called by ACLCertificateData to fetch X.509 certificate fields
+typedef char const *GETX509ATTRIBUTE(const CertPointer &, const char *);
+
+// certificate fingerprint
+GETX509ATTRIBUTE GetX509Fingerprint;
+
+// attributes of X.509 'name' fields
+GETX509ATTRIBUTE GetX509CAAttribute;
+GETX509ATTRIBUTE GetX509UserAttribute;
+
 } // namespace Security
 
 #endif /* _SQUID_SRC_SECURITY_CERTIFICATE_H */

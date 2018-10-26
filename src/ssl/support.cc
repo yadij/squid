@@ -24,6 +24,7 @@
 #include "globals.h"
 #include "ipc/MemMap.h"
 #include "security/CertError.h"
+#include "security/Certificate.h"
 #include "security/Session.h"
 #include "SquidConfig.h"
 #include "SquidTime.h"
@@ -590,96 +591,15 @@ Ssl::InitClientContext(Security::ContextPointer &ctx, Security::PeerOptions &pee
     return true;
 }
 
-/// \ingroup ServerProtocolSSLInternal
-static const char *
-ssl_get_attribute(X509_NAME * name, const char *attribute_name)
-{
-    static char buffer[1024];
-    buffer[0] = '\0';
-
-    if (strcmp(attribute_name, "DN") == 0) {
-        X509_NAME_oneline(name, buffer, sizeof(buffer));
-    } else {
-        int nid = OBJ_txt2nid(const_cast<char *>(attribute_name));
-        if (nid == 0) {
-            debugs(83, DBG_IMPORTANT, "WARNING: Unknown SSL attribute name '" << attribute_name << "'");
-            return nullptr;
-        }
-        X509_NAME_get_text_by_NID(name, nid, buffer, sizeof(buffer));
-    }
-
-    return *buffer ? buffer : nullptr;
-}
-
-/// \ingroup ServerProtocolSSLInternal
-const char *
-Ssl::GetX509UserAttribute(X509 * cert, const char *attribute_name)
-{
-    X509_NAME *name;
-    const char *ret;
-
-    if (!cert)
-        return NULL;
-
-    name = X509_get_subject_name(cert);
-
-    ret = ssl_get_attribute(name, attribute_name);
-
-    return ret;
-}
-
-const char *
-Ssl::GetX509Fingerprint(X509 * cert, const char *)
-{
-    static char buf[1024];
-    if (!cert)
-        return NULL;
-
-    unsigned int n;
-    unsigned char md[EVP_MAX_MD_SIZE];
-    if (!X509_digest(cert, EVP_sha1(), md, &n))
-        return NULL;
-
-    assert(3 * n + 1 < sizeof(buf));
-
-    char *s = buf;
-    for (unsigned int i=0; i < n; ++i, s += 3) {
-        const char term = (i + 1 < n) ? ':' : '\0';
-        snprintf(s, 4, "%02X%c", md[i], term);
-    }
-
-    return buf;
-}
-
-/// \ingroup ServerProtocolSSLInternal
-const char *
-Ssl::GetX509CAAttribute(X509 * cert, const char *attribute_name)
-{
-
-    X509_NAME *name;
-    const char *ret;
-
-    if (!cert)
-        return NULL;
-
-    name = X509_get_issuer_name(cert);
-
-    ret = ssl_get_attribute(name, attribute_name);
-
-    return ret;
-}
-
 const char *sslGetUserAttribute(SSL *ssl, const char *attribute_name)
 {
     if (!ssl)
         return NULL;
 
-    X509 *cert = SSL_get_peer_certificate(ssl);
+    Security::CertPointer cert;
+    cert.resetWithoutLocking(SSL_get_peer_certificate(ssl));
 
-    const char *attr = Ssl::GetX509UserAttribute(cert, attribute_name);
-
-    X509_free(cert);
-    return attr;
+    return Security::GetX509UserAttribute(cert, attribute_name);
 }
 
 const char *sslGetCAAttribute(SSL *ssl, const char *attribute_name)
@@ -687,12 +607,10 @@ const char *sslGetCAAttribute(SSL *ssl, const char *attribute_name)
     if (!ssl)
         return NULL;
 
-    X509 *cert = SSL_get_peer_certificate(ssl);
+    Security::CertPointer cert;
+    cert.resetWithoutLocking(SSL_get_peer_certificate(ssl));
 
-    const char *attr = Ssl::GetX509CAAttribute(cert, attribute_name);
-
-    X509_free(cert);
-    return attr;
+    return Security::GetX509CAAttribute(cert, attribute_name);
 }
 
 const char *

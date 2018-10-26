@@ -13,10 +13,10 @@
 #include "acl/Checklist.h"
 #include "acl/Data.h"
 #include "acl/Strategised.h"
-#include "ssl/support.h"
+#include "security/forward.h"
 
 /// \ingroup ACLAPI
-class ACLServerCertificateStrategy : public ACLStrategy<X509 *>
+class ACLServerCertificateStrategy : public ACLStrategy<const Security::CertPointer &>
 {
 public:
     virtual int match (ACLData<MatchType> * &, ACLFilledChecklist *) override;

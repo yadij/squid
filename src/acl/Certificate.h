@@ -13,10 +13,10 @@
 #include "acl/Checklist.h"
 #include "acl/Data.h"
 #include "acl/Strategised.h"
-#include "ssl/support.h"
+#include "security/forward.h"
 
 /// \ingroup ACLAPI
-class ACLCertificateStrategy : public ACLStrategy<X509 *>
+class ACLCertificateStrategy : public ACLStrategy<const Security::CertPointer &>
 {
 
 public:

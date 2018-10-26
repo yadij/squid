@@ -9,32 +9,19 @@
 /* DEBUG: section 28    Access Control */
 
 #include "squid.h"
-
-/* MS Visual Studio Projects are monolithic, so we need the following
- * #if to exclude the SSL code from compile process when not needed.
- */
-#if USE_OPENSSL
-
 #include "acl/Certificate.h"
-#include "acl/CertificateData.h"
-#include "acl/Checklist.h"
-#include "client_side.h"
 #include "fde.h"
-#include "globals.h"
-#include "http/Stream.h"
-#include "HttpRequest.h"
+#include "security/Certificate.h"
 
 int
 ACLCertificateStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
 {
     const int fd = checklist->fd();
     const bool goodDescriptor = 0 <= fd && fd <= Biggest_FD;
-    auto ssl = goodDescriptor ? fd_table[fd].ssl.get() : nullptr;
-    X509 *cert = SSL_get_peer_certificate(ssl);
-    const bool res = data->match (cert);
-    X509_free(cert);
-    return res;
-}
+    if (!goodDescriptor)
+        return false; // XXX: print a debug note?
 
-#endif /* USE_OPENSSL */
+    auto cert = Security::GetPeerCertFrom(fd_table[fd].ssl);
+    return data->match(cert);
+}
 
