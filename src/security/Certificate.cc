@@ -10,6 +10,12 @@
 #include "Debug.h"
 #include "security/Certificate.h"
 
+#if USE_GNUTLS
+#if HAVE_GNUTLS_CRYPTO_H
+#include <gnutls/crypto.h>
+#endif
+#endif
+
 Security::CertPointer
 Security::GetPeerCertFrom(const Security::SessionPointer &s)
 {
@@ -124,23 +130,32 @@ Security::GetX509Fingerprint(const Security::CertPointer &cert, const char *)
     if (!X509_digest(cert.get(), EVP_sha1(), md, &n))
         return nullptr;
 
-    static char buf[1024];
-    assert(3 * n + 1 < sizeof(buf));
-
-    char *s = buf;
-    for (unsigned int i=0; i < n; ++i, s += 3) {
-        const char term = (i + 1 < n) ? ':' : '\0';
-        auto x = snprintf(s, 4, "%02X%c", md[i], term);
-        assert(x > 0);
-    }
-    return buf;
-
 #elif USE_GNUTLS
-    return nullptr; // TODO implement
+    unsigned char md[64]; // largest known hash is SHA512 which uses <64-bytes
+    size_t n = sizeof(md);
+    if (gnutls_x509_crt_get_fingerprint(cert.get(), GNUTLS_DIG_SHA1, md, &n) != GNUTLS_E_SUCCESS)
+        return nullptr;
 
 #else
-    return nullptr;
+    // no digest to produce
+    size_t n = 0;
+    const char *md = nullptr;
 #endif
+
+    if (n > 0) {
+        static char buf[1024];
+        assert(3 * n + 1 < sizeof(buf));
+
+        char *s = buf;
+        for (decltype(n) i = 0; i < n; ++i, s += 3) {
+            const char term = (i + 1 < n) ? ':' : '\0';
+            auto x = snprintf(s, 4, "%02X%c", md[i], term);
+            assert(x > 0);
+        }
+        return buf;
+    }
+
+    return nullptr;
 }
 
 const char *
