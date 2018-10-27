@@ -1,0 +1,9 @@
+#
+# Test that ACLs against TLS state data can parse correctly
+#
+
+acl foo tls::server_cert_fingerprint 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
+# FATAL: bad configuration: unsupported ACL option: -s
+#acl foo ssl::server_cert_fingerprint -sha1 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+
