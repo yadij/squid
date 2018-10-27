@@ -174,6 +174,8 @@ Acl::Init()
     RegisterMaker("ssl::server_name_regex", [](TypeName name)->ACL* { return new ACLStrategised<char const *>(new ACLRegexData, new ACLServerNameStrategy, name); });
 #endif
 
+    RegisterMaker("tls::server_cert_fingerprint", [](TypeName name)->ACL* { return new ACLStrategised<const Security::CertPointer &>(new ACLCertificateData(Security::GetX509Fingerprint, "-sha1", true), new ACLServerCertificateStrategy, name); });
+
 #if USE_SQUID_EUI
     RegisterMaker("arp", [](TypeName name)->ACL* { return new ACLARP(name); });
     RegisterMaker("eui64", [](TypeName name)->ACL* { return new ACLEui64(name); });
