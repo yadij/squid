@@ -97,9 +97,6 @@ void MaybeSetupRsaCallback(Security::ContextPointer &);
 const char *sslGetUserEmail(SSL *ssl);
 
 /// \ingroup ServerProtocolSSLAPI
-const char *sslGetUserAttribute(SSL *ssl, const char *attribute_name);
-
-/// \ingroup ServerProtocolSSLAPI
 const char *sslGetCAAttribute(SSL *ssl, const char *attribute_name);
 
 /// \ingroup ServerProtocolSSLAPI

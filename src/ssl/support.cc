@@ -591,7 +591,7 @@ Ssl::InitClientContext(Security::ContextPointer &ctx, Security::PeerOptions &pee
     return true;
 }
 
-const char *sslGetUserAttribute(SSL *ssl, const char *attribute_name)
+static const char *sslGetUserAttribute(SSL *ssl, const char *attribute_name)
 {
     if (!ssl)
         return NULL;

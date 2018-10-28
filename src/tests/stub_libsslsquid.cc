@@ -57,7 +57,6 @@ void SetupVerifyCallback(Security::ContextPointer &) STUB
 void MaybeSetupRsaCallback(Security::ContextPointer &) STUB
 } // namespace Ssl
 const char *sslGetUserEmail(SSL *ssl) STUB_RETVAL(NULL)
-const char *sslGetUserAttribute(SSL *ssl, const char *attribute_name) STUB_RETVAL(NULL)
 const char *sslGetCAAttribute(SSL *ssl, const char *attribute_name) STUB_RETVAL(NULL)
 const char *sslGetUserCertificatePEM(SSL *ssl) STUB_RETVAL(NULL)
 const char *sslGetUserCertificateChainPEM(SSL *ssl) STUB_RETVAL(NULL)

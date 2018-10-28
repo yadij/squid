@@ -1199,8 +1199,8 @@ Format::Format::assemble(MemBuf &mb, const AccessLogEntry::Pointer &al, int logS
             if (al->request) {
                 ConnStateData *conn = al->request->clientConnectionManager.get();
                 if (conn && Comm::IsConnOpen(conn->clientConnection)) {
-                    if (auto ssl = fd_table[conn->clientConnection->fd].ssl.get())
-                        out = sslGetUserAttribute(ssl, fmt->data.header.header);
+                    if (const auto cert = Security::GetPeerCertFrom(fd_table[conn->clientConnection->fd].ssl))
+                        out = Security::GetX509UserAttribute(cert, fmt->data.header.header);
                 }
             }
             break;
