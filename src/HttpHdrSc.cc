@@ -120,7 +120,7 @@ HttpHdrSc::parse(const String * str)
         else
             ++target;
 
-        Http::Hdr::ScTarget *sct = sc->findTarget(target);
+        auto *sct = sc->findTarget(target);
 
         if (!sct) {
             sct = new Http::Hdr::ScTarget(target);
@@ -262,7 +262,7 @@ HttpHdrSc::packInto(Packable * p) const
 void
 HttpHdrSc::setMaxAge(char const *target, int max_age)
 {
-    Http::Hdr::ScTarget *sct = findTarget(target);
+    auto *sct = findTarget(target);
 
     if (!sct) {
         sct = new Http::Hdr::ScTarget(target);
@@ -332,8 +332,8 @@ HttpHdrSc::findTarget(const char *target)
 Http::Hdr::ScTarget *
 HttpHdrSc::getMergedTarget(const char *ourtarget)
 {
-    Http::Hdr::ScTarget *sctus = findTarget(ourtarget);
-    Http::Hdr::ScTarget *sctgeneric = findTarget(nullptr);
+    auto *sctus = findTarget(ourtarget);
+    auto *sctgeneric = findTarget(nullptr);
 
     if (sctgeneric || sctus) {
         auto *sctusable = new Http::Hdr::ScTarget(nullptr);
