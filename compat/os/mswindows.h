@@ -1013,6 +1013,18 @@ void syslog(int priority, const char *fmt, ...);
 /* prototypes */
 void WIN32_maperror(unsigned long WIN32_oserrno);
 
+/* Squid definitions for CygWin & Windows NT Port */
+#define _WIN_SQUID_SERVICE_CONTROL_STOP        SERVICE_CONTROL_STOP
+#define _WIN_SQUID_SERVICE_CONTROL_SHUTDOWN    SERVICE_CONTROL_SHUTDOWN
+#define _WIN_SQUID_SERVICE_CONTROL_INTERROGATE SERVICE_CONTROL_INTERROGATE
+#define _WIN_SQUID_SERVICE_CONTROL_ROTATE      128
+#define _WIN_SQUID_SERVICE_CONTROL_RECONFIGURE 129
+#define _WIN_SQUID_SERVICE_CONTROL_DEBUG       130
+#define _WIN_SQUID_SERVICE_CONTROL_INTERRUPT   131
+#define _WIN_SQUID_SERVICE_OPTION              "--ntservice"
+#define _WIN_SQUID_RUN_MODE_INTERACTIVE        0
+#define _WIN_SQUID_RUN_MODE_SERVICE            1
+
 #endif /* _SQUID_WINDOWS_ */
 #endif /* SQUID_OS_MSWINDOWS_H */
 
