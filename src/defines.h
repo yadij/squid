@@ -22,30 +22,14 @@
 #define DISK_EOF                 (-2)
 #define DISK_NO_SPACE_LEFT       (-6)
 
-#define DNS_INBUF_SZ 4096
-
 #define FD_DESC_SZ      64
 
 #define FQDN_LOOKUP_IF_MISS 0x01
 #define FQDN_MAX_NAMES 5
 
-#define HTTP_REPLY_FIELD_SZ 128
-
-#define BUF_TYPE_8K     1
-#define BUF_TYPE_MALLOC 2
-
-#define ANONYMIZER_NONE     0
-#define ANONYMIZER_STANDARD 1
-#define ANONYMIZER_PARANOID 2
-
 #define USER_IDENT_SZ 64
-#define IDENT_NONE 0
-#define IDENT_PENDING 1
-#define IDENT_DONE 2
 
 #define IP_LOOKUP_IF_MISS   0x01
-
-#define MAX_MIME 4096
 
 /* Mark a neighbor cache as dead if it doesn't answer this many pings */
 #define HIER_MAX_DEFICIT  20
@@ -69,10 +53,7 @@
 #define REDIRECT_PENDING 1
 #define REDIRECT_DONE 2
 
-#define AUTHENTICATE_AV_FACTOR 1000
 /* AUTHENTICATION */
-
-#define NTLM_CHALLENGE_SZ 300
 
 #define current_stacksize(stack) ((stack)->top - (stack)->base)
 
@@ -93,8 +74,6 @@
 #define CBIT_SET(mask, bit)     ((void)(CBIT_BIN(mask, bit) |= CBIT_BIT(bit)))
 #define CBIT_CLR(mask, bit)     ((void)(CBIT_BIN(mask, bit) &= ~CBIT_BIT(bit)))
 #define CBIT_TEST(mask, bit)    (CBIT_BIN(mask, bit) & CBIT_BIT(bit))
-
-#define MAX_FILES_PER_DIR (1<<20)
 
 #define MAX_URL  8192
 #define MAX_LOGIN_SZ  128
