@@ -22,6 +22,9 @@ class LookupDetails;
 
 typedef void FQDNH(const char *, const Dns::LookupDetails &details, void *);
 
+#define FQDN_LOOKUP_IF_MISS 0x01
+#define FQDN_MAX_NAMES 5
+
 void fqdncache_init(void);
 void fqdnStats(StoreEntry *);
 void fqdncacheFreeMemory(void);
