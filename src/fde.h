@@ -36,6 +36,11 @@ typedef int READ_HANDLER(int, char *, int);
  */
 typedef int WRITE_HANDLER(int, const char *, int);
 
+/// Maximum size of filedescriptor descriptions
+#if !defined(FD_DESC_SZ)
+#define FD_DESC_SZ      64
+#endif
+
 class _fde_disk
 {
 public:

@@ -22,8 +22,6 @@
 #define DISK_EOF                 (-2)
 #define DISK_NO_SPACE_LEFT       (-6)
 
-#define FD_DESC_SZ      64
-
 #define USER_IDENT_SZ 64
 
 #define IP_LOOKUP_IF_MISS   0x01
