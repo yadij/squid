@@ -18,7 +18,7 @@ namespace Acl
 {
 
 /// deny_info representation
-class DenyInfoList
+class DenyInfoList : public RefCountable
 {
     MEMPROXY_CLASS(Acl::DenyInfoList);
 

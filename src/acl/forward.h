@@ -22,6 +22,7 @@ namespace Acl
 
 class Address;
 class DenyInfoList;
+typedef RefCount<DenyInfoList> DenyInfoPointer;
 class InnerNode;
 class NotNode;
 class AndNode;
