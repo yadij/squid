@@ -11,6 +11,8 @@
 
 #include "base/RefCount.h"
 
+#include <list>
+
 class ACL;
 class ACLChecklist;
 class ACLFilledChecklist;
@@ -21,8 +23,9 @@ namespace Acl
 {
 
 class Address;
-class DenyInfoList;
-typedef RefCount<DenyInfoList> DenyInfoPointer;
+class DenyInfo;
+typedef RefCount<Acl::DenyInfo> DenyInfoPointer;
+typedef std::list<Acl::DenyInfoPointer> DenyInfoList;
 class InnerNode;
 class NotNode;
 class AndNode;

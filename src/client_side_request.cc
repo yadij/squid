@@ -772,7 +772,7 @@ ClientRequestContext::clientAccessCheckDone(const allow_t &answer)
          * the clientCreateStoreEntry() call just below.  Pedro Ribeiro
          * <pribeiro@isel.pt>
          */
-        page_id = aclGetDenyInfoPage(&Config.denyInfoList, AclMatchedName, answer != ACCESS_AUTH_REQUIRED);
+        page_id = aclGetDenyInfoPage(Config.denyInfo, AclMatchedName, answer != ACCESS_AUTH_REQUIRED);
 
         http->logType.update(LOG_TCP_DENIED);
 

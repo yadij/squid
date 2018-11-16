@@ -37,27 +37,25 @@ static AclSet *RegisteredAcls; // TODO: Remove when ACLs are refcounted
 
 /* does name lookup, returns page_id */
 err_type
-aclGetDenyInfoPage(Acl::DenyInfoList ** head, const char *name, int redirect_allowed)
+aclGetDenyInfoPage(const Acl::DenyInfoList &head, const char *name, int redirect_allowed)
 {
     if (!name) {
         debugs(28, 3, "ERR_NONE due to a NULL name");
         return ERR_NONE;
     }
 
-    Acl::DenyInfoList *A = NULL;
-
     debugs(28, 8, HERE << "got called for " << name);
 
-    for (A = *head; A; A = A->next) {
-        if (!redirect_allowed && strchr(A->err_page_name, ':') ) {
-            debugs(28, 8, HERE << "Skip '" << A->err_page_name << "' 30x redirects not allowed as response here.");
+    for (const auto &itr : head) {
+        if (!redirect_allowed && strchr(itr->err_page_name, ':') ) {
+            debugs(28, 8, "Skip '" << itr->err_page_name << "' 30x redirects not allowed as response here.");
             continue;
         }
 
-        for (const auto &aclName: A->acl_list) {
+        for (const auto &aclName: itr->acl_list) {
             if (aclName.cmp(name) == 0) {
                 debugs(28, 8, "match on " << name);
-                return A->err_page_id;
+                return itr->err_page_id;
             }
         }
     }
@@ -98,11 +96,9 @@ aclIsProxyAuth(const char *name)
  */
 
 void
-aclParseDenyInfoLine(Acl::DenyInfoList ** head)
+aclParseDenyInfoLine(Acl::DenyInfoList *list)
 {
     char *t = NULL;
-    Acl::DenyInfoList *B;
-    Acl::DenyInfoList **T;
 
     /* first expect a page name */
 
@@ -112,7 +108,7 @@ aclParseDenyInfoLine(Acl::DenyInfoList ** head)
         return;
     }
 
-    Acl::DenyInfoList *A = new Acl::DenyInfoList(t);
+    Acl::DenyInfoPointer A(new Acl::DenyInfo(t));
 
     /* next expect a list of ACL names */
     while ((t = ConfigParser::NextToken())) {
@@ -122,14 +118,10 @@ aclParseDenyInfoLine(Acl::DenyInfoList ** head)
     if (A->acl_list.empty()) {
         debugs(28, DBG_CRITICAL, "aclParseDenyInfoLine: " << cfg_filename << " line " << config_lineno << ": " << config_input_line);
         debugs(28, DBG_CRITICAL, "aclParseDenyInfoLine: deny_info line contains no ACL's, skipping");
-        delete A;
         return;
     }
 
-    for (B = *head, T = head; B; T = &B->next, B = B->next)
-
-        ;   /* find the tail */
-    *T = A;
+    list->emplace_back(A);
 }
 
 void
@@ -278,25 +270,6 @@ aclDestroyAccessList(acl_access ** list)
     if (*list)
         debugs(28, 3, "destroying: " << *list << ' ' << (*list)->name);
     delete *list;
-    *list = NULL;
-}
-
-/* maex@space.net (06.09.1996)
- *    destroy an Acl::DenyInfoList */
-
-void
-aclDestroyDenyInfoList(Acl::DenyInfoList ** list)
-{
-    Acl::DenyInfoList *a = NULL;
-    Acl::DenyInfoList *a_next = NULL;
-
-    debugs(28, 8, "aclDestroyDenyInfoList: invoked");
-
-    for (a = *list; a; a = a_next) {
-        a_next = a->next;
-        delete a;
-    }
-
     *list = NULL;
 }
 

@@ -9,8 +9,7 @@
 #ifndef SQUID_SQUIDCONFIG_H_
 #define SQUID_SQUIDCONFIG_H_
 
-#include "acl/forward.h"
-#include "base/RefCount.h"
+#include "acl/AclDenyInfoList.h"
 #include "base/YesNoNone.h"
 #if USE_DELAY_POOLS
 #include "ClientDelayConfig.h"
@@ -404,7 +403,7 @@ public:
         acl_access *serverPconnForNonretriable;
         acl_access *collapsedForwardingAccess;
     } accessList;
-    Acl::DenyInfoList *denyInfoList;
+    Acl::DenyInfoList denyInfo;
 
     struct {
         size_t list_width;

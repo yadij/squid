@@ -18,28 +18,21 @@ namespace Acl
 {
 
 /// deny_info representation
-class DenyInfoList : public RefCountable
+class DenyInfo : public RefCountable
 {
-    MEMPROXY_CLASS(Acl::DenyInfoList);
+    MEMPROXY_CLASS(Acl::DenyInfo);
 
 public:
-    DenyInfoList(const char *t) {
+    DenyInfo(const char *t) {
         err_page_name = xstrdup(t);
         err_page_id = errorReservePageId(t);
     }
-    ~DenyInfoList() {
+    ~DenyInfo() {
         xfree(err_page_name);
-        while (next) {
-            auto *a = next;
-            next = a->next;
-            a->next = nullptr;
-            delete a;
-        }
     }
     err_type err_page_id = ERR_NONE;
     char *err_page_name = nullptr;
     SBufList acl_list; ///< ACL names in configured order
-    DenyInfoList *next = nullptr;
 };
 
 } // namespace Acl

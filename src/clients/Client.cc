@@ -889,7 +889,7 @@ Client::handleAdaptationBlocked(const Adaptation::Answer &answer)
     debugs(11,7, HERE << "creating adaptation block response");
 
     err_type page_id =
-        aclGetDenyInfoPage(&Config.denyInfoList, answer.ruleId.termedBuf(), 1);
+        aclGetDenyInfoPage(Config.denyInfo, answer.ruleId.termedBuf(), 1);
     if (page_id == ERR_NONE)
         page_id = ERR_ACCESS_DENIED;
 

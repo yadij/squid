@@ -8548,7 +8548,7 @@ DOC_END
 
 NAME: deny_info
 TYPE: denyinfo
-LOC: Config.denyInfoList
+LOC: Config.denyInfo
 DEFAULT: none
 DOC_START
 	Usage:   deny_info err_page_name acl

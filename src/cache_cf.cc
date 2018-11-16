@@ -190,9 +190,9 @@ static void free_HeaderWithAclList(HeaderWithAclList **header);
 static void parse_note(Notes *);
 static void dump_note(StoreEntry *, const char *, Notes &);
 static void free_note(Notes *);
-static void parse_denyinfo(Acl::DenyInfoList ** var);
-static void dump_denyinfo(StoreEntry * entry, const char *name, Acl::DenyInfoList * var);
-static void free_denyinfo(Acl::DenyInfoList ** var);
+static void parse_denyinfo(Acl::DenyInfoList *);
+static void dump_denyinfo(StoreEntry *, const char *name, const Acl::DenyInfoList &);
+static void free_denyinfo(Acl::DenyInfoList *);
 
 #if USE_WCCPv2
 static void parse_IpAddress_list(Ip::Address_list **);
@@ -2438,31 +2438,28 @@ free_cachemgrpasswd(Mgr::ActionPasswordList ** head)
 }
 
 static void
-dump_denyinfo(StoreEntry * entry, const char *name, Acl::DenyInfoList * var)
+dump_denyinfo(StoreEntry * entry, const char *name, const Acl::DenyInfoList &list)
 {
-    while (var != NULL) {
-        storeAppendPrintf(entry, "%s %s", name, var->err_page_name);
+    for (const auto &itr : list) {
+        storeAppendPrintf(entry, "%s %s", name, itr->err_page_name);
 
-        for (const auto &aclName: var->acl_list)
+        for (const auto &aclName: itr->acl_list)
             storeAppendPrintf(entry, " " SQUIDSBUFPH, SQUIDSBUFPRINT(aclName));
 
         storeAppendPrintf(entry, "\n");
-
-        var = var->next;
     }
 }
 
 static void
-parse_denyinfo(Acl::DenyInfoList ** var)
+parse_denyinfo(Acl::DenyInfoList *var)
 {
     aclParseDenyInfoLine(var);
 }
 
 void
-free_denyinfo(Acl::DenyInfoList ** list)
+free_denyinfo(Acl::DenyInfoList *list)
 {
-    delete *list;
-    *list = nullptr;
+    list->clear();
 }
 
 static void

@@ -2083,7 +2083,7 @@ clientReplyContext::processReplyAccessResult(const allow_t &accessAllowed)
     if (!accessAllowed.allowed()) {
         ErrorState *err;
         err_type page_id;
-        page_id = aclGetDenyInfoPage(&Config.denyInfoList, AclMatchedName, 1);
+        page_id = aclGetDenyInfoPage(Config.denyInfo, AclMatchedName, 1);
 
         http->logType.update(LOG_TCP_DENIED_REPLY);
 
