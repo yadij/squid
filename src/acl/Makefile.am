@@ -20,6 +20,7 @@ libapi_la_SOURCES = \
 	BoolOps.h \
 	Checklist.cc \
 	Checklist.h \
+	DenyInfo.h \
 	forward.h \
 	InnerNode.cc \
 	InnerNode.h \
@@ -147,7 +148,6 @@ libacls_la_SOURCES = \
 	UrlPort.h \
 	UserData.cc \
 	UserData.h \
-	AclDenyInfoList.h \
 	Gadgets.cc \
 	Gadgets.h \
 	AclSizeLimit.cc \

@@ -10,7 +10,6 @@
 
 #include "squid.h"
 #include "acl/Acl.h"
-#include "acl/AclDenyInfoList.h"
 #include "acl/AclSizeLimit.h"
 #include "acl/Address.h"
 #include "acl/Gadgets.h"

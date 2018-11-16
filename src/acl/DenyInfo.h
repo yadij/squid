@@ -6,8 +6,8 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef SQUID_ACLDENYINFOLIST_H_
-#define SQUID_ACLDENYINFOLIST_H_
+#ifndef SQUID_SRC_ACL_DENYINFO_H_
+#define SQUID_SRC_ACL_DENYINFO_H_
 
 #include "acl/forward.h"
 #include "err_type.h"
@@ -37,5 +37,5 @@ public:
 
 } // namespace Acl
 
-#endif /* SQUID_ACLDENYINFOLIST_H_ */
+#endif /* SQUID_SRC_ACL_DENYINFO_H_ */
 

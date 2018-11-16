@@ -9,7 +9,7 @@
 #ifndef SQUID_SQUIDCONFIG_H_
 #define SQUID_SQUIDCONFIG_H_
 
-#include "acl/AclDenyInfoList.h"
+#include "acl/DenyInfo.h"
 #include "base/YesNoNone.h"
 #if USE_DELAY_POOLS
 #include "ClientDelayConfig.h"
