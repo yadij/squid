@@ -37,14 +37,14 @@ static AclSet *RegisteredAcls; // TODO: Remove when ACLs are refcounted
 
 /* does name lookup, returns page_id */
 err_type
-aclGetDenyInfoPage(AclDenyInfoList ** head, const char *name, int redirect_allowed)
+aclGetDenyInfoPage(Acl::DenyInfoList ** head, const char *name, int redirect_allowed)
 {
     if (!name) {
         debugs(28, 3, "ERR_NONE due to a NULL name");
         return ERR_NONE;
     }
 
-    AclDenyInfoList *A = NULL;
+    Acl::DenyInfoList *A = NULL;
 
     debugs(28, 8, HERE << "got called for " << name);
 
@@ -98,11 +98,11 @@ aclIsProxyAuth(const char *name)
  */
 
 void
-aclParseDenyInfoLine(AclDenyInfoList ** head)
+aclParseDenyInfoLine(Acl::DenyInfoList ** head)
 {
     char *t = NULL;
-    AclDenyInfoList *B;
-    AclDenyInfoList **T;
+    Acl::DenyInfoList *B;
+    Acl::DenyInfoList **T;
 
     /* first expect a page name */
 
@@ -112,7 +112,7 @@ aclParseDenyInfoLine(AclDenyInfoList ** head)
         return;
     }
 
-    AclDenyInfoList *A = new AclDenyInfoList(t);
+    Acl::DenyInfoList *A = new Acl::DenyInfoList(t);
 
     /* next expect a list of ACL names */
     while ((t = ConfigParser::NextToken())) {
@@ -282,13 +282,13 @@ aclDestroyAccessList(acl_access ** list)
 }
 
 /* maex@space.net (06.09.1996)
- *    destroy an AclDenyInfoList */
+ *    destroy an Acl::DenyInfoList */
 
 void
-aclDestroyDenyInfoList(AclDenyInfoList ** list)
+aclDestroyDenyInfoList(Acl::DenyInfoList ** list)
 {
-    AclDenyInfoList *a = NULL;
-    AclDenyInfoList *a_next = NULL;
+    Acl::DenyInfoList *a = NULL;
+    Acl::DenyInfoList *a_next = NULL;
 
     debugs(28, 8, "aclDestroyDenyInfoList: invoked");
 

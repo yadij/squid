@@ -14,17 +14,20 @@
 #include "errorpage.h"
 #include "mem/forward.h"
 
-/// deny_info representation. Currently a POD.
-class AclDenyInfoList
+namespace Acl
 {
-    MEMPROXY_CLASS(AclDenyInfoList);
+
+/// deny_info representation
+class DenyInfoList
+{
+    MEMPROXY_CLASS(Acl::DenyInfoList);
 
 public:
-    AclDenyInfoList(const char *t) {
+    DenyInfoList(const char *t) {
         err_page_name = xstrdup(t);
         err_page_id = errorReservePageId(t);
     }
-    ~AclDenyInfoList() {
+    ~DenyInfoList() {
         xfree(err_page_name);
         while (next) {
             auto *a = next;
@@ -36,8 +39,10 @@ public:
     err_type err_page_id = ERR_NONE;
     char *err_page_name = nullptr;
     SBufList acl_list; ///< ACL names in configured order
-    AclDenyInfoList *next = nullptr;
+    DenyInfoList *next = nullptr;
 };
+
+} // namespace Acl
 
 #endif /* SQUID_ACLDENYINFOLIST_H_ */
 

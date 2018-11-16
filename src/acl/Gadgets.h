@@ -48,11 +48,11 @@ void aclParseAclList(ConfigParser &parser, Acl::Tree **tree, const Any any)
 /// \ingroup ACLAPI
 int aclIsProxyAuth(const char *name);
 /// \ingroup ACLAPI
-err_type aclGetDenyInfoPage(AclDenyInfoList ** head, const char *name, int redirect_allowed);
+err_type aclGetDenyInfoPage(Acl::DenyInfoList ** head, const char *name, int redirect_allowed);
 /// \ingroup ACLAPI
-void aclParseDenyInfoLine(AclDenyInfoList **);
+void aclParseDenyInfoLine(Acl::DenyInfoList **);
 /// \ingroup ACLAPI
-void aclDestroyDenyInfoList(AclDenyInfoList **);
+void aclDestroyDenyInfoList(Acl::DenyInfoList **);
 /// \ingroup ACLAPI
 wordlist *aclDumpGeneric(const ACL *);
 /// \ingroup ACLAPI
