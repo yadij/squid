@@ -189,9 +189,6 @@ static void free_HeaderWithAclList(HeaderWithAclList **header);
 static void parse_note(Notes *);
 static void dump_note(StoreEntry *, const char *, Notes &);
 static void free_note(Notes *);
-static void parse_denyinfo(Acl::DenyInfoList *);
-static void dump_denyinfo(StoreEntry *, const char *name, const Acl::DenyInfoList &);
-static void free_denyinfo(Acl::DenyInfoList *);
 
 #if USE_WCCPv2
 static void parse_IpAddress_list(Ip::Address_list **);
@@ -2434,31 +2431,6 @@ free_cachemgrpasswd(Mgr::ActionPasswordList ** head)
 {
     delete *head;
     *head = nullptr;
-}
-
-static void
-dump_denyinfo(StoreEntry * entry, const char *name, const Acl::DenyInfoList &list)
-{
-    for (const auto &itr : list) {
-        storeAppendPrintf(entry, "%s %s", name, itr->err_page_name);
-
-        for (const auto &aclName: itr->acl_list)
-            storeAppendPrintf(entry, " " SQUIDSBUFPH, SQUIDSBUFPRINT(aclName));
-
-        storeAppendPrintf(entry, "\n");
-    }
-}
-
-static void
-parse_denyinfo(Acl::DenyInfoList *var)
-{
-    aclParseDenyInfoLine(var);
-}
-
-void
-free_denyinfo(Acl::DenyInfoList *list)
-{
-    list->clear();
 }
 
 static void

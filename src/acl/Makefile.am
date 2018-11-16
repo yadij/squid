@@ -20,6 +20,7 @@ libapi_la_SOURCES = \
 	BoolOps.h \
 	Checklist.cc \
 	Checklist.h \
+	DenyInfo.cc \
 	DenyInfo.h \
 	forward.h \
 	InnerNode.cc \

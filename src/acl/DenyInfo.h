@@ -37,5 +37,10 @@ public:
 
 } // namespace Acl
 
+// wrappers for LegacyParser cf_gen API
+#define parse_denyinfo(list) aclParseDenyInfoLine(list)
+#define free_denyinfo(list) (list)->clear()
+void dump_denyinfo(StoreEntry *, const char *name, const Acl::DenyInfoList &);
+
 #endif /* SQUID_SRC_ACL_DENYINFO_H_ */
 
