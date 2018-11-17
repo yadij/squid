@@ -888,8 +888,7 @@ Client::handleAdaptationBlocked(const Adaptation::Answer &answer)
 
     debugs(11,7, HERE << "creating adaptation block response");
 
-    err_type page_id =
-        aclGetDenyInfoPage(Config.denyInfo, answer.ruleId.termedBuf(), true);
+    err_type page_id = Acl::DenyInfo::FindByAclName(answer.ruleId.termedBuf(), true);
     if (page_id == ERR_NONE)
         page_id = ERR_ACCESS_DENIED;
 

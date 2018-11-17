@@ -12,6 +12,7 @@
 
 #include "squid.h"
 #include "acl/DenyInfo.h"
+#include "SquidConfig.h"
 #include "Store.h"
 
 /* maex@space.net (05.09.96)
@@ -22,9 +23,8 @@
  *      - a check, whether the given acl really is defined
  *      - a check, whether an acl is added more than once for the same url
  */
-
 void
-aclParseDenyInfoLine(Acl::DenyInfoList *list)
+Acl::DenyInfo::ParseConfigLine()
 {
     char *t = NULL;
 
@@ -49,12 +49,12 @@ aclParseDenyInfoLine(Acl::DenyInfoList *list)
         return;
     }
 
-    list->emplace_back(A);
+    Config.denyInfo.emplace_back(A);
 }
 
 /* does name lookup, returns page_id */
 err_type
-aclGetDenyInfoPage(const Acl::DenyInfoList &list, const char *name, bool redirect_allowed)
+Acl::DenyInfo::FindByAclName(const char *name, bool redirectAllowed)
 {
     if (!name) {
         debugs(28, 3, "ERR_NONE due to a nil name");
@@ -63,8 +63,8 @@ aclGetDenyInfoPage(const Acl::DenyInfoList &list, const char *name, bool redirec
 
     debugs(28, 8, "lookup for " << name);
 
-    for (const auto &itr : list) {
-        if (!redirect_allowed && strchr(itr->err_page_name, ':') ) {
+    for (const auto &itr : Config.denyInfo) {
+        if (!redirectAllowed && strchr(itr->err_page_name, ':') ) {
             // BUG: this also catches explicit 4xx status responses
             debugs(28, 8, "skip '" << itr->err_page_name << "' 30x redirects not allowed as response here");
             continue;

@@ -30,6 +30,14 @@ public:
     ~DenyInfo() {
         xfree(err_page_name);
     }
+
+    /// get the deny_info associated with the 'name' ACL
+    static err_type FindByAclName(const char *name, bool redirectAllowed);
+
+    /// parse a squid.conf deny_info line
+    static void ParseConfigLine();
+
+public:
     err_type err_page_id = ERR_NONE;
     char *err_page_name = nullptr;
     SBufList acl_list; ///< ACL names in configured order
@@ -37,12 +45,8 @@ public:
 
 } // namespace Acl
 
-// old Gadgets.h functions
-err_type aclGetDenyInfoPage(const Acl::DenyInfoList &, const char *name, bool redirect_allowed);
-void aclParseDenyInfoLine(Acl::DenyInfoList *);
-
 // wrappers for LegacyParser cf_gen API
-#define parse_denyinfo(list) aclParseDenyInfoLine(list)
+#define parse_denyinfo(x) Acl::DenyInfo::ParseConfigLine()
 #define free_denyinfo(list) (list)->clear()
 void dump_denyinfo(StoreEntry *, const char *name, const Acl::DenyInfoList &);
 
