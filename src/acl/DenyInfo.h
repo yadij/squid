@@ -37,6 +37,10 @@ public:
 
 } // namespace Acl
 
+// old Gadgets.h functions
+err_type aclGetDenyInfoPage(const Acl::DenyInfoList &, const char *name, bool redirect_allowed);
+void aclParseDenyInfoLine(Acl::DenyInfoList *);
+
 // wrappers for LegacyParser cf_gen API
 #define parse_denyinfo(list) aclParseDenyInfoLine(list)
 #define free_denyinfo(list) (list)->clear()

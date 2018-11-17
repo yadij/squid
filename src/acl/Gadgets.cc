@@ -19,7 +19,6 @@
 #include "squid.h"
 #include "acl/Acl.h"
 #include "acl/Checklist.h"
-#include "acl/DenyInfo.h"
 #include "acl/Gadgets.h"
 #include "acl/Strategised.h"
 #include "acl/Tree.h"
@@ -34,35 +33,6 @@
 typedef std::set<ACL*> AclSet;
 /// Accumulates all ACLs to facilitate their clean deletion despite reuse.
 static AclSet *RegisteredAcls; // TODO: Remove when ACLs are refcounted
-
-/* does name lookup, returns page_id */
-err_type
-aclGetDenyInfoPage(const Acl::DenyInfoList &head, const char *name, int redirect_allowed)
-{
-    if (!name) {
-        debugs(28, 3, "ERR_NONE due to a NULL name");
-        return ERR_NONE;
-    }
-
-    debugs(28, 8, HERE << "got called for " << name);
-
-    for (const auto &itr : head) {
-        if (!redirect_allowed && strchr(itr->err_page_name, ':') ) {
-            debugs(28, 8, "Skip '" << itr->err_page_name << "' 30x redirects not allowed as response here.");
-            continue;
-        }
-
-        for (const auto &aclName: itr->acl_list) {
-            if (aclName.cmp(name) == 0) {
-                debugs(28, 8, "match on " << name);
-                return itr->err_page_id;
-            }
-        }
-    }
-
-    debugs(28, 8, "aclGetDenyInfoPage: no match");
-    return ERR_NONE;
-}
 
 /* does name lookup, returns if it is a proxy_auth acl */
 int
@@ -84,44 +54,6 @@ aclIsProxyAuth(const char *name)
 
     debugs(28, 3, "aclIsProxyAuth: WARNING, called for nonexistent ACL");
     return false;
-}
-
-/* maex@space.net (05.09.96)
- *    get the info for redirecting "access denied" to info pages
- *      TODO (probably ;-)
- *      currently there is no optimization for
- *      - more than one deny_info line with the same url
- *      - a check, whether the given acl really is defined
- *      - a check, whether an acl is added more than once for the same url
- */
-
-void
-aclParseDenyInfoLine(Acl::DenyInfoList *list)
-{
-    char *t = NULL;
-
-    /* first expect a page name */
-
-    if ((t = ConfigParser::NextToken()) == NULL) {
-        debugs(28, DBG_CRITICAL, "aclParseDenyInfoLine: " << cfg_filename << " line " << config_lineno << ": " << config_input_line);
-        debugs(28, DBG_CRITICAL, "aclParseDenyInfoLine: missing 'error page' parameter.");
-        return;
-    }
-
-    Acl::DenyInfoPointer A(new Acl::DenyInfo(t));
-
-    /* next expect a list of ACL names */
-    while ((t = ConfigParser::NextToken())) {
-        A->acl_list.emplace_back(t);
-    }
-
-    if (A->acl_list.empty()) {
-        debugs(28, DBG_CRITICAL, "aclParseDenyInfoLine: " << cfg_filename << " line " << config_lineno << ": " << config_input_line);
-        debugs(28, DBG_CRITICAL, "aclParseDenyInfoLine: deny_info line contains no ACL's, skipping");
-        return;
-    }
-
-    list->emplace_back(A);
 }
 
 void
