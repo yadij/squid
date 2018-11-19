@@ -86,8 +86,8 @@ typedef struct _ntlmhdr {
 int ntlm_validate_packet(const ntlmhdr *packet, const int32_t type);
 
 /** Retrieve a string from the NTLM packet payload. */
-lstring ntlm_fetch_string(const ntlmhdr *packet,
-                          const int32_t packet_length,
+lstring ntlm_fetch_string(const char *payload,
+                          const int32_t payload_length,
                           const strhdr *str,
                           const uint32_t flags);
 

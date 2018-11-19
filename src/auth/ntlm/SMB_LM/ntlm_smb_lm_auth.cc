@@ -231,7 +231,7 @@ ntlm_check_auth(ntlm_authenticate * auth, int auth_length)
     }
 
     /*      debug("fetching domain\n"); */
-    tmp = ntlm_fetch_string(&(auth->hdr), auth_length, &auth->domain, auth->flags);
+    tmp = ntlm_fetch_string(auth->payload, auth_length, &auth->domain, auth->flags);
     if (tmp.str == NULL || tmp.l == 0) {
         debug("No domain supplied. Returning no-auth\n");
         ntlm_errno = NTLM_ERR_LOGON;
@@ -248,7 +248,7 @@ ntlm_check_auth(ntlm_authenticate * auth, int auth_length)
     ++user;
 
     /*      debug("fetching user name\n"); */
-    tmp = ntlm_fetch_string(&(auth->hdr), auth_length, &auth->user, auth->flags);
+    tmp = ntlm_fetch_string(auth->payload, auth_length, &auth->user, auth->flags);
     if (tmp.str == NULL || tmp.l == 0) {
         debug("No username supplied. Returning no-auth\n");
         ntlm_errno = NTLM_ERR_LOGON;

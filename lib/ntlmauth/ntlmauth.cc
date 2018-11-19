@@ -94,7 +94,7 @@ ntlm_validate_packet(const ntlmhdr * hdr, const int32_t type)
  * String may be either ASCII or UNICODE depending on whether flags contains NTLM_NEGOTIATE_ASCII
  */
 lstring
-ntlm_fetch_string(const ntlmhdr *packet, const int32_t packet_size, const strhdr * str, const uint32_t flags)
+ntlm_fetch_string(const char *packet, const int32_t packet_size, const strhdr * str, const uint32_t flags)
 {
     static char buf[NTLM_MAX_FIELD_LENGTH];
     lstring rv;
@@ -107,10 +107,11 @@ ntlm_fetch_string(const ntlmhdr *packet, const int32_t packet_size, const strhdr
     int32_t o = le32toh(str->offset);
     // debug("ntlm_fetch_string(plength=%d,l=%d,o=%d)\n",packet_size,l,o);
 
-    if (l < 0 || l > NTLM_MAX_FIELD_LENGTH || o + l > packet_size || o == 0) {
+    if (l < 0 || l > NTLM_MAX_FIELD_LENGTH || o <= 0 || (o + l) > packet_size) {
         debug("ntlm_fetch_string: insane data (pkt-sz: %d, fetch len: %d, offset: %d)\n", packet_size,l,o);
         return rv;
     }
+    debug("ntlm_fetch_string: data (pkt-sz: %d, fetch len: %d, offset: %d)\n", packet_size,l,o);
     rv.str = (char *)packet + o;
     rv.l = 0;
     if ((flags & NTLM_NEGOTIATE_ASCII) == 0) {
@@ -132,7 +133,7 @@ ntlm_fetch_string(const ntlmhdr *packet, const int32_t packet_size, const strhdr
         /* ASCII/OEM string */
         char *sc = rv.str;
 
-        for (; l>=0; ++sc, --l) {
+        for (; l>0; ++sc, --l) {
             if (*sc == '\0' || !xisprint(*sc)) {
                 fprintf(stderr, "ntlmssp: bad ascii: %04x\n", *sc);
                 return rv;
@@ -163,8 +164,9 @@ ntlm_add_to_payload(const ntlmhdr *packet_hdr,
 
     hdr->len = htole16(toadd_length);
     hdr->maxlen = htole16(toadd_length);
-    const off_t o = l + reinterpret_cast<const ntlmhdr *>(payload) - packet_hdr;
-    hdr->offset = htole32(o & 0xFFFFFFFF);
+    const off_t o = l;
+    const uint32_t ob = o & 0xFFFFFFFF;
+    hdr->offset = htole32(ob);
     (*payload_length) += toadd_length;
 }
 
@@ -250,7 +252,7 @@ ntlm_unpack_auth(const ntlm_authenticate *auth, char *user, char *domain, const 
     debug("ntlm_unpack_auth: wst o(%d) l(%d)\n", le32toh(auth->workstation.offset), auth->workstation.len);
     debug("ntlm_unpack_auth: key o(%d) l(%d)\n", le32toh(auth->sessionkey.offset), auth->sessionkey.len);
 
-    rv = ntlm_fetch_string(&auth->hdr, size, &auth->domain, auth->flags);
+    rv = ntlm_fetch_string(auth->payload, size, &auth->domain, auth->flags);
     if (rv.l > 0) {
         memcpy(domain, rv.str, rv.l);
         domain[rv.l] = '\0';
@@ -261,7 +263,7 @@ ntlm_unpack_auth(const ntlm_authenticate *auth, char *user, char *domain, const 
         return NTLM_ERR_BLOB;
     }
 
-    rv = ntlm_fetch_string(&auth->hdr, size, &auth->user, auth->flags);
+    rv = ntlm_fetch_string(auth->payload, size, &auth->user, auth->flags);
     if (rv.l > 0) {
         memcpy(user, rv.str, rv.l);
         user[rv.l] = '\0';
