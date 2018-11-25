@@ -81,7 +81,7 @@ testURL::testCanonicalCleanWithoutRequest()
         {SBuf("/path"),SBuf("/path")}
 // XXX: path with CTL chars
 // XXX: path with ASCII-extended chars
-   };
+    };
 
     const std::vector<std::pair<SBuf,SBuf>> query =  {
         {SBuf(),SBuf()},
@@ -134,4 +134,154 @@ testURL::testCanonicalCleanWithoutRequest()
     // TODO test CONNECT URI cleaning
 
     // TODO test URN cleaning
+}
+
+void
+testURL::testCleanup()
+{
+    const std::vector<decltype(Config.uri_whitespace)> actions = {
+        URI_WHITESPACE_STRIP,
+        URI_WHITESPACE_ALLOW,
+        URI_WHITESPACE_ENCODE,
+        URI_WHITESPACE_CHOP,
+        URI_WHITESPACE_DENY
+    };
+
+    const std::vector<unsigned char> whitespace = { '\t','\n','\v','\f','\r',' ' };
+
+    // no whitespace
+    {
+        SBuf in("abcd");
+        for (const auto action : actions) {
+            Config.uri_whitespace = action;
+            std::cerr << "CHECK: no-whitespace (" << action << ") in='" << in << "' == '" << AnyP::Uri::Cleanup(in) << "'" << std::endl;
+            CPPUNIT_ASSERT_EQUAL(AnyP::Uri::Cleanup(in), in);
+        }
+    }
+
+    // only whitespace
+    {
+        const SBuf nil;
+        for (const auto wsp : whitespace) {
+            SBuf in(reinterpret_cast<const char *>(&wsp), 1);
+
+            SBuf encoded;
+            encoded.appendf("%c%02X", '%', wsp);
+
+            for (const auto action : actions) {
+                Config.uri_whitespace = action;
+
+                // XXX: allow only leaves SP character unchanged
+                if (action == URI_WHITESPACE_ALLOW) {
+                    if (wsp == ' ')
+                        CPPUNIT_ASSERT_EQUAL(AnyP::Uri::Cleanup(in), in);
+                    else
+                        CPPUNIT_ASSERT_EQUAL(AnyP::Uri::Cleanup(in), encoded);
+                    continue;
+                }
+
+                // XXX: chop ignores VT and FF
+                if (action == URI_WHITESPACE_CHOP) {
+                    if (wsp == '\v' || wsp == '\f') {
+                        CPPUNIT_ASSERT_EQUAL(AnyP::Uri::Cleanup(in), encoded);
+                        continue;
+                    }
+                }
+
+                if (action == URI_WHITESPACE_ENCODE) {
+                    CPPUNIT_ASSERT_EQUAL(AnyP::Uri::Cleanup(in), encoded);
+                    continue;
+                }
+
+                // else, the character is removed
+                CPPUNIT_ASSERT_EQUAL(AnyP::Uri::Cleanup(in), nil);
+            }
+        }
+    }
+
+    // permutations of whitespace type and position
+    {
+        const std::vector<std::pair<SBuf,SBuf>> segments = {
+            {SBuf(),SBuf("abc")},
+            {SBuf("a"), SBuf("bc")},
+            {SBuf("ab"), SBuf("c")},
+            {SBuf("abc"),SBuf()}
+        };
+
+        // fixed string with various whitespace at any position
+        for (const auto wsp : whitespace) {
+            for (const auto seg : segments) {
+                for (int pos = 0; pos <= 4; ++pos) {
+                    SBuf in;
+
+                    // pos == 0 - no pre-encoded characters
+
+                    // pos == 1 - start character is pre-encoded
+                    if (pos == 1)
+                        in.append("%20");
+
+                    // prefix segment of valid URI characters
+                    in.append(seg.first);
+
+                    // pos == 2 - pre-encoded character immediately after prefix
+                    if (pos == 2)
+                        in.append("%20");
+
+                    SBuf strip(in);
+                    SBuf allow(in);
+                    SBuf encode(in);
+                    SBuf chop(in);
+
+                    // i == 3 - pre-encode character after first whitespace
+                    in.appendf("%c%s", wsp, (pos==3?"%20":""));
+                    strip.appendf("%s", (pos==3?"%20":""));
+                    // XXX: allow still encodes non-SP whitespace
+                    if (wsp != ' ')
+                        allow.appendf("%c%02X%s", '%', wsp, (pos==3?"%20":""));
+                    else
+                        allow.appendf("%c%s", wsp, (pos==3?"%20":""));
+                    encode.appendf("%c%02X%s", '%', wsp, (pos==3?"%20":""));
+                    // XXX: chop ignores VT and FF
+                    if (wsp == '\v' || wsp == '\f')
+                        chop.appendf("%c%02X%s", '%', wsp, (pos==3?"%20":""));
+
+                    // suffix segment of valid URI characters after whitespace
+                    in.append(seg.second);
+                    strip.append(seg.second);
+                    allow.append(seg.second);
+                    encode.append(seg.second);
+                    // XXX: chop ignores VT and FF
+                    if (wsp == '\v' || wsp == '\f')
+                        chop.append(seg.second);
+
+                    // pos == 4 - final character is pre-encoded
+                    if (pos == 4) {
+                        in.append("%20");
+                        strip.append("%20");
+                        allow.append("%20");
+                        encode.append("%20");
+                        // XXX: chop ignores VT and FF
+                        if (wsp == '\v' || wsp == '\f')
+                            chop.append("%20");
+                    }
+
+                    Config.uri_whitespace = URI_WHITESPACE_ALLOW;
+                    CPPUNIT_ASSERT_EQUAL(AnyP::Uri::Cleanup(in), allow);
+
+                    Config.uri_whitespace = URI_WHITESPACE_ENCODE;
+                    CPPUNIT_ASSERT_EQUAL(AnyP::Uri::Cleanup(in), encode);
+
+                    Config.uri_whitespace = URI_WHITESPACE_CHOP;
+                    CPPUNIT_ASSERT_EQUAL(AnyP::Uri::Cleanup(in), chop);
+
+                    Config.uri_whitespace = URI_WHITESPACE_STRIP;
+                    CPPUNIT_ASSERT_EQUAL(AnyP::Uri::Cleanup(in), strip);
+
+                    Config.uri_whitespace = URI_WHITESPACE_DENY;
+                    // XXX: deny makes same changes as strip.
+                    CPPUNIT_ASSERT_EQUAL(AnyP::Uri::Cleanup(in), strip);
+                }
+            }
+        }
+    }
 }

@@ -899,29 +899,32 @@ AnyP::Uri::Uri(AnyP::UriScheme const &aScheme) :
 }
 
 // TODO: fix code duplication with AnyP::Uri::parse()
-char *
-AnyP::Uri::cleanup(const char *uri)
+SBuf
+AnyP::Uri::Cleanup(SBuf &uri)
 {
+    // 'whitespace' for chop and strip are different
+    static const CharacterSet wspChop = (CharacterSet::WSP +
+                                         CharacterSet::LF +
+                                         CharacterSet::CR).rename("wsp-chop");
+    static const CharacterSet wspStrip = (CharacterSet("VT,FF","\v\f") +
+                                          wspChop).rename("wsp-strip");
+
     int flags = 0;
-    char *cleanedUri = nullptr;
+    SBuf cleanedUri;
     switch (Config.uri_whitespace) {
     case URI_WHITESPACE_ALLOW:
         flags |= RFC1738_ESCAPE_NOSPACE;
     // fall through to next case
     case URI_WHITESPACE_ENCODE:
         flags |= RFC1738_ESCAPE_UNESCAPED;
-        cleanedUri = xstrndup(rfc1738_do_escape(uri, flags), MAX_URL);
+        cleanedUri = SBuf(rfc1738_do_escape(uri.c_str(), flags));
         break;
 
     case URI_WHITESPACE_CHOP: {
         flags |= RFC1738_ESCAPE_UNESCAPED;
-        const auto pos = strcspn(uri, w_space);
-        char *choppedUri = nullptr;
-        if (pos < strlen(uri))
-            choppedUri = xstrndup(uri, pos + 1);
-        cleanedUri = xstrndup(rfc1738_do_escape(choppedUri ? choppedUri : uri, flags), MAX_URL);
-        cleanedUri[pos] = '\0';
-        xfree(choppedUri);
+        const auto pos = uri.findFirstOf(wspChop);
+        SBuf choppedUri = uri.substr(0, pos);
+        cleanedUri = SBuf(rfc1738_do_escape(choppedUri.c_str(), flags));
     }
     break;
 
@@ -929,25 +932,29 @@ AnyP::Uri::cleanup(const char *uri)
     case URI_WHITESPACE_STRIP:
     default: {
         // TODO: avoid duplication with urlParse()
-        const char *t;
-        char *tmp_uri = static_cast<char*>(xmalloc(strlen(uri) + 1));
-        char *q = tmp_uri;
-        t = uri;
-        while (*t) {
-            if (!xisspace(*t)) {
-                *q = *t;
-                ++q;
-            }
-            ++t;
+        const auto shiftFrom = uri.findFirstOf(wspStrip);
+        if (shiftFrom == SBuf::npos) {
+            cleanedUri = uri;
+            break; // nothing to do
         }
-        *q = '\0';
-        cleanedUri = xstrndup(rfc1738_escape_unescaped(tmp_uri), MAX_URL);
+        char *tmp_uri = SBufToCstring(uri); // allocate and fill tmp_uri from uri
+        auto src = &tmp_uri[shiftFrom];
+        auto dst = &tmp_uri[shiftFrom];
+        while (*src) {
+            if (!wspStrip[*src]) {
+                *dst = *src;
+                ++dst;
+            }
+            ++src;
+        }
+        *dst = '\0';
+
+        cleanedUri = SBuf(rfc1738_escape_unescaped(tmp_uri));
         xfree(tmp_uri);
     }
     break;
     }
 
-    assert(cleanedUri);
     return cleanedUri;
 }
 

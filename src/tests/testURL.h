@@ -21,6 +21,7 @@ class testURL : public CPPUNIT_NS::TestFixture
     CPPUNIT_TEST( testConstructScheme );
     CPPUNIT_TEST( testDefaultConstructor );
     CPPUNIT_TEST( testCanonicalCleanWithoutRequest );
+    CPPUNIT_TEST( testCleanup );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -31,6 +32,7 @@ protected:
     void testConstructScheme();
     void testDefaultConstructor();
     void testCanonicalCleanWithoutRequest();
+    void testCleanup();
 };
 
 #endif
