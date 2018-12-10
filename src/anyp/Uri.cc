@@ -910,7 +910,7 @@ AnyP::Uri::Uri(AnyP::UriScheme const &aScheme) :
 
 // TODO: fix code duplication with AnyP::Uri::parse()
 SBuf
-AnyP::Uri::Cleanup(SBuf &uri)
+AnyP::Uri::Cleanup(const SBuf &uri)
 {
     // 'whitespace' for chop and strip are different
     static const CharacterSet wspChop = (CharacterSet::WSP +
@@ -925,10 +925,12 @@ AnyP::Uri::Cleanup(SBuf &uri)
     case URI_WHITESPACE_ALLOW:
         flags |= RFC1738_ESCAPE_NOSPACE;
     // fall through to next case
-    case URI_WHITESPACE_ENCODE:
+    case URI_WHITESPACE_ENCODE: {
         flags |= RFC1738_ESCAPE_UNESCAPED;
-        cleanedUri = SBuf(rfc1738_do_escape(uri.c_str(), flags));
-        break;
+        SBuf tmp = uri;
+        cleanedUri = SBuf(rfc1738_do_escape(tmp.c_str(), flags));
+    }
+    break;
 
     case URI_WHITESPACE_CHOP: {
         flags |= RFC1738_ESCAPE_UNESCAPED;
