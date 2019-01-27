@@ -23,7 +23,7 @@ $| = 1;  # force a flush after every print on STDOUT
 
 my ($url, $addr, $fqdn, $ident, $method);
 
-while (<>) {
+while (<STDIN>) {
     ($url, $addr, $fqdn, $ident, $method) = m:(\S*) (\S*)/(\S*) (\S*) (\S*):;
 
     # "normalize" URL
@@ -43,7 +43,7 @@ while (<>) {
 
 
 } continue {
-    print "$url $addr/$fqdn $ident $method\n"
+    print "$url\n";
 }
 
 
