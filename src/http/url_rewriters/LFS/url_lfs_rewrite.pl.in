@@ -146,7 +146,7 @@ my $status = undef;
 # Process lines of the form 'channel-ID URL ip-address/fqdn ident method'
 # See http://wiki.squid-cache.org/Features/AddonHelpers for details
 
-while ( <> ) {
+while (<STDIN>) {
     my ($cid, $url, $remainder) = split;
 
     $url = url $url;

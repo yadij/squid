@@ -230,7 +230,7 @@ sub query_db($) {
 my $status;
 
 $|=1;
-while (<>) {
+while (<STDIN>) {
     my ($user, $password) = split;
     $status = "ERR";
     $user =~ s/%(..)/pack("H*", $1)/ge;

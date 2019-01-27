@@ -91,7 +91,7 @@ GetOptions(
 pod2usage(1) if ($help);
 
 $|=1;
-while (<>) {
+while (<STDIN>) {
     my $first_line = $_;
     my @line_args = split;
 
@@ -116,7 +116,7 @@ while (<>) {
         my @responseErrors = ();
 
         while($readlen < $bodylen) {
-	    my $t = <>;
+	    my $t = <STDIN>;
             if (defined $t) {
                 $body  = $body . $t;
                 $readlen = length($body);

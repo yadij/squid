@@ -458,7 +458,7 @@ sub parse($) {
 }
 
 # main loop
-while (my $line = <>) {
+while (my $line = <STDIN>) {
     chomp $line;
 
     my $cmd = substr($line, 0, 1);      # extract command byte

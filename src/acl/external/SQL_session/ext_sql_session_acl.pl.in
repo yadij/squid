@@ -184,7 +184,7 @@ sub query_db($) {
 my $status;
 
 $|=1;
-while (<>) {
+while (<STDIN>) {
     my $string = $_;
     $string =~ m/^(\d+)\s(.*)$/;
     my ($cid, $uid) = ($1, $2);
