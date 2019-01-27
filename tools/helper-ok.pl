@@ -8,7 +8,7 @@
 ##
 
 $|=1;
-while (<>) {
+while (<STDIN>) {
 	sleep 10;
 	print "OK\n";
 }

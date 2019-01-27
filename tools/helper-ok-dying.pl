@@ -8,7 +8,7 @@
 ##
 
 $|=1;
-while (<>) {
+while (<STDIN>) {
 	print "OK\n";
 }
 print STDERR "stdin closed, exit\n";
