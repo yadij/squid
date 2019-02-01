@@ -33,6 +33,7 @@ Allow, Http::HdrType::ALLOW, Http::HdrFieldType::ftStr, HdrKind::ListHeader|HdrK
 Alternate-Protocol, Http::HdrType::ALTERNATE_PROTOCOL, Http::HdrFieldType::ftStr, HdrKind::HopByHopHeader
 Authentication-Info, Http::HdrType::AUTHENTICATION_INFO, Http::HdrFieldType::ftStr, HdrKind::ListHeader
 Authorization, Http::HdrType::AUTHORIZATION, Http::HdrFieldType::ftStr, HdrKind::RequestHeader
+Cache, Http::HdrType::CACHE, Http::HdrFieldType::ftStr, HdrKind::ReplyHeader
 Cache-Control, Http::HdrType::CACHE_CONTROL, Http::HdrFieldType::ftPCc, HdrKind::ListHeader|HdrKind::GeneralHeader
 Connection, Http::HdrType::CONNECTION, Http::HdrFieldType::ftStr, HdrKind::ListHeader|HdrKind::GeneralHeader|HdrKind::HopByHopHeader
 Content-Base, Http::HdrType::CONTENT_BASE, Http::HdrFieldType::ftStr, HdrKind::EntityHeader

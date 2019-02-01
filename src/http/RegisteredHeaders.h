@@ -31,6 +31,7 @@ enum HdrType {
     ALTERNATE_PROTOCOL,             /**< GFE custom header we may have to erase */
     AUTHENTICATION_INFO,            /**< RFC 2617 */
     AUTHORIZATION,                  /**< RFC 7235, 4559 */
+    CACHE,                          /**< draft-ietf-httpbis-cache-header-00 */
     CACHE_CONTROL,                  /**< RFC 7234 */
     CONNECTION,                     /**< RFC 7230 */
     CONTENT_BASE,                   /**< obsoleted RFC 2068 */
