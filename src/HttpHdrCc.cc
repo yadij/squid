@@ -90,12 +90,29 @@ HttpHdrCc::setValue(int32_t &value, int32_t new_value, HttpHdrCcType hdr, bool s
     setMask(hdr,setting);
 }
 
+/**
+ * Governed by:
+ *  RFC 7234 section 5.2:
+ *
+ *     Cache-Control   = 1#cache-directive
+ *
+ *     cache-directive = token [ "=" ( token / quoted-string ) ]
+ *
+ * "
+ *   Cache directives are identified by a token, to be compared
+ *   case-insensitively, and have an optional argument, that can use both
+ *   token and quoted-string syntax.  For the directives defined below
+ *   that define arguments, recipients ought to accept both forms, even if
+ *   one is documented to be preferred.  For any directive not defined by
+ *   this specification, a recipient MUST accept both forms.
+ * "
+ */
 bool
 HttpHdrCc::parse(const String & str)
 {
-    const char *item;
-    const char *p;      /* '=' parameter */
-    const char *pos = NULL;
+    const char *item = nullptr; // a cache-directive
+    const char *p = nullptr;    // the '=' parameter
+    const char *pos = nullptr;
     int ilen;
     int nlen;
 
@@ -112,6 +129,8 @@ HttpHdrCc::parse(const String & str)
         }
 
         /* find type */
+        // XXX: determine why directive names are handled case-sensitively (RFC violation)
+        //      despite the default Hasher here being case-insensitive
         const HttpHdrCcType type = ccLookupTable.lookup(SBuf(item,nlen));
 
         // ignore known duplicate directives
@@ -124,6 +143,7 @@ HttpHdrCc::parse(const String & str)
         }
 
         /* special-case-parsing and attribute-setting */
+        // XXX: 'ought to' accept quoted-string even on numeric values
         switch (type) {
 
         case HttpHdrCcType::CC_MAX_AGE:

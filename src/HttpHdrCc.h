@@ -30,13 +30,17 @@ enum HttpHdrCcType : unsigned char {
     CC_MAX_STALE,
     CC_MIN_FRESH,
     CC_ONLY_IF_CACHED,
-    CC_STALE_IF_ERROR,
-    CC_IMMUTABLE, /* RFC 8246 */
-    CC_OTHER,
-    CC_ENUM_END /* also used to mean "invalid" */
+    CC_STALE_IF_ERROR,     /* RFC 5861 */
+    CC_IMMUTABLE,          /* RFC 8246 */
+    CC_OTHER,              /* RFC 7234 section 5.2.3: Cache Control Extensions */
+    CC_ENUM_END            /* also used to mean "invalid" */
 };
 
-/** Http Cache-Control header representation
+/** HTTP/1.1 Cache-Control header representation.
+ *
+ * Governed by:
+ *  RFC 2616 section 14.9 (deprecated)
+ *  RFC 7234 section 5.2
  *
  * Store and parse the Cache-Control HTTP header.
  */
@@ -48,7 +52,7 @@ public:
     static const int32_t MAX_AGE_UNKNOWN=-1; //max-age is unset
     static const int32_t S_MAXAGE_UNKNOWN=-1; //s-maxage is unset
     static const int32_t MAX_STALE_UNKNOWN=-1; //max-stale is unset
-    ///used to mark a valueless Cache-Control: max-stale directive, which instructs
+    /// used to mark a valueless Cache-Control: max-stale directive, which instructs
     /// us to treat responses of any age as fresh
     static const int32_t MAX_STALE_ANY=0x7fffffff;
     static const int32_t STALE_IF_ERROR_UNKNOWN=-1; //stale_if_error is unset
@@ -164,20 +168,25 @@ public:
 
     void packInto(Packable * p) const;
 
+private:
+
     /** bit-mask representing what header values are set among those
      * recognized by squid.
      *
      * managed via EBIT_SET/TEST/CLR
      */
-private:
     int32_t mask;
     int32_t max_age;
     int32_t s_maxage;
     int32_t max_stale;
     int32_t stale_if_error;
     int32_t min_fresh;
-    String private_; ///< List of headers sent as value for CC:private="...". May be empty/undefined if the value is missing.
-    String no_cache; ///< List of headers sent as value for CC:no-cache="...". May be empty/undefined if the value is missing.
+
+    /// List of headers sent as value for CC:private="...". May be empty/undefined if the value is missing.
+    String private_;
+
+    /// List of headers sent as value for CC:no-cache="...". May be empty/undefined if the value is missing.
+    String no_cache;
 
     /// implements typical has*() method logic
     template<class Value>
@@ -201,7 +210,7 @@ private:
     void setValue(int32_t &value, int32_t new_value, HttpHdrCcType hdr, bool setting=true);
 
 public:
-    /**comma-separated representation of the header values which were
+    /** comma-separated representation of the header values which were
      * received but are not recognized.
      */
     String other;
