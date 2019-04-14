@@ -78,6 +78,7 @@ enum HdrType {
     PROXY_AUTHENTICATION_INFO,      /**< RFC 2617 */
     PROXY_AUTHORIZATION,            /**< RFC 7235 */
     PROXY_CONNECTION,               /**< obsolete Netscape header we may need to erase. */
+    PROXY_STATUS,                   /**< experimental RFC Draft draft-nottingham-proxy-status */
     PROXY_SUPPORT,                  /**< RFC 4559 */
     PUBLIC,                         /**<  RFC 2068 */
     RANGE,                          /**< RFC 7233 */

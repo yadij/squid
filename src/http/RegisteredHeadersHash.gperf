@@ -73,6 +73,7 @@ Proxy-Authenticate, Http::HdrType::PROXY_AUTHENTICATE, Http::HdrFieldType::ftStr
 Proxy-Authentication-Info, Http::HdrType::PROXY_AUTHENTICATION_INFO, Http::HdrFieldType::ftStr, HdrKind::ListHeader
 Proxy-Authorization, Http::HdrType::PROXY_AUTHORIZATION, Http::HdrFieldType::ftStr, HdrKind::RequestHeader|HdrKind::HopByHopHeader
 Proxy-Connection, Http::HdrType::PROXY_CONNECTION, Http::HdrFieldType::ftStr, HdrKind::ListHeader|HdrKind::GeneralHeader|HdrKind::HopByHopHeader
+Proxy-Status, Http::HdrType::PROXY_STATUS, Http::HdrFieldType::ftStr, HdrKind::ListHeader|HdrKind::ReplyHeader
 Proxy-support, Http::HdrType::PROXY_SUPPORT, Http::HdrFieldType::ftStr, HdrKind::ListHeader
 Public, Http::HdrType::PUBLIC, Http::HdrFieldType::ftStr, HdrKind::ReplyHeader
 Range, Http::HdrType::RANGE, Http::HdrFieldType::ftPRange, HdrKind::RequestHeader
