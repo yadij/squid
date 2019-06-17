@@ -46,3 +46,18 @@ CachePeer::~CachePeer()
     xfree(domain);
 }
 
+const char *
+CachePeer::loginCredentials() const
+{
+   if (p->login &&
+       p->login[0] != '*' &&
+       strcmp(p->login, "PASS") != 0 &&
+       strcmp(p->login, "PASSTHRU") != 0 &&
+       strncmp(p->login, "NEGOTIATE",9) != 0 &&
+       strcmp(p->login, "PROXYPASS") != 0) {
+
+        return login;
+    }
+
+    return nullptr;
+}

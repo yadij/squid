@@ -32,6 +32,8 @@ public:
     CachePeer() = default;
     ~CachePeer();
 
+    const char *loginCredentials() const;
+
     u_int index = 0;
     char *name = nullptr;
     char *host = nullptr;
