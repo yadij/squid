@@ -10,11 +10,13 @@
 
 #include "squid.h"
 #if USE_CACHE_DIGESTS
+#include "base64.h"
 #include "CacheDigest.h"
 #include "CachePeer.h"
 #include "event.h"
 #include "FwdState.h"
 #include "globals.h"
+#include "HttpHeaderTools.h"
 #include "HttpReply.h"
 #include "HttpRequest.h"
 #include "internal.h"
@@ -338,14 +340,19 @@ peerDigestRequest(PeerDigest * pd)
 
     req->header.putStr(Http::HdrType::ACCEPT, "text/html");
 
-    if (p->login &&
-            p->login[0] != '*' &&
-            strcmp(p->login, "PASS") != 0 &&
-            strcmp(p->login, "PASSTHRU") != 0 &&
-            strncmp(p->login, "NEGOTIATE",9) != 0 &&
-            strcmp(p->login, "PROXYPASS") != 0) {
-        req->url.userInfo(SBuf(p->login)); // XXX: performance regression make peer login SBuf as well.
+    if (const auto *auth = p->loginCredentials()) {
+        const auto len = strlen(auth);
+        char *result = static_cast<char *>(xmalloc(base64_encode_len(len)));
+        struct base64_encode_ctx ctx;
+        base64_encode_init(&ctx);
+        size_t blen = base64_encode_update(&ctx, result, len, reinterpret_cast<const uint8_t*>(auth));
+        blen += base64_encode_final(&ctx, result+blen);
+        result[blen] = '\0';
+        if (blen)
+            httpHeaderPutStrf(&req->header, Http::HdrType::PROXY_AUTHORIZATION, "Basic %.*s", (int)blen, result);
+        xfree(result);
     }
+
     /* create fetch state structure */
     DigestFetchState *fetch = new DigestFetchState(pd, req);
 

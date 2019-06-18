@@ -17,6 +17,7 @@
  */
 
 #include "squid.h"
+#include "base64.h"
 #include "CachePeer.h"
 #include "cbdata.h"
 #include "event.h"
@@ -1296,9 +1297,18 @@ netdbExchangeStart(void *data)
                     netdbExchangeHandleReply, ex);
     ex->r->flags.loopDetected = true;   /* cheat! -- force direct */
 
-    // XXX: send as Proxy-Authenticate instead
-    if (p->login)
-        ex->r->url.userInfo(SBuf(p->login));
+    if (const auto *auth = p->loginCredentials()) {
+        const auto len = strlen(auth);
+        char *result = static_cast<char *>(xmalloc(base64_encode_len(len)));
+        struct base64_encode_ctx ctx;
+        base64_encode_init(&ctx);
+        size_t blen = base64_encode_update(&ctx, result, len, reinterpret_cast<const uint8_t*>(auth));
+        blen += base64_encode_final(&ctx, result+blen);
+        result[blen] = '\0';
+        if (blen)
+            httpHeaderPutStrf(&req->header, Http::HdrType::PROXY_AUTHORIZATION, "Basic %.*s", (int)blen, result);
+        xfree(result);
+    }
 
     FwdState::fwdStart(Comm::ConnectionPointer(), ex->e, ex->r.getRaw());
 #endif
