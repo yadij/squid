@@ -72,8 +72,11 @@ public:
         touch();
     }
 
-    void userInfo(const SBuf &s) {userInfo_=s; touch();}
-    const SBuf &userInfo() const {return userInfo_;}
+    void userInfoName(const SBuf &s) {userInfoName_=s; touch(); }
+    const SBuf &userInfoName(bool escape = false) const;
+    void userInfoAuth(const SBuf &s) {userInfoAuth_=s; touch(); }
+    const SBuf &userInfoAuth(bool escape = false) const;
+    const SBuf &userInfo() const;
 
     void host(const char *src);
     const char *host(void) const {return host_;}
@@ -117,7 +120,7 @@ public:
     SBuf &absolute() const;
 
 private:
-    void parseFinish(const AnyP::ProtocolType, const char *const, const char *const, const char *const, const SBuf &, const int);
+    void parseFinish(const AnyP::ProtocolType, const char *const, const char *const, const char *const, const SBuf &, const SBuf &, const int);
 
     /**
      \par
@@ -141,7 +144,8 @@ private:
      */
     AnyP::UriScheme scheme_;
 
-    SBuf userInfo_; // aka 'URL-login'
+    SBuf userInfoName_; ///< userinfo name portion, without %-escaping
+    SBuf userInfoAuth_; ///< userinfo auth portion, without %-escaping
 
     // XXX: uses char[] instead of SBUf to reduce performance regressions
     //      from c_str() since most code using this is not yet using SBuf
@@ -158,6 +162,9 @@ private:
     mutable SBuf authorityHttp_;     ///< RFC 7230 section 5.3.3 authority, maybe without default-port
     mutable SBuf authorityWithPort_; ///< RFC 7230 section 5.3.3 authority with explicit port
     mutable SBuf absolute_;          ///< RFC 7230 section 5.3.2 absolute-URI
+    mutable SBuf userInfo_;          ///< RFC 3986 section 3.2.1 userinfo, with %-escaping
+    mutable SBuf userInfoNameEscaped_; ///< userinfo name portion, with %-escaping
+    mutable SBuf userInfoAuthEscaped_; ///< userinfo auth portion, with %-escaping
 };
 
 } // namespace AnyP

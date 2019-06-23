@@ -202,6 +202,7 @@ AnyP::Uri::parse(const HttpRequestMethod& method, const char *url)
     int i;
     const char *src;
     char *dst;
+    char *loginAuth = nullptr;
     proto[0] = foundHost[0] = urlpath[0] = login[0] = '\0';
 
     if ((l = strlen(url)) + Config.appendDomainLen > (MAX_URL - 1)) {
@@ -225,7 +226,7 @@ AnyP::Uri::parse(const HttpRequestMethod& method, const char *url)
 
     } else if ((method == Http::METHOD_OPTIONS || method == Http::METHOD_TRACE) &&
                AnyP::Uri::Asterisk().cmp(url) == 0) {
-        parseFinish(AnyP::PROTO_HTTP, nullptr, url, foundHost, SBuf(), 80 /* HTTP default port */);
+        parseFinish(AnyP::PROTO_HTTP, nullptr, url, foundHost, SBuf(), SBuf(), 80 /* HTTP default port */);
         return true;
     } else if (strncmp(url, "urn:", 4) == 0) {
         debugs(23, 3, "Split URI '" << url << "' into proto='urn', path='" << (url+4) << "'");
@@ -302,8 +303,17 @@ AnyP::Uri::parse(const HttpRequestMethod& method, const char *url)
             *t = 0;
             strncpy((char *) foundHost, t + 1, sizeof(foundHost)-1);
             foundHost[sizeof(foundHost)-1] = '\0';
+
+            // separate the ':auth' suffix (aka password) from login
+            if ((loginAuth = strchr(login, ':'))) {
+                *loginAuth = '\0';
+                ++loginAuth;
+            }
             // Bug 4498: URL-unescape the login info after extraction
-            rfc1738_unescape(login);
+            if (login && *login != '\0')
+                rfc1738_unescape(login);
+            if (loginAuth && *loginAuth != '\0')
+                rfc1738_unescape(loginAuth);
         }
 
         /* Is there any host information? (we should eventually parse it above) */
@@ -438,7 +448,7 @@ AnyP::Uri::parse(const HttpRequestMethod& method, const char *url)
         }
     }
 
-    parseFinish(protocol, proto, urlpath, foundHost, SBuf(login), foundPort);
+    parseFinish(protocol, proto, urlpath, foundHost, SBuf(login), SBuf(loginAuth), foundPort);
     return true;
 }
 
@@ -448,13 +458,15 @@ AnyP::Uri::parseFinish(const AnyP::ProtocolType protocol,
                        const char *const protoStr, // for unknown protocols
                        const char *const aUrlPath,
                        const char *const aHost,
-                       const SBuf &aLogin,
+                       const SBuf &aLoginName,
+                       const SBuf &aLoginAuth,
                        const int aPort)
 {
     setScheme(protocol, protoStr);
     path(aUrlPath);
     host(aHost);
-    userInfo(aLogin);
+    userInfoName(aLoginName);
+    userInfoAuth(aLoginAuth);
     port(aPort);
 }
 
@@ -464,6 +476,45 @@ AnyP::Uri::touch()
     absolute_.clear();
     authorityHttp_.clear();
     authorityWithPort_.clear();
+    userInfo_.clear();
+    userInfoNameEscaped_.clear();
+    userInfoAuthEscaped_.clear();
+}
+
+const SBuf &
+AnyP::Uri::userInfoName(bool escape) const
+{
+    if (escape && !userInfoName_.isEmpty() && userInfoNameEscaped_.isEmpty()) {
+        SBuf tmp(userInfoName_);
+        userInfoNameEscaped_ = SBuf(rfc1738_do_escape(tmp.c_str(), RFC1738_ESCAPE_UNSAFE|RFC1738_ESCAPE_CTRLS|RFC1738_ESCAPE_RESERVED));
+        return userInfoNameEscaped_;
+    }
+    return userInfoName_;
+}
+
+const SBuf &
+AnyP::Uri::userInfoAuth(bool escape) const
+{
+    if (escape && !userInfoAuth_.isEmpty() && userInfoAuthEscaped_.isEmpty()) {
+        SBuf tmp(userInfoAuth_);
+        userInfoAuthEscaped_ = SBuf(rfc1738_do_escape(tmp.c_str(), RFC1738_ESCAPE_UNSAFE|RFC1738_ESCAPE_CTRLS|RFC1738_ESCAPE_RESERVED));
+        return userInfoAuthEscaped_;
+    }
+    return userInfoAuth_;
+}
+
+const SBuf &
+AnyP::Uri::userInfo() const
+{
+    if (userInfo_.isEmpty() && (!userInfoName_.isEmpty() || !userInfoAuth_.isEmpty())) {
+        // RFC 3986: escape everything except:  unreserved / pct-encoded / sub-delims / ":"
+
+        userInfo_.append(userInfoName(true));
+        userInfo_.append(":", 1);
+        userInfo_.append(userInfoAuth(true));
+    }
+
+    return userInfo_;
 }
 
 SBuf &
