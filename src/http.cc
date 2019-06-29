@@ -16,6 +16,7 @@
 #include "squid.h"
 #include "acl/FilledChecklist.h"
 #include "base/AsyncJobCalls.h"
+#include "base/CharacterSet.h"
 #include "base/TextException.h"
 #include "base64.h"
 #include "CachePeer.h"
@@ -1881,18 +1882,33 @@ HttpStateData::httpBuildRequestHeader(HttpRequest * request,
     }
 
     /* append Authorization if known in URL, not in header and going direct */
+    // RFC 7230 requires userinfo be ignored, so this usage is a violation
+#if USE_HTTP_VIOLATIONS
     if (!hdr_out->has(Http::HdrType::AUTHORIZATION)) {
         if (flags.toOrigin && !request->url.userInfo().isEmpty()) {
-            static char result[base64_encode_len(MAX_URL*2)]; // should be big enough for a single URI segment
-            struct base64_encode_ctx ctx;
-            base64_encode_init(&ctx);
-            size_t blen = base64_encode_update(&ctx, result, request->url.userInfo().length(), reinterpret_cast<const uint8_t*>(request->url.userInfo().rawContent()));
-            blen += base64_encode_final(&ctx, result+blen);
-            result[blen] = '\0';
-            if (blen)
-                httpHeaderPutStrf(hdr_out, Http::HdrType::AUTHORIZATION, "Basic %.*s", (int)blen, result);
+
+            // RFC 7617 section 2 forbids credentials containing CTL characters,
+            // and also any ':' within user-id (':' is permitted in password).
+            static const auto forbidUser = CharacterSet("forbid", ":") + CharacterSet::CTL;
+            auto uiName = request->url.userInfoName();
+            auto uiAuth = request->url.userInfoAuth();
+
+            if (uiName.findFirstOf(forbidUser) == SBuf::npos && uiAuth.findFirstOf(CharacterSet::CTL) == SBuf::npos) {
+
+                static char result[base64_encode_len(MAX_URL*2)]; // should be big enough for a single URI segment
+                struct base64_encode_ctx ctx;
+                base64_encode_init(&ctx);
+                size_t blen = base64_encode_update(&ctx, result, uiName.length(), reinterpret_cast<const uint8_t*>(uiName.rawContent()));
+                blen += base64_encode_update(&ctx, result+blen, 1, reinterpret_cast<const uint8_t*>(":"));
+                blen += base64_encode_update(&ctx, result+blen, uiAuth.length(), reinterpret_cast<const uint8_t*>(uiAuth.rawContent()));
+                blen += base64_encode_final(&ctx, result+blen);
+                result[blen] = '\0';
+                if (blen)
+                    httpHeaderPutStrf(hdr_out, Http::HdrType::AUTHORIZATION, "Basic %.*s", (int)blen, result);
+            }
         }
     }
+#endif
 
     /* Fixup (Proxy-)Authorization special cases. Plain relaying dealt with above */
     httpFixupAuthentication(request, hdr_in, hdr_out, flags);
