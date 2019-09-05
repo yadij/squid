@@ -188,8 +188,8 @@ void _db_rotate_log(void);
 class Raw
 {
 public:
-    Raw(const char *label, const char *data, const size_t size):
-        level(-1), label_(label), data_(data), size_(size), useHex_(false), useGap_(true) {}
+    Raw(const char *label, const char *data, const size_t size, const size_t limit = 0):
+        level(-1), label_(label), data_(data), size_(size), limit_(limit), useHex_(false), useGap_(true) {}
 
     /// limit data printing to at least the given debugging level
     Raw &minLevel(const int aLevel) { level = aLevel; return *this; }
@@ -218,6 +218,7 @@ private:
     const char *label_; ///< optional data name or ID; triggers size printing
     const char *data_; ///< raw data to be printed
     size_t size_; ///< data length
+    size_t limit_; ///< do not print more than this amount of the data
     bool useHex_; ///< whether hex() has been called
     bool useGap_; ///< whether to print leading space if label is missing
 };
