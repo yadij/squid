@@ -24,6 +24,4 @@ libecapsquid_la_SOURCES = \
 	\
 	Registry.h
 
-# add libecap using its pkg-config-produced configuration variables
-libecapsquid_la_CXXFLAGS = $(EXT_LIBECAP_CFLAGS)
-libecapsquid_la_LIBADD = $(EXT_LIBECAP_LIBS)
+libecapsquid_la_LIBADD = $(ECAPLIB)

@@ -969,29 +969,23 @@ SQUID_DEFINE_BOOL(ICAP_CLIENT,${enable_icap_client:=yes}, [Enable ICAP client fe
 AS_IF(test "x$enable_icap_client" != "xno", squid_opt_use_adaptation="yes")
 AM_CONDITIONAL(ENABLE_ICAP_CLIENT, test "x$enable_icap_client" != "xno")
 
-squid_opt_use_ecap=1
 AC_MSG_CHECKING(whether to support eCAP)
 AC_ARG_ENABLE(ecap,
-  AS_HELP_STRING([--enable-ecap],[support loadable content adaptation modules]), [
-    case "${enableval}" in
-       yes|no) squid_opt_use_ecap=$enableval ;;
-       *) AC_MSG_ERROR(bad value ${enableval} for --enable-ecap) ;;
-    esac
-AC_MSG_RESULT([$squid_opt_use_ecap, explicitly])
-    ], [
-        squid_opt_use_ecap=no;
-        AC_MSG_RESULT([$squid_opt_use_ecap, implicitly])
-    ]
-)
+  AS_HELP_STRING([--enable-ecap],[support loadable content adaptation modules]),[
+  SQUID_YESNO([$enableval],[bad value ${enableval} for --enable-ecap])
+])
+AC_MSG_RESULT([${enable_ecap:=no}])
 
 dnl Perform configuration consistency checks for eCAP
-if test "x$squid_opt_use_ecap" != "xno";
+if test "x$enable_ecap" != "xno";
 then
   dnl eCAP support requires loadable modules, which are enabled by default
   if test "x$enable_loadable_modules" != "xyes"
   then
     AC_MSG_ERROR([eCAP support requires loadable modules. Please do not use --disable-loadable-modules with --enable-ecap.])
   fi
+
+  SQUID_STATE_SAVE(squid_ecap_state)
 
   if test -n "$PKG_CONFIG"; then
     dnl eCAP support requires libecap.
@@ -1003,7 +997,6 @@ then
     AC_MSG_NOTICE([eCAP support requires pkg-config to verify the correct library version. Trouble may follow.])
   fi
 
-  SQUID_STATE_SAVE(squid_ecap_state)
   AC_MSG_CHECKING([whether -lecap will link])
   CXXFLAGS="$CXXFLAGS $EXT_LIBECAP_CFLAGS"
   LIBS="$LIBS $EXT_LIBECAP_LIBS"
@@ -1026,9 +1019,19 @@ then
     ])
   ])
   SQUID_STATE_ROLLBACK(squid_ecap_state)
+
+  if test "x$enable_ecap" = "xyes" -a "x$LIBECAP_LIBS" = "x"; then
+    AC_MSG_ERROR([Required eCAP library not found])
+  fi
+  if test "x$EXT_LIBECAP_LIBS" != "x" ; then
+    CXXFLAGS="$EXT_LIBECAP_CFLAGS $CXXFLAGS"
+    ECAPLIB="$EXT_LIBECAP_PATH $EXT_LIBECAP_LIBS"
+  else
+    enable_ecap=no
+  fi
 fi
-SQUID_DEFINE_BOOL(USE_ECAP,${squid_opt_use_ecap:=no},[Whether to use eCAP support])
-AM_CONDITIONAL(ENABLE_ECAP, test "x$squid_opt_use_ecap" = "xyes")
+SQUID_DEFINE_BOOL(USE_ECAP,${enable_ecap:=no},[Whether to use eCAP support])
+AM_CONDITIONAL(ENABLE_ECAP, test "x$enable_ecap" = "xyes")
 
 dnl enable adaptation if requested by specific adaptation mechanisms
 ADAPTATION_LIBS=""
