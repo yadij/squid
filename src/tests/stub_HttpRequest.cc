@@ -24,7 +24,8 @@ HttpRequest * HttpRequest::clone() const STUB_RETVAL(NULL)
 bool HttpRequest::maybeCacheable() STUB_RETVAL(false)
 bool HttpRequest::conditional() const STUB_RETVAL(false)
 bool HttpRequest::canHandle1xx() const STUB_RETVAL(false)
-char * HttpRequest::canonicalCleanUrl() const STUB_RETVAL(nullptr)
+static const SBuf nilSBuf;
+SBuf HttpRequest::canonicalCleanUrl() const STUB_RETVAL(nilSBuf)
 #if USE_ADAPTATION
 Adaptation::History::Pointer HttpRequest::adaptLogHistory() const STUB_RETVAL(Adaptation::History::Pointer())
 Adaptation::History::Pointer HttpRequest::adaptHistory(bool) const STUB_RETVAL(Adaptation::History::Pointer())
@@ -38,7 +39,6 @@ void HttpRequest::detailError(err_type, int) STUB
 void HttpRequest::clearError() STUB
 void HttpRequest::clean() STUB
 void HttpRequest::init() STUB
-static const SBuf nilSBuf;
 const SBuf &HttpRequest::effectiveRequestUri() const STUB_RETVAL(nilSBuf)
 bool HttpRequest::multipartRangeRequest() const STUB_RETVAL(false)
 bool HttpRequest::parseFirstLine(const char *, const char *) STUB_RETVAL(false)
