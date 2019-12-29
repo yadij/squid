@@ -23,6 +23,7 @@
 
 Server::Server(const MasterXaction::Pointer &xact) :
     AsyncJob("::Server"), // kids overwrite
+    xaction(xact),
     clientConnection(xact->tcpClient),
     transferProtocol(xact->squidPort->transport),
     port(xact->squidPort),
