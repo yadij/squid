@@ -39,18 +39,13 @@ class Locker
 {
 public:
     /// locks the lock if the lock was unlocked
-    Locker(Lock &lock, const char  *aFileName, int lineNo);
+    Locker(Lock &lock);
     /// unlocks the lock if it was locked by us
     ~Locker();
 private:
-    bool weLocked; ///<  whether we locked the lock
+    bool weLocked = false; ///<  whether we locked the lock
     Lock &lock; ///<  the lock we are operating on
-    const std::string fileName; ///<  where the lock was needed
-    const int lineNo; ///<  where the lock was needed
 };
-
-/// convenience macro to pass source code location to Locker and others
-#define Here __FILE__, __LINE__
 
 /**
  * Database class for storing SSL certificates and their private keys.
