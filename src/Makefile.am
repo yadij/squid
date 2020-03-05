@@ -31,8 +31,8 @@ LOADABLE_MODULES_SOURCES = \
 	LoadableModules.h \
 	LoadableModules.cc
 
-SUBDIRS	= mem base anyp helper dns ftp parser comm eui acl format clients sbuf servers fs repl store DiskIO proxyp
-DIST_SUBDIRS = mem base anyp helper dns ftp parser comm eui acl format clients sbuf servers fs repl store DiskIO proxyp
+SUBDIRS	= mem base cfg anyp helper dns ftp parser comm eui acl format clients sbuf servers fs repl store DiskIO proxyp
+DIST_SUBDIRS = mem base cfg anyp helper dns ftp parser comm eui acl format clients sbuf servers fs repl store DiskIO proxyp
 
 if ENABLE_AUTH
 SUBDIRS += auth
