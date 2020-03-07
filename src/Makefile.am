@@ -573,6 +573,7 @@ squid_LDADD = \
 	$(SNMP_LIBS) \
 	mem/libmem.la \
 	store/libstore.la \
+	cfg/libcfg.la \
 	$(top_builddir)/lib/libmisccontainers.la \
 	$(top_builddir)/lib/libmiscencoding.la \
 	$(top_builddir)/lib/libmiscutil.la \
@@ -1242,7 +1243,8 @@ nodist_tests_testRock_SOURCES = \
 	hier_code.cc \
 	SquidMath.cc \
 	SquidMath.h \
-	swap_log_op.cc
+	swap_log_op.cc \
+	tests/stub_libcfg.cc
 tests_testRock_LDADD = \
 	http/libhttp.la \
 	parser/libparser.la \
@@ -1418,7 +1420,8 @@ nodist_tests_testUfs_SOURCES = \
 	hier_code.cc \
 	SquidMath.cc \
 	SquidMath.h \
-	swap_log_op.cc
+	swap_log_op.cc \
+	tests/stub_libcfg.cc
 tests_testUfs_LDADD = \
 	http/libhttp.la \
 	parser/libparser.la \
@@ -1593,6 +1596,7 @@ nodist_tests_testStore_SOURCES= \
 	SquidMath.cc \
 	SquidMath.h \
 	swap_log_op.cc \
+	tests/stub_libcfg.cc \
 	$(TESTSOURCES)
 tests_testStore_LDADD= \
 	libsquid.la \
@@ -1766,7 +1770,8 @@ nodist_tests_testDiskIO_SOURCES= \
 	hier_code.cc \
 	SquidMath.cc \
 	SquidMath.h \
-	swap_log_op.cc
+	swap_log_op.cc \
+	tests/stub_libcfg.cc
 tests_testDiskIO_LDADD = \
 	libsquid.la \
 	http/libhttp.la \
@@ -1828,6 +1833,7 @@ nodist_tests_testACLMaxUserIP_SOURCES = \
 	tests/stub_HttpHeader.cc \
 	tests/stub_HttpRequest.cc \
 	tests/stub_libauth.cc \
+	tests/stub_libcfg.cc \
 	tests/stub_libhttp.cc \
 	tests/stub_libmem.cc \
 	tests/stub_libsecurity.cc \
@@ -2045,6 +2051,7 @@ tests_test_http_range_SOURCES = \
 	wordlist.h \
 	wordlist.cc
 nodist_tests_test_http_range_SOURCES = \
+	tests/stub_libcfg.cc \
 	$(BUILT_SOURCES)
 tests_test_http_range_LDADD = \
 	libsquid.la \
@@ -2217,7 +2224,8 @@ tests_testHttpReply_SOURCES=\
 	wordlist.cc
 nodist_tests_testHttpReply_SOURCES=\
 	$(TESTSOURCES) \
-	hier_code.cc
+	hier_code.cc \
+	tests/stub_libcfg.cc
 tests_testHttpReply_LDADD=\
 	CommCalls.o \
 	http/libhttp.la \
@@ -2432,7 +2440,8 @@ tests_testHttpRequest_SOURCES = \
 	wordlist.h \
 	wordlist.cc
 nodist_tests_testHttpRequest_SOURCES = \
-	$(BUILT_SOURCES)
+	$(BUILT_SOURCES) \
+	tests/stub_libcfg.cc
 tests_testHttpRequest_LDADD = \
 	libsquid.la \
 	clients/libclients.la \
@@ -2733,7 +2742,8 @@ tests_testCacheManager_SOURCES = \
 	wordlist.h \
 	wordlist.cc
 nodist_tests_testCacheManager_SOURCES = \
-	$(BUILT_SOURCES)
+	$(BUILT_SOURCES) \
+	tests/stub_libcfg.cc
 # comm.cc only requires comm/libcomm.la until fdc_table is dead.
 tests_testCacheManager_LDADD = \
 	libsquid.la \
@@ -3055,7 +3065,8 @@ tests_testEvent_SOURCES = \
 	wordlist.h \
 	wordlist.cc
 nodist_tests_testEvent_SOURCES = \
-	$(BUILT_SOURCES)
+	$(BUILT_SOURCES) \
+	tests/stub_libcfg.cc
 tests_testEvent_LDADD = \
 	libsquid.la \
 	clients/libclients.la \
@@ -3292,7 +3303,8 @@ tests_testEventLoop_SOURCES = \
 	wordlist.h \
 	wordlist.cc
 nodist_tests_testEventLoop_SOURCES = \
-	$(BUILT_SOURCES)
+	$(BUILT_SOURCES) \
+	tests/stub_libcfg.cc
 tests_testEventLoop_LDADD = \
 	libsquid.la \
 	clients/libclients.la \
