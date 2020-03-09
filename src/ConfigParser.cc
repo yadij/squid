@@ -9,6 +9,7 @@
 #include "squid.h"
 #include "base/Here.h"
 #include "cache_cf.h"
+#include "cfg/Exceptions.h"
 #include "ConfigParser.h"
 #include "Debug.h"
 #include "fatal.h"
@@ -221,10 +222,8 @@ ConfigParser::UnQuote(const char *token, const char **next)
     if (errorStr) {
         if (PreviewMode_)
             xstrncpy(UnQuoted, SQUID_ERROR_TOKEN, sizeof(UnQuoted));
-        else {
-            debugs(3, DBG_CRITICAL, "FATAL: " << errorStr << ": " << errorPos);
-            self_destruct();
-        }
+        else
+            throw Cfg::FatalError(ToSBuf(errorStr, ": ", errorPos));
     }
 
     if (next)
@@ -291,8 +290,7 @@ ConfigParser::TokenParse(const char * &nextToken, ConfigParser::TokenType &type)
             nextToken += 2; // skip the quoted-pair (\-escaped) character
             nextToken += strcspn(nextToken, sep);
         } else {
-            debugs(3, DBG_CRITICAL, "FATAL: Unescaped '\' character in regex pattern: " << tokenStart);
-            self_destruct();
+            throw Cfg::FatalError(ToSBuf("unescaped '\' character in regex pattern: ", tokenStart));
         }
     }
 
@@ -304,10 +302,8 @@ ConfigParser::TokenParse(const char * &nextToken, ConfigParser::TokenType &type)
                 char *err = xstrdup(SQUID_ERROR_TOKEN);
                 CfgLineTokens_.push(err);
                 return err;
-            } else {
-                debugs(3, DBG_CRITICAL, "FATAL: Unknown cfg function: " << tokenStart);
-                self_destruct();
             }
+            throw Cfg::FatalError(ToSBuf("unknown cfg function: ", tokenStart));
         }
     } else
         type = ConfigParser::SimpleToken;
@@ -328,10 +324,8 @@ ConfigParser::TokenParse(const char * &nextToken, ConfigParser::TokenType &type)
                         char *err = xstrdup(SQUID_ERROR_TOKEN);
                         CfgLineTokens_.push(err);
                         return err;
-                    } else {
-                        debugs(3, DBG_CRITICAL, "FATAL: Not alphanumeric character '"<< *s << "' in unquoted token " << tokenStart);
-                        self_destruct();
                     }
+                    throw Cfg::FatalError(ToSBuf("not alphanumeric character '", *s, "' in unquoted token ", tokenStart));
                 }
             }
         }
@@ -391,33 +385,22 @@ ConfigParser::NextToken()
             ConfigParser::PreviewMode_ = false;
 
             char *path = NextToken();
-            if (LastTokenType != ConfigParser::QuotedToken) {
-                debugs(3, DBG_CRITICAL, "FATAL: Quoted filename missing: " << token);
-                self_destruct();
-                return NULL;
-            }
+            if (LastTokenType != ConfigParser::QuotedToken)
+                throw Cfg::FatalError(ToSBuf("quoted filename missing: ", token));
 
             // The next token in current cfg file line must be a ")"
             char *end = NextToken();
             ConfigParser::PreviewMode_ = savePreview;
-            if (LastTokenType != ConfigParser::SimpleToken || strcmp(end, ")") != 0) {
-                debugs(3, DBG_CRITICAL, "FATAL: missing ')' after " << token << "(\"" << path << "\"");
-                self_destruct();
-                return NULL;
-            }
+            if (LastTokenType != ConfigParser::SimpleToken || strcmp(end, ")") != 0)
+                throw Cfg::FatalError(ToSBuf("missing ')' after ", token, "(\"", path, "\""));
 
-            if (CfgFiles.size() > 16) {
-                debugs(3, DBG_CRITICAL, "FATAL: can't open %s for reading parameters: includes are nested too deeply (>16)!\n" << path);
-                self_destruct();
-                return NULL;
-            }
+            if (CfgFiles.size() > 16)
+                throw Cfg::FatalError(ToSBuf("can't open ", path, " for reading parameters: includes are nested too deeply (>16)!"));
 
             ConfigParser::CfgFile *wordfile = new ConfigParser::CfgFile();
             if (!path || !wordfile->startParse(path)) {
-                debugs(3, DBG_CRITICAL, "FATAL: Error opening config file: " << token);
                 delete wordfile;
-                self_destruct();
-                return NULL;
+                throw Cfg::FatalError(ToSBuf("error opening config file: ", token));
             }
             CfgFiles.push(wordfile);
             token = NULL;
@@ -479,10 +462,9 @@ ConfigParser::NextKvPair(char * &key, char * &value)
 char *
 ConfigParser::RegexStrtokFile()
 {
-    if (ConfigParser::RecognizeQuotedValues) {
-        debugs(3, DBG_CRITICAL, "FATAL: Can not read regex expression while configuration_includes_quoted_values is enabled");
-        self_destruct();
-    }
+    if (ConfigParser::RecognizeQuotedValues)
+        throw Cfg::FatalError("can not read regex expression while configuration_includes_quoted_values is enabled");
+
     ConfigParser::RecognizeQuotedPair_ = true;
     char * token = strtokFile();
     ConfigParser::RecognizeQuotedPair_ = false;
@@ -492,10 +474,9 @@ ConfigParser::RegexStrtokFile()
 char *
 ConfigParser::RegexPattern()
 {
-    if (ConfigParser::RecognizeQuotedValues) {
-        debugs(3, DBG_CRITICAL, "FATAL: Can not read regex expression while configuration_includes_quoted_values is enabled");
-        self_destruct();
-    }
+    if (ConfigParser::RecognizeQuotedValues)
+        throw Cfg::FatalError("can not read regex expression while configuration_includes_quoted_values is enabled");
+
     ConfigParser::RecognizeQuotedPair_ = true;
     char * token = NextToken();
     ConfigParser::RecognizeQuotedPair_ = false;

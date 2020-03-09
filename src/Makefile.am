@@ -2860,6 +2860,7 @@ tests_testConfigParser_LDADD = \
 	libsquid.la \
 	ip/libip.la \
 	sbuf/libsbuf.la \
+	cfg/libcfg.la \
 	base/libbase.la \
 	$(top_builddir)/lib/libmiscutil.la \
 	$(REGEXLIB) \
