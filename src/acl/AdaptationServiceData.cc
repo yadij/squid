@@ -15,8 +15,10 @@
 #include "adaptation/Service.h"
 #include "adaptation/ServiceGroups.h"
 #include "cache_cf.h"
+#include "cfg/Exceptions.h"
 #include "ConfigParser.h"
 #include "Debug.h"
+#include "sbuf/Stream.h"
 
 void
 ACLAdaptationServiceData::parse()
@@ -31,8 +33,7 @@ ACLAdaptationServiceData::parse()
             Adaptation::Icap::TheConfig.findServiceConfig(t) == NULL &&
 #endif
             Adaptation::FindGroup(t) == NULL) {
-            debugs(28, DBG_CRITICAL, "FATAL: Adaptation service/group " << t << " in adaptation_service acl is not defined");
-            self_destruct();
+            throw Cfg::FatalError(ToSBuf("adaptation service/group ", t, " in adaptation_service acl is not defined"));
         }
         insert(t);
     }
