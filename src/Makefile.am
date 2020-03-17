@@ -1243,8 +1243,7 @@ nodist_tests_testRock_SOURCES = \
 	hier_code.cc \
 	SquidMath.cc \
 	SquidMath.h \
-	swap_log_op.cc \
-	tests/stub_libcfg.cc
+	swap_log_op.cc
 tests_testRock_LDADD = \
 	http/libhttp.la \
 	parser/libparser.la \
@@ -1266,6 +1265,7 @@ tests_testRock_LDADD = \
 	mem/libmem.la \
 	store/libstore.la \
 	$(ADAPTATION_LIBS) \
+	cfg/libcfg.la \
 	sbuf/libsbuf.la \
 	$(top_builddir)/lib/libmisccontainers.la \
 	$(top_builddir)/lib/libmiscencoding.la \
