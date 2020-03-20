@@ -178,7 +178,6 @@ static int parse_line(char *);
 static void parse_obsolete(const char *);
 static void parseBytesLine(size_t * bptr, const char *units);
 static void parseBytesLineSigned(ssize_t * bptr, const char *units);
-static size_t parseBytesUnits(const char *unit);
 static void free_all(void);
 void requirePathnameExists(const char *name, const char *path);
 static OBJH dump_config;
@@ -1191,184 +1190,6 @@ parseTimeLine()
     return FromNanoseconds<TimeUnit>(nanoseconds, parsedValue);
 }
 
-static void
-parseBytesLine64(int64_t * bptr, const char *units)
-{
-    char *token;
-    double d;
-    int64_t m;
-    int64_t u;
-
-    if ((u = parseBytesUnits(units)) == 0) {
-        self_destruct();
-        return;
-    }
-
-    if ((token = ConfigParser::NextToken()) == NULL) {
-        self_destruct();
-        return;
-    }
-
-    if (strcmp(token, "none") == 0 || strcmp(token, "-1") == 0) {
-        *bptr = -1;
-        return;
-    }
-
-    d = xatof(token);
-
-    m = u;          /* default to 'units' if none specified */
-
-    if (0.0 == d)
-        (void) 0;
-    else if ((token = ConfigParser::NextToken()) == NULL)
-        debugs(3, DBG_CRITICAL, "WARNING: No units on '" <<
-               config_input_line << "', assuming " <<
-               d << " " <<  units  );
-    else if ((m = parseBytesUnits(token)) == 0) {
-        self_destruct();
-        return;
-    }
-
-    *bptr = static_cast<int64_t>(m * d / u);
-
-    if (static_cast<double>(*bptr) * 2 != (m * d / u) * 2) {
-        debugs(3, DBG_CRITICAL, "ERROR: Invalid value '" <<
-               d << " " << token << ": integer overflow (int64_t).");
-        self_destruct();
-    }
-}
-
-static void
-parseBytesLine(size_t * bptr, const char *units)
-{
-    char *token;
-    double d;
-    int m;
-    int u;
-
-    if ((u = parseBytesUnits(units)) == 0) {
-        self_destruct();
-        return;
-    }
-
-    if ((token = ConfigParser::NextToken()) == NULL) {
-        self_destruct();
-        return;
-    }
-
-    if (strcmp(token, "none") == 0 || strcmp(token, "-1") == 0) {
-        *bptr = static_cast<size_t>(-1);
-        return;
-    }
-
-    d = xatof(token);
-
-    m = u;          /* default to 'units' if none specified */
-
-    if (0.0 == d)
-        (void) 0;
-    else if ((token = ConfigParser::NextToken()) == NULL)
-        debugs(3, DBG_CRITICAL, "WARNING: No units on '" <<
-               config_input_line << "', assuming " <<
-               d << " " <<  units  );
-    else if ((m = parseBytesUnits(token)) == 0) {
-        self_destruct();
-        return;
-    }
-
-    *bptr = static_cast<size_t>(m * d / u);
-
-    if (static_cast<double>(*bptr) * 2 != (m * d / u) * 2) {
-        debugs(3, DBG_CRITICAL, "ERROR: Invalid value '" <<
-               d << " " << token << ": integer overflow (size_t).");
-        self_destruct();
-    }
-}
-
-static void
-parseBytesLineSigned(ssize_t * bptr, const char *units)
-{
-    char *token;
-    double d;
-    int m;
-    int u;
-
-    if ((u = parseBytesUnits(units)) == 0) {
-        self_destruct();
-        return;
-    }
-
-    if ((token = ConfigParser::NextToken()) == NULL) {
-        self_destruct();
-        return;
-    }
-
-    if (strcmp(token, "none") == 0 || token[0] == '-' /* -N */) {
-        *bptr = -1;
-        return;
-    }
-
-    d = xatof(token);
-
-    m = u;          /* default to 'units' if none specified */
-
-    if (0.0 == d)
-        (void) 0;
-    else if ((token = ConfigParser::NextToken()) == NULL)
-        debugs(3, DBG_CRITICAL, "WARNING: No units on '" <<
-               config_input_line << "', assuming " <<
-               d << " " <<  units  );
-    else if ((m = parseBytesUnits(token)) == 0) {
-        self_destruct();
-        return;
-    }
-
-    *bptr = static_cast<ssize_t>(m * d / u);
-
-    if (static_cast<double>(*bptr) * 2 != (m * d / u) * 2) {
-        debugs(3, DBG_CRITICAL, "ERROR: Invalid value '" <<
-               d << " " << token << ": integer overflow (ssize_t).");
-        self_destruct();
-    }
-}
-
-/**
- * Parse bytes from a string.
- * Similar to the parseBytesLine function but parses the string value instead of
- * the current token value.
- */
-void
-parseBytesOptionValue(size_t * bptr, const char *units, char const * value)
-{
-    int u;
-    if ((u = parseBytesUnits(units)) == 0) {
-        self_destruct();
-        return;
-    }
-
-    // Find number from string beginning.
-    char const * number_begin = value;
-    char const * number_end = value;
-
-    while ((*number_end >= '0' && *number_end <= '9')) {
-        ++number_end;
-    }
-
-    String number;
-    number.assign(number_begin, number_end - number_begin);
-
-    int d = xatoi(number.termedBuf());
-    int m;
-    if ((m = parseBytesUnits(number_end)) == 0) {
-        self_destruct();
-        return;
-    }
-
-    *bptr = static_cast<size_t>(m * d / u);
-    if (static_cast<double>(*bptr) * 2 != (m * d / u) * 2)
-        self_destruct();
-}
-
 static size_t
 parseBytesUnits(const char *unit)
 {
@@ -1384,9 +1205,141 @@ parseBytesUnits(const char *unit)
     if (!strncasecmp(unit, B_GBYTES_STR, strlen(B_GBYTES_STR)))
         return 1 << 30;
 
-    debugs(3, DBG_CRITICAL, "WARNING: Unknown bytes unit '" << unit << "'");
+    throw Cfg::FatalError(ToSBuf("unknown bytes unit: ", unit));
+}
 
-    return 0;
+static void
+parseBytesLine64(int64_t * bptr, const char *units)
+{
+    char *token;
+    double d;
+    int64_t m;
+    int64_t u = parseBytesUnits(units);
+
+    if ((token = ConfigParser::NextToken())) {
+        if (strcmp(token, "none") == 0 || strcmp(token, "-1") == 0) {
+            *bptr = -1;
+            return;
+        }
+
+        d = xatof(token);
+    } else
+        throw Cfg::FatalError("missing bytes parameter");
+
+    m = u;          /* default to 'units' if none specified */
+
+    if (0.0 == d)
+        (void) 0;
+    else if ((token = ConfigParser::NextToken()))
+        m = parseBytesUnits(token);
+    else
+        debugs(3, DBG_CRITICAL, "WARNING: No units on '" <<
+               config_input_line << "', assuming " <<
+               d << " " <<  units  );
+
+    *bptr = static_cast<int64_t>(m * d / u);
+
+    if (static_cast<double>(*bptr) * 2 != (m * d / u) * 2)
+        throw Cfg::FatalError(ToSBuf("invalid value ", d, " ", token, ": integer overflow (int64_t)"));
+}
+
+static void
+parseBytesLine(size_t * bptr, const char *units)
+{
+    char *token;
+    double d;
+    int m;
+    int u = parseBytesUnits(units);
+
+    if ((token = ConfigParser::NextToken())) {
+        if (strcmp(token, "none") == 0 || strcmp(token, "-1") == 0) {
+            *bptr = static_cast<size_t>(-1);
+            return;
+        }
+
+        d = xatof(token);
+    } else
+        throw Cfg::FatalError("missing bytes parameter");
+
+    m = u;          /* default to 'units' if none specified */
+
+    if (0.0 == d)
+        (void) 0;
+    else if ((token = ConfigParser::NextToken()))
+        m = parseBytesUnits(token);
+    else
+        debugs(3, DBG_CRITICAL, "WARNING: No units on '" <<
+               config_input_line << "', assuming " <<
+               d << " " <<  units  );
+
+    *bptr = static_cast<size_t>(m * d / u);
+
+    if (static_cast<double>(*bptr) * 2 != (m * d / u) * 2)
+        throw Cfg::FatalError(ToSBuf("invalid value ", d, " ", token, ": integer overflow (size_t)"));
+}
+
+static void
+parseBytesLineSigned(ssize_t * bptr, const char *units)
+{
+    char *token;
+    double d;
+    int m;
+    int u = parseBytesUnits(units);
+
+    if ((token = ConfigParser::NextToken())) {
+        if (strcmp(token, "none") == 0 || token[0] == '-' /* -N */) {
+            *bptr = -1;
+            return;
+        }
+
+        d = xatof(token);
+    } else
+        throw Cfg::FatalError("missing bytes parameter");
+
+    m = u;          /* default to 'units' if none specified */
+
+    if (0.0 == d)
+        (void) 0;
+    else if ((token = ConfigParser::NextToken()))
+        m = parseBytesUnits(token);
+    else
+        debugs(3, DBG_CRITICAL, "WARNING: No units on '" <<
+               config_input_line << "', assuming " <<
+               d << " " <<  units  );
+
+    *bptr = static_cast<ssize_t>(m * d / u);
+
+    if (static_cast<double>(*bptr) * 2 != (m * d / u) * 2)
+        throw Cfg::FatalError(ToSBuf("invalid value ", d, " ", token, ": integer overflow (ssize_t)"));
+}
+
+/**
+ * Parse bytes from a string.
+ * Similar to the parseBytesLine function but parses the string value instead of
+ * the current token value.
+ */
+void
+parseBytesOptionValue(size_t * bptr, const char *units, char const * value)
+{
+    int u = parseBytesUnits(units);
+
+    // Find number from string beginning.
+    char const * number_begin = value;
+    char const * number_end = value;
+
+    while ((*number_end >= '0' && *number_end <= '9')) {
+        ++number_end;
+    }
+
+    String number;
+    number.assign(number_begin, number_end - number_begin);
+
+    int d = xatoi(number.termedBuf());
+    int m = parseBytesUnits(number_end);
+
+    *bptr = static_cast<size_t>(m * d / u);
+    if (static_cast<double>(*bptr) * 2 != (m * d / u) * 2)
+        throw Cfg::FatalError(ToSBuf("invalid value ", d, " ", number_end, ": integer overflow (size_t)"));
 }
 
 static void
