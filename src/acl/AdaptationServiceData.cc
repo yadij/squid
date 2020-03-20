@@ -18,7 +18,6 @@
 #include "cfg/Exceptions.h"
 #include "ConfigParser.h"
 #include "Debug.h"
-#include "sbuf/Stream.h"
 
 void
 ACLAdaptationServiceData::parse()

@@ -16,7 +16,6 @@
 #include "cfg/Exceptions.h"
 #include "ConfigParser.h"
 #include "Debug.h"
-#include "sbuf/Stream.h"
 #include "util.h"
 
 template<class T>

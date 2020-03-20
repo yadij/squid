@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "profiler/Profiler.h"
 #include "sbuf/List.h"
-#include "sbuf/Stream.h"
 #include "SquidConfig.h"
 
 #include <algorithm>

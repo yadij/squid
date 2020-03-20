@@ -15,7 +15,6 @@
 #include "Debug.h"
 #include "err_type.h"
 #include "fatal.h"
-#include "sbuf/Stream.h"
 #include "wordlist.h"
 
 bool

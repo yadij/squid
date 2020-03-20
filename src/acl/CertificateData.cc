@@ -15,7 +15,6 @@
 #include "cfg/Exceptions.h"
 #include "ConfigParser.h"
 #include "Debug.h"
-#include "sbuf/Stream.h"
 #include "wordlist.h"
 
 ACLCertificateData::ACLCertificateData(Ssl::GETX509ATTRIBUTE *sslStrategy, const char *attrs, bool optionalAttr) : validAttributesStr(attrs), attributeIsOptional(optionalAttr), attribute (NULL), values (), sslAttributeCall (sslStrategy)

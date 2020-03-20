@@ -15,7 +15,6 @@
 #include "cfg/Exceptions.h"
 #include "ConfigParser.h"
 #include "Debug.h"
-#include "sbuf/Stream.h"
 #include "wordlist.h"
 
 ACLTimeData::ACLTimeData () : weekbits (0), start (0), stop (0), next (NULL) {}
