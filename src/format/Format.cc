@@ -9,6 +9,7 @@
 #include "squid.h"
 #include "AccessLogEntry.h"
 #include "base64.h"
+#include "cfg/Exceptions.h"
 #include "client_side.h"
 #include "comm/Connection.h"
 #include "err_detail_type.h"
@@ -23,7 +24,6 @@
 #include "MemBuf.h"
 #include "proxyp/Header.h"
 #include "rfc1738.h"
-#include "sbuf/Stream.h"
 #include "sbuf/StringConvert.h"
 #include "security/CertError.h"
 #include "security/NegotiationHistory.h"
@@ -63,7 +63,7 @@ Format::Format::~Format()
     delete format;
 }
 
-bool
+void
 Format::Format::parse(const char *def)
 {
     const char *cur, *eos;
@@ -72,10 +72,8 @@ Format::Format::parse(const char *def)
 
     debugs(46, 2, HERE << "got definition '" << def << "'");
 
-    if (format) {
-        debugs(46, DBG_IMPORTANT, "WARNING: existing format for '" << name << " " << def << "'");
-        return false;
-    }
+    if (format)
+        throw Cfg::FatalError(ToSBuf("existing format for '", name, " ", def, "'"));
 
     /* very inefficent parser, but who cares, this needs to be simple */
     /* First off, let's tokenize, we'll optimize in a second pass.
@@ -92,8 +90,6 @@ Format::Format::parse(const char *def)
         last_lt = new_lt;
         cur += new_lt->parse(cur, &quote);
     }
-
-    return true;
 }
 
 size_t

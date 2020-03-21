@@ -4783,20 +4783,15 @@ static void parse_HeaderWithAclList(HeaderWithAclList **headers)
     if (hwa.fieldId == Http::HdrType::BAD_HDR)
         hwa.fieldId = Http::HdrType::OTHER;
 
-    Format::Format *nlf =  new ::Format::Format("hdrWithAcl");
     ConfigParser::EnableMacros();
     String buf = ConfigParser::NextQuotedToken();
     ConfigParser::DisableMacros();
     hwa.fieldValue = buf.termedBuf();
     hwa.quoted = ConfigParser::LastTokenWasQuoted();
     if (hwa.quoted) {
-        if (!nlf->parse(hwa.fieldValue.c_str())) {
-            self_destruct();
-            return;
-        }
-        hwa.valueFormat = nlf;
-    } else
-        delete nlf;
+        hwa.valueFormat = new ::Format::Format("hdrWithAcl");
+        hwa.valueFormat->parse(hwa.fieldValue.c_str()); // throws on errors
+    }
     aclParseAclList(LegacyParser, &hwa.aclList, (hwa.fieldName + ':' + hwa.fieldValue).c_str());
     (*headers)->push_back(hwa);
 }

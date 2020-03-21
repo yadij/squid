@@ -8,6 +8,7 @@
 
 #include "squid.h"
 #include "cache_cf.h"
+#include "cfg/Exceptions.h"
 #include "ConfigParser.h"
 #include "Debug.h"
 #include "log/Config.h"
@@ -19,11 +20,8 @@ Log::LogConfig::parseFormats()
 {
     char *name, *def;
 
-    if (!(name = ConfigParser::NextToken())) {
-        debugs(3, DBG_CRITICAL, "FATAL: missing logformat details in " << cfg_filename << " line " << config_lineno);
-        self_destruct();
-        return;
-    }
+    if (!(name = ConfigParser::NextToken()))
+        throw Cfg::FatalError("missing format name");
 
     // check for re-definition of built-in formats
     if (strcmp(name, "squid") == 0 ||
@@ -43,23 +41,15 @@ Log::LogConfig::parseFormats()
         }
     }
 
-    ::Format::Format *nlf = new ::Format::Format(name);
-
     ConfigParser::EnableMacros();
-    if (!(def = ConfigParser::NextQuotedOrToEol())) {
-        delete nlf;
-        self_destruct();
-        return;
-    }
+    if (!(def = ConfigParser::NextQuotedOrToEol()))
+        throw Cfg::FatalError("missing format specification");
     ConfigParser::DisableMacros();
 
     debugs(3, 2, "Log Format for '" << name << "' is '" << def << "'");
 
-    if (!nlf->parse(def)) {
-        delete nlf;
-        self_destruct();
-        return;
-    }
+    ::Format::Format *nlf = new ::Format::Format(name);
+    nlf->parse(def); // XXX: throws and leaks nlf on errors
 
     // add to global config list
     nlf->next = logformats;
