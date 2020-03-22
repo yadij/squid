@@ -555,11 +555,11 @@ parseOneConfigFile(const char *file_name, unsigned int depth)
                     if (opt_parse_cfg_only)
                         ++err_count;
                     else
-                        self_destruct();
+                        LegacyParser.destruct();
                 } catch (...) {
                     // fatal for now
                     debugs(3, DBG_CRITICAL, "FATAL: configuration error: " << CurrentException);
-                    self_destruct();
+                    LegacyParser.destruct();
                 }
             }
         }
@@ -636,7 +636,7 @@ parseConfigFile(const char *file_name)
     }
     catch (const std::exception &ex) {
         debugs(3, DBG_CRITICAL, "FATAL: bad configuration: " << ex.what());
-        self_destruct();
+        LegacyParser.destruct();
         return 1; // not reached
     }
 }
@@ -933,11 +933,8 @@ configDoConfigure(void)
         if (p->secure.encryptTransport) {
             debugs(3, DBG_IMPORTANT, "Initializing cache_peer " << p->name << " TLS context");
             p->sslContext = p->secure.createClientContext(true);
-            if (!p->sslContext) {
-                debugs(3, DBG_CRITICAL, "ERROR: Could not initialize cache_peer " << p->name << " TLS context");
-                self_destruct();
-                return;
-            }
+            if (!p->sslContext)
+                throw Cfg::FatalError(ToSBuf("could not initialize cache_peer ", p->name, " TLS context"));
         }
     }
 
@@ -951,9 +948,10 @@ configDoConfigure(void)
     // prevent infinite fetch loops in the request parser
     // due to buffer full but not enough data recived to finish parse
     if (Config.maxRequestBufferSize <= Config.maxRequestHeaderSize) {
-        fatalf("Client request buffer of %u bytes cannot hold a request with %u bytes of headers." \
-               " Change client_request_buffer_max or request_header_max_size limits.",
-               (uint32_t)Config.maxRequestBufferSize, (uint32_t)Config.maxRequestHeaderSize);
+        throw Cfg::FatalError(ToSBuf("Client request buffer of ", Config.maxRequestBufferSize,
+                                     " bytes cannot hold a request with ", Config.maxRequestHeaderSize,
+                                     " bytes of headers."
+                                     " Change client_request_buffer_max or request_header_max_size limits."));
     }
 
     /*
@@ -985,10 +983,8 @@ configDoConfigure(void)
 
     for (auto &authSchemes : Auth::TheConfig.schemeLists) {
         authSchemes.expand();
-        if (authSchemes.authConfigs.empty()) {
-            debugs(3, DBG_CRITICAL, "auth_schemes: at least one scheme name is required; got: " << authSchemes.rawSchemes);
-            self_destruct();
-        }
+        if (authSchemes.authConfigs.empty())
+            throw Cfg::FatalError(ToSBuf("auth_schemes: at least one scheme name is required; got: ", authSchemes.rawSchemes));
     }
 #endif
 }
@@ -1010,15 +1006,11 @@ parse_obsolete(const char *name)
         Config.redirectChildren.concurrency = cval;
     }
 
-    if (!strcmp(name, "log_access")) {
-        self_destruct();
-        return;
-    }
+    if (strcmp(name, "log_access") == 0)
+        throw Cfg::FatalError("obsolete directive: log_access");
 
-    if (!strcmp(name, "log_icap")) {
-        self_destruct();
-        return;
-    }
+    if (strcmp(name, "log_icap") == 0)
+        throw Cfg::FatalError("obsolete directive: log_icap");
 
     if (!strcmp(name, "ignore_ims_on_miss")) {
         // the replacement directive cache_revalidate_on_miss has opposite meanings for ON/OFF value
@@ -1047,11 +1039,8 @@ parse_obsolete(const char *name)
             tmp.append("options=");
         else if (!strcmp(name, "sslproxy_version"))
             tmp.append("version=");
-        else {
-            debugs(3, DBG_CRITICAL, "ERROR: unknown directive: " << name);
-            self_destruct();
-            return;
-        }
+        else
+            throw Cfg::FatalError(ToSBuf("unknown directive: ", name));
 
         // add the value as unquoted-string because the old values did not support whitespace
         const char *token = ConfigParser::NextQuotedOrToEol();
@@ -1444,10 +1433,8 @@ parse_address(Ip::Address *addr)
 {
     char *token = ConfigParser::NextToken();
 
-    if (!token) {
-        self_destruct();
-        return;
-    }
+    if (!token)
+        throw Cfg::FatalError("missing IP address parameter");
 
     if (!strcmp(token,"any_addr"))
         addr->setAnyAddr();
@@ -1458,8 +1445,7 @@ parse_address(Ip::Address *addr)
     else if (addr->GetHostByName(token)) // do not use ipcache
         (void) 0;
     else { // not an IP and not a hostname
-        debugs(3, DBG_CRITICAL, "FATAL: invalid IP address or domain name '" << token << "'");
-        self_destruct();
+        throw Cfg::FatalError(ToSBuf("invalid IP address or domain name '", token, "'"));
     }
 }
 
@@ -1530,15 +1516,10 @@ parse_acl_tos(acl_tos ** head)
     unsigned int tos;           /* Initially uint for strtoui. Casted to tos_t before return */
     char *token = ConfigParser::NextToken();
 
-    if (!token) {
-        self_destruct();
-        return;
-    }
+    if (!token)
+        throw Cfg::FatalError("missing TOS parameter");
 
-    if (!xstrtoui(token, NULL, &tos, 0, std::numeric_limits<tos_t>::max())) {
-        self_destruct();
-        return;
-    }
+    Cfg::RequireRangedInt("TOS ", token, tos);
 
     const unsigned int chTos = tos & 0xFC;
     if (chTos != tos) {
@@ -1838,16 +1819,12 @@ static void
 parse_authparam(Auth::ConfigVector * config)
 {
     char *type_str = ConfigParser::NextToken();
-    if (!type_str) {
-        self_destruct();
-        return;
-    }
+    if (!type_str)
+        throw Cfg::FatalError("missing authentication scheme name");
 
     char *param_str = ConfigParser::NextToken();
-    if (!param_str) {
-        self_destruct();
-        return;
-    }
+    if (!param_str)
+        throw Cfg::FatalError("missing authentication parameter");
 
     /* find a configuration for the scheme in the currently parsed configs... */
     Auth::SchemeConfig *schemeCfg = Auth::SchemeConfig::Find(type_str);
@@ -1856,19 +1833,13 @@ parse_authparam(Auth::ConfigVector * config)
         /* Create a configuration based on the scheme info */
         Auth::Scheme::Pointer theScheme = Auth::Scheme::Find(type_str);
 
-        if (theScheme == NULL) {
-            debugs(3, DBG_CRITICAL, "Parsing Config File: Unknown authentication scheme '" << type_str << "'.");
-            self_destruct();
-            return;
-        }
+        if (!theScheme)
+            throw Cfg::FatalError(ToSBuf("unknown authentication scheme: ", type_str));
 
         config->push_back(theScheme->createConfig());
         schemeCfg = Auth::SchemeConfig::Find(type_str);
-        if (schemeCfg == NULL) {
-            debugs(3, DBG_CRITICAL, "Parsing Config File: Corruption configuring authentication scheme '" << type_str << "'.");
-            self_destruct();
-            return;
-        }
+        if (!schemeCfg)
+            throw Cfg::FatalError(ToSBuf("corruption configuring authentication scheme: ", type_str));
     }
 
     schemeCfg->parse(schemeCfg, config->size(), param_str);
@@ -1897,11 +1868,9 @@ static void
 parse_AuthSchemes(acl_access **authSchemes)
 {
     const char *tok = ConfigParser::NextQuotedToken();
-    if (!tok) {
-        debugs(29, DBG_CRITICAL, "FATAL: auth_schemes missing the parameter");
-        self_destruct();
-        return;
-    }
+    if (!tok)
+        throw Cfg::FatalError("missing scheme parameter");
+
     Auth::TheConfig.schemeLists.emplace_back(tok, ConfigParser::LastTokenWasQuoted());
     const auto action = Acl::Answer(ACCESS_ALLOWED, Auth::TheConfig.schemeLists.size() - 1);
     ParseAclWithAction(authSchemes, action, "auth_schemes");
@@ -1957,16 +1926,12 @@ static void
 parse_cachedir(Store::DiskConfig *swap)
 {
     char *type_str = ConfigParser::NextToken();
-    if (!type_str) {
-        self_destruct();
-        return;
-    }
+    if (!type_str)
+        throw Cfg::FatalError("missing cache type parameter");
 
     char *path_str = ConfigParser::NextToken();
-    if (!path_str) {
-        self_destruct();
-        return;
-    }
+    if (!path_str)
+        throw Cfg::FatalError("missing cache Directory-Name parameter");
 
     int fs = find_fstype(type_str);
     if (fs < 0) {
@@ -2002,13 +1967,10 @@ parse_cachedir(Store::DiskConfig *swap)
     }
 
     /* new cache_dir */
-    if (swap->n_configured > 63) {
+    if (swap->n_configured > 63)
         /* 7 bits, signed */
-        debugs(3, DBG_CRITICAL, "WARNING: There is a fixed maximum of 63 cache_dir entries Squid can handle.");
-        debugs(3, DBG_CRITICAL, "WARNING: '" << path_str << "' is one to many.");
-        self_destruct();
-        return;
-    }
+        throw Cfg::FatalError(ToSBuf("There is a fixed maximum of 63 cache_dir entries Squid can handle.",
+                                     path_str, " is one to many."));
 
     allocate_new_swapdir(swap);
 
@@ -2107,10 +2069,9 @@ GetService(const char *proto)
     struct servent *port = NULL;
     /** Parses a port number or service name from the squid.conf */
     char *token = ConfigParser::NextToken();
-    if (token == NULL) {
-        self_destruct();
-        return 0; /* NEVER REACHED */
-    }
+    if (!token)
+        throw Cfg::FatalError("missing service name or port parameter");
+
     /** Returns either the service port number from /etc/services */
     if ( !isUnsignedNumeric(token, strlen(token)) )
         port = getservbyname(token, proto);
@@ -2145,16 +2106,12 @@ static void
 parse_peer(CachePeer ** head)
 {
     char *host_str = ConfigParser::NextToken();
-    if (!host_str) {
-        self_destruct();
-        return;
-    }
+    if (!host_str)
+        throw Cfg::FatalError("missing peer hostname or IP parameter");
 
     char *token = ConfigParser::NextToken();
-    if (!token) {
-        self_destruct();
-        return;
-    }
+    if (!token)
+        throw Cfg::FatalError("missing peer type parameter");
 
     CachePeer *p = new CachePeer;
     p->host = xstrdup(host_str);
@@ -2171,8 +2128,7 @@ parse_peer(CachePeer ** head)
 
     if (!p->http_port) {
         delete p;
-        self_destruct();
-        return;
+        throw Cfg::FatalError("missing peer HTTP port parameter");
     }
 
     p->icp.port = GetUdpService();
@@ -2492,16 +2448,12 @@ static void
 parse_peer_access(void)
 {
     char *host = ConfigParser::NextToken();
-    if (!host) {
-        self_destruct();
-        return;
-    }
+    if (!host)
+        throw Cfg::FatalError("missing peer name parameter");
 
     CachePeer *p = peerFindByName(host);
-    if (!p) {
-        debugs(15, DBG_CRITICAL, "ERROR: " << cfg_filename << ", line " << config_lineno << ": No cache_peer '" << host << "'");
-        return;
-    }
+    if (!p)
+        throw Cfg::FatalError(ToSBuf("unknown peer name: ", host));
 
     std::string directive = "peer_access ";
     directive += host;
@@ -2512,24 +2464,18 @@ static void
 parse_hostdomaintype(void)
 {
     char *host = ConfigParser::NextToken();
-    if (!host) {
-        self_destruct();
-        return;
-    }
+    if (!host)
+        throw Cfg::FatalError("missing peer name parameter");
 
     char *type = ConfigParser::NextToken();
-    if (!type) {
-        self_destruct();
-        return;
-    }
+    if (!type)
+        throw Cfg::FatalError("missing peer type parameter");
 
     char *domain = nullptr;
     while ((domain = ConfigParser::NextToken())) {
         CachePeer *p = peerFindByName(host);
-        if (!p) {
-            debugs(15, DBG_CRITICAL, "" << cfg_filename << ", line " << config_lineno << ": No cache_peer '" << host << "'");
-            return;
-        }
+        if (!p)
+            throw Cfg::FatalError(ToSBuf("unknown peer name: ", host));
 
         auto *l = static_cast<NeighborTypeDomainList *>(xcalloc(1, sizeof(NeighborTypeDomainList)));
         l->type = parseNeighborType(type);
@@ -2591,10 +2537,8 @@ void
 parse_onoff(int *var)
 {
     char *token = ConfigParser::NextToken();
-    if (!token) {
-        self_destruct();
-        return;
-    }
+    if (!token)
+        throw Cfg::FatalError("missing on/off parameter");
 
     if (!strcmp(token, "on")) {
         *var = 1;
@@ -2607,8 +2551,7 @@ parse_onoff(int *var)
         debugs(0, DBG_PARSE_NOTE(DBG_IMPORTANT), "WARNING: 'disable' is deprecated. Please update to use 'off'.");
         *var = 0;
     } else {
-        debugs(0, DBG_PARSE_NOTE(DBG_IMPORTANT), "ERROR: Invalid option: Boolean options can only be 'on' or 'off'.");
-        self_destruct();
+        throw Cfg::FatalError(ToSBuf("invalid parameter: '", token, "'. Boolean values can only be 'on' or 'off'."));
     }
 }
 
@@ -2633,10 +2576,8 @@ static void
 parse_tristate(int *var)
 {
     char *token = ConfigParser::NextToken();
-    if (!token) {
-        self_destruct();
-        return;
-    }
+    if (!token)
+        throw Cfg::FatalError("missing tristate parameter");
 
     if (!strcmp(token, "on")) {
         *var = 1;
@@ -2651,8 +2592,7 @@ parse_tristate(int *var)
         debugs(0, DBG_PARSE_NOTE(DBG_IMPORTANT), "WARNING: 'disable' is deprecated. Please update to use value 'off'.");
         *var = 0;
     } else {
-        debugs(0, DBG_PARSE_NOTE(DBG_IMPORTANT), "ERROR: Invalid option: Tristate options can only be 'on', 'off', or 'warn'.");
-        self_destruct();
+        throw Cfg::FatalError(ToSBuf("invalid parameter: '", token, "'. Tristate values can only be 'on', 'off', or 'warn'."));
     }
 }
 
@@ -2662,10 +2602,8 @@ void
 parse_pipelinePrefetch(int *var)
 {
     char *token = ConfigParser::PeekAtToken();
-    if (!token) {
-        self_destruct();
-        return;
-    }
+    if (!token)
+        throw Cfg::FatalError("missing pipeline length parameter");
 
     if (!strcmp(token, "on")) {
         debugs(0, DBG_PARSE_NOTE(DBG_IMPORTANT), "WARNING: 'pipeline_prefetch on' is deprecated. Please update to use 1 (or a higher number).");
@@ -2772,11 +2710,8 @@ parse_refreshpattern(RefreshPattern ** head)
 
     }
 
-    if (token == NULL) {
-        debugs(3, DBG_CRITICAL, "FATAL: refresh_pattern missing the regex pattern parameter");
-        self_destruct();
-        return;
-    }
+    if (!token)
+        throw Cfg::FatalError("missing regex pattern parameter");
 
     pattern = xstrdup(token);
 
@@ -2929,10 +2864,8 @@ parse_string(char **var)
     safe_free(*var);
 
     char *token = ConfigParser::NextToken();
-    if (!token) {
-        self_destruct();
-        return;
-    }
+    if (!token)
+        throw Cfg::FatalError("missing string parameter");
 
     *var = xstrdup(token);
 }
@@ -2946,26 +2879,21 @@ free_string(char **var)
 void
 parse_eol(char *volatile *var)
 {
-    if (!var) {
-        self_destruct();
-        return;
-    }
+    // XXX: should never need to be checked.
+    if (!var)
+        throw Cfg::FatalError("BUG: parse_eol received invalid pointer to store config");
 
     unsigned char *token = (unsigned char *) ConfigParser::NextQuotedOrToEol();
     safe_free(*var);
 
-    if (!token) {
-        self_destruct();
-        return;
-    }
+    if (!token)
+        throw Cfg::FatalError("missing line parameter");
 
     while (*token && xisspace(*token))
         ++token;
 
-    if (!*token) {
-        self_destruct();
-        return;
-    }
+    if (!*token)
+        throw Cfg::FatalError("missing line parameter");
 
     *var = xstrdup((char *) token);
 }
@@ -2979,10 +2907,8 @@ parse_TokenOrQuotedString(char **var)
     safe_free(*var);
 
     char *token = ConfigParser::NextQuotedToken();
-    if (!token) {
-        self_destruct();
-        return;
-    }
+    if (!token)
+        throw Cfg::FatalError("missing string parameter");
 
     *var = xstrdup(token);
 }
@@ -3192,7 +3118,7 @@ ConfigParser::ParseBool(bool *var)
     else if (1 == i)
         *var = true;
     else
-        self_destruct();
+        throw Cfg::FatalError(ToSBuf("invalid Boolean value: ", i));
 }
 
 static void
@@ -3240,10 +3166,8 @@ static void
 parse_uri_whitespace(int *var)
 {
     char *token = ConfigParser::NextToken();
-    if (!token) {
-        self_destruct();
-        return;
-    }
+    if (!token)
+        throw Cfg::FatalError("missing action parameter");
 
     if (!strcmp(token, "strip"))
         *var = URI_WHITESPACE_STRIP;
@@ -3256,8 +3180,7 @@ parse_uri_whitespace(int *var)
     else if (!strcmp(token, "chop"))
         *var = URI_WHITESPACE_CHOP;
     else {
-        debugs(0, DBG_PARSE_NOTE(2), "ERROR: Invalid option '" << token << "': 'uri_whitespace' accepts 'strip', 'deny', 'allow', 'encode', and 'chop'.");
-        self_destruct();
+        throw Cfg::FatalError(ToSBuf("unknown action: ", token));
     }
 }
 
@@ -3350,10 +3273,8 @@ static void
 parse_memcachemode(SquidConfig *)
 {
     char *token = ConfigParser::NextToken();
-    if (!token) {
-        self_destruct();
-        return;
-    }
+    if (!token)
+        throw Cfg::FatalError("missing mode parameter");
 
     if (strcmp(token, "always") == 0) {
         Config.onoff.memory_cache_first = 1;
@@ -3368,8 +3289,7 @@ parse_memcachemode(SquidConfig *)
         Config.onoff.memory_cache_first = 0;
         Config.onoff.memory_cache_disk = 0;
     } else {
-        debugs(0, DBG_PARSE_NOTE(2), "ERROR: Invalid option '" << token << "': 'memory_cache_mode' accepts 'always', 'disk', 'network', and 'never'.");
-        self_destruct();
+        throw Cfg::FatalError(ToSBuf("unknown mode: ", token));
     }
 }
 
@@ -3432,8 +3352,7 @@ parse_IpAddress_list(Ip::Address_list ** head)
 
             *head = s;
         } else {
-            self_destruct();
-            return;
+            throw Cfg::FatalError(ToSBuf("invalid hostname:port or IP:port address: ", token));
         }
     }
 }
@@ -3489,23 +3408,14 @@ parsePortSpecification(const AnyP::PortCfgPointer &s, char *token)
         /* [ipv6]:port */
         host = token + 1;
         t = strchr(host, ']');
-        if (!t) {
-            debugs(3, DBG_CRITICAL, "FATAL: " << portType << "_port: missing ']' on IPv6 address: " << token);
-            self_destruct();
-            return;
-        }
+        if (!t)
+            throw Cfg::FatalError(ToSBuf("missing ']' on IPv6 address: ", token));
         *t = '\0';
         ++t;
-        if (*t != ':') {
-            debugs(3, DBG_CRITICAL, "FATAL: " << portType << "_port: missing Port in: " << token);
-            self_destruct();
-            return;
-        }
-        if (!Ip::EnableIpv6) {
-            debugs(3, DBG_CRITICAL, "FATAL: " << portType << "_port: IPv6 is not available.");
-            self_destruct();
-            return;
-        }
+        if (*t != ':')
+            throw Cfg::FatalError(ToSBuf("missing Port in: ", token));
+        if (!Ip::EnableIpv6)
+            throw Cfg::FatalError("IPv6 is not available");
         port = xatos(t + 1);
     } else if ((t = strchr(token, ':'))) {
         /* host:port */
@@ -3518,16 +3428,12 @@ parsePortSpecification(const AnyP::PortCfgPointer &s, char *token)
         port = xatos(token);
         debugs(3, 3, portType << "_port: found Listen on Port: " << port);
     } else {
-        debugs(3, DBG_CRITICAL, "FATAL: " << portType << "_port: missing Port: " << token);
-        self_destruct();
-        return;
+        throw Cfg::FatalError(ToSBuf("missing Port in: ", token));
     }
 
-    if (port == 0 && host != NULL) {
-        debugs(3, DBG_CRITICAL, "FATAL: " << portType << "_port: Port cannot be 0: " << token);
-        self_destruct();
-        return;
-    }
+    if (port == 0 && host)
+        // TODO: use portType's default port number?
+        throw Cfg::FatalError(ToSBuf("Port cannot be 0: ", token));
 
     if (NULL == host) {
         s->s.setAnyAddr();
@@ -3548,8 +3454,7 @@ parsePortSpecification(const AnyP::PortCfgPointer &s, char *token)
             s->s.setIPv4();
         debugs(3, 3, portType << "_port: found Listen as Host " << s->defaultsite << " on IP: " << s->s);
     } else {
-        debugs(3, DBG_CRITICAL, "FATAL: " << portType << "_port: failed to resolve Host/IP: " << host);
-        self_destruct();
+        throw Cfg::FatalError(ToSBuf("failed to resolve Host/IP: ", token));
     }
 }
 
@@ -3580,30 +3485,21 @@ parse_port_option(AnyP::PortCfgPointer &s, char *token)
     /* modes first */
 
     if (strcmp(token, "accel") == 0) {
-        if (s->flags.isIntercepted()) {
-            debugs(3, DBG_CRITICAL, "FATAL: " << cfg_directive << ": Accelerator mode requires its own port. It cannot be shared with other modes.");
-            self_destruct();
-            return;
-        }
+        if (s->flags.isIntercepted())
+            throw Cfg::FatalError("Accelerator mode requires its own port. It cannot be shared with other modes.");
         s->flags.accelSurrogate = true;
         s->vhost = true;
     } else if (strcmp(token, "transparent") == 0 || strcmp(token, "intercept") == 0) {
-        if (s->flags.accelSurrogate || s->flags.tproxyIntercept) {
-            debugs(3, DBG_CRITICAL, "FATAL: " << cfg_directive << ": Intercept mode requires its own interception port. It cannot be shared with other modes.");
-            self_destruct();
-            return;
-        }
+        if (s->flags.accelSurrogate || s->flags.tproxyIntercept)
+            throw Cfg::FatalError("Intercept mode requires its own interception port. It cannot be shared with other modes.");
         s->flags.natIntercept = true;
         Ip::Interceptor.StartInterception();
         /* Log information regarding the port modes under interception. */
         debugs(3, DBG_IMPORTANT, "Starting Authentication on port " << s->s);
         debugs(3, DBG_IMPORTANT, "Disabling Authentication on port " << s->s << " (interception enabled)");
     } else if (strcmp(token, "tproxy") == 0) {
-        if (s->flags.natIntercept || s->flags.accelSurrogate) {
-            debugs(3,DBG_CRITICAL, "FATAL: " << cfg_directive << ": TPROXY option requires its own interception port. It cannot be shared with other modes.");
-            self_destruct();
-            return;
-        }
+        if (s->flags.natIntercept || s->flags.accelSurrogate)
+            throw Cfg::FatalError("TPROXY option requires its own interception port. It cannot be shared with other modes.");
         s->flags.tproxyIntercept = true;
         Ip::Interceptor.StartTransparency();
         /* Log information regarding the port modes under transparency. */
@@ -3613,11 +3509,8 @@ parse_port_option(AnyP::PortCfgPointer &s, char *token)
             debugs(3, DBG_IMPORTANT, "Disabling TPROXY Spoofing on port " << s->s << " (require-proxy-header enabled)");
         }
 
-        if (!Ip::Interceptor.ProbeForTproxy(s->s)) {
-            debugs(3, DBG_CRITICAL, "FATAL: " << cfg_directive << ": TPROXY support in the system does not work.");
-            self_destruct();
-            return;
-        }
+        if (!Ip::Interceptor.ProbeForTproxy(s->s))
+            throw Cfg::FatalError("TPROXY support in the system does not work.");
 
     } else if (strcmp(token, "require-proxy-header") == 0) {
         s->flags.proxySurrogate = true;
@@ -3628,11 +3521,8 @@ parse_port_option(AnyP::PortCfgPointer &s, char *token)
         }
 
     } else if (strncmp(token, "defaultsite=", 12) == 0) {
-        if (!s->flags.accelSurrogate) {
-            debugs(3, DBG_CRITICAL, "FATAL: " << cfg_directive << ": defaultsite option requires Acceleration mode flag.");
-            self_destruct();
-            return;
-        }
+        if (!s->flags.accelSurrogate)
+            throw Cfg::FatalError("defaultsite option requires Acceleration mode flag");
         safe_free(s->defaultsite);
         s->defaultsite = xstrdup(token + 12);
     } else if (strcmp(token, "vhost") == 0) {
@@ -3647,32 +3537,20 @@ parse_port_option(AnyP::PortCfgPointer &s, char *token)
         }
         s->vhost = false;
     } else if (strcmp(token, "vport") == 0) {
-        if (!s->flags.accelSurrogate) {
-            debugs(3, DBG_CRITICAL, "FATAL: " << cfg_directive << ": vport option requires Acceleration mode flag.");
-            self_destruct();
-            return;
-        }
+        if (!s->flags.accelSurrogate)
+            throw Cfg::FatalError("vport option requires Acceleration mode flag");
         s->vport = -1;
     } else if (strncmp(token, "vport=", 6) == 0) {
-        if (!s->flags.accelSurrogate) {
-            debugs(3, DBG_CRITICAL, "FATAL: " << cfg_directive << ": vport option requires Acceleration mode flag.");
-            self_destruct();
-            return;
-        }
+        if (!s->flags.accelSurrogate)
+            throw Cfg::FatalError("vport option requires Acceleration mode flag");
         s->vport = xatos(token + 6);
     } else if (strncmp(token, "protocol=", 9) == 0) {
-        if (!s->flags.accelSurrogate) {
-            debugs(3, DBG_CRITICAL, "FATAL: " << cfg_directive << ": protocol option requires Acceleration mode flag.");
-            self_destruct();
-            return;
-        }
+        if (!s->flags.accelSurrogate)
+            throw Cfg::FatalError("protocol option requires Acceleration mode flag");
         s->transport = parsePortProtocol(ToUpper(SBuf(token + 9)));
     } else if (strcmp(token, "allow-direct") == 0) {
-        if (!s->flags.accelSurrogate) {
-            debugs(3, DBG_CRITICAL, "FATAL: " << cfg_directive << ": allow-direct option requires Acceleration mode flag.");
-            self_destruct();
-            return;
-        }
+        if (!s->flags.accelSurrogate)
+            throw Cfg::FatalError("allow-direct option requires Acceleration mode flag");
         s->allow_direct = true;
     } else if (strcmp(token, "act-as-origin") == 0) {
         if (!s->flags.accelSurrogate) {
@@ -3681,11 +3559,8 @@ parse_port_option(AnyP::PortCfgPointer &s, char *token)
             s->actAsOrigin = true;
     } else if (strcmp(token, "ignore-cc") == 0) {
 #if !USE_HTTP_VIOLATIONS
-        if (!s->flags.accelSurrogate) {
-            debugs(3, DBG_CRITICAL, "FATAL: " << cfg_directive << ": ignore-cc option requires Acceleration mode flag.");
-            self_destruct();
-            return;
-        }
+        if (!s->flags.accelSurrogate)
+            throw Cfg::FatalError("ignore-cc option requires Acceleration mode flag");
 #endif
         s->ignore_cc = true;
     } else if (strncmp(token, "name=", 5) == 0) {
@@ -3706,16 +3581,11 @@ parse_port_option(AnyP::PortCfgPointer &s, char *token)
             s->disable_pmtu_discovery = DISABLE_PMTU_TRANSPARENT;
         else if (!strcmp(token + 23, "always"))
             s->disable_pmtu_discovery = DISABLE_PMTU_ALWAYS;
-        else {
-            self_destruct();
-            return;
-        }
+        else
+            throw Cfg::FatalError(ToSBuf("unknown option value: ", token));
     } else if (strcmp(token, "ipv4") == 0) {
-        if ( !s->s.setIPv4() ) {
-            debugs(3, DBG_CRITICAL, "FATAL: " << cfg_directive << ": IPv6 addresses cannot be used as IPv4-Only. " << s->s );
-            self_destruct();
-            return;
-        }
+        if (!s->s.setIPv4())
+            throw Cfg::FatalError(ToSBuf("IPv6 addresses cannot be used as IPv4-Only. ", s->s));
     } else if (strcmp(token, "tcpkeepalive") == 0) {
         s->tcp_keepalive.enabled = true;
     } else if (strncmp(token, "tcpkeepalive=", 13) == 0) {
@@ -3785,12 +3655,11 @@ parse_port_option(AnyP::PortCfgPointer &s, char *token)
 #error missing system #include that #defines SO_* constants
 #endif
 #if !defined(SO_REUSEPORT)
-        throw TexcHere(ToSBuf(cfg_directive, ' ', token, " option requires building Squid where SO_REUSEPORT is supported by the TCP stack"));
+        throw Cfg::FatalError(ToSBuf(token, " option requires building Squid where SO_REUSEPORT is supported by the TCP stack"));
 #endif
         s->workerQueues = true;
     } else {
-        debugs(3, DBG_CRITICAL, "FATAL: Unknown " << cfg_directive << " option '" << token << "'.");
-        self_destruct();
+        throw Cfg::FatalError(ToSBuf("unknown option: ", token));
     }
 }
 
@@ -3817,17 +3686,13 @@ parsePortCfg(AnyP::PortCfgPointer *head, const char *optionName)
         protoName = "HTTPS";
     else if (strcmp(optionName, "ftp_port") == 0)
         protoName = "FTP";
-    if (protoName.isEmpty()) {
-        self_destruct();
-        return;
-    }
+    if (protoName.isEmpty())
+        throw Cfg::FatalError("unsupported *_port directive");
 
     char *token = ConfigParser::NextToken();
 
-    if (!token) {
-        self_destruct();
-        return;
-    }
+    if (!token)
+        throw Cfg::FatalError("missing host:port parameter");
 
     AnyP::PortCfgPointer s = new AnyP::PortCfg();
     s->transport = parsePortProtocol(protoName); // default; protocol=... overwrites
@@ -3845,43 +3710,27 @@ parsePortCfg(AnyP::PortCfgPointer *head, const char *optionName)
 #if USE_OPENSSL
         /* ssl-bump on https_port configuration requires either tproxy or intercept, and vice versa */
         const bool hijacked = s->flags.isIntercepted();
-        if (s->flags.tunnelSslBumping && !hijacked) {
-            debugs(3, DBG_CRITICAL, "FATAL: ssl-bump on https_port requires tproxy/intercept which is missing.");
-            self_destruct();
-            return;
-        }
-        if (hijacked && !s->flags.tunnelSslBumping) {
-            debugs(3, DBG_CRITICAL, "FATAL: tproxy/intercept on https_port requires ssl-bump which is missing.");
-            self_destruct();
-            return;
-        }
+        if (s->flags.tunnelSslBumping && !hijacked)
+            throw Cfg::FatalError("ssl-bump on https_port requires tproxy/intercept which is missing");
+        if (hijacked && !s->flags.tunnelSslBumping)
+            throw Cfg::FatalError("tproxy/intercept on https_port requires ssl-bump which is missing");
 #endif
-        if (s->flags.proxySurrogate) {
-            debugs(3,DBG_CRITICAL, "FATAL: https_port: require-proxy-header option is not supported on HTTPS ports.");
-            self_destruct();
-            return;
-        }
+        if (s->flags.proxySurrogate)
+            throw Cfg::FatalError("require-proxy-header option is not supported on HTTPS ports");
+
     } else if (protoName.cmp("FTP") == 0) {
         /* ftp_port does not support ssl-bump */
-        if (s->flags.tunnelSslBumping) {
-            debugs(3, DBG_CRITICAL, "FATAL: ssl-bump is not supported for ftp_port.");
-            self_destruct();
-            return;
-        }
+        if (s->flags.tunnelSslBumping)
+            throw Cfg::FatalError("ssl-bump is not supported for ftp_port");
         if (s->flags.proxySurrogate) {
             // Passive FTP data channel does not work without deep protocol inspection in the frontend.
-            debugs(3,DBG_CRITICAL, "FATAL: require-proxy-header option is not supported on ftp_port.");
-            self_destruct();
-            return;
+            throw Cfg::FatalError("require-proxy-header option is not supported on ftp_port");
         }
     }
 
     if (s->secure.encryptTransport) {
-        if (s->secure.certs.empty()) {
-            debugs(3, DBG_CRITICAL, "FATAL: " << AnyP::UriScheme(s->transport.protocol) << "_port requires a cert= parameter");
-            self_destruct();
-            return;
-        }
+        if (s->secure.certs.empty())
+            throw Cfg::FatalError("missing cert= parameter");
         s->secure.parseOptions();
     }
 
@@ -4059,10 +3908,8 @@ static void
 parse_access_log(CustomLog ** logs)
 {
     const char *filename = ConfigParser::NextToken();
-    if (!filename) {
-        self_destruct();
-        return;
-    }
+    if (!filename)
+        throw Cfg::FatalError("missing module parameter");
 
     CustomLog *cl = (CustomLog *)xcalloc(1, sizeof(*cl));
 
@@ -4099,12 +3946,9 @@ parse_access_log(CustomLog ** logs)
                 } else if (strncasecmp(token+9, "drop", 4) == 0) {
                     cl->fatal = false;
                 } else {
-                    debugs(3, DBG_CRITICAL, "Unknown value for on-error '" <<
-                           token << "' expected 'drop' or 'die'");
                     xfree(cl->filename);
                     xfree(cl);
-                    self_destruct();
-                    return;
+                    throw Cfg::FatalError(ToSBuf("unknown value: ", token));
                 }
             } else if (strncasecmp(token, "buffer-size=", 12) == 0) {
                 parseBytesOptionValue(&cl->bufferSize, B_BYTES_STR, token+12);
@@ -4116,11 +3960,9 @@ parse_access_log(CustomLog ** logs)
                 // Do not pop the token; it must be an ACL name
                 break; // done with name=value options, now to ACLs
             } else {
-                debugs(3, DBG_CRITICAL, "Unknown access_log option " << token);
                 xfree(cl->filename);
                 xfree(cl);
-                self_destruct();
-                return;
+                throw Cfg::FatalError(ToSBuf("unknown option: ", token));
             }
             // Pop the token, it was a valid "name=value" option
             (void)ConfigParser::NextToken();
@@ -4150,12 +3992,9 @@ setLogformat(CustomLog *cl, const char *logdef_name, const bool dieWhenMissing)
 
     debugs(3, 9, "possible " << cl->filename << " logformat: " << logdef_name);
 
-    if (cl->type != Log::Format::CLF_UNKNOWN) {
-        debugs(3, DBG_CRITICAL, "FATAL: Second logformat name in one access_log: " <<
-               logdef_name << " " << cl->type << " ? " << Log::Format::CLF_NONE);
-        self_destruct();
-        return false;
-    }
+    if (cl->type != Log::Format::CLF_UNKNOWN)
+        throw Cfg::FatalError(ToSBuf("second logformat name in one access_log: ",
+                                     logdef_name, " ", cl->type, " ? ", Log::Format::CLF_NONE));
 
     /* look for the definition pointer corresponding to this name */
     Format::Format *lf = Log::TheConfig.logformats;
@@ -4190,9 +4029,7 @@ setLogformat(CustomLog *cl, const char *logdef_name, const bool dieWhenMissing)
     } else if (strcmp(logdef_name, "referrer") == 0) {
         cl->type = Log::Format::CLF_REFERER;
     } else if (dieWhenMissing) {
-        debugs(3, DBG_CRITICAL, "FATAL: Log format '" << logdef_name << "' is not defined");
-        self_destruct();
-        return false;
+        throw Cfg::FatalError(ToSBuf("log format '", logdef_name, "' is not defined"));
     } else {
         return false;
     }
@@ -4318,9 +4155,7 @@ static void
 parse_CpuAffinityMap(CpuAffinityMap **const cpuAffinityMap)
 {
 #if !HAVE_CPU_AFFINITY
-    debugs(3, DBG_CRITICAL, "FATAL: Squid built with no CPU affinity " <<
-           "support, do not set 'cpu_affinity_map'");
-    self_destruct();
+    throw Cfg::FatalError("CPU affinity is not supported in this Squid. Do not set cpu_affinity_map");
 
 #else /* HAVE_CPU_AFFINITY */
     if (!*cpuAffinityMap)
@@ -4329,20 +4164,16 @@ parse_CpuAffinityMap(CpuAffinityMap **const cpuAffinityMap)
     const char *const pToken = ConfigParser::NextToken();
     const char *const cToken = ConfigParser::NextToken();
     std::vector<int> processes, cores;
-    if (!parseNamedIntList(pToken, "process_numbers", processes)) {
-        debugs(3, DBG_CRITICAL, "FATAL: bad 'process_numbers' parameter " <<
-               "in 'cpu_affinity_map'");
-        self_destruct();
-    } else if (!parseNamedIntList(cToken, "cores", cores)) {
-        debugs(3, DBG_CRITICAL, "FATAL: bad 'cores' parameter in " <<
-               "'cpu_affinity_map'");
-        self_destruct();
-    } else if (!(*cpuAffinityMap)->add(processes, cores)) {
-        debugs(3, DBG_CRITICAL, "FATAL: bad 'cpu_affinity_map'; " <<
-               "process_numbers and cores lists differ in length or " <<
+    if (!parseNamedIntList(pToken, "process_numbers", processes))
+        throw Cfg::FatalError("bad 'process_numbers' parameter");
+
+    else if (!parseNamedIntList(cToken, "cores", cores))
+        throw Cfg::FatalError("bad 'cores' parameter");
+
+    else if (!(*cpuAffinityMap)->add(processes, cores))
+        throw Cfg::FatalError("bad 'cpu_affinity_map'; "
+               "process_numbers and cores lists differ in length or "
                "contain numbers <= 0");
-        self_destruct();
-    }
 #endif
 }
 
@@ -4461,11 +4292,8 @@ static void parse_icap_service_failure_limit(Adaptation::Icap::Config *cfg)
     if ((token = ConfigParser::NextToken()) == NULL)
         return;
 
-    if (strcmp(token,"in") != 0) {
-        debugs(3, DBG_CRITICAL, "expecting 'in' on'"  << config_input_line << "'");
-        self_destruct();
-        return;
-    }
+    if (strcmp(token, "in") != 0)
+        throw Cfg::FatalError(ToSBuf("expecting 'in' on '", config_input_line, "'"));
 
     parse_time_t(&cfg->oldest_service_failure);
 }
@@ -4493,8 +4321,7 @@ static void parse_sslproxy_cert_adapt(sslproxy_cert_adapt **cert_adapt)
     sslproxy_cert_adapt *ca = (sslproxy_cert_adapt *) xcalloc(1, sizeof(sslproxy_cert_adapt));
     if ((al = ConfigParser::NextToken()) == NULL) {
         xfree(ca);
-        self_destruct();
-        return;
+        throw Cfg::FatalError("missing cert adaptation algorithm");
     }
 
     const char *param;
@@ -4505,8 +4332,7 @@ static void parse_sslproxy_cert_adapt(sslproxy_cert_adapt **cert_adapt)
         s = strchr(s, '}');
         if (!s) {
             xfree(ca);
-            self_destruct();
-            return;
+            throw Cfg::FatalError(ToSBuf("invalid algorithm arguments: ", al));
         }
         *s = '\0';
     } else
@@ -4522,18 +4348,14 @@ static void parse_sslproxy_cert_adapt(sslproxy_cert_adapt **cert_adapt)
         ca->alg = Ssl::algSetCommonName;
         if (param) {
             if (strlen(param) > 64) {
-                debugs(3, DBG_CRITICAL, "FATAL: sslproxy_cert_adapt: setCommonName{" <<param << "} : using common name longer than 64 bytes is not supported");
                 xfree(ca);
-                self_destruct();
-                return;
+                throw Cfg::FatalError(ToSBuf("setCommonName{", param, "} : using common name longer than 64 bytes is not supported"));
             }
             ca->param = xstrdup(param);
         }
     } else {
-        debugs(3, DBG_CRITICAL, "FATAL: sslproxy_cert_adapt: unknown cert adaptation algorithm: " << al);
         xfree(ca);
-        self_destruct();
-        return;
+        throw Cfg::FatalError(ToSBuf("unknown cert adaptation algorithm: ", al));
     }
 
     aclParseAclList(LegacyParser, &ca->aclList, al);
@@ -4575,8 +4397,7 @@ static void parse_sslproxy_cert_sign(sslproxy_cert_sign **cert_sign)
     sslproxy_cert_sign *cs = (sslproxy_cert_sign *) xcalloc(1, sizeof(sslproxy_cert_sign));
     if ((al = ConfigParser::NextToken()) == NULL) {
         xfree(cs);
-        self_destruct();
-        return;
+        throw Cfg::FatalError("missing cert signing algorithm");
     }
 
     if (strcmp(al, Ssl::CertSignAlgorithmStr[Ssl::algSignTrusted]) == 0)
@@ -4586,10 +4407,8 @@ static void parse_sslproxy_cert_sign(sslproxy_cert_sign **cert_sign)
     else if (strcmp(al, Ssl::CertSignAlgorithmStr[Ssl::algSignSelf]) == 0)
         cs->alg = Ssl::algSignSelf;
     else {
-        debugs(3, DBG_CRITICAL, "FATAL: sslproxy_cert_sign: unknown cert signing algorithm: " << al);
         xfree(cs);
-        self_destruct();
-        return;
+        throw Cfg::FatalError(ToSBuf("unknown cert signing algorithm: ", al));
     }
 
     aclParseAclList(LegacyParser, &cs->aclList, al);
@@ -4667,11 +4486,9 @@ static void parse_sslproxy_ssl_bump(acl_access **ssl_bump)
     BumpCfgStyle bcsOld = "deprecated allow/deny";
     static BumpCfgStyle bumpCfgStyleLast = bcsNone;
     BumpCfgStyle bumpCfgStyleNow = bcsNone;
-    char *bm;
-    if ((bm = ConfigParser::NextToken()) == NULL) {
-        self_destruct();
-        return;
-    }
+    char *bm = ConfigParser::NextToken();
+    if (!bm)
+        throw Cfg::FatalError("missing action parameter");
 
     // if this is the first rule proccessed
     if (*ssl_bump == NULL) {
@@ -4721,16 +4538,12 @@ static void parse_sslproxy_ssl_bump(acl_access **ssl_bump)
         bumpCfgStyleNow = bcsOld;
         sslBumpCfgRr::lastDeprecatedRule = Ssl::bumpNone;
     } else {
-        debugs(3, DBG_CRITICAL, "FATAL: unknown ssl_bump mode: " << bm);
-        self_destruct();
-        return;
+        throw Cfg::FatalError(ToSBuf("unknown action parameter: ", bm));
     }
 
     if (bumpCfgStyleLast != bcsNone && bumpCfgStyleNow != bumpCfgStyleLast) {
-        debugs(3, DBG_CRITICAL, "FATAL: do not mix " << bumpCfgStyleNow << " actions with " <<
-               bumpCfgStyleLast << " actions. Update your ssl_bump rules.");
-        self_destruct();
-        return;
+        throw Cfg::FatalError(ToSBuf("do not mix ", bumpCfgStyleNow, " actions with ",
+               bumpCfgStyleLast, " actions. Update your ssl_bump rules."));
     }
 
     bumpCfgStyleLast = bumpCfgStyleNow;
@@ -4769,14 +4582,13 @@ static void dump_HeaderWithAclList(StoreEntry * entry, const char *name, HeaderW
 
 static void parse_HeaderWithAclList(HeaderWithAclList **headers)
 {
-    char *fn;
     if (!*headers) {
         *headers = new HeaderWithAclList;
     }
-    if ((fn = ConfigParser::NextToken()) == NULL) {
-        self_destruct();
-        return;
-    }
+    char *fn = ConfigParser::NextToken();
+    if (!fn)
+        throw Cfg::FatalError("missing field-name parameter");
+
     HeaderWithAcl hwa;
     hwa.fieldName = fn;
     hwa.fieldId = Http::HeaderLookupTable.lookup(hwa.fieldName).id;
@@ -4837,10 +4649,8 @@ static void parse_ftp_epsv(acl_access **ftp_epsv)
     bool ftpEpsvIsDeprecatedRule = false;
 
     char *t = ConfigParser::PeekAtToken();
-    if (!t) {
-        self_destruct();
-        return;
-    }
+    if (!t)
+        throw Cfg::FatalError("missing on/off parameter");
 
     if (!strcmp(t, "off")) {
         (void)ConfigParser::NextToken();
@@ -4858,9 +4668,7 @@ static void parse_ftp_epsv(acl_access **ftp_epsv)
     // then abort
     if ((!ftpEpsvIsDeprecatedRule && FtpEspvDeprecated) ||
             (ftpEpsvIsDeprecatedRule && !FtpEspvDeprecated && *ftp_epsv != NULL)) {
-        debugs(3, DBG_CRITICAL, "FATAL: do not mix \"ftp_epsv on|off\" cfg lines with \"ftp_epsv allow|deny ...\" cfg lines. Update your ftp_epsv rules.");
-        self_destruct();
-        return;
+        throw Cfg::FatalError("do not mix \"ftp_epsv on|off\" with \"ftp_epsv allow|deny ...\". Update your ftp_epsv rules.");
     }
 
     if (ftpEpsvIsDeprecatedRule) {
@@ -4869,12 +4677,9 @@ static void parse_ftp_epsv(acl_access **ftp_epsv)
         *ftp_epsv = nullptr;
 
         if (ftpEpsvDeprecatedAction == Acl::Answer(ACCESS_DENIED)) {
-            if (ACL *a = ACL::FindByName("all"))
-                ParseAclWithAction(ftp_epsv, ftpEpsvDeprecatedAction, "ftp_epsv", a);
-            else {
-                self_destruct();
-                return;
-            }
+            auto *a = ACL::FindByName("all");
+            assert(a); // 'all' is a built-in ACL now.
+            ParseAclWithAction(ftp_epsv, ftpEpsvDeprecatedAction, "ftp_epsv", a);
         }
         FtpEspvDeprecated = true;
     } else {
@@ -4943,31 +4748,24 @@ parse_UrlHelperTimeout(SquidConfig::UrlHelperTimeout *config)
                 config->action = toutActFail;
             else if (strcasecmp(value, "retry") == 0)
                 config->action = toutActRetry;
-            else if (strcasecmp(value, "use_configured_response") == 0) {
+            else if (strcasecmp(value, "use_configured_response") == 0)
                 config->action = toutActUseConfiguredResponse;
-            } else {
-                debugs(3, DBG_CRITICAL, "FATAL: unsupported \"on_timeout\" action: " << value);
-                self_destruct();
-                return;
-            }
+            else
+                throw Cfg::FatalError(ToSBuf("invalid option value: ", key, "=", value));
+
         } else if (strcasecmp(key, "response") == 0) {
             config->response = xstrdup(value);
+
         } else {
-            debugs(3, DBG_CRITICAL, "FATAL: unsupported option " << key);
-            self_destruct();
-            return;
+            throw Cfg::FatalError(ToSBuf("unsupported option ", key));
         }
     }
 
-    if (config->action == toutActUseConfiguredResponse && !config->response) {
-        debugs(3, DBG_CRITICAL, "FATAL: Expected 'response=' option after 'on_timeout=use_configured_response' option");
-        self_destruct();
-    }
+    if (config->action == toutActUseConfiguredResponse && !config->response)
+        throw Cfg::FatalError("expected 'response=' option after 'on_timeout=use_configured_response' option");
 
-    if (config->action != toutActUseConfiguredResponse && config->response) {
-        debugs(3, DBG_CRITICAL, "FATAL: 'response=' option is valid only when used with the 'on_timeout=use_configured_response' option");
-        self_destruct();
-    }
+    if (config->action != toutActUseConfiguredResponse && config->response)
+        throw Cfg::FatalError("'response=' option is valid only when used with the 'on_timeout=use_configured_response' option");
 }
 
 static void
@@ -5026,22 +4824,17 @@ free_configuration_includes_quoted_values(bool *)
 static void
 parse_on_unsupported_protocol(acl_access **access)
 {
-    char *tm;
-    if ((tm = ConfigParser::NextToken()) == NULL) {
-        self_destruct();
-        return;
-    }
+    char *tm = ConfigParser::NextToken();
+    if (!tm)
+        throw Cfg::FatalError("missing action parameter");
 
     auto action = Acl::Answer(ACCESS_ALLOWED);
     if (strcmp(tm, "tunnel") == 0)
         action.kind = 1;
     else if (strcmp(tm, "respond") == 0)
         action.kind = 2;
-    else {
-        debugs(3, DBG_CRITICAL, "FATAL: unknown on_unsupported_protocol mode: " << tm);
-        self_destruct();
-        return;
-    }
+    else
+        throw Cfg::FatalError(ToSBuf("unknown action: ", tm));
 
     // empty rule OK
     ParseAclWithAction(access, action, "on_unsupported_protocol");
