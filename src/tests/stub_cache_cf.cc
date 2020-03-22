@@ -17,7 +17,6 @@
 #include "tests/STUB.h"
 
 #include "cache_cf.h"
-void self_destruct(void) STUB
 void parse_int(int *var) STUB
 void parse_onoff(int *var) STUB
 void parse_eol(char *volatile *var) STUB

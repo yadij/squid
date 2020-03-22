@@ -257,13 +257,7 @@ static void ParseAclWithAction(acl_access **access, const Acl::Answer &action, c
  * Other modules needing access to a ConfigParser should have it
  * provided to them in their parserFOO methods.
  */
-static ConfigParser LegacyParser = ConfigParser();
-
-void
-self_destruct(void)
-{
-    LegacyParser.destruct();
-}
+static ConfigParser &LegacyParser = ConfigParser::LegacyInstance();
 
 static void
 SetConfigFilename(char const *file_name, bool is_pipe)
