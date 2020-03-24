@@ -9,8 +9,8 @@
 #ifndef _SQUID_FORMAT_FORMAT_H
 #define _SQUID_FORMAT_FORMAT_H
 
-#include "base/RefCount.h"
 #include "ConfigParser.h"
+#include "format/forward.h"
 #include "sbuf/SBuf.h"
 
 /*
@@ -37,8 +37,7 @@ extern const SBuf Dash;
 
 class Token;
 
-// XXX: inherit from linked list
-class Format
+class Format : public RefCountable
 {
 public:
     Format(const char *name);
