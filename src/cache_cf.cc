@@ -1964,7 +1964,7 @@ parse_cachedir(Store::DiskConfig *swap)
     if (swap->n_configured > 63)
         /* 7 bits, signed */
         throw Cfg::FatalError(ToSBuf("There is a fixed maximum of 63 cache_dir entries Squid can handle.",
-                                     path_str, " is one to many."));
+                                     path_str, " is one too many."));
 
     allocate_new_swapdir(swap);
 
@@ -3422,7 +3422,7 @@ parsePortSpecification(const AnyP::PortCfgPointer &s, char *token)
         port = xatos(token);
         debugs(3, 3, portType << "_port: found Listen on Port: " << port);
     } else {
-        throw Cfg::FatalError(ToSBuf("missing Port in: ", token));
+        throw Cfg::FatalError(ToSBuf("missing port in: ", token));
     }
 
     if (port == 0 && host)
@@ -3681,7 +3681,7 @@ parsePortCfg(AnyP::PortCfgPointer *head, const char *optionName)
     else if (strcmp(optionName, "ftp_port") == 0)
         protoName = "FTP";
     if (protoName.isEmpty())
-        throw Cfg::FatalError("unsupported *_port directive");
+        throw Cfg::FatalError(ToSBuf("unsupported ", optionName, " directive"));
 
     char *token = ConfigParser::NextToken();
 
@@ -4855,4 +4855,3 @@ free_on_unsupported_protocol(acl_access **access)
 {
     free_acl_access(access);
 }
-
