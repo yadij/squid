@@ -24,7 +24,7 @@ public:
 
     char *filename;
     ACLList *aclList;
-    Format::Format *logFormat;
+    Format::FormatPointer logFormat;
     Logfile *logfile;
     CustomLog *next;
     Log::Format::log_type type;
