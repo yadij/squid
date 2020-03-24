@@ -10,13 +10,10 @@
 #define SQUID_CUSTOMLOG_H_
 
 #include "acl/forward.h"
+#include "format/forward.h"
 #include "log/Formats.h"
 
 class Logfile;
-namespace Format
-{
-class Format;
-}
 
 /// representation of a custom log directive.
 class CustomLog

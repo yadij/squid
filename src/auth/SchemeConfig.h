@@ -14,6 +14,7 @@
 #include "AccessLogEntry.h"
 #include "auth/forward.h"
 #include "auth/UserRequest.h"
+#include "format/forward.h"
 #include "helper/ChildConfig.h"
 
 class StoreEntry;
@@ -23,11 +24,6 @@ class wordlist;
 
 /* for Http::HdrType parameters-by-value */
 #include "HttpHeader.h"
-
-namespace Format
-{
-class Format;
-}
 
 namespace Auth
 {

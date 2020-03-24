@@ -16,6 +16,7 @@ libformat_la_SOURCES = \
 	Config.h \
 	Format.cc \
 	Format.h \
+	forward.h \
 	Quoting.cc \
 	Quoting.h \
 	Token.cc \
