@@ -4819,20 +4819,18 @@ static void parse_HeaderWithAclList(HeaderWithAclList **headers)
     if (hwa.fieldId == Http::HdrType::BAD_HDR)
         hwa.fieldId = Http::HdrType::OTHER;
 
-    Format::Format *nlf =  new ::Format::Format("hdrWithAcl");
     ConfigParser::EnableMacros();
     String buf = ConfigParser::NextQuotedToken();
     ConfigParser::DisableMacros();
     hwa.fieldValue = buf.termedBuf();
     hwa.quoted = ConfigParser::LastTokenWasQuoted();
     if (hwa.quoted) {
-        if (!nlf->parse(hwa.fieldValue.c_str())) {
+        hwa.valueFormat = new ::Format::Format("hdrWithAcl");
+        if (!hwa.valueFormat->parse(hwa.fieldValue.c_str())) {
             self_destruct();
             return;
         }
-        hwa.valueFormat = nlf;
-    } else
-        delete nlf;
+    }
     aclParseAclList(LegacyParser, &hwa.aclList, (hwa.fieldName + ':' + hwa.fieldValue).c_str());
     (*headers)->push_back(hwa);
 }
@@ -4845,11 +4843,6 @@ static void free_HeaderWithAclList(HeaderWithAclList **header)
     for (HeaderWithAclList::iterator hwa = (*header)->begin(); hwa != (*header)->end(); ++hwa) {
         if (hwa->aclList)
             aclDestroyAclList(&hwa->aclList);
-
-        if (hwa->valueFormat) {
-            delete hwa->valueFormat;
-            hwa->valueFormat = NULL;
-        }
     }
     delete *header;
     *header = NULL;

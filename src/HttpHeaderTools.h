@@ -96,7 +96,7 @@ private:
 class HeaderWithAcl
 {
 public:
-    HeaderWithAcl() : aclList(NULL), valueFormat(NULL), fieldId(Http::HdrType::BAD_HDR), quoted(false) {}
+    HeaderWithAcl() : aclList(NULL), fieldId(Http::HdrType::BAD_HDR), quoted(false) {}
 
     /// HTTP header field name
     std::string fieldName;
@@ -108,7 +108,7 @@ public:
     ACLList *aclList;
 
     /// compiled HTTP header field value (no macros)
-    Format::Format *valueFormat;
+    Format::FormatPointer valueFormat;
 
     /// internal ID for "known" headers or HDR_OTHER
     Http::HdrType fieldId;
