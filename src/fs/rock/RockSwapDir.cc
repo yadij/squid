@@ -414,12 +414,13 @@ Rock::SwapDir::parseTimeOption(char const *option, const char *value, int reconf
 
     Cfg::RequireValue(option, value);
 
-    // TODO: handle time units and detect parsing errors better
-    const int64_t parsedValue = strtoll(value, NULL, 10);
+    // TODO: handle time units
+    const int64_t parsedValue = strtoll(value, nullptr, 10);
     Cfg::RequirePositiveValue(option, parsedValue);
 
-    const time_msec_t newTime = static_cast<time_msec_t>(parsedValue);
-    Cfg::RequirePositiveValue(option, newTime);
+    static_assert(std::numeric_limits<time_msec_t>::max() >= std::numeric_limits<decltype(parsedValue)>::max());
+    static_assert(sizeof(time_msec_t) >= sizeof(decltype(parsedValue)));
+    const auto newTime = static_cast<time_msec_t>(parsedValue);
 
     if (!reconfig)
         *storedTime = newTime;
@@ -453,12 +454,9 @@ Rock::SwapDir::parseRateOption(char const *option, const char *value, int isaRec
 
     Cfg::RequireValue(option, value);
 
-    // TODO: handle time units and detect parsing errors better
-    const int64_t parsedValue = strtoll(value, NULL, 10);
-    Cfg::RequirePositiveValue(option, parsedValue);
-
-    const int newRate = static_cast<int>(parsedValue);
-    Cfg::RequirePositiveValue(option, newRate);
+    // TODO: handle time units
+    const int64_t parsedValue = strtoll(value, nullptr, 10);
+    const int newRate = Cfg::DownsizeValue<int>(value, parsedValue);
 
     if (!isaReconfig)
         *storedRate = newRate;
@@ -491,10 +489,11 @@ Rock::SwapDir::parseSizeOption(char const *option, const char *value, int reconf
 
     Cfg::RequireValue(option, value);
 
-    // TODO: handle size units and detect parsing errors better
-    const uint64_t newSize = strtoll(value, NULL, 10);
+    // TODO: handle size units
+    const uint64_t newSize = strtoll(value, nullptr, 10);
     Cfg::RequirePositiveValue(option, newSize);
 
+    // TODO: check for some reasonable max too (eg. the cache_dir maxSize() or such)
     if (newSize <= sizeof(DbCellHeader))
         throw Cfg::FatalError(ToSBuf("cache_dir ", path, ' ', option, " must exceed ", sizeof(DbCellHeader), "; got: ", newSize));
 
@@ -520,8 +519,7 @@ Rock::SwapDir::dumpSizeOption(StoreEntry * e) const
 void
 Rock::SwapDir::validateOptions()
 {
-    if (slotSize <= 0)
-        fatal("Rock store requires a positive slot-size");
+    assert(slotSize <= 0); // validated by parseSizeOption()
 
     const int64_t maxSizeRoundingWaste = 1024 * 1024; // size is configured in MB
     const int64_t slotSizeRoundingWaste = slotSize;

@@ -40,38 +40,21 @@ int
 xatoi(const char *token)
 {
     int64_t input = xatoll(token, 10);
-    int ret = (int) input;
-
-    if (input != static_cast<int64_t>(ret))
-        throw Cfg::FatalError(ToSBuf("invalid value: '", token, "' is larger than the type 'int'"));
-
-    return ret;
+    return Cfg::DownsizeValue<int>(token, input);
 }
 
 unsigned int
 xatoui(const char *token, char eov)
 {
     int64_t input = xatoll(token, 10, eov);
-    if (input < 0)
-        throw Cfg::FatalError(ToSBuf("invalid value: '", token, "' cannot be less than 0"));
-
-    unsigned int ret = (unsigned int) input;
-    if (input != static_cast<int64_t>(ret))
-        throw Cfg::FatalError(ToSBuf("invalid value: '", token, "' is larger than the type 'unsigned int'"));
-
-    return ret;
+    return Cfg::DownsizeValue<unsigned int>(token, input);
 }
 
 long
 xatol(const char *token)
 {
     int64_t input = xatoll(token, 10);
-    long ret = (long) input;
-
-    if (input != static_cast<int64_t>(ret))
-        throw Cfg::FatalError(ToSBuf("invalid value: '", token, "' is larger than the type 'long'"));
-
-    return ret;
+    return Cfg::DownsizeValue<long>(token, input);
 }
 
 int64_t
@@ -92,15 +75,8 @@ xatoll(const char *token, int base, char eov)
 unsigned short
 xatos(const char *token)
 {
-    long port = xatol(token);
-
-    if (port < 0)
-        throw Cfg::FatalError(ToSBuf("invalid value: '", token, "' cannot be less than 0"));
-
-    if ((port & ~0xFFFF) != 0)
-        throw Cfg::FatalError(ToSBuf("invalid value: '", token, "' is larger than the type 'short'"));
-
-    return port;
+    long input = xatol(token);
+    return Cfg::DownsizeValue<unsigned short>(token, input);
 }
 
 int64_t
@@ -126,12 +102,7 @@ GetInteger(void)
 
     // The conversion must honor 0 and 0x prefixes, which are important for things like umask
     int64_t ret = xatoll(token, 0);
-
-    int i = (int) ret;
-    if (ret != static_cast<int64_t>(i))
-        throw Cfg::FatalError(ToSBuf("invalid value: '", token, "' is larger than the type 'int'"));
-
-    return i;
+    return Cfg::DownsizeValue<int>(token, ret);
 }
 
 /*
