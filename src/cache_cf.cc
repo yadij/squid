@@ -1961,10 +1961,11 @@ parse_cachedir(Store::DiskConfig *swap)
     }
 
     /* new cache_dir */
-    if (swap->n_configured > 63)
+    if (swap->n_configured > 63) {
         /* 7 bits, signed */
         throw Cfg::FatalError(ToSBuf("There is a fixed maximum of 63 cache_dir entries Squid can handle.",
                                      path_str, " is one too many."));
+    }
 
     allocate_new_swapdir(swap);
 
