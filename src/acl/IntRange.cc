@@ -39,8 +39,7 @@ ACLIntRange::parse()
         if (port2 < port1)
             throw Cfg::FatalError(ToSBuf("invalid port range: ", port1, '-', port2));
 
-        RangeType temp(port1, port2+1);
-        ranges.push_back(temp);
+        ranges.emplace_back(port1, port2+1);
     }
 }
 
@@ -92,4 +91,3 @@ ACLIntRange::dump() const
 
     return sl;
 }
-
