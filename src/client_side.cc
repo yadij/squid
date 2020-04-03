@@ -105,6 +105,7 @@
 #include "profiler/Profiler.h"
 #include "proxyp/Header.h"
 #include "proxyp/Parser.h"
+#include "security/ErrorString.h"
 #include "security/NegotiationHistory.h"
 #include "servers/forward.h"
 #include "SquidConfig.h"
@@ -2407,7 +2408,7 @@ tlsAttemptHandshake(ConnStateData *conn, PF *callback)
             debugs(83, 2, "Error negotiating SSL connection on FD " << fd << ": Aborted by client: " << ssl_error);
         } else {
             debugs(83, (xerrno == ECONNRESET) ? 1 : 2, "Error negotiating SSL connection on FD " << fd << ": " <<
-                   (xerrno == 0 ? Security::ErrorString(ssl_error) : xstrerr(xerrno)));
+                   (xerrno == 0 ? Security::ErrorString(ssl_error) : SBuf(xstrerr(xerrno))));
         }
         break;
 

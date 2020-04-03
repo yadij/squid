@@ -13,6 +13,8 @@
 #include "globals.h"
 #include "parser/Tokenizer.h"
 #include "Parsing.h"
+#include "sbuf/Stream.h"
+#include "security/ErrorString.h"
 #include "security/PeerOptions.h"
 
 #if USE_OPENSSL
@@ -244,8 +246,7 @@ Security::PeerOptions::createBlankContext() const
 
     SSL_CTX *t = SSL_CTX_new(TLS_client_method());
     if (!t) {
-        const auto x = ERR_get_error();
-        fatalf("Failed to allocate TLS client context: %s\n", Security::ErrorString(x));
+        throw TexcHere(ToSBuf("Failed to allocate TLS client context: ", ErrorString(ERR_get_error())));
     }
     ctx = convertContextFromRawPtr(t);
 
@@ -253,12 +254,13 @@ Security::PeerOptions::createBlankContext() const
     // Initialize for X.509 certificate exchange
     gnutls_certificate_credentials_t t;
     if (const int x = gnutls_certificate_allocate_credentials(&t)) {
-        fatalf("Failed to allocate TLS client context: %s\n", Security::ErrorString(x));
+        throw TexcHere(ToSBuf("Failed to allocate TLS client context: ", ErrorString(x)));
     }
     ctx = convertContextFromRawPtr(t);
 
 #else
-    debugs(83, 1, "WARNING: Failed to allocate TLS client context: No TLS library");
+    static const SBuf msg("Failed to allocate TLS client context: No TLS library");
+    throw TexcHere(msg);
 
 #endif
 
@@ -527,7 +529,7 @@ Security::PeerOptions::parseOptions()
     gnutls_priority_t op;
     int x = gnutls_priority_init(&op, priorities, &err);
     if (x != GNUTLS_E_SUCCESS) {
-        fatalf("(%s) in TLS options '%s'", ErrorString(x), err);
+        throw TexcHere(ToSBuf("(", ErrorString(x), ") in TLS options '", err, "'"));
     }
     parsedOptions = Security::ParsedOptions(op, [](gnutls_priority_t p) {
         debugs(83, 5, "gnutls_priority_deinit p=" << (void*)p);
@@ -646,7 +648,7 @@ Security::PeerOptions::updateContextNpn(Security::ContextPointer &ctx)
     //       it does support ALPN per-session, not per-context.
 }
 
-static const char *
+static const SBuf
 loadSystemTrustedCa(Security::ContextPointer &ctx)
 {
     debugs(83, 8, "Setting default system Trusted CA. ctx=" << (void*)ctx.get());
@@ -660,7 +662,8 @@ loadSystemTrustedCa(Security::ContextPointer &ctx)
         return Security::ErrorString(x);
 
 #endif
-    return nullptr;
+    static const SBuf nil;
+    return nil;
 }
 
 void
@@ -694,7 +697,8 @@ Security::PeerOptions::updateContextCa(Security::ContextPointer &ctx)
     if (!flags.tlsDefaultCa)
         return;
 
-    if (const char *err = loadSystemTrustedCa(ctx)) {
+    const auto err = loadSystemTrustedCa(ctx);
+    if (!err.isEmpty()) {
         debugs(83, DBG_IMPORTANT, "WARNING: Ignoring error setting default trusted CA : " << err);
     }
 }

@@ -12,6 +12,7 @@
 #include "cache_cf.h"
 #include "fatal.h"
 #include "globals.h"
+#include "security/ErrorString.h"
 #include "security/ServerOptions.h"
 #include "security/Session.h"
 #include "SquidConfig.h"

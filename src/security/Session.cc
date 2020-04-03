@@ -16,6 +16,7 @@
 #include "fd.h"
 #include "fde.h"
 #include "ipc/MemMap.h"
+#include "security/ErrorString.h"
 #include "security/Session.h"
 #include "SquidConfig.h"
 #include "ssl/bio.h"
@@ -174,8 +175,9 @@ CreateSession(const Security::ContextPointer &ctx, const Comm::ConnectionPointer
 #endif
     }
 
+    static SBuf none("[no error id]");
     debugs(83, DBG_IMPORTANT, "ERROR: " << squidCtx << ' ' << errAction <<
-           ": " << (errCode != 0 ? Security::ErrorString(errCode) : ""));
+           ": " << (errCode != 0 ? Security::ErrorString(errCode) : none));
 #endif
     return false;
 }

@@ -93,16 +93,6 @@ class EncryptorAnswer;
 /// Squid defined error code (<0), an error code returned by X.509 API, or SSL_ERROR_NONE
 typedef int ErrorCode;
 
-inline const char *ErrorString(const ErrorCode code) {
-#if USE_OPENSSL
-    return ERR_error_string(code, nullptr);
-#elif USE_GNUTLS
-    return gnutls_strerror(code);
-#else
-    return "[no TLS library]";
-#endif
-}
-
 /// set of Squid defined TLS error codes
 /// \note using std::unordered_set ensures values are unique, with fast lookup
 typedef std::unordered_set<Security::ErrorCode> Errors;

@@ -10,6 +10,7 @@
 #include "errorpage.h"
 #include "fatal.h"
 #include "html_quote.h"
+#include "security/ErrorString.h"
 #include "ssl/ErrorDetail.h"
 
 #include <climits>
@@ -562,9 +563,10 @@ const char *Ssl::ErrorDetail::err_lib_error() const
 {
     if (errReason.size() > 0)
         return errReason.termedBuf();
-    else if (lib_error_no != SSL_ERROR_NONE)
-        return Security::ErrorString(lib_error_no);
-    else
+    else if (lib_error_no != SSL_ERROR_NONE) {
+        SBuf msg = Security::ErrorString(lib_error_no);
+        return msg.c_str();
+    } else
         return "[No Error]";
 }
 

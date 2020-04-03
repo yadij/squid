@@ -9,6 +9,7 @@
 #include "squid.h"
 #include "anyp/PortCfg.h"
 #include "fatal.h"
+#include "security/ErrorString.h"
 #include "security/KeyData.h"
 #include "SquidConfig.h"
 #include "ssl/bio.h"
