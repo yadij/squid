@@ -10,7 +10,7 @@
 /HERE/ {
   # HERE is obsolete
   gsub(/,[ ]?HERE\)/, ", MYNAME)");
-  gsub(/,[ ]?[ ]?HERE[ ]?[ ]?<<[ ]?\":[ ]/, ", \"");
+  gsub(/,[ ]?[ ]?HERE[ ]?[ ]?<<[ ]?["]:[ ]/, ", \"");
   gsub(/,[ ]?[ ]?HERE[ ]?[ ]?<<[ ]?/, ", ");
 }
 { print }
