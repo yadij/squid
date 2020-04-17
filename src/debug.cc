@@ -41,7 +41,6 @@ static void _db_print_stderr(const char *format, va_list args);
 static void _db_print_file(const char *format, va_list args);
 
 #if _SQUID_WINDOWS_
-extern LPCRITICAL_SECTION dbg_mutex;
 typedef BOOL (WINAPI * PFInitializeCriticalSectionAndSpinCount) (LPCRITICAL_SECTION, DWORD);
 #endif
 

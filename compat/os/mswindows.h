@@ -433,6 +433,8 @@ SQUIDCEXTERN int _free_osfhnd(int);
 
 SQUIDCEXTERN THREADLOCAL int ws32_result;
 
+LPCRITICAL_SECTION dbg_mutex;
+
 #if defined(__cplusplus)
 
 inline int

@@ -23,7 +23,6 @@
 #include <mswsock.h>
 #endif
 
-SQUIDCEXTERN LPCRITICAL_SECTION dbg_mutex;
 void WIN32_ExceptionHandlerCleanup(void);
 static LPTOP_LEVEL_EXCEPTION_FILTER Win32_Old_ExceptionHandler = NULL;
 

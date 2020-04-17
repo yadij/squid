@@ -45,7 +45,6 @@ void Squid_Win32InvalidParameterHandler(const wchar_t*, const wchar_t*, const wc
 #endif
 static int Win32SockInit(void);
 static void Win32SockCleanup(void);
-SQUIDCEXTERN LPCRITICAL_SECTION dbg_mutex;
 void WIN32_ExceptionHandlerCleanup(void);
 static int s_iInitCount = 0;
 static HANDLE NotifyAddrChange_thread = INVALID_HANDLE_VALUE;
