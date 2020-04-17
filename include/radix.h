@@ -143,30 +143,32 @@ struct squid_radix_node_head {
     struct squid_radix_node rnh_nodes[3];   /* empty tree for common case */
 };
 
-SQUIDCEXTERN void squid_rn_init (void);
+extern int squid_max_keylen;
 
-SQUIDCEXTERN int squid_rn_inithead(struct squid_radix_node_head **, int);
-SQUIDCEXTERN int squid_rn_refines(void *, void *);
+void squid_rn_init (void);
 
-SQUIDCEXTERN int squid_rn_walktree(struct squid_radix_node_head *, int (*)(struct squid_radix_node *, void *), void *);
+int squid_rn_inithead(struct squid_radix_node_head **, int);
+int squid_rn_refines(void *, void *);
 
-SQUIDCEXTERN struct squid_radix_node *squid_rn_addmask(void *, int, int);
+int squid_rn_walktree(struct squid_radix_node_head *, int (*)(struct squid_radix_node *, void *), void *);
 
-SQUIDCEXTERN struct squid_radix_node *squid_rn_addroute(void *, void *, struct squid_radix_node_head *, struct squid_radix_node[2]);
+struct squid_radix_node *squid_rn_addmask(void *, int, int);
 
-SQUIDCEXTERN struct squid_radix_node *squid_rn_delete(void *, void *, struct squid_radix_node_head *);
+struct squid_radix_node *squid_rn_addroute(void *, void *, struct squid_radix_node_head *, struct squid_radix_node[2]);
 
-SQUIDCEXTERN struct squid_radix_node *squid_rn_insert(void *, struct squid_radix_node_head *, int *, struct squid_radix_node[2]);
+struct squid_radix_node *squid_rn_delete(void *, void *, struct squid_radix_node_head *);
 
-SQUIDCEXTERN struct squid_radix_node *squid_rn_match(void *, struct squid_radix_node_head *);
+struct squid_radix_node *squid_rn_insert(void *, struct squid_radix_node_head *, int *, struct squid_radix_node[2]);
 
-SQUIDCEXTERN struct squid_radix_node *squid_rn_newpair(void *, int, struct squid_radix_node[2]);
+struct squid_radix_node *squid_rn_match(void *, struct squid_radix_node_head *);
 
-SQUIDCEXTERN struct squid_radix_node *squid_rn_search(void *, struct squid_radix_node *);
+struct squid_radix_node *squid_rn_newpair(void *, int, struct squid_radix_node[2]);
 
-SQUIDCEXTERN struct squid_radix_node *squid_rn_search_m(void *, struct squid_radix_node *, void *);
+struct squid_radix_node *squid_rn_search(void *, struct squid_radix_node *);
 
-SQUIDCEXTERN struct squid_radix_node *squid_rn_lookup(void *, void *, struct squid_radix_node_head *);
+struct squid_radix_node *squid_rn_search_m(void *, struct squid_radix_node *, void *);
+
+struct squid_radix_node *squid_rn_lookup(void *, void *, struct squid_radix_node_head *);
 
 #endif /* SQUID_RADIX_H */
 

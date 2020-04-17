@@ -69,7 +69,7 @@ libmiscutil_la_SOURCES = \
 	getfullhostname.c \
 	heap.c \
 	iso3307.c \
-	radix.c \
+	radix.cc \
 	rfc1123.c \
 	$(SNPRINTFSOURCE) \
 	Splay.cc \

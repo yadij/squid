@@ -153,7 +153,7 @@ squid_rn_search(void *v_arg, struct squid_radix_node *head) {
     register struct squid_radix_node *x;
     register caddr_t v;
 
-    for (x = head, v = v_arg; x->rn_b >= 0;) {
+    for (x = head, v = static_cast<caddr_t>(v_arg); x->rn_b >= 0;) {
         if (x->rn_bmask & v[x->rn_off])
             x = x->rn_r;
         else
@@ -165,7 +165,7 @@ squid_rn_search(void *v_arg, struct squid_radix_node *head) {
 struct squid_radix_node *
 squid_rn_search_m(void *v_arg, struct squid_radix_node *head, void *m_arg) {
     register struct squid_radix_node *x;
-    register caddr_t v = v_arg, m = m_arg;
+    register caddr_t v = static_cast<caddr_t>(v_arg), m = static_cast<caddr_t>(m_arg);
 
     for (x = head; x->rn_b >= 0;) {
         if ((x->rn_bmask & m[x->rn_off]) &&
@@ -180,7 +180,7 @@ squid_rn_search_m(void *v_arg, struct squid_radix_node *head, void *m_arg) {
 int
 squid_rn_refines(void *m_arg, void *n_arg)
 {
-    register caddr_t m = m_arg, n = n_arg;
+    register caddr_t m = static_cast<caddr_t>(m_arg), n = static_cast<caddr_t>(n_arg);
     register caddr_t lim, lim2 = lim = n + *(u_char *) n;
     int longer = (*(u_char *) n++) - (int) (*(u_char *) m++);
     int masks_are_equal = 1;
@@ -243,7 +243,7 @@ rn_satsifies_leaf(char *trial, register struct squid_radix_node *leaf, int skip)
 
 struct squid_radix_node *
 squid_rn_match(void *v_arg, struct squid_radix_node_head *head) {
-    caddr_t v = v_arg;
+    caddr_t v = static_cast<caddr_t>(v_arg);
     register struct squid_radix_node *t = head->rnh_treetop, *x;
     register caddr_t cp = v, cp2;
     caddr_t cplim;
@@ -370,7 +370,7 @@ squid_rn_newpair(void *v, int b, struct squid_radix_node nodes[2]) {
 
 struct squid_radix_node *
 squid_rn_insert(void *v_arg, struct squid_radix_node_head *head, int *dupentry, struct squid_radix_node nodes[2]) {
-    caddr_t v = v_arg;
+    caddr_t v = static_cast<caddr_t>(v_arg);
     struct squid_radix_node *top = head->rnh_treetop;
     int head_off = top->rn_off, vlen = (int) *((u_char *) v);
     register struct squid_radix_node *t = squid_rn_search(v_arg, top);
@@ -405,7 +405,7 @@ on1:
                 x = x->rn_r;
             else
                 x = x->rn_l;
-        } while (b > (unsigned) x->rn_b);   /* x->rn_b < b && x->rn_b >= 0 */
+        } while (x->rn_b < b && x->rn_b >= 0);
 #ifdef RN_DEBUG
         if (rn_debug)
             fprintf(stderr, "squid_rn_insert: Going In:\n");
@@ -507,7 +507,7 @@ squid_rn_addmask(void *n_arg, int search, int skip) {
 static int          /* XXX: arbitrary ordering for non-contiguous masks */
 rn_lexobetter(void *m_arg, void *n_arg)
 {
-    register u_char *mp = m_arg, *np = n_arg, *lim;
+    register u_char *mp = static_cast<u_char*>(m_arg), *np = static_cast<u_char *>(n_arg), *lim;
 
     if (*mp > *np)
         return 1;       /* not really, but need to check longer one first */
@@ -700,8 +700,8 @@ squid_rn_delete(void *v_arg, void *netmask_arg, struct squid_radix_node_head *he
     caddr_t v, netmask;
     int b, head_off, vlen;
 
-    v = v_arg;
-    netmask = netmask_arg;
+    v = static_cast<caddr_t>(v_arg);
+    netmask = static_cast<caddr_t>(netmask_arg);
     x = head->rnh_treetop;
     tt = squid_rn_search(v, x);
     head_off = x->rn_off;

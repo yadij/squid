@@ -188,8 +188,6 @@ asnRegisterWithCacheManager(void)
 
 /* initialize the radix tree structure */
 
-SQUIDCEXTERN int squid_max_keylen;  /* yuck.. this is in lib/radix.c */
-
 void
 asnInit(void)
 {
