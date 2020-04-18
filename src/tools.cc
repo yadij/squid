@@ -34,6 +34,9 @@
 #include "wordlist.h"
 
 #include <cerrno>
+#if HAVE_EXECINFO_H
+#include <execinfo.h>
+#endif
 #if HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
 #endif
@@ -64,19 +67,6 @@ static void mail_warranty(void);
 static void restoreCapabilities(bool keep);
 int DebugSignal = -1;
 SBuf service_name(APP_SHORTNAME);
-
-#if _SQUID_LINUX_
-/* Workaround for crappy glic header files */
-SQUIDCEXTERN int backtrace(void *, int);
-SQUIDCEXTERN void backtrace_symbols_fd(void *, int, int);
-SQUIDCEXTERN int setresuid(uid_t, uid_t, uid_t);
-#else /* _SQUID_LINUX_ */
-/* needed on Opensolaris for backtrace_symbols_fd */
-#if HAVE_EXECINFO_H
-#include <execinfo.h>
-#endif /* HAVE_EXECINFO_H */
-
-#endif /* _SQUID_LINUX */
 
 void
 releaseServerSockets(void)
