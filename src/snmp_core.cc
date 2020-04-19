@@ -40,7 +40,7 @@ static mib_tree_entry *snmpAddNode(oid * name, int len, oid_ParseFn * parsefunct
 static oid *snmpCreateOid(int length,...);
 mib_tree_entry * snmpLookupNodeStr(mib_tree_entry *entry, const char *str);
 bool snmpCreateOidFromStr(const char *str, oid **name, int *nl);
-SQUIDCEXTERN void (*snmplib_debug_hook) (int, char *);
+extern "C" void (*snmplib_debug_hook) (int, char *);
 static oid *static_Inst(oid * name, snint * len, mib_tree_entry * current, oid_ParseFn ** Fn);
 static oid *time_Inst(oid * name, snint * len, mib_tree_entry * current, oid_ParseFn ** Fn);
 static oid *peer_Inst(oid * name, snint * len, mib_tree_entry * current, oid_ParseFn ** Fn);
