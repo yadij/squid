@@ -74,8 +74,7 @@ libmiscutil_la_SOURCES = \
 	radix.c \
 	rfc1123.c \
 	stub_memaccount.c \
-	util.c \
-	xusleep.c
+	util.c
 
 TESTS += tests/testRFC1738
 
