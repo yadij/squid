@@ -878,11 +878,8 @@ clientReplyContext::blockedHit() const
     if (http->flags.internal)
         return false; // internal content "hits" cannot be blocked
 
-    const auto &rep = http->storeEntry()->mem().freshestReply();
     {
         std::unique_ptr<ACLFilledChecklist> chl(clientAclChecklistCreate(Config.accessList.sendHit, http));
-        chl->reply = const_cast<HttpReply*>(&rep); // ACLChecklist API bug
-        HTTPMSGLOCK(chl->reply);
         return !chl->fastCheck().allowed(); // when in doubt, block
     }
 }
@@ -1543,6 +1540,7 @@ clientReplyContext::buildReplyHeader()
     }
 
 #if USE_AUTH
+    http->al->reply = reply;
     /* Handle authentication headers */
     if (http->logType.oldType == LOG_TCP_DENIED &&
             ( reply->sline.status() == Http::scProxyAuthenticationRequired ||
@@ -1554,9 +1552,9 @@ clientReplyContext::buildReplyHeader()
          * data on 407/401 responses, and do not check the accel state on 401/407
          * responses
          */
-        Auth::UserRequest::AddReplyAuthHeader(reply, request->auth_user_request, request, 0, 1);
+        Auth::UserRequest::AddReplyAuthHeader(http->al, request->auth_user_request, request, 0, 1);
     } else if (request->auth_user_request != NULL)
-        Auth::UserRequest::AddReplyAuthHeader(reply, request->auth_user_request, request, http->flags.accel, 0);
+        Auth::UserRequest::AddReplyAuthHeader(http->al, request->auth_user_request, request, http->flags.accel, 0);
 #endif
 
     /* Append X-Cache */
@@ -2068,8 +2066,6 @@ clientReplyContext::processReplyAccess ()
     /** Process http_reply_access lists */
     ACLFilledChecklist *replyChecklist =
         clientAclChecklistCreate(Config.accessList.reply, http);
-    replyChecklist->reply = reply;
-    HTTPMSGLOCK(replyChecklist->reply);
     replyChecklist->nonBlockingCheck(ProcessReplyAccessResult, this);
 }
 

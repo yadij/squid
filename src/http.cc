@@ -808,9 +808,7 @@ HttpStateData::handle1xx(HttpReply *reply)
     if (Config.accessList.reply) {
         ACLFilledChecklist ch(Config.accessList.reply, originalRequest().getRaw());
         ch.al = fwd->al;
-        ch.reply = reply;
         ch.syncAle(originalRequest().getRaw(), nullptr);
-        HTTPMSGLOCK(ch.reply);
         if (!ch.fastCheck().allowed()) { // TODO: support slow lookups?
             debugs(11, 3, HERE << "ignoring denied 1xx");
             proceedAfter1xx();

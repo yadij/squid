@@ -67,20 +67,17 @@ Note::addValue(const char *value, const bool quoted, const char *descr, const Va
 }
 
 bool
-Note::match(HttpRequest *request, HttpReply *reply, const AccessLogEntry::Pointer &al, SBuf &matched)
+Note::match(HttpRequest *request, const AccessLogEntry::Pointer &al, SBuf &matched)
 {
     ACLFilledChecklist ch(nullptr, request, nullptr);
     ch.al = al;
-    ch.reply = reply;
     ch.syncAle(request, nullptr);
-    if (reply)
-        HTTPMSGLOCK(ch.reply);
 
     for (auto v: values) {
         assert(v->aclList);
         const auto ret = ch.fastCheck(v->aclList);
         debugs(93, 5, "Check for header name: " << theKey << ": " << v->value() <<
-               ", HttpRequest: " << request << " HttpReply: " << reply << " matched: " << ret);
+               ", HttpRequest: " << request << " HttpReply: " << al->reply << " matched: " << ret);
         if (ret.allowed()) {
             matched = v->format(al);
             return true;

@@ -140,10 +140,11 @@ bool Adaptation::Icap::Launcher::canRepeat(Adaptation::Icap::XactAbortInfo &info
     if (info.icapReply->sline.status() == Http::scNone) // failed to parse the reply; I/O err
         return true;
 
+    // XXX: locate the HTTP request sent to ICAP so we can construct properly
     ACLFilledChecklist *cl =
         new ACLFilledChecklist(TheConfig.repeat, info.icapRequest, dash_str);
-    cl->reply = info.icapReply;
-    HTTPMSGLOCK(cl->reply);
+    cl->al->icap.reply = info.icapReply;
+    HTTPMSGLOCK(cl->al->icap.reply);
 
     bool result = cl->fastCheck().allowed();
     delete cl;

@@ -1487,10 +1487,8 @@ void Adaptation::Icap::ModXact::makeRequestHeaders(MemBuf &buf)
                          virgin.cause : dynamic_cast<HttpRequest*>(virgin.header);
         Must(r);
 
-        HttpReply *reply = dynamic_cast<HttpReply*>(virgin.header);
-
         SBuf matched;
-        if (h->match(r, reply, alMaster, matched)) {
+        if (h->match(r, alMaster, matched)) {
             buf.append(h->key().rawContent(), h->key().length());
             buf.append(": ", 2);
             buf.append(matched.rawContent(), matched.length());

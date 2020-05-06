@@ -86,7 +86,7 @@ public:
     /// the first value, matching the given HttpRequest and HttpReply
     /// and assigns the given 'matched' to it.
     /// \return true if matched, false otherwise
-    bool match(HttpRequest *request, HttpReply *reply, const AccessLogEntryPointer &al, SBuf &matched);
+    bool match(HttpRequest *request, const AccessLogEntryPointer &al, SBuf &matched);
     const SBuf &key() const { return theKey; }
     void updateNotePairs(NotePairsPointer pairs, const CharacterSet *delimiters, const AccessLogEntryPointer &al);
     /// Dump the single Note to the given StoreEntry object.

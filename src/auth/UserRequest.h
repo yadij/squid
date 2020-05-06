@@ -164,8 +164,8 @@ public:
      */
     static AuthAclState tryToAuthenticateAndSetAuthUser(UserRequest::Pointer *aUR, Http::HdrType, HttpRequest *, ConnStateData *, Ip::Address &, AccessLogEntry::Pointer &);
 
-    /// Add the appropriate [Proxy-]Authenticate header to the given reply
-    static void AddReplyAuthHeader(HttpReply * rep, UserRequest::Pointer auth_user_request, HttpRequest * request, int accelerated, int internal);
+    /// Add the appropriate [Proxy-]Authenticate header to the HTTP reply
+    static void AddReplyAuthHeader(AccessLogEntryPointer &, UserRequest::Pointer, HttpRequest *, int accelerated, int internal);
 
     /** Start an asynchronous helper lookup to verify the user credentials
      *

@@ -462,12 +462,11 @@ Auth::UserRequest::tryToAuthenticateAndSetAuthUser(Auth::UserRequest::Pointer * 
 }
 
 static Auth::ConfigVector &
-schemesConfig(HttpRequest *request, HttpReply *rep)
+schemesConfig(HttpRequest *request, AccessLogEntryPointer &al)
 {
     if (!Auth::TheConfig.schemeLists.empty() && Auth::TheConfig.schemeAccess) {
         ACLFilledChecklist ch(NULL, request, NULL);
-        ch.reply = rep;
-        HTTPMSGLOCK(ch.reply);
+        ch.al = al;
         const auto answer = ch.fastCheck(Auth::TheConfig.schemeAccess);
         if (answer.allowed())
             return Auth::TheConfig.schemeLists.at(answer.kind).authConfigs;
@@ -476,9 +475,10 @@ schemesConfig(HttpRequest *request, HttpReply *rep)
 }
 
 void
-Auth::UserRequest::AddReplyAuthHeader(HttpReply * rep, Auth::UserRequest::Pointer auth_user_request, HttpRequest * request, int accelerated, int internal)
+Auth::UserRequest::AddReplyAuthHeader(AccessLogEntryPointer &al, Auth::UserRequest::Pointer auth_user_request, HttpRequest * request, int accelerated, int internal)
 /* send the auth types we are configured to support (and have compiled in!) */
 {
+    const auto &rep = al->reply;
     Http::HdrType type;
 
     switch (rep->sline.status()) {
@@ -509,16 +509,16 @@ Auth::UserRequest::AddReplyAuthHeader(HttpReply * rep, Auth::UserRequest::Pointe
 
         if (auth_user_request != NULL && auth_user_request->direction() == Auth::CRED_CHALLENGE)
             /* add the scheme specific challenge header to the response */
-            auth_user_request->user()->config->fixHeader(auth_user_request, rep, type, request);
+            auth_user_request->user()->config->fixHeader(auth_user_request, rep.getRaw(), type, request);
         else {
             /* call each configured & running auth scheme */
-            Auth::ConfigVector &configs = schemesConfig(request, rep);
+            Auth::ConfigVector &configs = schemesConfig(request, al);
             for (auto *scheme : configs) {
                 if (scheme->active()) {
                     if (auth_user_request != NULL && auth_user_request->scheme()->type() == scheme->type())
-                        scheme->fixHeader(auth_user_request, rep, type, request);
+                        scheme->fixHeader(auth_user_request, rep.getRaw(), type, request);
                     else
-                        scheme->fixHeader(NULL, rep, type, request);
+                        scheme->fixHeader(NULL, rep.getRaw(), type, request);
                 } else
                     debugs(29, 4, HERE << "Configured scheme " << scheme->type() << " not Active");
             }
@@ -531,7 +531,7 @@ Auth::UserRequest::AddReplyAuthHeader(HttpReply * rep, Auth::UserRequest::Pointe
      * response - currently Digest or Negotiate auth
      */
     if (auth_user_request != NULL) {
-        auth_user_request->addAuthenticationInfoHeader(rep, accelerated);
+        auth_user_request->addAuthenticationInfoHeader(rep.getRaw(), accelerated);
         if (auth_user_request->lastReply != AUTH_AUTHENTICATED)
             auth_user_request->lastReply = AUTH_ACL_CANNOT_AUTHENTICATE;
     }

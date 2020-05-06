@@ -15,6 +15,6 @@
 int
 ACLHTTPRepHeaderStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
 {
-    return data->match (&checklist->reply->header);
+    return data->match(&checklist->al->reply->header);
 }
 

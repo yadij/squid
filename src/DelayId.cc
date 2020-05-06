@@ -86,10 +86,7 @@ DelayId::DelayClient(ClientHttpRequest * http, HttpReply *reply)
         }
 
         ACLFilledChecklist ch(DelayPools::delay_data[pool].access, r, NULL);
-        if (reply) {
-            ch.reply = reply;
-            HTTPMSGLOCK(reply);
-        }
+        ch.al = http->al;
 #if FOLLOW_X_FORWARDED_FOR
         if (Config.onoff.delay_pool_uses_indirect_client)
             ch.src_addr = r->indirect_client_addr;

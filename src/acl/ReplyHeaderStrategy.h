@@ -28,12 +28,9 @@ template <Http::HdrType header>
 int
 ACLReplyHeaderStrategy<header>::match (ACLData<char const *> * &data, ACLFilledChecklist *checklist)
 {
-    char const *theHeader = checklist->reply->header.getStr(header);
-
-    if (NULL == theHeader)
-        return 0;
-
-    return data->match(theHeader);
+    if (const auto *theHeader = checklist->al->reply->header.getStr(header))
+        return data->match(theHeader);
+    return 0;
 }
 
 #endif /* SQUID_REPLYHEADERSTRATEGY_H */
