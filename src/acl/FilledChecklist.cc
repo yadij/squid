@@ -25,7 +25,6 @@ CBDATA_CLASS_INIT(ACLFilledChecklist);
 
 ACLFilledChecklist::ACLFilledChecklist() :
     dst_rdns(NULL),
-    request (NULL),
 #if USE_AUTH
     auth_user_request (NULL),
 #endif
@@ -52,8 +51,6 @@ ACLFilledChecklist::~ACLFilledChecklist()
     assert (!asyncInProgress());
 
     safe_free(dst_rdns); // created by xstrdup().
-
-    HTTPMSGUNLOCK(request);
 
     cbdataReferenceDone(conn_);
 
@@ -87,26 +84,12 @@ ACLFilledChecklist::verifyAle() const
         al->cache.port = conn()->port;
     }
 
-    if (request) {
-        if (!al->request) {
-            showDebugWarning("HttpRequest object");
-            // XXX: al->request should be original,
-            // but the request may be already adapted
-            al->request = request;
-            HTTPMSGLOCK(al->request);
-        }
-
-        if (!al->adapted_request) {
-            showDebugWarning("adapted HttpRequest object");
-            al->adapted_request = request;
-            HTTPMSGLOCK(al->adapted_request);
-        }
-
+    if (al) {
         if (al->url.isEmpty()) {
             showDebugWarning("URL");
             // XXX: al->url should be the request URL from client,
-            // but request->url may be different (e.g.,redirected)
-            al->url = request->effectiveRequestUri();
+            // but request URL may be different (e.g.,redirected)
+            al->url = al->request->effectiveRequestUri();
         }
     }
 
@@ -203,7 +186,6 @@ ACLFilledChecklist::markSourceDomainChecked()
  */
 ACLFilledChecklist::ACLFilledChecklist(const acl_access *A, HttpRequest *http_request, const char *ident):
     dst_rdns(NULL),
-    request(NULL),
 #if USE_AUTH
     auth_user_request(NULL),
 #endif
@@ -231,20 +213,17 @@ ACLFilledChecklist::ACLFilledChecklist(const acl_access *A, HttpRequest *http_re
 
 void ACLFilledChecklist::setRequest(HttpRequest *httpRequest)
 {
-    assert(!request);
     if (httpRequest) {
-        request = httpRequest;
-        HTTPMSGLOCK(request);
 #if FOLLOW_X_FORWARDED_FOR
         if (Config.onoff.acl_uses_indirect_client)
-            src_addr = request->indirect_client_addr;
+            src_addr = httpRequest->indirect_client_addr;
         else
 #endif /* FOLLOW_X_FORWARDED_FOR */
-            src_addr = request->client_addr;
-        my_addr = request->my_addr;
+            src_addr = httpRequest->client_addr;
+        my_addr = httpRequest->my_addr;
 
-        if (request->clientConnectionManager.valid())
-            conn(request->clientConnectionManager.get());
+        if (httpRequest->clientConnectionManager.valid())
+            conn(httpRequest->clientConnectionManager.get());
     }
 }
 

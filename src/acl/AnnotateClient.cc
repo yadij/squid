@@ -21,7 +21,7 @@ ACLAnnotateClientStrategy::match(ACLData<MatchType> * &data, ACLFilledChecklist 
         ACLAnnotationData *tdata = dynamic_cast<ACLAnnotationData*>(data);
         assert(tdata);
         tdata->annotate(conn->notes(), &delimiters.value, checklist->al);
-        if (const auto request = checklist->request)
+        if (const auto &request = checklist->al->request)
             tdata->annotate(request->notes(), &delimiters.value, checklist->al);
         return 1;
     }

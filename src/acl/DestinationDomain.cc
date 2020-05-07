@@ -36,7 +36,7 @@ DestinationDomainLookup::LookupDone(const char *, const Dns::LookupDetails &deta
 {
     ACLFilledChecklist *checklist = Filled((ACLChecklist*)data);
     checklist->markDestinationDomainChecked();
-    checklist->request->recordLookup(details);
+    checklist->al->request->recordLookup(details);
     checklist->resumeNonBlockingCheck(DestinationDomainLookup::Instance());
 }
 
@@ -54,30 +54,31 @@ ACLDestinationDomainStrategy::options()
 int
 ACLDestinationDomainStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
 {
-    assert(checklist != NULL && checklist->request != NULL);
+    assert(checklist && checklist->hasRequest());
 
-    if (data->match(checklist->request->url.host())) {
+    const auto &urlHost = checklist->al->request->url.host();
+    if (data->match(urlHost)) {
         return 1;
     }
 
     if (lookupBanned) {
-        debugs(28, 3, "No-lookup DNS ACL '" << AclMatchedName << "' for " << checklist->request->url.host());
+        debugs(28, 3, "No-lookup DNS ACL '" << AclMatchedName << "' for " << urlHost);
         return 0;
     }
 
     /* numeric IPA? no, trust the above result. */
-    if (!checklist->request->url.hostIsNumeric()) {
+    if (!checklist->al->request->url.hostIsNumeric()) {
         return 0;
     }
 
     /* do we already have the rDNS? match on it if we do. */
     if (checklist->dst_rdns) {
-        debugs(28, 3, "'" << AclMatchedName << "' match with stored rDNS '" << checklist->dst_rdns << "' for " << checklist->request->url.host());
+        debugs(28, 3, "'" << AclMatchedName << "' match with stored rDNS '" << checklist->dst_rdns << "' for " << urlHost);
         return data->match(checklist->dst_rdns);
     }
 
     /* raw IP without rDNS? look it up and wait for the result */
-    if (!checklist->dst_addr.fromHost(checklist->request->url.host())) {
+    if (!checklist->dst_addr.fromHost(urlHost)) {
         /* not a valid IPA */
         checklist->dst_rdns = xstrdup("invalid");
         return 0;
@@ -90,7 +91,7 @@ ACLDestinationDomainStrategy::match (ACLData<MatchType> * &data, ACLFilledCheckl
         return data->match(fqdn);
     } else if (!checklist->destinationDomainChecked()) {
         /* FIXME: Using AclMatchedName here is not OO correct. Should find a way to the current acl */
-        debugs(28, 3, "Can't yet compare '" << AclMatchedName << "' ACL for " << checklist->request->url.host());
+        debugs(28, 3, "Can't yet compare '" << AclMatchedName << "' ACL for " << urlHost);
         if (checklist->goAsync(DestinationDomainLookup::Instance()))
             return -1;
         // else fall through to "none" match, hiding the lookup failure (XXX)

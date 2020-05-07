@@ -38,31 +38,32 @@ ACLDestinationIP::match(ACLChecklist *cl)
     ACLFilledChecklist *checklist = Filled(cl);
 
     // if there is no HTTP request details fallback to the dst_addr
-    if (!checklist->request)
+    if (!checklist->hasRequest())
         return ACLIP::match(checklist->dst_addr);
 
     // Bug 3243: CVE 2009-0801
     // Bypass of browser same-origin access control in intercepted communication
     // To resolve this we will force DIRECT and only to the original client destination.
     // In which case, we also need this ACL to accurately match the destination
-    if (Config.onoff.client_dst_passthru && (checklist->request->flags.intercepted || checklist->request->flags.interceptTproxy)) {
+    if (Config.onoff.client_dst_passthru && (checklist->al->request->flags.intercepted || checklist->al->request->flags.interceptTproxy)) {
         const auto conn = checklist->conn();
         return (conn && conn->clientConnection) ?
                ACLIP::match(conn->clientConnection->local) : -1;
     }
 
+    const auto &url = checklist->al->request->url;
     if (lookupBanned) {
-        if (!checklist->request->url.hostIsNumeric()) {
-            debugs(28, 3, "No-lookup DNS ACL '" << AclMatchedName << "' for " << checklist->request->url.host());
+        if (!url.hostIsNumeric()) {
+            debugs(28, 3, "No-lookup DNS ACL '" << AclMatchedName << "' for " << url.host());
             return 0;
         }
 
-        if (ACLIP::match(checklist->request->url.hostIP()))
+        if (ACLIP::match(url.hostIP()))
             return 1;
         return 0;
     }
 
-    const ipcache_addrs *ia = ipcache_gethostbyname(checklist->request->url.host(), IP_LOOKUP_IF_MISS);
+    const ipcache_addrs *ia = ipcache_gethostbyname(url.host(), IP_LOOKUP_IF_MISS);
 
     if (ia) {
         /* Entry in cache found */
@@ -73,9 +74,9 @@ ACLDestinationIP::match(ACLChecklist *cl)
         }
 
         return 0;
-    } else if (!checklist->request->flags.destinationIpLookedUp) {
+    } else if (!checklist->al->request->flags.destinationIpLookedUp) {
         /* No entry in cache, lookup not attempted */
-        debugs(28, 3, "can't yet compare '" << name << "' ACL for " << checklist->request->url.host());
+        debugs(28, 3, "can't yet compare '" << name << "' ACL for " << url.host());
         if (checklist->goAsync(DestinationIPLookup::Instance()))
             return -1;
         // else fall through to mismatch, hiding the lookup failure (XXX)
@@ -96,15 +97,15 @@ void
 DestinationIPLookup::checkForAsync(ACLChecklist *cl)const
 {
     ACLFilledChecklist *checklist = Filled(cl);
-    ipcache_nbgethostbyname(checklist->request->url.host(), LookupDone, checklist);
+    ipcache_nbgethostbyname(checklist->al->request->url.host(), LookupDone, checklist);
 }
 
 void
 DestinationIPLookup::LookupDone(const ipcache_addrs *, const Dns::LookupDetails &details, void *data)
 {
     ACLFilledChecklist *checklist = Filled((ACLChecklist*)data);
-    checklist->request->flags.destinationIpLookedUp = true;
-    checklist->request->recordLookup(details);
+    checklist->al->request->flags.destinationIpLookedUp = true;
+    checklist->al->request->recordLookup(details);
     checklist->resumeNonBlockingCheck(DestinationIPLookup::Instance());
 }
 

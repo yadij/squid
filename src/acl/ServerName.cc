@@ -88,7 +88,7 @@ check_cert_domain( void *check_data, ASN1_STRING *cn_data)
 int
 ACLServerNameStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
 {
-    assert(checklist != NULL && checklist->request != NULL);
+    assert(checklist && checklist->hasRequest());
 
     const char *serverName = nullptr;
     SBuf clientSniKeeper; // because c_str() is not constant
@@ -96,7 +96,7 @@ ACLServerNameStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *ch
         const char *clientRequestedServerName = nullptr;
         clientSniKeeper = conn->tlsClientSni();
         if (clientSniKeeper.isEmpty()) {
-            const char *host = checklist->request->url.host();
+            const char *host = checklist->al->request->url.host();
             if (host && *host) // paranoid first condition: host() is never nil
                 clientRequestedServerName = host;
         } else

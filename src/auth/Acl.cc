@@ -28,10 +28,10 @@ Acl::Answer
 AuthenticateAcl(ACLChecklist *ch)
 {
     ACLFilledChecklist *checklist = Filled(ch);
-    HttpRequest *request = checklist->request;
+    const auto &request = checklist->al->request;
     Http::HdrType headertype;
 
-    if (NULL == request) {
+    if (!checklist->hasRequest()) {
         fatal ("requiresRequest SHOULD have been true for this ACL!!");
         return ACCESS_DENIED;
     } else if (request->flags.sslBumped) {

@@ -16,8 +16,8 @@ ACLSquidErrorStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *ch
 {
     if (checklist->requestErrorType != ERR_MAX)
         return data->match(checklist->requestErrorType);
-    else if (checklist->request)
-        return data->match(checklist->request->errType);
+    else if (checklist->hasRequest())
+        return data->match(checklist->al->request->errType);
     return 0;
 }
 

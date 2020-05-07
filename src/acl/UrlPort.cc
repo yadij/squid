@@ -14,6 +14,6 @@
 int
 ACLUrlPortStrategy::match(ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
 {
-    return data->match(checklist->request->url.port());
+    return data->match(checklist->al->request->url.port());
 }
 

@@ -31,7 +31,7 @@ Acl::AnnotationStrategy::options()
 int
 ACLNoteStrategy::match(ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
 {
-    if (const auto request = checklist->request) {
+    if (const auto &request = checklist->al->request) {
         if (request->hasNotes() && matchNotes(data, request->notes().getRaw()))
             return 1;
 #if USE_ADAPTATION

@@ -133,7 +133,7 @@ ProxyAuthLookup::checkForAsync(ACLChecklist *cl) const
     /* make sure someone created auth_user_request for us */
     assert(checklist->auth_user_request != NULL);
     assert(checklist->auth_user_request->valid());
-    checklist->auth_user_request->start(checklist->request, checklist->al, LookupDone, checklist);
+    checklist->auth_user_request->start(checklist->al->request, checklist->al, LookupDone, checklist);
 }
 
 void
@@ -177,7 +177,7 @@ int
 ACLProxyAuth::matchProxyAuth(ACLChecklist *cl)
 {
     ACLFilledChecklist *checklist = Filled(cl);
-    if (!checklist->request->flags.sslBumped) {
+    if (!checklist->al->request->flags.sslBumped) {
         if (!authenticateUserAuthenticated(checklist->auth_user_request)) {
             return 0;
         }

@@ -61,7 +61,7 @@ public:
     void markSourceDomainChecked();
 
     // ACLChecklist API
-    virtual bool hasRequest() const { return request != NULL; }
+    virtual bool hasRequest() const { return hasAle() && al->request; }
     virtual bool hasReply() const { return hasAle() && al->reply; }
     virtual bool hasAle() const { return al != NULL; }
     virtual void syncAle(HttpRequest *adaptedRequest, const char *logUri) const;
@@ -73,8 +73,6 @@ public:
     Ip::Address my_addr;
     SBuf dst_peer_name;
     char *dst_rdns;
-
-    HttpRequest *request;
 
     char rfc931[USER_IDENT_SZ];
 #if USE_AUTH

@@ -27,12 +27,10 @@ template <Http::HdrType header>
 int
 ACLRequestHeaderStrategy<header>::match (ACLData<char const *> * &data, ACLFilledChecklist *checklist)
 {
-    char const *theHeader = checklist->request->header.getStr(header);
+    if (const auto *theHeader = checklist->al->request->header.getStr(header))
+        return data->match(theHeader);
 
-    if (NULL == theHeader)
-        return 0;
-
-    return data->match(theHeader);
+    return 0;
 }
 
 #endif /* SQUID_REQUESTHEADERSTRATEGY_H */

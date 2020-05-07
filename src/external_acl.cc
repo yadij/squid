@@ -698,7 +698,7 @@ aclMatchExternal(external_acl_data *acl, ACLFilledChecklist *ch)
     external_acl_message = entry->message.termedBuf();
 
     debugs(82, 2, HERE << acl->def->name << " = " << entry->result);
-    copyResultsFromEntry(ch->request, entry);
+    copyResultsFromEntry(ch->al->request, entry);
     return entry->result;
 }
 

@@ -20,6 +20,6 @@ template class ACLStrategised<HttpRequestMethod>;
 int
 ACLMethodStrategy::match (ACLData<MatchType> * &data, ACLFilledChecklist *checklist)
 {
-    return data->match (checklist->request->method);
+    return data->match(checklist->al->request->method);
 }
 

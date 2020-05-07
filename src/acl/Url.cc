@@ -18,7 +18,8 @@
 int
 ACLUrlStrategy::match (ACLData<char const *> * &data, ACLFilledChecklist *checklist)
 {
-    char *esc_buf = SBufToCstring(checklist->request->effectiveRequestUri());
+    // TODO normalize ACL entries on load, to avoid unescape on every test
+    char *esc_buf = SBufToCstring(checklist->al->request->effectiveRequestUri());
     rfc1738_unescape(esc_buf);
     int result = data->match(esc_buf);
     xfree(esc_buf);
