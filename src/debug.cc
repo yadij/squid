@@ -915,6 +915,8 @@ Raw::print(std::ostream &os) const
                 printHex(os);
             else
                 os.write(data_, printableSize());
+            if (printableSize() < size_)
+                os << "[..." << size_ - printableSize()) << " bytes...]";
         } else {
             os << "[null]";
         }
