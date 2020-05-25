@@ -887,8 +887,7 @@ Raw::printHex(std::ostream &os) const
     const auto savedFill = os.fill('0');
     const auto savedFlags = os.flags(); // std::ios_base::fmtflags
     os << std::hex;
-    auto len = (limit_ > 0 && limit_ < size_ ? limit_ : size_);
-    std::for_each(data_, data_ + len,
+    std::for_each(data_, data_ + printableSize(),
     [&os](const char &c) { os << std::setw(2) << static_cast<uint8_t>(c); });
     os.flags(savedFlags);
     os.fill(savedFill);
@@ -914,10 +913,8 @@ Raw::print(std::ostream &os) const
         if (data_) {
             if (useHex_)
                 printHex(os);
-            else {
-                auto len = (limit_ > 0 && limit_ < size_ ? limit_ : size_);
-                os.write(data_, len);
-            }
+            else
+                os.write(data_, printableSize());
         } else {
             os << "[null]";
         }
@@ -925,4 +922,3 @@ Raw::print(std::ostream &os) const
 
     return os;
 }
-
