@@ -188,11 +188,14 @@ void _db_rotate_log(void);
 class Raw
 {
 public:
-    Raw(const char *label, const char *data, const size_t size, const size_t limit = 0):
-        level(-1), label_(label), data_(data), size_(size), limit_(limit), useHex_(false), useGap_(true) {}
+    Raw(const char *label, const char *data, const size_t size):
+        level(-1), label_(label), data_(data), size_(size), limit_(0), useHex_(false), useGap_(true) {}
 
     /// limit data printing to at least the given debugging level
     Raw &minLevel(const int aLevel) { level = aLevel; return *this; }
+
+    /// print no more than n bytes of data (0 means unlimited)
+    Raw &atMost(const size_t n) { limit_ = n; return *this; }
 
     /// print data using two hex digits per byte (decoder: xxd -r -p)
     Raw &hex() { useHex_ = true; return *this; }
