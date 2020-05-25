@@ -217,7 +217,7 @@ public:
 
 private:
     void printHex(std::ostream &os) const;
-    size_t printableSize() { return (limit_ > 0 && limit_ < size_ ? limit_ : size_); }
+    size_t printableSize() const { return (limit_ > 0 && limit_ < size_ ? limit_ : size_); }
 
     const char *label_; ///< optional data name or ID; triggers size printing
     const char *data_; ///< raw data to be printed
