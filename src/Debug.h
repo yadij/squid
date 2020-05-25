@@ -218,7 +218,7 @@ private:
     const char *label_; ///< optional data name or ID; triggers size printing
     const char *data_; ///< raw data to be printed
     size_t size_; ///< data length
-    size_t limit_; ///< do not print more than this amount of the data
+    size_t limit_; ///< do not print more data (0 means unlimited)
     bool useHex_; ///< whether hex() has been called
     bool useGap_; ///< whether to print leading space if label is missing
 };
@@ -283,4 +283,3 @@ template <class Integer>
 inline AsHex<Integer> asHex(const Integer n) { return AsHex<Integer>(n); }
 
 #endif /* SQUID_DEBUG_H */
-
