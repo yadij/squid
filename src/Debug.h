@@ -287,3 +287,4 @@ template <class Integer>
 inline AsHex<Integer> asHex(const Integer n) { return AsHex<Integer>(n); }
 
 #endif /* SQUID_DEBUG_H */
+
