@@ -45,8 +45,8 @@ struct SMBDOMAIN {
     struct SMBDOMAIN *next; /* linked list */
 };
 
-struct SMBDOMAIN *firstdom = NULL;
-struct SMBDOMAIN *lastdom = NULL;
+struct SMBDOMAIN *firstdom = nullptr;
+struct SMBDOMAIN *lastdom = nullptr;
 
 /*
  * escape the backslash character, since it has a special meaning
@@ -97,7 +97,7 @@ main(int argc, char *argv[])
     const char *shcmd;
 
     /* make standard output line buffered */
-    if (setvbuf(stdout, NULL, _IOLBF, 0) != 0)
+    if (setvbuf(stdout, nullptr, _IOLBF, 0) != 0)
         exit(EXIT_FAILURE);
 
     /* parse command line arguments */
@@ -119,7 +119,7 @@ main(int argc, char *argv[])
             dom->nmbcast = NMB_BROADCAST;
             dom->authshare = (char *)"NETLOGON";
             dom->authfile = "proxyauth";
-            dom->next = NULL;
+            dom->next = nullptr;
 
             /* append to linked list */
             if (lastdom != NULL)
@@ -193,7 +193,7 @@ main(int argc, char *argv[])
 
         user = buf;
         pass = s + 1;
-        domname = NULL;
+        domname = nullptr;
 
         rfc1738_unescape(user);
         rfc1738_unescape(pass);

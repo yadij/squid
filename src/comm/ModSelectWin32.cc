@@ -180,7 +180,7 @@ comm_check_incoming_select_handlers(int nfds, int *fds)
     int i;
     int fd;
     int maxfd = 0;
-    PF *hdl = NULL;
+    PF *hdl = nullptr;
     fd_set read_mask;
     fd_set write_mask;
     FD_ZERO(&read_mask);
@@ -212,7 +212,7 @@ comm_check_incoming_select_handlers(int nfds, int *fds)
 
     ++ statCounter.syscalls.selects;
 
-    if (select(maxfd, &read_mask, &write_mask, NULL, &zero_tv) < 1)
+    if (select(maxfd, &read_mask, &write_mask, nullptr, &zero_tv) < 1)
         return incoming_sockets_accepted;
 
     for (i = 0; i < nfds; ++i) {
@@ -220,8 +220,8 @@ comm_check_incoming_select_handlers(int nfds, int *fds)
 
         if (FD_ISSET(fd, &read_mask)) {
             if ((hdl = fd_table[fd].read_handler) != NULL) {
-                fd_table[fd].read_handler = NULL;
-                commUpdateReadBits(fd, NULL);
+                fd_table[fd].read_handler = nullptr;
+                commUpdateReadBits(fd, nullptr);
                 hdl(fd, fd_table[fd].read_data);
             } else {
                 debugs(5, DBG_IMPORTANT, "comm_select_incoming: FD " << fd << " NULL read handler");
@@ -230,8 +230,8 @@ comm_check_incoming_select_handlers(int nfds, int *fds)
 
         if (FD_ISSET(fd, &write_mask)) {
             if ((hdl = fd_table[fd].write_handler) != NULL) {
-                fd_table[fd].write_handler = NULL;
-                commUpdateWriteBits(fd, NULL);
+                fd_table[fd].write_handler = nullptr;
+                commUpdateWriteBits(fd, nullptr);
                 hdl(fd, fd_table[fd].write_data);
             } else {
                 debugs(5, DBG_IMPORTANT, "comm_select_incoming: FD " << fd << " NULL write handler");
@@ -320,7 +320,7 @@ Comm::DoSelect(int msec)
     fd_set pendingfds;
     fd_set writefds;
 
-    PF *hdl = NULL;
+    PF *hdl = nullptr;
     int fd;
     int maxfd;
     int num;
@@ -502,8 +502,8 @@ Comm::DoSelect(int msec)
             debugs(5, 6, "comm_select: FD " << fd << " ready for reading");
 
             if ((hdl = F->read_handler)) {
-                F->read_handler = NULL;
-                commUpdateReadBits(fd, NULL);
+                F->read_handler = nullptr;
+                commUpdateReadBits(fd, nullptr);
                 hdl(fd, F->read_data);
                 ++ statCounter.select_fds;
 
@@ -532,8 +532,8 @@ Comm::DoSelect(int msec)
                 F = &fd_table[fd];
 
                 if ((hdl = F->write_handler)) {
-                    F->write_handler = NULL;
-                    commUpdateWriteBits(fd, NULL);
+                    F->write_handler = nullptr;
+                    commUpdateWriteBits(fd, nullptr);
                     hdl(fd, F->write_data);
                     ++ statCounter.select_fds;
                 }
@@ -585,8 +585,8 @@ Comm::DoSelect(int msec)
             debugs(5, 6, "comm_select: FD " << fd << " ready for writing");
 
             if ((hdl = F->write_handler)) {
-                F->write_handler = NULL;
-                commUpdateWriteBits(fd, NULL);
+                F->write_handler = nullptr;
+                commUpdateWriteBits(fd, nullptr);
                 hdl(fd, F->write_data);
                 ++ statCounter.select_fds;
 
@@ -693,8 +693,8 @@ examine_select(fd_set * readfds, fd_set * writefds)
     fd_set write_x;
 
     struct timeval tv;
-    AsyncCall::Pointer ch = NULL;
-    fde *F = NULL;
+    AsyncCall::Pointer ch = nullptr;
+    fde *F = nullptr;
 
     struct stat sb;
     debugs(5, DBG_CRITICAL, "examine_select: Examining open file descriptors...");
@@ -736,10 +736,10 @@ examine_select(fd_set * readfds, fd_set * writefds)
             ScheduleCallHere(F->timeoutHandler);
         }
 
-        F->closeHandler = NULL;
-        F->timeoutHandler = NULL;
-        F->read_handler = NULL;
-        F->write_handler = NULL;
+        F->closeHandler = nullptr;
+        F->timeoutHandler = nullptr;
+        F->read_handler = nullptr;
+        F->write_handler = nullptr;
         FD_CLR(fd, readfds);
         FD_CLR(fd, writefds);
     }

@@ -56,7 +56,7 @@ Ssl::PeekingPeerConnector::checkForPeekAndSplice()
 
     ACLFilledChecklist *acl_checklist = new ACLFilledChecklist(
         ::Config.accessList.ssl_bump,
-        request.getRaw(), NULL);
+        request.getRaw(), nullptr);
     acl_checklist->al = al;
     acl_checklist->banAction(Acl::Answer(ACCESS_ALLOWED, Ssl::bumpNone));
     acl_checklist->banAction(Acl::Answer(ACCESS_ALLOWED, Ssl::bumpPeek));
@@ -145,7 +145,7 @@ Ssl::PeekingPeerConnector::initialize(Security::SessionPointer &serverSession)
         // client connection is required in the case we need to splice
         // or terminate client and server connections
         assert(clientConn != NULL);
-        SBuf *hostName = NULL;
+        SBuf *hostName = nullptr;
 
         //Enable Status_request TLS extension, required to bump some clients
         SSL_set_tlsext_status_type(serverSession.get(), TLSEXT_STATUSTYPE_ocsp);

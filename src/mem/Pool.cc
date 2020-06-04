@@ -47,8 +47,8 @@ void
 memPoolIterateDone(MemPoolIterator ** iter)
 {
     assert(iter != NULL);
-    Iterator.pool = NULL;
-    *iter = NULL;
+    Iterator.pool = nullptr;
+    *iter = nullptr;
 }
 
 MemImplementingAllocator *
@@ -59,7 +59,7 @@ memPoolIterateNext(MemPoolIterator * iter)
 
     pool = iter->pool;
     if (!pool)
-        return NULL;
+        return nullptr;
 
     iter->pool = pool->next;
     return pool;
@@ -332,7 +332,7 @@ MemImplementingAllocator::~MemImplementingAllocator()
     assert(MemPools::GetInstance().pools != NULL );
 
     /* Pool clean, remove it from List and free */
-    for (find_pool = MemPools::GetInstance().pools, prev_pool = NULL; (find_pool && this != find_pool); find_pool = find_pool->next)
+    for (find_pool = MemPools::GetInstance().pools, prev_pool = nullptr; (find_pool && this != find_pool); find_pool = find_pool->next)
         prev_pool = find_pool;
 
     /* make sure that we found the pool to destroy */

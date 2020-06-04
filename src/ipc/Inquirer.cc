@@ -68,7 +68,7 @@ Ipc::Inquirer::inquire()
 
     Must(request->requestId == 0);
     AsyncCall::Pointer callback = asyncCall(54, 5, "Mgr::Inquirer::handleRemoteAck",
-                                            HandleAckDialer(this, &Inquirer::handleRemoteAck, NULL));
+                                            HandleAckDialer(this, &Inquirer::handleRemoteAck, nullptr));
     if (++LastRequestId == 0) // don't use zero value as request->requestId
         ++LastRequestId;
     request->requestId = LastRequestId;

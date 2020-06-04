@@ -94,7 +94,7 @@ main(int, char **)
     char buf[HELPER_INPUT_BUFFER];
     char *user, *passwd, *p;
 
-    setbuf(stdout, NULL);
+    setbuf(stdout, nullptr);
     while (fgets(buf, HELPER_INPUT_BUFFER, stdin) != NULL) {
 
         if ((p = strchr(buf, '\n')) != NULL)
@@ -104,7 +104,7 @@ main(int, char **)
             SEND_ERR("No Username");
             continue;
         }
-        if ((passwd = strtok(NULL, "")) == NULL) {
+        if ((passwd = strtok(nullptr, "")) == NULL) {
             SEND_ERR("No Password");
             continue;
         }

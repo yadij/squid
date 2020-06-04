@@ -68,7 +68,7 @@ StoreMeta *
 StoreMeta::Factory (char type, size_t len, void const *value)
 {
     if (!validType(type))
-        return NULL;
+        return nullptr;
 
     StoreMeta *result;
 
@@ -100,12 +100,12 @@ StoreMeta::Factory (char type, size_t len, void const *value)
 
     default:
         debugs(20, DBG_CRITICAL, "Attempt to create unknown concrete StoreMeta");
-        return NULL;
+        return nullptr;
     }
 
     if (!result->validLength(len)) {
         delete result;
-        return NULL;
+        return nullptr;
     }
 
     result->length = len;

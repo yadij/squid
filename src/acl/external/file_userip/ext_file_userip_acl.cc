@@ -72,7 +72,7 @@ struct ip_user_dict *
 load_dict(FILE * FH) {
     struct ip_user_dict *current_entry; /* the structure used to
                        store data */
-    struct ip_user_dict *first_entry = NULL;    /* the head of the
+    struct ip_user_dict *first_entry = nullptr;    /* the head of the
                            linked list */
     char line[DICT_BUFFER_SIZE]; /* the buffer for the lines read
                    from the dict file */
@@ -100,7 +100,7 @@ load_dict(FILE * FH) {
 
             /* get the username */
             char *username;
-            if ((username = strtok(NULL, "\t ")) == NULL) {
+            if ((username = strtok(nullptr, "\t ")) == NULL) {
                 debug("Missing username on line %u of dictionary file\n", lineCount);
                 continue;
             }
@@ -109,7 +109,7 @@ load_dict(FILE * FH) {
             if ((cp = strtok (line, "/")) != NULL) {
                 /* store the ip address in a temporary buffer */
                 tmpbuf = cp;
-                cp = strtok (NULL, "/");
+                cp = strtok (nullptr, "/");
                 if (cp != NULL) {
                     /* if we have a slash in the lhs, we have a netmask */
                     current_entry->netmask = (inet_addr(cp));
@@ -218,7 +218,7 @@ usage(const char *program_name)
 int
 main (int argc, char *argv[])
 {
-    char *filename = NULL;
+    char *filename = nullptr;
     char *program_name = argv[0];
     char *cp;
     char *username, *address;
@@ -226,7 +226,7 @@ main (int argc, char *argv[])
     struct ip_user_dict *current_entry;
     int ch;
 
-    setvbuf (stdout, NULL, _IOLBF, 0);
+    setvbuf (stdout, nullptr, _IOLBF, 0);
     while ((ch = getopt(argc, argv, "df:h")) != -1) {
         switch (ch) {
         case 'f':
@@ -271,7 +271,7 @@ main (int argc, char *argv[])
         }
         *cp = '\0';
         address = strtok(line, " \t");
-        username = strtok(NULL, " \t");
+        username = strtok(nullptr, " \t");
         if (!address || !username) {
             debug("%s: unable to read tokens\n", program_name);
             SEND_BH(HLP_MSG("Invalid Input."));

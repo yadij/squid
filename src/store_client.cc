@@ -110,7 +110,7 @@ static store_client *
 storeClientListSearch(const MemObject * mem, void *data)
 {
     dlink_node *node;
-    store_client *sc = NULL;
+    store_client *sc = nullptr;
 
     for (node = mem->clients.head; node; node = node->next) {
         sc = node->data;
@@ -119,7 +119,7 @@ storeClientListSearch(const MemObject * mem, void *data)
             return sc;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 int
@@ -171,8 +171,8 @@ store_client::callback(ssize_t sz, bool error)
     cmp_offset = copyInto.offset + bSz;
     STCB *temphandler = _callback.callback_handler;
     void *cbdata = _callback.callback_data;
-    _callback = Callback(NULL, NULL);
-    copyInto.data = NULL;
+    _callback = Callback(nullptr, nullptr);
+    copyInto.data = nullptr;
 
     if (cbdataReferenceValid(cbdata))
         temphandler(cbdata, result);
@@ -716,7 +716,7 @@ storeUnregister(store_client * sc, StoreEntry * e, void *data)
 
     if (sc->swapin_sio != NULL) {
         storeClose(sc->swapin_sio, StoreIOState::readerDone);
-        sc->swapin_sio = NULL;
+        sc->swapin_sio = nullptr;
         ++statCounter.swap.ins;
     }
 
@@ -768,7 +768,7 @@ StoreEntry::invokeHandlers()
     swapOut();
     int i = 0;
     store_client *sc;
-    dlink_node *nx = NULL;
+    dlink_node *nx = nullptr;
     dlink_node *node;
 
     PROF_start(InvokeHandlers);

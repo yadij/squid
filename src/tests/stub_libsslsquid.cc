@@ -43,7 +43,7 @@ void Ssl::GlobalContextStorage::reconfigureStart() STUB
 
 #include "ssl/ErrorDetail.h"
 Security::ErrorCode parseErrorString(const char *name) STUB_RETVAL(0)
-//const char *Ssl::getErrorName(Security::ErrorCode value) STUB_RETVAL(NULL)
+//const char *Ssl::getErrorName(Security::ErrorCode value) STUB_RETVAL(nullptr)
 Ssl::ErrorDetail::ErrorDetail(Security::ErrorCode, X509 *, X509 *, const char *) STUB
 Ssl::ErrorDetail::ErrorDetail(ErrorDetail const &) STUB
 const String & Ssl::ErrorDetail::toString() const STUB_RETSTATREF(String)
@@ -57,9 +57,9 @@ bool InitClientContext(Security::ContextPointer &, Security::PeerOptions &, cons
 void SetupVerifyCallback(Security::ContextPointer &) STUB
 void MaybeSetupRsaCallback(Security::ContextPointer &) STUB
 } // namespace Ssl
-const char *sslGetUserEmail(SSL *ssl) STUB_RETVAL(NULL)
-const char *sslGetUserAttribute(SSL *ssl, const char *attribute_name) STUB_RETVAL(NULL)
-const char *sslGetCAAttribute(SSL *ssl, const char *attribute_name) STUB_RETVAL(NULL)
+const char *sslGetUserEmail(SSL *ssl) STUB_RETVAL(nullptr)
+const char *sslGetUserAttribute(SSL *ssl, const char *attribute_name) STUB_RETVAL(nullptr)
+const char *sslGetCAAttribute(SSL *ssl, const char *attribute_name) STUB_RETVAL(nullptr)
 SBuf sslGetUserCertificatePEM(SSL *ssl) STUB_RETVAL(SBuf())
 SBuf sslGetUserCertificateChainPEM(SSL *ssl) STUB_RETVAL(SBuf())
 namespace Ssl

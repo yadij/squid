@@ -236,14 +236,14 @@ Mmapping::map()
     static const int pageSize = getpagesize();
     delta = offset % pageSize;
 
-    buf = mmap(NULL, length + delta, prot, flags, fd, offset - delta);
+    buf = mmap(nullptr, length + delta, prot, flags, fd, offset - delta);
 
     if (buf == MAP_FAILED) {
         const int errNo = errno;
         debugs(79,3, HERE << "error FD " << fd << "mmap(" << length << '+' <<
                delta << ", " << offset << '-' << delta << "): " << xstrerr(errNo));
-        buf = NULL;
-        return NULL;
+        buf = nullptr;
+        return nullptr;
     }
 
     return static_cast<char*>(buf) + delta;
@@ -265,7 +265,7 @@ Mmapping::unmap()
                " munmap(" << buf << ", " << length << '+' << delta << "): " <<
                "): " << xstrerr(errNo));
     }
-    buf = NULL;
+    buf = nullptr;
     return !error;
 }
 

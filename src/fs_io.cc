@@ -82,7 +82,7 @@ file_close(int fd)
     assert(F->flags.open);
 
     if ((read_callback = F->read_handler)) {
-        F->read_handler = NULL;
+        F->read_handler = nullptr;
         read_callback(-1, F->read_data);
     }
 
@@ -93,7 +93,7 @@ file_close(int fd)
          * open files, so we won't allow delayed close.
          */
         while (!diskWriteIsComplete(fd))
-            diskHandleWrite(fd, NULL);
+            diskHandleWrite(fd, nullptr);
 #else
         F->flags.close_request = true;
         debugs(6, 2, "file_close: FD " << fd << ", delaying close");
@@ -159,7 +159,7 @@ diskCombineWrites(_fde_disk *fdd)
 
         wq->buf_offset = 0;
 
-        wq->next = NULL;
+        wq->next = nullptr;
 
         wq->free_func = cxx_xfree;
 
@@ -269,7 +269,7 @@ diskHandleWrite(int fd, void *)
 
                 if (q) {
                     memFree(q, MEM_DWRITE_Q);
-                    q = NULL;
+                    q = nullptr;
                 }
             } while ((q = fdd->write_q));
         }
@@ -297,18 +297,18 @@ diskHandleWrite(int fd, void *)
 
             if (q) {
                 memFree(q, MEM_DWRITE_Q);
-                q = NULL;
+                q = nullptr;
             }
         }
     }
 
     if (fdd->write_q == NULL) {
         /* no more data */
-        fdd->write_q_tail = NULL;
+        fdd->write_q_tail = nullptr;
     } else {
         /* another block is queued */
         diskCombineWrites(fdd);
-        Comm::SetSelect(fd, COMM_SELECT_WRITE, diskHandleWrite, NULL, 0);
+        Comm::SetSelect(fd, COMM_SELECT_WRITE, diskHandleWrite, nullptr, 0);
         F->flags.write_daemon = true;
     }
 
@@ -317,7 +317,7 @@ diskHandleWrite(int fd, void *)
     if (fdd->wrt_handle) {
         DWCB *callback = fdd->wrt_handle;
         void *cbdata;
-        fdd->wrt_handle = NULL;
+        fdd->wrt_handle = nullptr;
 
         if (cbdataReferenceValidDone(fdd->wrt_handle_data, &cbdata)) {
             callback(fd, status, len, cbdata);
@@ -349,7 +349,7 @@ file_write(int fd,
            void *handle_data,
            FREE * free_func)
 {
-    dwrite_q *wq = NULL;
+    dwrite_q *wq = nullptr;
     fde *F = &fd_table[fd];
     PROF_start(file_write);
     assert(fd >= 0);
@@ -360,7 +360,7 @@ file_write(int fd,
     wq->buf = (char *)ptr_to_buf;
     wq->len = len;
     wq->buf_offset = 0;
-    wq->next = NULL;
+    wq->next = nullptr;
     wq->free_func = free_func;
 
     if (!F->disk.wrt_handle_data) {
@@ -381,7 +381,7 @@ file_write(int fd,
     }
 
     if (!F->flags.write_daemon) {
-        diskHandleWrite(fd, NULL);
+        diskHandleWrite(fd, nullptr);
     }
 
     PROF_stop(file_write);

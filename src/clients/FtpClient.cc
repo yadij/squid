@@ -107,8 +107,8 @@ Ftp::Channel::forget()
 void
 Ftp::Channel::clear()
 {
-    conn = NULL;
-    closer = NULL;
+    conn = nullptr;
+    closer = nullptr;
 }
 
 /* Ftp::CtrlChannel */
@@ -186,13 +186,13 @@ Ftp::Client::~Client()
 {
     if (data.opener != NULL) {
         data.opener->cancel("Ftp::Client destructed");
-        data.opener = NULL;
+        data.opener = nullptr;
     }
     data.close();
 
     safe_free(old_request);
     safe_free(old_reply);
-    fwd = NULL; // refcounted
+    fwd = nullptr; // refcounted
 }
 
 void
@@ -263,7 +263,7 @@ Ftp::Client::failed(err_type error, int xerrno, ErrorState *err)
     ftperr->xerrno = xerrno;
 
     ftperr->ftp.server_msg = ctrl.message;
-    ctrl.message = NULL;
+    ctrl.message = nullptr;
 
     if (old_request)
         command = old_request;
@@ -704,7 +704,7 @@ Ftp::Client::sendPassive()
     default: {
         bool doEpsv = true;
         if (Config.accessList.ftp_epsv) {
-            ACLFilledChecklist checklist(Config.accessList.ftp_epsv, fwd->request, NULL);
+            ACLFilledChecklist checklist(Config.accessList.ftp_epsv, fwd->request, nullptr);
             doEpsv = checklist.fastCheck().allowed();
         }
         if (!doEpsv) {
@@ -733,7 +733,7 @@ Ftp::Client::sendPassive()
 
     if (ctrl.message)
         wordlistDestroy(&ctrl.message);
-    ctrl.message = NULL; //No message to return to client.
+    ctrl.message = nullptr; //No message to return to client.
     ctrl.offset = 0; //reset readed response, to make room read the next response
 
     writeCommand(mb.content());
@@ -796,7 +796,7 @@ Ftp::Client::dataClosed(const CommCloseCbParams &)
     debugs(9, 4, status());
     if (data.listenConn != NULL) {
         data.listenConn->close();
-        data.listenConn = NULL;
+        data.listenConn = nullptr;
         // NP clear() does the: data.fd = -1;
     }
     data.clear();
@@ -829,7 +829,7 @@ Ftp::Client::writeCommand(const char *buf)
     typedef CommCbMemFunT<Client, CommIoCbParams> Dialer;
     AsyncCall::Pointer call = JobCallback(9, 5, Dialer, this,
                                           Ftp::Client::writeCommandCallback);
-    Comm::Write(ctrl.conn, ctrl.last_command, strlen(ctrl.last_command), call, NULL);
+    Comm::Write(ctrl.conn, ctrl.last_command, strlen(ctrl.last_command), call, nullptr);
 
     scheduleReadControlReply(0);
 }
@@ -1072,7 +1072,7 @@ Ftp::Client::parseControlReply(size_t &bytesUsed)
     char *end;
     int usable;
     int complete = 0;
-    wordlist *head = NULL;
+    wordlist *head = nullptr;
     wordlist *list;
     wordlist **tail = &head;
     size_t linelen;

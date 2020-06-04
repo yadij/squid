@@ -288,14 +288,14 @@ static int
 parseManyConfigFiles(char* files, int depth)
 {
     int error_count = 0;
-    char* saveptr = NULL;
+    char* saveptr = nullptr;
 #if HAVE_GLOB
     char *path;
     glob_t globbuf;
     int i;
     memset(&globbuf, 0, sizeof(globbuf));
-    for (path = strwordtok(files, &saveptr); path; path = strwordtok(NULL, &saveptr)) {
-        if (glob(path, globbuf.gl_pathc ? GLOB_APPEND : 0, NULL, &globbuf) != 0) {
+    for (path = strwordtok(files, &saveptr); path; path = strwordtok(nullptr, &saveptr)) {
+        if (glob(path, globbuf.gl_pathc ? GLOB_APPEND : 0, nullptr, &globbuf) != 0) {
             int xerrno = errno;
             fatalf("Unable to find configuration file: %s: %s", path, xstrerr(xerrno));
         }
@@ -308,7 +308,7 @@ parseManyConfigFiles(char* files, int depth)
     char* file = strwordtok(files, &saveptr);
     while (file != NULL) {
         error_count += parseOneConfigFile(file, depth);
-        file = strwordtok(NULL, &saveptr);
+        file = strwordtok(nullptr, &saveptr);
     }
 #endif /* HAVE_GLOB */
     return error_count;
@@ -377,7 +377,7 @@ FindStatement(const char* line, const char* statement)
             return skip_ws(str);
     }
 
-    return NULL;
+    return nullptr;
 }
 
 static bool
@@ -422,11 +422,11 @@ EvalBoolExpr(const char* expr)
 static int
 parseOneConfigFile(const char *file_name, unsigned int depth)
 {
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     const char *orig_cfg_filename = cfg_filename;
     const int orig_config_lineno = config_lineno;
-    char *token = NULL;
-    char *tmp_line = NULL;
+    char *token = nullptr;
+    char *tmp_line = nullptr;
     int tmp_line_len = 0;
     int err_count = 0;
     int is_pipe = 0;
@@ -1539,7 +1539,7 @@ static void
 free_acl_address(Acl::Address ** head)
 {
     delete *head;
-    *head = NULL;
+    *head = nullptr;
 }
 
 static void
@@ -1570,7 +1570,7 @@ parse_acl_tos(acl_tos ** head)
         return;
     }
 
-    if (!xstrtoui(token, NULL, &tos, 0, std::numeric_limits<tos_t>::max())) {
+    if (!xstrtoui(token, nullptr, &tos, 0, std::numeric_limits<tos_t>::max())) {
         self_destruct();
         return;
     }
@@ -1598,7 +1598,7 @@ static void
 free_acl_tos(acl_tos ** head)
 {
     delete *head;
-    *head = NULL;
+    *head = nullptr;
 }
 
 #if SO_MARK && USE_LIBCAP
@@ -1642,7 +1642,7 @@ static void
 free_acl_nfmark(acl_nfmark ** head)
 {
     delete *head;
-    *head = NULL;
+    *head = nullptr;
 }
 #endif /* SO_MARK */
 
@@ -1681,7 +1681,7 @@ static void
 free_acl_b_size_t(AclSizeLimit ** head)
 {
     delete *head;
-    *head = NULL;
+    *head = nullptr;
 }
 
 #if USE_DELAY_POOLS
@@ -1789,7 +1789,7 @@ dump_http_header_access(StoreEntry * entry, const char *name, const HeaderMangle
 static void
 parse_http_header_access(HeaderManglers **pm)
 {
-    char *t = NULL;
+    char *t = nullptr;
 
     if ((t = ConfigParser::NextToken()) == NULL) {
         debugs(3, DBG_CRITICAL, "" << cfg_filename << " line " << config_lineno << ": " << config_input_line);
@@ -1814,7 +1814,7 @@ free_HeaderManglers(HeaderManglers **pm)
     // we delete the entire http_header_* mangler configuration at once
     if (const HeaderManglers *manglers = *pm) {
         delete manglers;
-        *pm = NULL;
+        *pm = nullptr;
     }
 }
 
@@ -1828,7 +1828,7 @@ dump_http_header_replace(StoreEntry * entry, const char *name, const HeaderMangl
 static void
 parse_http_header_replace(HeaderManglers **pm)
 {
-    char *t = NULL;
+    char *t = nullptr;
 
     if ((t = ConfigParser::NextToken()) == NULL) {
         debugs(3, DBG_CRITICAL, "" << cfg_filename << " line " << config_lineno << ": " << config_input_line);
@@ -2139,7 +2139,7 @@ isUnsignedNumeric(const char *str, size_t len)
 static unsigned short
 GetService(const char *proto)
 {
-    struct servent *port = NULL;
+    struct servent *port = nullptr;
     /** Parses a port number or service name from the squid.conf */
     char *token = ConfigParser::NextToken();
     if (token == NULL) {
@@ -2432,7 +2432,7 @@ static void
 free_peer(CachePeer ** P)
 {
     delete *P;
-    *P = NULL;
+    *P = nullptr;
     Config.npeers = 0;
 }
 
@@ -2929,7 +2929,7 @@ parse_refreshpattern(RefreshPattern ** head)
         t->flags.ignore_private = true;
 #endif
 
-    t->next = NULL;
+    t->next = nullptr;
 
     while (*head)
         head = &(*head)->next;
@@ -3328,7 +3328,7 @@ free_removalpolicy(RemovalPolicySettings ** settings)
 
     delete *settings;
 
-    *settings = NULL;
+    *settings = nullptr;
 }
 
 static void
@@ -3491,7 +3491,7 @@ static void
 free_IpAddress_list(Ip::Address_list ** head)
 {
     if (*head) delete *head;
-    *head = NULL;
+    *head = nullptr;
 }
 
 #if CURRENTLY_UNUSED
@@ -3510,10 +3510,10 @@ check_null_IpAddress_list(const Ip::Address_list * s)
 static void
 parsePortSpecification(const AnyP::PortCfgPointer &s, char *token)
 {
-    char *host = NULL;
+    char *host = nullptr;
     unsigned short port = 0;
-    char *t = NULL;
-    char *junk = NULL;
+    char *t = nullptr;
+    char *junk = nullptr;
 
     s->disable_pmtu_discovery = DISABLE_PMTU_OFF;
     s->name = xstrdup(token);
@@ -4315,7 +4315,7 @@ free_access_log(CustomLog ** definitions)
         CustomLog *log = *definitions;
         *definitions = log->next;
 
-        log->logFormat = NULL;
+        log->logFormat = nullptr;
         log->type = Log::Format::CLF_UNKNOWN;
 
         if (log->aclList)
@@ -4404,7 +4404,7 @@ static void
 free_CpuAffinityMap(CpuAffinityMap **const cpuAffinityMap)
 {
     delete *cpuAffinityMap;
-    *cpuAffinityMap = NULL;
+    *cpuAffinityMap = nullptr;
 }
 
 #if USE_ADAPTATION
@@ -4546,7 +4546,7 @@ static void parse_sslproxy_cert_adapt(sslproxy_cert_adapt **cert_adapt)
         }
         *s = '\0';
     } else
-        param = NULL;
+        param = nullptr;
 
     if (strcmp(al, Ssl::CertAdaptAlgorithmStr[Ssl::algSetValidAfter]) == 0) {
         ca->alg = Ssl::algSetValidAfter;
@@ -4698,7 +4698,7 @@ sslBumpCfgRr::finalizeConfig()
 static void parse_sslproxy_ssl_bump(acl_access **ssl_bump)
 {
     typedef const char *BumpCfgStyle;
-    BumpCfgStyle bcsNone = NULL;
+    BumpCfgStyle bcsNone = nullptr;
     BumpCfgStyle bcsNew = "new client/server-first/none";
     BumpCfgStyle bcsOld = "deprecated allow/deny";
     static BumpCfgStyle bumpCfgStyleLast = bcsNone;
@@ -4848,11 +4848,11 @@ static void free_HeaderWithAclList(HeaderWithAclList **header)
 
         if (hwa->valueFormat) {
             delete hwa->valueFormat;
-            hwa->valueFormat = NULL;
+            hwa->valueFormat = nullptr;
         }
     }
     delete *header;
-    *header = NULL;
+    *header = nullptr;
 }
 
 static void parse_note(Notes *notes)

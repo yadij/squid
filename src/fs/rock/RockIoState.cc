@@ -61,7 +61,7 @@ Rock::IoState::~IoState()
 
     if (callback_data)
         cbdataReferenceDone(callback_data);
-    theFile = NULL;
+    theFile = nullptr;
 
     e->unlock("rock I/O");
 }
@@ -165,7 +165,7 @@ Rock::IoState::callReaderBack(const char *buf, int rlen)
         staleSplicingPointNext = currentReadableSlice().next;
     StoreIOState::STRCB *callb = read.callback;
     assert(callb);
-    read.callback = NULL;
+    read.callback = nullptr;
     void *cbdata;
     if (cbdataReferenceValidDone(read.callback_data, &cbdata))
         callb(cbdata, buf, rlen, this);
@@ -454,13 +454,13 @@ void
 Rock::IoState::callBack(int errflag)
 {
     debugs(79,3, HERE << "errflag=" << errflag);
-    theFile = NULL;
+    theFile = nullptr;
 
     AsyncCall::Pointer call = asyncCall(79,3, "SomeIoStateCloseCb",
                                         StoreIOStateCb(callback, callback_data, errflag, this));
     ScheduleCallHere(call);
 
-    callback = NULL;
+    callback = nullptr;
     cbdataReferenceDone(callback_data);
 }
 

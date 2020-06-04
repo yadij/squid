@@ -105,7 +105,7 @@
 #endif
 
 /* Exported Data */
-TimersArray *xprof_Timers = NULL;
+TimersArray *xprof_Timers = nullptr;
 
 /* Private stuff */
 

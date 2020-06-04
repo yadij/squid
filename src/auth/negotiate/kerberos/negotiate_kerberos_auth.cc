@@ -54,7 +54,7 @@ typedef struct _krb5_kt_list {
     struct _krb5_kt_list *next;
     krb5_keytab_entry *entry;
 } *krb5_kt_list;
-krb5_kt_list ktlist = NULL;
+krb5_kt_list ktlist = nullptr;
 
 krb5_keytab memory_keytab;
 
@@ -94,7 +94,7 @@ gethost_name(void)
      * char hostname[sysconf(_SC_HOST_NAME_MAX)];
      */
     char hostname[1024];
-    struct addrinfo *hres = NULL, *hres_list;
+    struct addrinfo *hres = nullptr, *hres_list;
     int rc, count;
 
     rc = gethostname(hostname, sizeof(hostname)-1);
@@ -102,16 +102,16 @@ gethost_name(void)
         debug((char *) "%s| %s: ERROR: resolving hostname '%s' failed\n", LogTime(), PROGRAM, hostname);
         fprintf(stderr, "%s| %s: ERROR: resolving hostname '%s' failed\n",
                 LogTime(), PROGRAM, hostname);
-        return NULL;
+        return nullptr;
     }
-    rc = getaddrinfo(hostname, NULL, NULL, &hres);
+    rc = getaddrinfo(hostname, nullptr, nullptr, &hres);
     if (rc != 0 || hres == NULL ) {
         debug((char *) "%s| %s: ERROR: resolving hostname with getaddrinfo: %s failed\n",
               LogTime(), PROGRAM, gai_strerror(rc));
         fprintf(stderr,
                 "%s| %s: ERROR: resolving hostname with getaddrinfo: %s failed\n",
                 LogTime(), PROGRAM, gai_strerror(rc));
-        return NULL;
+        return nullptr;
     }
     hres_list = hres;
     count = 0;
@@ -120,7 +120,7 @@ gethost_name(void)
         hres_list = hres_list->ai_next;
     }
     rc = getnameinfo(hres->ai_addr, hres->ai_addrlen, hostname,
-                     sizeof(hostname), NULL, 0, 0);
+                     sizeof(hostname), nullptr, 0, 0);
     if (rc != 0) {
         debug((char *) "%s| %s: ERROR: resolving ip address with getnameinfo: %s failed\n",
               LogTime(), PROGRAM, gai_strerror(rc));
@@ -128,7 +128,7 @@ gethost_name(void)
                 "%s| %s: ERROR: resolving ip address with getnameinfo: %s failed\n",
                 LogTime(), PROGRAM, gai_strerror(rc));
         freeaddrinfo(hres);
-        return NULL;
+        return nullptr;
     }
     freeaddrinfo(hres);
     hostname[sizeof(hostname)-1] = '\0';
@@ -219,7 +219,7 @@ krb5_error_code krb5_free_kt_list(krb5_context context, krb5_kt_list list)
  */
 krb5_error_code krb5_read_keytab(krb5_context context, char *name, krb5_kt_list *list)
 {
-    krb5_kt_list lp = NULL, tail = NULL, back = NULL;
+    krb5_kt_list lp = nullptr, tail = nullptr, back = nullptr;
     krb5_keytab kt;
     krb5_keytab_entry *entry;
     krb5_kt_cursor cursor;
@@ -275,7 +275,7 @@ krb5_error_code krb5_read_keytab(krb5_context context, char *name, krb5_kt_list 
         }
         if (!tail)
             tail = lp;
-        lp->next = NULL;
+        lp->next = nullptr;
         lp->entry = entry;
     }
     xfree(entry);
@@ -284,9 +284,9 @@ krb5_error_code krb5_read_keytab(krb5_context context, char *name, krb5_kt_list 
             retval = 0;
         else {
             krb5_free_kt_list(context, tail);
-            tail = NULL;
+            tail = nullptr;
             if (back)
-                back->next = NULL;
+                back->next = nullptr;
         }
     }
     if (!*list)
@@ -326,8 +326,8 @@ main(int argc, char *const argv[])
 {
     char buf[MAX_AUTHTOKEN_LEN];
     char *c, *p;
-    char *user = NULL;
-    char *rfc_user = NULL;
+    char *user = nullptr;
+    char *rfc_user = nullptr;
 #if HAVE_PAC_SUPPORT
     char ad_groups[MAX_PAC_GROUP_SIZE];
     char *ag=NULL;
@@ -338,26 +338,26 @@ main(int argc, char *const argv[])
     gss_buffer_desc type_id = GSS_C_EMPTY_BUFFER;
 #endif
 #endif
-    krb5_context context = NULL;
+    krb5_context context = nullptr;
     krb5_error_code ret;
     long length = 0;
     static int err = 0;
     int opt, log = 0, norealm = 0;
     OM_uint32 ret_flags = 0, spnego_flag = 0;
-    char *service_name = (char *) "HTTP", *host_name = NULL;
-    char *token = NULL;
-    char *service_principal = NULL;
-    char *keytab_name = NULL;
-    char *keytab_name_env = NULL;
+    char *service_name = (char *) "HTTP", *host_name = nullptr;
+    char *token = nullptr;
+    char *service_principal = nullptr;
+    char *keytab_name = nullptr;
+    char *keytab_name_env = nullptr;
     char default_keytab[MAXPATHLEN];
 #if HAVE_KRB5_MEMORY_KEYTAB
-    char *memory_keytab_name = NULL;
-    char *memory_keytab_name_env = NULL;
+    char *memory_keytab_name = nullptr;
+    char *memory_keytab_name_env = nullptr;
 #endif
-    char *rcache_type = NULL;
-    char *rcache_type_env = NULL;
-    char *rcache_dir = NULL;
-    char *rcache_dir_env = NULL;
+    char *rcache_type = nullptr;
+    char *rcache_type_env = nullptr;
+    char *rcache_dir = nullptr;
+    char *rcache_dir_env = nullptr;
     OM_uint32 major_status, minor_status;
     gss_ctx_id_t gss_context = GSS_C_NO_CONTEXT;
     gss_name_t client_name = GSS_C_NO_NAME;
@@ -366,12 +366,12 @@ main(int argc, char *const argv[])
     gss_buffer_desc service = GSS_C_EMPTY_BUFFER;
     gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
     gss_buffer_desc output_token = GSS_C_EMPTY_BUFFER;
-    const unsigned char *kerberosToken = NULL;
-    const unsigned char *spnegoToken = NULL;
+    const unsigned char *kerberosToken = nullptr;
+    const unsigned char *spnegoToken = nullptr;
     size_t spnegoTokenLength = 0;
 
-    setbuf(stdout, NULL);
-    setbuf(stdin, NULL);
+    setbuf(stdout, nullptr);
+    setbuf(stdin, nullptr);
 
     while (-1 != (opt = getopt(argc, argv, "dirs:k:c:t:"))) {
         switch (opt) {
@@ -631,7 +631,7 @@ main(int argc, char *const argv[])
             if (client_name)
                 gss_release_name(&minor_status, &client_name);
             if (gss_context != GSS_C_NO_CONTEXT)
-                gss_delete_sec_context(&minor_status, &gss_context, NULL);
+                gss_delete_sec_context(&minor_status, &gss_context, nullptr);
             if (kerberosToken) {
                 /* Allocated by parseNegTokenInit, but no matching free function exists.. */
                 if (!spnego_flag)
@@ -664,7 +664,7 @@ main(int argc, char *const argv[])
         }
         if (!strncmp(buf, "YR", 2)) {
             if (gss_context != GSS_C_NO_CONTEXT)
-                gss_delete_sec_context(&minor_status, &gss_context, NULL);
+                gss_delete_sec_context(&minor_status, &gss_context, nullptr);
             gss_context = GSS_C_NO_CONTEXT;
         }
         if (strlen(buf) <= 3) {
@@ -721,7 +721,7 @@ main(int argc, char *const argv[])
 
         major_status =
             gss_acquire_cred(&minor_status, server_name, GSS_C_INDEFINITE,
-                             GSS_C_NO_OID_SET, GSS_C_ACCEPT, &server_creds, NULL, NULL);
+                             GSS_C_NO_OID_SET, GSS_C_ACCEPT, &server_creds, nullptr, nullptr);
         if (check_gss_err(major_status, minor_status, "gss_acquire_cred()", log, 1))
             goto cleanup;
 
@@ -730,7 +730,7 @@ main(int argc, char *const argv[])
                                               server_creds,
                                               &input_token,
                                               GSS_C_NO_CHANNEL_BINDINGS,
-                                              &client_name, NULL, &output_token, &ret_flags, NULL, NULL);
+                                              &client_name, nullptr, &output_token, &ret_flags, nullptr, nullptr);
 
         if (output_token.length) {
             spnegoToken = (const unsigned char *) output_token.value;
@@ -757,7 +757,7 @@ main(int argc, char *const argv[])
             gss_release_buffer(&minor_status, &output_token);
             major_status =
                 gss_display_name(&minor_status, client_name, &output_token,
-                                 NULL);
+                                 nullptr);
 
             if (check_gss_err(major_status, minor_status, "gss_display_name()", log, 1))
                 goto cleanup;
@@ -829,7 +829,7 @@ main(int argc, char *const argv[])
             gss_release_buffer(&minor_status, &output_token);
             major_status =
                 gss_display_name(&minor_status, client_name, &output_token,
-                                 NULL);
+                                 nullptr);
 
             if (check_gss_err(major_status, minor_status, "gss_display_name()", log, 1))
                 goto cleanup;
@@ -889,8 +889,8 @@ cleanup:
 int
 main(int argc, char *const argv[])
 {
-    setbuf(stdout, NULL);
-    setbuf(stdin, NULL);
+    setbuf(stdout, nullptr);
+    setbuf(stdin, nullptr);
     char buf[MAX_AUTHTOKEN_LEN];
     while (1) {
         if (fgets(buf, sizeof(buf) - 1, stdin) == NULL) {

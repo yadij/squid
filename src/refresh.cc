@@ -534,7 +534,7 @@ refreshIsCachable(const StoreEntry * entry)
      * avoid objects which expire almost immediately, and which can't
      * be refreshed.
      */
-    int reason = refreshCheck(entry, NULL, Config.minimum_expiry_time);
+    int reason = refreshCheck(entry, nullptr, Config.minimum_expiry_time);
     ++ refreshCounts[rcStore].total;
     ++ refreshCounts[rcStore].status[reason];
 

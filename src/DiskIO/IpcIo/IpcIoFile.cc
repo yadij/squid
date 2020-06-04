@@ -593,7 +593,7 @@ IpcIoFile::dequeueRequest(const unsigned int requestId)
 {
     Must(requestId != 0);
 
-    RequestMap *map = NULL;
+    RequestMap *map = nullptr;
     RequestMap::iterator i = requestMap1.find(requestId);
 
     if (i != requestMap1.end())
@@ -605,7 +605,7 @@ IpcIoFile::dequeueRequest(const unsigned int requestId)
     }
 
     if (!map) // not found in both maps
-        return NULL;
+        return nullptr;
 
     IpcIoPendingRequest *pending = i->second;
     map->erase(i);

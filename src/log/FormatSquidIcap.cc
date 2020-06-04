@@ -24,8 +24,8 @@
 void
 Log::Format::SquidIcap(const AccessLogEntry::Pointer &al, Logfile * logfile)
 {
-    const char *client = NULL;
-    const char *user = NULL;
+    const char *client = nullptr;
+    const char *user = nullptr;
     char tmp[MAX_IPSTRLEN], clientbuf[MAX_IPSTRLEN];
 
     if (al->cache.caddr.isAnyAddr()) { // ICAP OPTIONS xactions lack client

@@ -159,7 +159,7 @@ void Ssl::CrtdMessage::parseBody(CrtdMessage::BodyParams & map, std::string & ot
             std::string value(current_string.c_str() + equal_pos + 1);
             map.insert(std::make_pair(param, value));
         }
-        token = strtok(NULL, "\r\n");
+        token = strtok(nullptr, "\r\n");
     }
 }
 

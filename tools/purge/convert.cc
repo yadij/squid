@@ -110,7 +110,7 @@ my_sock_fd2a( int fd, SockAddress buffer, bool peer )
 
     if ( (peer ? getpeername( fd, (SA*) &socket, &len ) :
             getsockname( fd, (SA*) &socket, &len )) == -1 )
-        return NULL;
+        return nullptr;
     else
         return my_sock_ntoa( socket, buffer );
 }

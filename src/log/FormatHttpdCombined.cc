@@ -23,9 +23,9 @@ void
 Log::Format::HttpdCombined(const AccessLogEntry::Pointer &al, Logfile * logfile)
 {
     const char *user_ident = ::Format::QuoteUrlEncodeUsername(al->getClientIdent());
-    const char *user_auth = NULL;
-    const char *referer = NULL;
-    const char *agent = NULL;
+    const char *user_auth = nullptr;
+    const char *referer = nullptr;
+    const char *agent = nullptr;
 
     if (al->request) {
 #if USE_AUTH

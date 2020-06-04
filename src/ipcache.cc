@@ -204,7 +204,7 @@ static const Dns::CachedIps *ipcacheCheckNumeric(const char *name);
 static void ipcache_nbgethostbyname_(const char *name, IpCacheLookupForwarder handler);
 
 /// \ingroup IPCacheInternal
-static hash_table *ip_table = NULL;
+static hash_table *ip_table = nullptr;
 
 /// \ingroup IPCacheInternal
 static long ipcache_low = 180;
@@ -324,7 +324,7 @@ ipcache_get(const char *name)
     if (ip_table != NULL)
         return (ipcache_entry *) hash_lookup(ip_table, name);
     else
-        return NULL;
+        return nullptr;
 }
 
 /// \ingroup IPCacheInternal
@@ -351,10 +351,10 @@ void
 ipcache_purgelru(void *)
 {
     dlink_node *m;
-    dlink_node *prev = NULL;
+    dlink_node *prev = nullptr;
     ipcache_entry *i;
     int removed = 0;
-    eventAdd("ipcache_purgelru", ipcache_purgelru, NULL, 10.0, 1);
+    eventAdd("ipcache_purgelru", ipcache_purgelru, nullptr, 10.0, 1);
 
     for (m = lru_list.tail; m; m = prev) {
         if (ipcacheCount() < ipcache_low)
@@ -384,12 +384,12 @@ static void
 purge_entries_fromhosts(void)
 {
     dlink_node *m = lru_list.head;
-    ipcache_entry *i = NULL, *t;
+    ipcache_entry *i = nullptr, *t;
 
     while (m) {
         if (i != NULL) {    /* need to delay deletion */
             ipcacheRelease(i);  /* we just override locks */
-            i = NULL;
+            i = nullptr;
         }
 
         t = (ipcache_entry*)m->data;
@@ -614,8 +614,8 @@ Dns::nbgethostbyname(const char *name, const CbcPointer<IpReceiver> &receiver)
 static void
 ipcache_nbgethostbyname_(const char *name, IpCacheLookupForwarder handler)
 {
-    ipcache_entry *i = NULL;
-    const ipcache_addrs *addrs = NULL;
+    ipcache_entry *i = nullptr;
+    const ipcache_addrs *addrs = nullptr;
     ++IpcacheStats.requests;
 
     if (name == NULL || name[0] == '\0') {
@@ -643,7 +643,7 @@ ipcache_nbgethostbyname_(const char *name, IpCacheLookupForwarder handler)
     } else if (ipcacheExpiredEntry(i)) {
         /* hit, but expired -- bummer */
         ipcacheRelease(i);
-        i = NULL;
+        i = nullptr;
     } else {
         /* hit */
         debugs(14, 4, "ipcache_nbgethostbyname: HIT for '" << name << "'");
@@ -719,7 +719,7 @@ ipcache_init(void)
 const ipcache_addrs *
 ipcache_gethostbyname(const char *name, int flags)
 {
-    ipcache_entry *i = NULL;
+    ipcache_entry *i = nullptr;
     assert(name);
     debugs(14, 3, "ipcache_gethostbyname: '" << name  << "', flags=" << std::hex << flags);
     ++IpcacheStats.requests;
@@ -729,11 +729,11 @@ ipcache_gethostbyname(const char *name, int flags)
         (void) 0;
     } else if (ipcacheExpiredEntry(i)) {
         ipcacheRelease(i);
-        i = NULL;
+        i = nullptr;
     } else if (i->flags.negcached) {
         ++IpcacheStats.negative_hits;
         // ignore i->error_message: the caller just checks IP cache presence
-        return NULL;
+        return nullptr;
     } else {
         ++IpcacheStats.hits;
         i->lastref = squid_curtime;
@@ -751,9 +751,9 @@ ipcache_gethostbyname(const char *name, int flags)
     ++IpcacheStats.misses;
 
     if (flags & IP_LOOKUP_IF_MISS)
-        ipcache_nbgethostbyname(name, NULL, NULL);
+        ipcache_nbgethostbyname(name, nullptr, nullptr);
 
-    return NULL;
+    return nullptr;
 }
 
 /// \ingroup IPCacheInternal
@@ -1089,7 +1089,7 @@ ipcacheFreeMemory(void)
 {
     hashFreeItems(ip_table, ipcacheFreeEntry);
     hashFreeMemory(ip_table);
-    ip_table = NULL;
+    ip_table = nullptr;
 }
 
 /**
@@ -1170,7 +1170,7 @@ ipcacheAddEntryFromHosts(const char *name, const char *ipaddr)
 variable_list *
 snmp_netIpFn(variable_list * Var, snint * ErrP)
 {
-    variable_list *Answer = NULL;
+    variable_list *Answer = nullptr;
     MemBuf tmp;
     debugs(49, 5, "snmp_netIpFn: Processing request:" << snmpDebugOid(Var->name, Var->name_length, tmp));
     *ErrP = SNMP_ERR_NOERROR;
@@ -1228,7 +1228,7 @@ snmp_netIpFn(variable_list * Var, snint * ErrP)
     default:
         *ErrP = SNMP_ERR_NOSUCHNAME;
         snmp_var_free(Answer);
-        return (NULL);
+        return nullptr;
     }
 
     return Answer;

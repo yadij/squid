@@ -140,7 +140,7 @@ HelperServerBase::~HelperServerBase()
 {
     if (rbuf) {
         memFreeBuf(rbuf_sz, rbuf);
-        rbuf = NULL;
+        rbuf = nullptr;
     }
 }
 
@@ -152,7 +152,7 @@ helper_server::~helper_server()
     if (writebuf) {
         writebuf->clean();
         delete writebuf;
-        writebuf = NULL;
+        writebuf = nullptr;
     }
 
     if (Comm::IsConnOpen(writePipe))
@@ -241,7 +241,7 @@ helperOpenServers(helper * hlp)
         ++nargs;
     }
 
-    args[nargs] = NULL;
+    args[nargs] = nullptr;
     ++nargs;
 
     assert(nargs <= HELPER_MAX_ARGS);
@@ -278,7 +278,7 @@ helperOpenServers(helper * hlp)
         srv->wqueue = new MemBuf;
         srv->roffset = 0;
         srv->nextRequestId = 0;
-        srv->replyXaction = NULL;
+        srv->replyXaction = nullptr;
         srv->ignoreToEom = false;
         srv->parent = cbdataReference(hlp);
         dlinkAddTail(srv, &srv->link, &hlp->servers);
@@ -366,7 +366,7 @@ helperStatefulOpenServers(statefulhelper * hlp)
         ++nargs;
     }
 
-    args[nargs] = NULL;
+    args[nargs] = nullptr;
     ++nargs;
 
     assert(nargs <= HELPER_MAX_ARGS);
@@ -1029,7 +1029,7 @@ helperHandleRead(const Comm::ConnectionPointer &conn, char *, size_t len, Comm::
         if (!srv->ignoreToEom && !srv->replyXaction) {
             int i = 0;
             if (hlp->childs.concurrency) {
-                char *e = NULL;
+                char *e = nullptr;
                 i = strtol(msg, &e, 10);
                 // Do we need to check for e == msg? Means wrong response from helper.
                 // Will be dropped as "unexpected reply on channel 0"
@@ -1091,7 +1091,7 @@ helperHandleRead(const Comm::ConnectionPointer &conn, char *, size_t len, Comm::
 static void
 helperStatefulHandleRead(const Comm::ConnectionPointer &conn, char *, size_t len, Comm::Flag flag, int, void *data)
 {
-    char *t = NULL;
+    char *t = nullptr;
     helper_stateful_server *srv = (helper_stateful_server *)data;
     statefulhelper *hlp = srv->parent;
     assert(cbdataReferenceValid(data));
@@ -1270,11 +1270,11 @@ GetFirstAvailable(const helper * hlp)
 {
     dlink_node *n;
     helper_server *srv;
-    helper_server *selected = NULL;
+    helper_server *selected = nullptr;
     debugs(84, 5, "GetFirstAvailable: Running servers " << hlp->childs.n_running);
 
     if (hlp->childs.n_running == 0)
-        return NULL;
+        return nullptr;
 
     /* Find "least" loaded helper (approx) */
     for (n = hlp->servers.head; n != NULL; n = n->next) {
@@ -1299,12 +1299,12 @@ GetFirstAvailable(const helper * hlp)
 
     if (!selected) {
         debugs(84, 5, "GetFirstAvailable: None available.");
-        return NULL;
+        return nullptr;
     }
 
     if (selected->stats.pending >= (hlp->childs.concurrency ? hlp->childs.concurrency : 1)) {
         debugs(84, 3, "GetFirstAvailable: Least-loaded helper is fully loaded!");
-        return NULL;
+        return nullptr;
     }
 
     debugs(84, 5, "GetFirstAvailable: returning srv-" << selected->index);
@@ -1315,12 +1315,12 @@ static helper_stateful_server *
 StatefulGetFirstAvailable(statefulhelper * hlp)
 {
     dlink_node *n;
-    helper_stateful_server *srv = NULL;
+    helper_stateful_server *srv = nullptr;
     helper_stateful_server *oldestReservedServer = nullptr;
     debugs(84, 5, "StatefulGetFirstAvailable: Running servers " << hlp->childs.n_running);
 
     if (hlp->childs.n_running == 0)
-        return NULL;
+        return nullptr;
 
     for (n = hlp->servers.head; n != NULL; n = n->next) {
         srv = (helper_stateful_server *)n->data;
@@ -1362,7 +1362,7 @@ helperDispatchWriteDone(const Comm::ConnectionPointer &, char *, size_t, Comm::F
 
     srv->writebuf->clean();
     delete srv->writebuf;
-    srv->writebuf = NULL;
+    srv->writebuf = nullptr;
     srv->flags.writing = false;
 
     if (flag != Comm::OK) {
@@ -1377,7 +1377,7 @@ helperDispatchWriteDone(const Comm::ConnectionPointer &, char *, size_t, Comm::F
         srv->flags.writing = true;
         AsyncCall::Pointer call = commCbCall(5,5, "helperDispatchWriteDone",
                                              CommIoCbPtrFun(helperDispatchWriteDone, srv));
-        Comm::Write(srv->writePipe, srv->writebuf->content(), srv->writebuf->contentSize(), call, NULL);
+        Comm::Write(srv->writePipe, srv->writebuf->content(), srv->writebuf->contentSize(), call, nullptr);
     }
 }
 
@@ -1414,7 +1414,7 @@ helperDispatch(helper_server * srv, Helper::Xaction * r)
         srv->flags.writing = true;
         AsyncCall::Pointer call = commCbCall(5,5, "helperDispatchWriteDone",
                                              CommIoCbPtrFun(helperDispatchWriteDone, srv));
-        Comm::Write(srv->writePipe, srv->writebuf->content(), srv->writebuf->contentSize(), call, NULL);
+        Comm::Write(srv->writePipe, srv->writebuf->content(), srv->writebuf->contentSize(), call, nullptr);
     }
 
     debugs(84, 5, "helperDispatch: Request sent to " << hlp->id_name << " #" << srv->index << ", " << strlen(r->request.buf) << " bytes");
@@ -1466,7 +1466,7 @@ helperStatefulDispatch(helper_stateful_server * srv, Helper::Xaction * r)
     srv->dispatch_time = current_time;
     AsyncCall::Pointer call = commCbCall(5,5, "helperStatefulDispatchWriteDone",
                                          CommIoCbPtrFun(helperStatefulDispatchWriteDone, hlp));
-    Comm::Write(srv->writePipe, r->request.buf, strlen(r->request.buf), call, NULL);
+    Comm::Write(srv->writePipe, r->request.buf, strlen(r->request.buf), call, nullptr);
     debugs(84, 5, "helperStatefulDispatch: Request sent to " <<
            hlp->id_name << " #" << srv->index << ", " <<
            (int) strlen(r->request.buf) << " bytes");

@@ -23,7 +23,7 @@
 double
 xatof(const char *token)
 {
-    char *end = NULL;
+    char *end = nullptr;
     double ret = strtod(token, &end);
 
     if (ret == 0 && end == token) {
@@ -88,7 +88,7 @@ xatol(const char *token)
 int64_t
 xatoll(const char *token, int base, char eov)
 {
-    char *end = NULL;
+    char *end = nullptr;
     int64_t ret = strtoll(token, &end, base);
 
     if (end == token) {
@@ -255,7 +255,7 @@ GetHostWithPort(char *token, Ip::Address *ipa)
     char *tmp;
     unsigned short port;
 
-    host = NULL;
+    host = nullptr;
     port = 0;
 
     if (*token == '[') {

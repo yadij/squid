@@ -276,7 +276,7 @@ Fs::Ufs::RebuildState::rebuildFromSwapLog()
         debugs(47, DBG_IMPORTANT, "Done reading " << sd->path << " swaplog (" << n_read << " entries)");
         LogParser->Close();
         delete LogParser;
-        LogParser = NULL;
+        LogParser = nullptr;
         _done = true;
         return;
     }
@@ -442,7 +442,7 @@ Fs::Ufs::RebuildState::getNextFile(sfileno * filn_p, int *)
         if (td != NULL)
             closedir(td);
 
-        td = NULL;
+        td = nullptr;
 
         in_dir = 0;
 

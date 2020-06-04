@@ -105,7 +105,7 @@ typedef struct {
  */
 static const time_t passwd_ttl = 60 * 60 * 3;   /* in sec */
 static const char *script_name = "/cgi-bin/cachemgr.cgi";
-static const char *progname = NULL;
+static const char *progname = nullptr;
 static time_t now;
 
 /*
@@ -200,7 +200,7 @@ xstrtok(char **str, char del)
             *str = p + 1;
             *p = '\0';
         } else
-            *str = NULL;
+            *str = nullptr;
 
         /* trim */
         len = strlen(tok);
@@ -327,7 +327,7 @@ auth_html(const char *host, int port, const char *user_name)
                 continue;
             }
 
-            comment = strtok(NULL, "");
+            comment = strtok(nullptr, "");
 
             if (comment)
                 while (*comment == ' ' || *comment == '\t')
@@ -412,7 +412,7 @@ parse_status_line(const char *sline, const char **statusStr)
     const char *sp = strchr(sline, ' ');
 
     if (statusStr)
-        *statusStr = NULL;
+        *statusStr = nullptr;
 
     if (strncasecmp(sline, "HTTP/", 5) || !sp)
         return -1;
@@ -589,7 +589,7 @@ read_reply(int s, cachemgr_request * req)
 #if _SQUID_WINDOWS_
 
     int reply;
-    char *tmpfile = tempnam(NULL, "tmp0000");
+    char *tmpfile = tempnam(nullptr, "tmp0000");
     FILE *fp = fopen(tmpfile, "w+");
 #else
 
@@ -601,7 +601,7 @@ read_reply(int s, cachemgr_request * req)
     } istate = isStatusLine;
     int parse_menu = 0;
     const char *action = req->action;
-    const char *statusStr = NULL;
+    const char *statusStr = nullptr;
     int status = -1;
 
     if (0 == strlen(req->action))
@@ -781,7 +781,7 @@ process_request(cachemgr_request * req)
 {
 
     char ipbuf[MAX_IPSTRLEN];
-    struct addrinfo *AI = NULL;
+    struct addrinfo *AI = nullptr;
     Ip::Address S;
     int s;
     int l;
@@ -945,22 +945,22 @@ read_post_request(void)
     char *s;
 
     if ((s = getenv("REQUEST_METHOD")) == NULL)
-        return NULL;
+        return nullptr;
 
     if (0 != strcasecmp(s, "POST"))
-        return NULL;
+        return nullptr;
 
     if ((s = getenv("CONTENT_LENGTH")) == NULL)
-        return NULL;
+        return nullptr;
 
     if (*s == '-') // negative length content huh?
-        return NULL;
+        return nullptr;
 
     uint64_t len;
 
     char *endptr = s+ strlen(s);
     if ((len = strtoll(s, &endptr, 10)) <= 0)
-        return NULL;
+        return nullptr;
 
     // limit the input to something reasonable.
     // 4KB should be enough for the GET/POST data length, but may be extended.
@@ -970,7 +970,7 @@ read_post_request(void)
     size_t readLen = fread(buf, 1, bufLen, stdin);
     if (readLen == 0) {
         xfree(buf);
-        return NULL;
+        return nullptr;
     }
     buf[readLen] = '\0';
     len -= readLen;
@@ -991,7 +991,7 @@ read_get_request(void)
     char *s;
 
     if ((s = getenv("QUERY_STRING")) == NULL)
-        return NULL;
+        return nullptr;
 
     return xstrdup(s);
 }
@@ -1003,7 +1003,7 @@ read_request(void)
 
     cachemgr_request *req;
     char *s;
-    char *t = NULL;
+    char *t = nullptr;
     char *q;
 
     if ((buf = read_post_request()) != NULL)
@@ -1011,7 +1011,7 @@ read_request(void)
     else if ((buf = read_get_request()) != NULL)
         (void) 0;
     else
-        return NULL;
+        return nullptr;
 
 #if _SQUID_WINDOWS_
 
@@ -1022,12 +1022,12 @@ read_request(void)
 #endif
     {
         xfree(buf);
-        return NULL;
+        return nullptr;
     }
 
     req = (cachemgr_request *)xcalloc(1, sizeof(cachemgr_request));
 
-    for (s = strtok(buf, "&"); s != NULL; s = strtok(NULL, "&")) {
+    for (s = strtok(buf, "&"); s != NULL; s = strtok(nullptr, "&")) {
         safe_free(t);
         t = xstrdup(s);
 
@@ -1066,7 +1066,7 @@ read_request(void)
         char *p;
         req->hostname = strtok(req->server, ":");
 
-        if ((p = strtok(NULL, ":")))
+        if ((p = strtok(nullptr, ":")))
             req->port = atoi(p);
     }
 
@@ -1144,7 +1144,7 @@ decode_pub_auth(cachemgr_request * req)
 
     debug("cmgr: decoded host: '%s'\n", host_name);
 
-    if ((time_str = strtok(NULL, "|")) == NULL) {
+    if ((time_str = strtok(nullptr, "|")) == NULL) {
         xfree(buf);
         return;
     }
@@ -1152,7 +1152,7 @@ decode_pub_auth(cachemgr_request * req)
     debug("cmgr: decoded time: '%s' (now: %d)\n", time_str, (int) now);
 
     char *user_name;
-    if ((user_name = strtok(NULL, "|")) == NULL) {
+    if ((user_name = strtok(nullptr, "|")) == NULL) {
         xfree(buf);
         return;
     }
@@ -1161,7 +1161,7 @@ decode_pub_auth(cachemgr_request * req)
     debug("cmgr: decoded uname: '%s'\n", user_name);
 
     char *passwd;
-    if ((passwd = strtok(NULL, "|")) == NULL) {
+    if ((passwd = strtok(nullptr, "|")) == NULL) {
         xfree(buf);
         return;
     }
@@ -1237,7 +1237,7 @@ static int
 check_target_acl(const char *hostname, int port)
 {
     char config_line[BUFSIZ];
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     int ret = 0;
     fp = fopen("cachemgr.conf", "r");
 
@@ -1264,7 +1264,7 @@ check_target_acl(const char *hostname, int port)
     }
 
     while (fgets(config_line, BUFSIZ, fp)) {
-        char *token = NULL;
+        char *token = nullptr;
         strtok(config_line, " \r\n\t");
 
         if (config_line[0] == '#')
@@ -1288,7 +1288,7 @@ check_target_acl(const char *hostname, int port)
 
 #endif
 
-        if ((token = strtok(NULL, ":")) != NULL) {
+        if ((token = strtok(nullptr, ":")) != NULL) {
             int i;
 
             if (strcmp(token, "*") == 0)

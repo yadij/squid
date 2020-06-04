@@ -12,7 +12,7 @@
 #define STUB_API "EventLoop.cc"
 #include "tests/STUB.h"
 
-EventLoop *EventLoop::Running = NULL;
+EventLoop *EventLoop::Running = nullptr;
 
 EventLoop::EventLoop(): errcount(0), last_loop(false), timeService(NULL),
     primaryEngine(NULL), loop_delay(0), error(false), runOnceResult(false)

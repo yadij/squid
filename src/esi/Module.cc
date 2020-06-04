@@ -39,12 +39,12 @@ void Esi::Clean()
 {
 #if HAVE_LIBEXPAT
     delete prExpat;
-    prExpat = NULL;
+    prExpat = nullptr;
 #endif
 
 #if HAVE_LIBXML2
     delete prLibxml;
-    prLibxml = NULL;
+    prLibxml = nullptr;
 #endif
 }
 

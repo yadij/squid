@@ -13,7 +13,7 @@
 #include "globals.h"
 #include "helper.h"
 
-Auth::Scheme::Pointer Auth::Digest::Scheme::_instance = NULL;
+Auth::Scheme::Pointer Auth::Digest::Scheme::_instance = nullptr;
 
 Auth::Scheme::Pointer
 Auth::Digest::Scheme::GetInstance()
@@ -39,7 +39,7 @@ Auth::Digest::Scheme::shutdownCleanup()
 
     authenticateDigestNonceShutdown();
 
-    _instance = NULL;
+    _instance = nullptr;
     debugs(29, DBG_CRITICAL, "Shutdown: Digest authentication.");
 }
 

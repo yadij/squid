@@ -42,14 +42,14 @@ Auth::Ntlm::UserRequest::~UserRequest()
 
     if (request) {
         HTTPMSGUNLOCK(request);
-        request = NULL;
+        request = nullptr;
     }
 }
 
 const char *
 Auth::Ntlm::UserRequest::connLastHeader()
 {
-    return NULL;
+    return nullptr;
 }
 
 int
@@ -383,7 +383,7 @@ Auth::Ntlm::UserRequest::HandleReply(void *data, const Helper::Reply &reply)
 
     if (lm_request->request) {
         HTTPMSGUNLOCK(lm_request->request);
-        lm_request->request = NULL;
+        lm_request->request = nullptr;
     }
     r->handler(r->data);
     delete r;

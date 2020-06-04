@@ -322,7 +322,7 @@ HttpStateData::reusableReply(HttpStateData::ReuseDecision &decision)
     const char *v;
 #if USE_HTTP_VIOLATIONS
 
-    const RefreshPattern *R = NULL;
+    const RefreshPattern *R = nullptr;
 
     /* This strange looking define first looks up the refresh pattern
      * and then checks if the specified flag is set. The main purpose
@@ -749,7 +749,7 @@ HttpStateData::processReplyHeader()
     }
 
     // done with Parser, now process using the HttpReply
-    hp = NULL;
+    hp = nullptr;
 
     newrep->sources |= request->url.getScheme() == AnyP::PROTO_HTTPS ? Http::Message::srcHttps : Http::Message::srcHttp;
 
@@ -1176,7 +1176,7 @@ HttpStateData::readReply(const CommIoCbParams &io)
     if (rd.size <= 0) {
         assert(entry->mem_obj);
         AsyncCall::Pointer nilCall;
-        entry->mem_obj->delayRead(DeferredRead(readDelayed, this, CommRead(io.conn, NULL, 0, nilCall)));
+        entry->mem_obj->delayRead(DeferredRead(readDelayed, this, CommRead(io.conn, nullptr, 0, nilCall)));
         return;
     }
 
@@ -1375,7 +1375,7 @@ HttpStateData::writeReplyBody()
 bool
 HttpStateData::decodeAndWriteReplyBody()
 {
-    const char *data = NULL;
+    const char *data = nullptr;
     int len;
     bool wasThereAnException = false;
     assert(flags.chunked);
@@ -1468,7 +1468,7 @@ HttpStateData::processReplyBody()
             flags.do_next_read = false;
 
             comm_remove_close_handler(serverConnection->fd, closeHandler);
-            closeHandler = NULL;
+            closeHandler = nullptr;
 
             Ip::Address client_addr; // XXX: Remove as unused. Why was it added?
             if (request->flags.spoofClientIp)
@@ -1651,7 +1651,7 @@ HttpStateData::closeServer()
     if (Comm::IsConnOpen(serverConnection)) {
         fwd->unregister(serverConnection);
         comm_remove_close_handler(serverConnection->fd, closeHandler);
-        closeHandler = NULL;
+        closeHandler = nullptr;
         serverConnection->close();
     }
 }
@@ -1788,7 +1788,7 @@ HttpStateData::httpBuildRequestHeader(HttpRequest * request,
     LOCAL_ARRAY(char, bbuf, BBUF_SZ);
     LOCAL_ARRAY(char, ntoabuf, MAX_IPSTRLEN);
     const HttpHeader *hdr_in = &request->header;
-    const HttpHeaderEntry *e = NULL;
+    const HttpHeaderEntry *e = nullptr;
     HttpHeaderPos pos = HttpHeaderInitPos;
     assert (hdr_out->owner == hoRequest);
 
@@ -2376,7 +2376,7 @@ HttpStateData::finishingBrokenPost()
     typedef CommCbMemFunT<HttpStateData, CommIoCbParams> Dialer;
     requestSender = JobCallback(11,5,
                                 Dialer, this, HttpStateData::wroteLast);
-    Comm::Write(serverConnection, "\r\n", 2, requestSender, NULL);
+    Comm::Write(serverConnection, "\r\n", 2, requestSender, nullptr);
     return true;
 #else
     return false;
@@ -2397,7 +2397,7 @@ HttpStateData::finishingChunkedRequest()
 
     typedef CommCbMemFunT<HttpStateData, CommIoCbParams> Dialer;
     requestSender = JobCallback(11,5, Dialer, this, HttpStateData::wroteLast);
-    Comm::Write(serverConnection, "0\r\n\r\n", 5, requestSender, NULL);
+    Comm::Write(serverConnection, "0\r\n\r\n", 5, requestSender, nullptr);
     return true;
 }
 

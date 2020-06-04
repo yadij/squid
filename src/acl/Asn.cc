@@ -134,8 +134,8 @@ asnMatchIp(CbDataList<int> *data, Ip::Address &addr)
     struct squid_radix_node *rn;
     as_info *e;
     m_ADDR m_addr;
-    CbDataList<int> *a = NULL;
-    CbDataList<int> *b = NULL;
+    CbDataList<int> *a = nullptr;
+    CbDataList<int> *b = nullptr;
 
     debugs(53, 3, "asnMatchIp: Called for " << addr );
 
@@ -378,9 +378,9 @@ static int
 asnAddNet(char *as_string, int as_number)
 {
     struct squid_radix_node *rn;
-    CbDataList<int> **Tail = NULL;
-    CbDataList<int> *q = NULL;
-    as_info *asinfo = NULL;
+    CbDataList<int> **Tail = nullptr;
+    CbDataList<int> *q = nullptr;
+    as_info *asinfo = nullptr;
 
     Ip::Address mask;
     Ip::Address addr;
@@ -479,7 +479,7 @@ destroyRadixNode(struct squid_radix_node *rn, void *w)
 static void
 destroyRadixNodeInfo(as_info * e_info)
 {
-    CbDataList<int> *prev = NULL;
+    CbDataList<int> *prev = nullptr;
     CbDataList<int> *data = e_info->as_number;
 
     while (data) {
@@ -559,8 +559,8 @@ ACLASN::parse()
 {
     CbDataList<int> **curlist = &data;
     CbDataList<int> **Tail;
-    CbDataList<int> *q = NULL;
-    char *t = NULL;
+    CbDataList<int> *q = nullptr;
+    char *t = nullptr;
 
     for (Tail = curlist; *Tail; Tail = &((*Tail)->next));
     while ((t = ConfigParser::strtokFile())) {

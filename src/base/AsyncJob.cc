@@ -152,7 +152,7 @@ void AsyncJob::callEnd()
 
     debugs(inCall->debugSection, inCall->debugLevel,
            typeName << " status out:" << status());
-    inCall = NULL;
+    inCall = nullptr;
 }
 
 // returns a temporary string depicting transaction status, for debugging

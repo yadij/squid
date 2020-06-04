@@ -359,7 +359,7 @@ Store::Disk::optionObjectSizeParse(char const *option, const char *value, int is
         return false;
     }
 
-    int64_t size = strtoll(value, NULL, 10);
+    int64_t size = strtoll(value, nullptr, 10);
 
     if (isaReconfig && *val != size) {
         if (allowOptionReconfigure(option)) {
@@ -392,6 +392,6 @@ Store::Disk::optionObjectSizeDump(StoreEntry * e) const
 StoreEntry *
 Store::Disk::get(const cache_key *)
 {
-    return NULL;
+    return nullptr;
 }
 

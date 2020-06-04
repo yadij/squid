@@ -61,7 +61,7 @@ bool
 xstrtoul(const char *s, char **end, unsigned long *value,
          unsigned long min, unsigned long max)
 {
-    char *my_end = NULL;
+    char *my_end = nullptr;
 
     errno = 0;
     unsigned long v = strtoul(s, &my_end, 0);

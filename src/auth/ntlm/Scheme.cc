@@ -12,7 +12,7 @@
 #include "Debug.h"
 #include "helper.h"
 
-Auth::Scheme::Pointer Auth::Ntlm::Scheme::_instance = NULL;
+Auth::Scheme::Pointer Auth::Ntlm::Scheme::_instance = nullptr;
 
 Auth::Scheme::Pointer
 Auth::Ntlm::Scheme::GetInstance()
@@ -36,7 +36,7 @@ Auth::Ntlm::Scheme::shutdownCleanup()
     if (_instance == NULL)
         return;
 
-    _instance = NULL;
+    _instance = nullptr;
     debugs(29, DBG_CRITICAL, "Shutdown: NTLM authentication.");
 }
 

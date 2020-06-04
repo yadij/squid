@@ -184,7 +184,7 @@ comm_check_incoming_poll_handlers(int nfds, int *fds)
 {
     int i;
     int fd;
-    PF *hdl = NULL;
+    PF *hdl = nullptr;
     int npfds;
 
     struct pollfd pfds[3 + MAXTCPLISTENPORTS];
@@ -231,7 +231,7 @@ comm_check_incoming_poll_handlers(int nfds, int *fds)
 
         if (revents & (POLLRDNORM | POLLIN | POLLHUP | POLLERR)) {
             if ((hdl = fd_table[fd].read_handler)) {
-                fd_table[fd].read_handler = NULL;
+                fd_table[fd].read_handler = nullptr;
                 hdl(fd, fd_table[fd].read_data);
             } else if (pfds[i].events & POLLRDNORM)
                 debugs(5, DBG_IMPORTANT, "comm_poll_incoming: FD " << fd << " NULL read handler");
@@ -239,7 +239,7 @@ comm_check_incoming_poll_handlers(int nfds, int *fds)
 
         if (revents & (POLLWRNORM | POLLOUT | POLLHUP | POLLERR)) {
             if ((hdl = fd_table[fd].write_handler)) {
-                fd_table[fd].write_handler = NULL;
+                fd_table[fd].write_handler = nullptr;
                 hdl(fd, fd_table[fd].write_data);
             } else if (pfds[i].events & POLLWRNORM)
                 debugs(5, DBG_IMPORTANT, "comm_poll_incoming: FD " << fd << " NULL write_handler");
@@ -328,7 +328,7 @@ Comm::DoSelect(int msec)
 {
     struct pollfd pfds[SQUID_MAXFD];
 
-    PF *hdl = NULL;
+    PF *hdl = nullptr;
     int fd;
     int maxfd;
     unsigned long nfds;
@@ -475,7 +475,7 @@ Comm::DoSelect(int msec)
 
                 if ((hdl = F->read_handler)) {
                     PROF_start(comm_read_handler);
-                    F->read_handler = NULL;
+                    F->read_handler = nullptr;
                     hdl(fd, F->read_data);
                     PROF_stop(comm_read_handler);
                     ++ statCounter.select_fds;
@@ -496,7 +496,7 @@ Comm::DoSelect(int msec)
 
                 if ((hdl = F->write_handler)) {
                     PROF_start(comm_write_handler);
-                    F->write_handler = NULL;
+                    F->write_handler = nullptr;
                     hdl(fd, F->write_data);
                     PROF_stop(comm_write_handler);
                     ++ statCounter.select_fds;
@@ -530,10 +530,10 @@ Comm::DoSelect(int msec)
                     ScheduleCallHere(F->timeoutHandler);
                 }
 
-                F->closeHandler = NULL;
-                F->timeoutHandler = NULL;
-                F->read_handler = NULL;
-                F->write_handler = NULL;
+                F->closeHandler = nullptr;
+                F->timeoutHandler = nullptr;
+                F->read_handler = nullptr;
+                F->write_handler = nullptr;
 
                 if (F->flags.open)
                     fd_close(fd);

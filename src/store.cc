@@ -99,7 +99,7 @@ struct _storerepl_entry {
     REMOVALPOLICYCREATE *create;
 };
 
-static storerepl_entry_t *storerepl_list = NULL;
+static storerepl_entry_t *storerepl_list = nullptr;
 
 /*
  * local function prototypes
@@ -112,7 +112,7 @@ static EVH storeLateRelease;
  * local variables
  */
 static std::stack<StoreEntry*> LateReleaseStack;
-MemAllocator *StoreEntry::pool = NULL;
+MemAllocator *StoreEntry::pool = nullptr;
 
 void
 Store::Stats(StoreEntry * output)
@@ -369,7 +369,7 @@ StoreEntry::kickProducer()
 {
     if (deferredProducer != NULL) {
         ScheduleCallHere(deferredProducer);
-        deferredProducer = NULL;
+        deferredProducer = nullptr;
     }
 }
 #endif
@@ -387,7 +387,7 @@ StoreEntry::destroyMemObject()
 
     if (auto memObj = mem_obj) {
         setMemStatus(NOT_IN_MEMORY);
-        mem_obj = NULL;
+        mem_obj = nullptr;
         delete memObj;
     }
 }
@@ -429,7 +429,7 @@ StoreEntry::hashDelete()
     if (key) { // some test cases do not create keys and do not hashInsert()
         hash_remove_link(store_table, this);
         storeKeyFree((const cache_key *)key);
-        key = NULL;
+        key = nullptr;
     }
 }
 
@@ -764,7 +764,7 @@ StoreEntry::adjustVary()
 StoreEntry *
 storeCreatePureEntry(const char *url, const char *log_url, const HttpRequestMethod& method)
 {
-    StoreEntry *e = NULL;
+    StoreEntry *e = nullptr;
     debugs(20, 3, "storeCreateEntry: '" << url << "'");
 
     e = new StoreEntry();
@@ -1174,7 +1174,7 @@ Store::Maintain(void *)
     Store::Root().maintain();
 
     /* Reregister a maintain event .. */
-    eventAdd("MaintainSwapSpace", Maintain, NULL, 1.0, 1);
+    eventAdd("MaintainSwapSpace", Maintain, nullptr, 1.0, 1);
 
 }
 
@@ -1220,7 +1220,7 @@ storeLateRelease(void *)
     static int n = 0;
 
     if (Store::Controller::store_dirs_rebuilding) {
-        eventAdd("storeLateRelease", storeLateRelease, NULL, 1.0, 1);
+        eventAdd("storeLateRelease", storeLateRelease, nullptr, 1.0, 1);
         return;
     }
 
@@ -1238,7 +1238,7 @@ storeLateRelease(void *)
         ++n;
     }
 
-    eventAdd("storeLateRelease", storeLateRelease, NULL, 0.0, 1);
+    eventAdd("storeLateRelease", storeLateRelease, nullptr, 0.0, 1);
 }
 
 /// whether the base response has all the body bytes we expect
@@ -1303,7 +1303,7 @@ storeInit(void)
     mem_policy = createRemovalPolicy(Config.memPolicy);
     storeDigestInit();
     storeLogOpen();
-    eventAdd("storeLateRelease", storeLateRelease, NULL, 1.0, 1);
+    eventAdd("storeLateRelease", storeLateRelease, nullptr, 1.0, 1);
     Store::Root().init();
     storeRebuildStart();
 
@@ -1382,7 +1382,7 @@ storeFreeMemory(void)
 #if USE_CACHE_DIGESTS
     delete store_digest;
 #endif
-    store_digest = NULL;
+    store_digest = nullptr;
 }
 
 int
@@ -1536,7 +1536,7 @@ StoreEntry::unregisterAbort()
 {
     assert(mem_obj);
     if (mem_obj->abort.callback) {
-        mem_obj->abort.callback = NULL;
+        mem_obj->abort.callback = nullptr;
         cbdataReferenceDone(mem_obj->abort.data);
     }
 }
@@ -1727,7 +1727,7 @@ createRemovalPolicy(RemovalPolicySettings * settings)
     debugs(20, DBG_IMPORTANT, "ERROR: Be sure to have set cache_replacement_policy");
     debugs(20, DBG_IMPORTANT, "ERROR:   and memory_replacement_policy in squid.conf!");
     fatalf("ERROR: Unknown policy %s\n", settings->type);
-    return NULL;                /* NOTREACHED */
+    return nullptr;                /* NOTREACHED */
 }
 
 #if 0
@@ -1948,7 +1948,7 @@ StoreEntry::hasOneOfEtags(const String &reqETags, const bool allowWeakMatch) con
     }
 
     bool matched = false;
-    const char *pos = NULL;
+    const char *pos = nullptr;
     const char *item;
     int ilen;
     while (!matched && strListGetItem(&reqETags, ',', &item, &ilen, &pos)) {

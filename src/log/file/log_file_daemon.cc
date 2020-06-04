@@ -108,7 +108,7 @@ main(int argc, char *argv[])
         perror("fopen");
         exit(EXIT_FAILURE);
     }
-    setbuf(stdout, NULL);
+    setbuf(stdout, nullptr);
     /* XXX stderr should not be closed, but in order to support squid must be
      * able to collect and manage modules' stderr first.
      */
@@ -180,7 +180,7 @@ main(int argc, char *argv[])
         }
     }
     fclose(fp);
-    fp = NULL;
+    fp = nullptr;
     return EXIT_SUCCESS;
 }
 

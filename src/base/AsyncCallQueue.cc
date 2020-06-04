@@ -52,9 +52,9 @@ AsyncCallQueue::fireNext()
 {
     AsyncCall::Pointer call = theHead;
     theHead = call->theNext;
-    call->theNext = NULL;
+    call->theNext = nullptr;
     if (theTail == call)
-        theTail = NULL;
+        theTail = nullptr;
 
     debugs(call->debugSection, call->debugLevel, "entering " << *call);
     call->make();

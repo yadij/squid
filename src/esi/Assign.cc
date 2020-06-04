@@ -62,7 +62,7 @@ ESIAssign::evaluateVariable()
     if (variable.getRaw())
         variable->process (false);
 
-    variable = NULL;
+    variable = nullptr;
 
     if (unevaluatedVariable.size()) {
         varState->feedData(unevaluatedVariable.rawBuf(), unevaluatedVariable.size());
@@ -101,7 +101,7 @@ ESIAssign::process (int dovars)
 
     varState->addVariable (name.rawBuf(), name.size(), value);
 
-    value = NULL;
+    value = nullptr;
 
     debugs(86, 5, "ESIAssign: Processed " << this);
 
@@ -143,7 +143,7 @@ ESIAssign::finish()
         cbdataReferenceDone (varState);
 
     if (parent.getRaw())
-        parent = NULL;
+        parent = nullptr;
 }
 
 bool

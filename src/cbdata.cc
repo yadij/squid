@@ -144,7 +144,7 @@ static OBJH cbdataDumpHistory;
 struct CBDataIndex {
     MemAllocator *pool;
 }
-*cbdata_index = NULL;
+*cbdata_index = nullptr;
 
 int cbdata_types = 0;
 
@@ -319,11 +319,11 @@ cbdataInternalFree(void *p, const char *file, int line)
 
     if (c->locks) {
         debugs(45, 9, p << " has " << c->locks << " locks, not freeing");
-        return NULL;
+        return nullptr;
     }
 
     cbdataRealFree(c, file, line);
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -404,7 +404,7 @@ cbdataInternalUnlock(const void *p)
 #if USE_CBDATA_DEBUG
     cbdataRealFree(c, file, line);
 #else
-    cbdataRealFree(c, NULL, 0);
+    cbdataRealFree(c, nullptr, 0);
 #endif
 }
 
@@ -440,7 +440,7 @@ cbdataInternalReferenceDoneValid(void **pp, void **tp)
 {
     void *p = (void *) *pp;
     int valid = cbdataReferenceValid(p);
-    *pp = NULL;
+    *pp = nullptr;
 #if USE_CBDATA_DEBUG
 
     cbdataInternalUnlockDbg(p, file, line);
@@ -453,7 +453,7 @@ cbdataInternalReferenceDoneValid(void **pp, void **tp)
         *tp = p;
         return 1;
     } else {
-        *tp = NULL;
+        *tp = nullptr;
         return 0;
     }
 }

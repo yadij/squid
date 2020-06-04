@@ -61,7 +61,7 @@ Mgr::Inquirer::removeCloseHandler()
 {
     if (closer != NULL) {
         comm_remove_close_handler(conn->fd, closer);
-        closer = NULL;
+        closer = nullptr;
     }
 }
 
@@ -83,7 +83,7 @@ Mgr::Inquirer::start()
         replyBuf.reset(reply->pack());
     } else {
         std::unique_ptr<HttpReply> reply(new HttpReply);
-        reply->setHeaders(Http::scOkay, NULL, "text/plain", -1, squid_curtime, squid_curtime);
+        reply->setHeaders(Http::scOkay, nullptr, "text/plain", -1, squid_curtime, squid_curtime);
         reply->header.putStr(Http::HdrType::CONNECTION, "close"); // until we chunk response
         replyBuf.reset(reply->pack());
     }
@@ -97,7 +97,7 @@ void
 Mgr::Inquirer::noteWroteHeader(const CommIoCbParams& params)
 {
     debugs(16, 5, HERE);
-    writer = NULL;
+    writer = nullptr;
     Must(params.flag == Comm::OK);
     Must(params.conn.getRaw() == conn.getRaw());
     Must(params.size != 0);
@@ -111,7 +111,7 @@ Mgr::Inquirer::noteCommClosed(const CommCloseCbParams& params)
 {
     debugs(16, 5, HERE);
     Must(!Comm::IsConnOpen(conn) && params.conn.getRaw() == conn.getRaw());
-    conn = NULL;
+    conn = nullptr;
     mustStop("commClosed");
 }
 
@@ -130,7 +130,7 @@ Mgr::Inquirer::sendResponse()
     if (!strands.empty() && aggrAction->aggregatable()) {
         removeCloseHandler();
         AsyncJob::Start(new ActionWriter(aggrAction, conn));
-        conn = NULL; // should not close because we passed it to ActionWriter
+        conn = nullptr; // should not close because we passed it to ActionWriter
     }
 }
 

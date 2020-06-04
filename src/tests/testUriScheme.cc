@@ -27,7 +27,7 @@ testHttpRequestMethod::testConstructCharStart()
     /* parse an empty string -> METHOD_NONE */
     CPPUNIT_ASSERT(METHOD_NONE == HttpRequestMethod(NULL));
     /* parsing a literal should work */
-    CPPUNIT_ASSERT(METHOD_GET == HttpRequestMethod("GET", NULL));
+    CPPUNIT_ASSERT(METHOD_GET == HttpRequestMethod("GET", nullptr));
 }
 
 /*
@@ -38,9 +38,9 @@ testHttpRequestMethod::testConstructCharStartEnd()
 {
     char const * buffer;
     /* parse an empty string -> METHOD_NONE */
-    CPPUNIT_ASSERT(METHOD_NONE == HttpRequestMethod(NULL, NULL));
+    CPPUNIT_ASSERT(METHOD_NONE == HttpRequestMethod(nullptr, nullptr));
     /* parsing a literal should work */
-    CPPUNIT_ASSERT(METHOD_GET == HttpRequestMethod("GET", NULL));
+    CPPUNIT_ASSERT(METHOD_GET == HttpRequestMethod("GET", nullptr));
     /* parsing with an explicit end should work */
     buffer = "POSTPLUS";
     CPPUNIT_ASSERT(METHOD_POST == HttpRequestMethod(buffer, buffer + 4));

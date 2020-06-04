@@ -173,7 +173,7 @@ Ipc::Mem::Segment::attach()
     assert(theSize == static_cast<off_t>(static_cast<size_t>(theSize)));
 
     void *const p =
-        mmap(NULL, theSize, PROT_READ | PROT_WRITE, MAP_SHARED, theFD, 0);
+        mmap(nullptr, theSize, PROT_READ | PROT_WRITE, MAP_SHARED, theFD, 0);
     if (p == MAP_FAILED) {
         int xerrno = errno;
         debugs(54, 5, "mmap " << theName << ": " << xstrerr(xerrno));
@@ -311,7 +311,7 @@ Ipc::Mem::Segment::~Segment()
 {
     if (doUnlink) {
         delete [] static_cast<char *>(theMem);
-        theMem = NULL;
+        theMem = nullptr;
         Segments.erase(theName);
         debugs(54, 3, HERE << "unlinked " << theName << " fake segment");
     }

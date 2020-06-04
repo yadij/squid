@@ -22,7 +22,7 @@
 /* The list of event processes */
 
 static OBJH eventDump;
-static const char *last_event_ran = NULL;
+static const char *last_event_ran = nullptr;
 
 // This AsyncCall dialer can be configured to check that the event cbdata is
 // valid before calling the event handler
@@ -267,7 +267,7 @@ EventScheduler::clean()
         delete event;
     }
 
-    tasks = NULL;
+    tasks = nullptr;
 }
 
 void

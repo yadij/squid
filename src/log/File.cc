@@ -75,7 +75,7 @@ logfileOpen(const char *path, size_t bufsz, int fatal_flag)
             debugs(50, DBG_IMPORTANT, "logfileOpen: " << path << ": couldn't open!");
         lf->f_close(lf);
         delete lf;
-        return NULL;
+        return nullptr;
     }
     assert(lf->data != NULL);
 

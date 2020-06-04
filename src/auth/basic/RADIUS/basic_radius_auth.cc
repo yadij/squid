@@ -143,7 +143,7 @@ static int
 time_since(const struct timeval *when)
 {
     struct timeval now;
-    gettimeofday(&now, NULL);
+    gettimeofday(&now, nullptr);
     return timeval_diff(when, &now);
 }
 
@@ -263,7 +263,7 @@ urldecode(char *dst, const char *src, int size)
             ++src;
             tmp[1] = *src;
             ++src;
-            *dst = strtol(tmp, NULL, 16);
+            *dst = strtol(tmp, nullptr, 16);
             ++dst;
         } else {
             *dst = *src;
@@ -416,7 +416,7 @@ authenticate(int socket_fd, const char *username, const char *passwd)
         /*
          *    Send the request we've built.
          */
-        gettimeofday(&sent, NULL);
+        gettimeofday(&sent, nullptr);
         if (send(socket_fd, (char *) auth, total_length, 0) < 0) {
             int xerrno = errno;
             // EAGAIN is expected at high traffic, just retry
@@ -437,7 +437,7 @@ authenticate(int socket_fd, const char *username, const char *passwd)
             }
             FD_ZERO(&readfds);
             FD_SET(socket_fd, &readfds);
-            if (select(socket_fd + 1, &readfds, NULL, NULL, &tv) == 0)  /* Select timeout */
+            if (select(socket_fd + 1, &readfds, nullptr, nullptr, &tv) == 0)  /* Select timeout */
                 break;
             salen = sizeof(saremote);
             len = recvfrom(socket_fd, recv_buffer, sizeof(i_recv_buffer),
@@ -474,7 +474,7 @@ main(int argc, char **argv)
     char passwd[MAXPASS];
     char *ptr;
     char buf[HELPER_INPUT_BUFFER];
-    const char *cfname = NULL;
+    const char *cfname = nullptr;
     int err = 0;
     socklen_t salen;
     int c;
@@ -509,7 +509,7 @@ main(int argc, char **argv)
         }
     }
     /* make standard output line buffered */
-    if (setvbuf(stdout, NULL, _IOLBF, 0) != 0)
+    if (setvbuf(stdout, nullptr, _IOLBF, 0) != 0)
         exit(EXIT_FAILURE);
 
     if (cfname) {

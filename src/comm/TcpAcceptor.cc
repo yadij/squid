@@ -68,7 +68,7 @@ void
 Comm::TcpAcceptor::unsubscribe(const char *reason)
 {
     debugs(5, 5, HERE << status() << " AsyncCall Subscription " << theCallSub << " removed: " << reason);
-    theCallSub = NULL;
+    theCallSub = nullptr;
 }
 
 void
@@ -117,7 +117,7 @@ Comm::TcpAcceptor::swanSong()
         conn->close();
     }
 
-    conn = NULL;
+    conn = nullptr;
     AcceptLimiter::Instance().removeDead(this);
     AsyncJob::swanSong();
 }
@@ -205,8 +205,8 @@ Comm::TcpAcceptor::setListen()
 void
 Comm::TcpAcceptor::handleClosure(const CommCloseCbParams &)
 {
-    closer_ = NULL;
-    conn = NULL;
+    closer_ = nullptr;
+    conn = nullptr;
     Must(done());
 }
 
@@ -358,7 +358,7 @@ Comm::TcpAcceptor::oldAccept(Comm::ConnectionPointer &details)
     PROF_start(comm_accept);
     ++statCounter.syscalls.sock.accepts;
     int sock;
-    struct addrinfo *gai = NULL;
+    struct addrinfo *gai = nullptr;
     Ip::Address::InitAddr(gai);
 
     errcode = 0; // reset local errno copy.

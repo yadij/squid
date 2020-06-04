@@ -178,7 +178,7 @@ main(int argc, char *argv[])
     TypeList types;
     enum State state;
     int rc = 0;
-    char *ptr = NULL;
+    char *ptr = nullptr;
     char buff[MAX_LINE];
     std::ifstream fp;
     std::stack<std::string> IFDEFS;
@@ -206,7 +206,7 @@ main(int argc, char *argv[])
         if (!type || type[0] == '#')
             continue;
         Type t(type);
-        while ((dep = strtok(NULL, WS)) != NULL) {
+        while ((dep = strtok(nullptr, WS)) != NULL) {
             t.depend.push_front(dep);
         }
         types.push_front(t);
@@ -267,7 +267,7 @@ main(int argc, char *argv[])
 
                     entries.emplace_back(name);
 
-                    while ((aliasname = strtok(NULL, WS)) != NULL)
+                    while ((aliasname = strtok(nullptr, WS)) != NULL)
                         entries.back().alias.push_front(aliasname);
 
                     state = s1;
@@ -519,7 +519,7 @@ gen_default(const EntryList &head, std::ostream &fout)
         }
     }
 
-    fout << "    cfg_filename = NULL;" << std::endl <<
+    fout << "    cfg_filename = nullptr;" << std::endl <<
          "}" << std::endl << std::endl;
     return rc;
 }
@@ -559,7 +559,7 @@ gen_default_if_none(const EntryList &head, std::ostream &fout)
             fout << "#endif" << std::endl;
     }
 
-    fout << "    cfg_filename = NULL;" << std::endl <<
+    fout << "    cfg_filename = nullptr;" << std::endl <<
          "}" << std::endl << std::endl;
 }
 
@@ -592,7 +592,7 @@ gen_default_postscriptum(const EntryList &head, std::ostream &fout)
             fout << "#endif" << std::endl;
     }
 
-    fout << "    cfg_filename = NULL;" << std::endl <<
+    fout << "    cfg_filename = nullptr;" << std::endl <<
          "}" << std::endl << std::endl;
 }
 
@@ -617,7 +617,7 @@ Entry::genParseAlias(const std::string &aName, std::ostream &fout) const
         fout << "parse_" << type << "(&" << loc << (array_flag ? "[0]" : "") << ");";
     }
     fout << std::endl;
-    fout << "        cfg_directive = NULL;" << std::endl;
+    fout << "        cfg_directive = nullptr;" << std::endl;
     if (ifdef.size()) {
         fout <<
              "#else" << std::endl <<
@@ -653,7 +653,7 @@ gen_parse(const EntryList &head, std::ostream &fout)
          "\tchar\t*token;\n"
          "\tif ((token = strtok(buff, w_space)) == NULL) \n"
          "\t\treturn 1;\t/* ignore empty lines */\n"
-         "\tConfigParser::SetCfgLine(strtok(NULL, \"\"));\n";
+         "\tConfigParser::SetCfgLine(strtok(nullptr, \"\"));\n";
 
     for (const auto &e : head)
         e.genParse(fout);

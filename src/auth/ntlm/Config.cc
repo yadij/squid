@@ -34,10 +34,10 @@
 /* NTLM Scheme */
 static AUTHSSTATS authenticateNTLMStats;
 
-statefulhelper *ntlmauthenticators = NULL;
+statefulhelper *ntlmauthenticators = nullptr;
 static int authntlm_initialised = 0;
 
-static hash_table *proxy_auth_cache = NULL;
+static hash_table *proxy_auth_cache = nullptr;
 
 void
 Auth::Ntlm::Config::rotateHelpers()
@@ -66,7 +66,7 @@ Auth::Ntlm::Config::done()
         return;
 
     delete ntlmauthenticators;
-    ntlmauthenticators = NULL;
+    ntlmauthenticators = nullptr;
 
     if (authenticateProgram)
         wordlistDestroy(&authenticateProgram);

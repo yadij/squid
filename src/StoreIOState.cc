@@ -37,8 +37,8 @@ StoreIOState::StoreIOState(StoreIOState::STFNCB *cbFile, StoreIOState::STIOCB *c
     callback(cbIo),
     callback_data(cbdataReference(data))
 {
-    read.callback = NULL;
-    read.callback_data = NULL;
+    read.callback = nullptr;
+    read.callback_data = nullptr;
     flags.closing = false;
 }
 

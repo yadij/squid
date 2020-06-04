@@ -149,11 +149,11 @@ main(int argc, char *argv[])
 {
     char *user, *suser, *p;
     char buf[HELPER_INPUT_BUFFER];
-    char **grents = NULL;
+    char **grents = nullptr;
     int check_pw = 0, ch, ngroups = 0, i, j = 0, strip_dm = 0, strip_rm = 0;
 
     /* make standard output line buffered */
-    setvbuf(stdout, NULL, _IOLBF, 0);
+    setvbuf(stdout, nullptr, _IOLBF, 0);
 
     /* get user options */
     while ((ch = getopt(argc, argv, "dsrpg:")) != -1) {
@@ -223,7 +223,7 @@ main(int argc, char *argv[])
                 if (suser) *suser = '\0';
             }
             /* check groups supplied by Squid */
-            while ((p = strtok(NULL, " ")) != NULL) {
+            while ((p = strtok(nullptr, " ")) != NULL) {
                 rfc1738_unescape(p);
                 if (check_pw == 1)
                     j += validate_user_pw(user, p);

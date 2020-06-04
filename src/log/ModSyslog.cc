@@ -79,7 +79,7 @@ syslog_ntoa(const char *s)
 #ifdef LOG_DEBUG
         {syslog_symbol(LOG_DEBUG)},
 #endif
-        {NULL, 0}
+        {nullptr, 0}
     };
     syslog_symbol_t *p;
 
@@ -128,7 +128,7 @@ static void
 logfile_mod_syslog_close(Logfile *lf)
 {
     xfree(lf->data);
-    lf->data = NULL;
+    lf->data = nullptr;
 }
 
 /*

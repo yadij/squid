@@ -15,7 +15,7 @@ void
 dlinkAdd(void *data, dlink_node * m, dlink_list * list)
 {
     m->data = data;
-    m->prev = NULL;
+    m->prev = nullptr;
     m->next = list->head;
 
     if (list->head)
@@ -48,7 +48,7 @@ void
 dlinkAddTail(void *data, dlink_node * m, dlink_list * list)
 {
     m->data = data;
-    m->next = NULL;
+    m->next = nullptr;
     m->prev = list->tail;
 
     if (list->tail)
@@ -75,6 +75,6 @@ dlinkDelete(dlink_node * m, dlink_list * list)
     if (m == list->tail)
         list->tail = m->prev;
 
-    m->next = m->prev = NULL;
+    m->next = m->prev = nullptr;
 }
 

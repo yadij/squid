@@ -455,7 +455,7 @@ struct wccp2_service_list_t {
     uint32_t wccp2_security_type;
 };
 
-static struct wccp2_service_list_t *wccp2_service_list_head = NULL;
+static struct wccp2_service_list_t *wccp2_service_list_head = nullptr;
 
 int empty_portlist[WCCP2_NUMPORTS] = {0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -541,7 +541,7 @@ wccp2_get_service_by_id(int service, int service_id) {
         p = p->next;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -848,7 +848,7 @@ wccp2Init(void)
 
                 /* update the pointer */
                 router_list_ptr = router_list_ptr->next;
-                router_list_ptr->next = NULL;
+                router_list_ptr->next = nullptr;
 
                 /* no need to copy memory - we've just set the values directly in the packet above */
 
@@ -935,8 +935,8 @@ wccp2Init(void)
         /* Add the event if everything initialised correctly */
         debugs(80,3,"wccp2Init: scheduled 'HERE_I_AM' message to " << wccp2_numrouters << "routers.");
         if (wccp2_numrouters) {
-            if (!eventFind(wccp2HereIam, NULL)) {
-                eventAdd("wccp2HereIam", wccp2HereIam, NULL, 1, 1);
+            if (!eventFind(wccp2HereIam, nullptr)) {
+                eventAdd("wccp2HereIam", wccp2HereIam, nullptr, 1, 1);
             } else
                 debugs(80,3,"wccp2Init: skip duplicate 'HERE_I_AM'.");
         }
@@ -987,7 +987,7 @@ wccp2ConnectionOpen(void)
     }
 
 #endif
-    Comm::SetSelect(theWccp2Connection, COMM_SELECT_READ, wccp2HandleUdp, NULL, 0);
+    Comm::SetSelect(theWccp2Connection, COMM_SELECT_READ, wccp2HandleUdp, nullptr, 0);
 
     debugs(80, DBG_IMPORTANT, "Accepting WCCPv2 messages on port " << WCCP_PORT << ", FD " << theWccp2Connection << ".");
     debugs(80, DBG_IMPORTANT, "Initialising all WCCPv2 lists");
@@ -1095,10 +1095,10 @@ wccp2ConnectionClose(void)
         service_list_ptr = service_list_ptr_next;
     }
 
-    wccp2_service_list_head = NULL;
-    eventDelete(wccp2HereIam, NULL);
-    eventDelete(wccp2AssignBuckets, NULL);
-    eventDelete(wccp2HereIam, NULL);
+    wccp2_service_list_head = nullptr;
+    eventDelete(wccp2HereIam, nullptr);
+    eventDelete(wccp2AssignBuckets, nullptr);
+    eventDelete(wccp2HereIam, nullptr);
     wccp2_connected = 0;
 }
 
@@ -1122,23 +1122,23 @@ wccp2HandleUdp(int sock, void *)
 
     /* These structs form the parts of the packet */
 
-    struct wccp2_item_header_t *header = NULL;
+    struct wccp2_item_header_t *header = nullptr;
 
-    struct wccp2_security_none_t *security_info = NULL;
+    struct wccp2_security_none_t *security_info = nullptr;
 
-    struct wccp2_service_info_t *service_info = NULL;
+    struct wccp2_service_info_t *service_info = nullptr;
 
-    struct router_identity_info_t *router_identity_info = NULL;
+    struct router_identity_info_t *router_identity_info = nullptr;
 
-    struct router_view_t *router_view_header = NULL;
+    struct router_view_t *router_view_header = nullptr;
 
-    struct wccp2_cache_mask_identity_info_t *cache_mask_identity = NULL;
+    struct wccp2_cache_mask_identity_info_t *cache_mask_identity = nullptr;
 
-    struct cache_mask_info_t *cache_mask_info = NULL;
+    struct cache_mask_info_t *cache_mask_info = nullptr;
 
-    struct wccp2_cache_identity_info_t *cache_identity = NULL;
+    struct wccp2_cache_identity_info_t *cache_identity = nullptr;
 
-    struct wccp2_capability_info_header_t *router_capability_header = NULL;
+    struct wccp2_capability_info_header_t *router_capability_header = nullptr;
 
     struct wccp2_capability_element_t *router_capability_element;
 
@@ -1153,7 +1153,7 @@ wccp2HandleUdp(int sock, void *)
 
     debugs(80, 6, "wccp2HandleUdp: Called.");
 
-    Comm::SetSelect(sock, COMM_SELECT_READ, wccp2HandleUdp, NULL, 0);
+    Comm::SetSelect(sock, COMM_SELECT_READ, wccp2HandleUdp, nullptr, 0);
 
     /* FIXME INET6 : drop conversion boundary */
     Ip::Address from_tmp;
@@ -1467,7 +1467,7 @@ wccp2HandleUdp(int sock, void *)
 
             cache_list_ptr = cache_list_ptr->next;
 
-            cache_list_ptr->next = NULL;
+            cache_list_ptr->next = nullptr;
 
             debugs (80, 5,  "checking cache list: (" << std::hex << cache_address.s_addr << ":" <<  router_list_ptr->local_ip.s_addr << ")");
 
@@ -1489,7 +1489,7 @@ wccp2HandleUdp(int sock, void *)
 
         cache_list_ptr->next = (wccp2_cache_list_t*) xcalloc(1, sizeof(struct wccp2_cache_list_t));
         cache_list_ptr = cache_list_ptr->next;
-        cache_list_ptr->next = NULL;
+        cache_list_ptr->next = nullptr;
 
         service_list_ptr->lowest_ip = 1;
         found = 1;
@@ -1504,13 +1504,13 @@ wccp2HandleUdp(int sock, void *)
         if (ntohl(router_view_header->change_number) != router_list_ptr->member_change) {
             debugs(80, 4, "Change detected - queueing up new assignment");
             router_list_ptr->member_change = ntohl(router_view_header->change_number);
-            eventDelete(wccp2AssignBuckets, NULL);
-            eventAdd("wccp2AssignBuckets", wccp2AssignBuckets, NULL, 15.0, 1);
+            eventDelete(wccp2AssignBuckets, nullptr);
+            eventAdd("wccp2AssignBuckets", wccp2AssignBuckets, nullptr, 15.0, 1);
         } else {
             debugs(80, 5, "Change not detected (" << ntohl(router_view_header->change_number) << " = " << router_list_ptr->member_change << ")");
         }
     } else {
-        eventDelete(wccp2AssignBuckets, NULL);
+        eventDelete(wccp2AssignBuckets, nullptr);
         debugs(80, 5, "I am not the lowest ip cache - not assigning buckets");
     }
 }
@@ -1537,7 +1537,7 @@ wccp2HereIam(void *)
 
     /* Wait if store dirs are rebuilding */
     if (StoreController::store_dirs_rebuilding && Config.Wccp2.rebuildwait) {
-        eventAdd("wccp2HereIam", wccp2HereIam, NULL, 1.0, 1);
+        eventAdd("wccp2HereIam", wccp2HereIam, nullptr, 1.0, 1);
         return;
     }
 
@@ -1597,7 +1597,7 @@ wccp2HereIam(void *)
         service_list_ptr = service_list_ptr->next;
     }
 
-    eventAdd("wccp2HereIam", wccp2HereIam, NULL, 10.0, 1);
+    eventAdd("wccp2HereIam", wccp2HereIam, nullptr, 10.0, 1);
 }
 
 static void
@@ -1621,12 +1621,12 @@ wccp2AssignBuckets(void *)
 
     struct wccp2_message_header_t *main_header;
 
-    struct wccp2_security_md5_t *security = NULL;
+    struct wccp2_security_md5_t *security = nullptr;
     /* service from service struct */
 
     struct wccp2_item_header_t *assignment_header;
 
-    struct wccp2_item_header_t *alt_assignment_type_header = NULL;
+    struct wccp2_item_header_t *alt_assignment_type_header = nullptr;
 
     struct assignment_key_t *assignment_key;
     /* number of routers */

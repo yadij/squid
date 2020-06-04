@@ -149,7 +149,7 @@ void Log::TcpLogger::writeIfPossible()
         typedef CommCbMemFunT<TcpLogger, CommIoCbParams> WriteDialer;
         AsyncCall::Pointer callback = JobCallback(MY_DEBUG_SECTION, 5, WriteDialer, this, Log::TcpLogger::writeDone);
         const MemBlob::Pointer &buffer = buffers.front();
-        Comm::Write(conn, buffer->mem, buffer->size, callback, NULL);
+        Comm::Write(conn, buffer->mem, buffer->size, callback, nullptr);
         writeScheduled = true;
     }
 }
@@ -366,8 +366,8 @@ void
 Log::TcpLogger::handleClosure(const CommCloseCbParams &)
 {
     assert(inCall != NULL);
-    closer = NULL;
-    conn = NULL;
+    closer = nullptr;
+    conn = nullptr;
     // in all current use cases, we should not try to reconnect
     mustStop("Log::TcpLogger::handleClosure");
 }
@@ -379,10 +379,10 @@ Log::TcpLogger::disconnect()
     if (conn != NULL) {
         if (closer != NULL) {
             comm_remove_close_handler(conn->fd, closer);
-            closer = NULL;
+            closer = nullptr;
         }
         conn->close();
-        conn = NULL;
+        conn = nullptr;
     }
 }
 
@@ -393,7 +393,7 @@ Log::TcpLogger::StillLogging(Logfile *lf)
 {
     if (Pointer *pptr = static_cast<Pointer*>(lf->data))
         return pptr->get(); // may be nil
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -438,7 +438,7 @@ Log::TcpLogger::Close(Logfile * lf)
         ScheduleCallHere(call);
     }
     delete static_cast<Pointer*>(lf->data);
-    lf->data = NULL;
+    lf->data = nullptr;
 }
 
 /*

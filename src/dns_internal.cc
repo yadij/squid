@@ -219,14 +219,14 @@ struct _sp {
 };
 
 static std::vector<ns> nameservers;
-static sp *searchpath = NULL;
+static sp *searchpath = nullptr;
 static int nns_mdns_count = 0;
 static int npc = 0;
 static int npc_alloc = 0;
 static int ndots = 1;
 static dlink_list lru_list;
 static int event_queued = 0;
-static hash_table *idns_lookup_hash = NULL;
+static hash_table *idns_lookup_hash = nullptr;
 
 /*
  * Notes on EDNS:
@@ -416,14 +416,14 @@ idnsParseResolvConf(void)
     }
 
     char buf[RESOLV_BUFSZ];
-    const char *t = NULL;
+    const char *t = nullptr;
     while (fgets(buf, RESOLV_BUFSZ, fp)) {
         t = strtok(buf, w_space);
 
         if (NULL == t) {
             continue;
         } else if (strcmp(t, "nameserver") == 0) {
-            t = strtok(NULL, w_space);
+            t = strtok(nullptr, w_space);
 
             if (NULL == t)
                 continue;
@@ -434,7 +434,7 @@ idnsParseResolvConf(void)
             result = true;
         } else if (strcmp(t, "domain") == 0) {
             idnsFreeSearchpath();
-            t = strtok(NULL, w_space);
+            t = strtok(nullptr, w_space);
 
             if (NULL == t)
                 continue;
@@ -445,7 +445,7 @@ idnsParseResolvConf(void)
         } else if (strcmp(t, "search") == 0) {
             idnsFreeSearchpath();
             while (NULL != t) {
-                t = strtok(NULL, w_space);
+                t = strtok(nullptr, w_space);
 
                 if (NULL == t)
                     continue;
@@ -456,7 +456,7 @@ idnsParseResolvConf(void)
             }
         } else if (strcmp(t, "options") == 0) {
             while (NULL != t) {
-                t = strtok(NULL, w_space);
+                t = strtok(nullptr, w_space);
 
                 if (NULL == t)
                     continue;
@@ -495,26 +495,26 @@ idnsParseWIN32SearchList(const char * Separator)
         DWORD Type = 0;
         DWORD Size = 0;
         LONG Result;
-        Result = RegQueryValueEx(hndKey, "Domain", NULL, &Type, NULL, &Size);
+        Result = RegQueryValueEx(hndKey, "Domain", nullptr, &Type, nullptr, &Size);
 
         if (Result == ERROR_SUCCESS && Size) {
             t = (char *) xmalloc(Size);
-            RegQueryValueEx(hndKey, "Domain", NULL, &Type, (LPBYTE) t, &Size);
+            RegQueryValueEx(hndKey, "Domain", nullptr, &Type, (LPBYTE) t, &Size);
             debugs(78, DBG_IMPORTANT, "Adding domain " << t << " from Registry");
             idnsAddPathComponent(t);
             xfree(t);
         }
-        Result = RegQueryValueEx(hndKey, "SearchList", NULL, &Type, NULL, &Size);
+        Result = RegQueryValueEx(hndKey, "SearchList", nullptr, &Type, nullptr, &Size);
 
         if (Result == ERROR_SUCCESS && Size) {
             t = (char *) xmalloc(Size);
-            RegQueryValueEx(hndKey, "SearchList", NULL, &Type, (LPBYTE) t, &Size);
+            RegQueryValueEx(hndKey, "SearchList", nullptr, &Type, (LPBYTE) t, &Size);
             token = strtok(t, Separator);
 
             while (token) {
                 idnsAddPathComponent(token);
                 debugs(78, DBG_IMPORTANT, "Adding domain " << token << " from Registry");
-                token = strtok(NULL, Separator);
+                token = strtok(nullptr, Separator);
             }
             xfree(t);
         }
@@ -545,34 +545,34 @@ idnsParseWIN32Registry(void)
             DWORD Type = 0;
             DWORD Size = 0;
             LONG Result;
-            Result = RegQueryValueEx(hndKey, "DhcpNameServer", NULL, &Type, NULL, &Size);
+            Result = RegQueryValueEx(hndKey, "DhcpNameServer", nullptr, &Type, nullptr, &Size);
 
             if (Result == ERROR_SUCCESS && Size) {
                 t = (char *) xmalloc(Size);
-                RegQueryValueEx(hndKey, "DhcpNameServer", NULL, &Type, (LPBYTE) t, &Size);
+                RegQueryValueEx(hndKey, "DhcpNameServer", nullptr, &Type, (LPBYTE) t, &Size);
                 token = strtok(t, ", ");
 
                 while (token) {
                     idnsAddNameserver(token);
                     result = true;
                     debugs(78, DBG_IMPORTANT, "Adding DHCP nameserver " << token << " from Registry");
-                    token = strtok(NULL, ",");
+                    token = strtok(nullptr, ",");
                 }
                 xfree(t);
             }
 
-            Result = RegQueryValueEx(hndKey, "NameServer", NULL, &Type, NULL, &Size);
+            Result = RegQueryValueEx(hndKey, "NameServer", nullptr, &Type, nullptr, &Size);
 
             if (Result == ERROR_SUCCESS && Size) {
                 t = (char *) xmalloc(Size);
-                RegQueryValueEx(hndKey, "NameServer", NULL, &Type, (LPBYTE) t, &Size);
+                RegQueryValueEx(hndKey, "NameServer", nullptr, &Type, (LPBYTE) t, &Size);
                 token = strtok(t, ", ");
 
                 while (token) {
                     debugs(78, DBG_IMPORTANT, "Adding nameserver " << token << " from Registry");
                     idnsAddNameserver(token);
                     result = true;
-                    token = strtok(NULL, ", ");
+                    token = strtok(nullptr, ", ");
                 }
                 xfree(t);
             }
@@ -602,12 +602,12 @@ idnsParseWIN32Registry(void)
             char *keyname;
             FILETIME ftLastWriteTime;
 
-            if (RegQueryInfoKey(hndKey, NULL, NULL, NULL, &InterfacesCount, &MaxSubkeyLen, NULL, NULL, NULL, NULL, NULL, NULL) == ERROR_SUCCESS) {
+            if (RegQueryInfoKey(hndKey, nullptr, nullptr, nullptr, &InterfacesCount, &MaxSubkeyLen, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr) == ERROR_SUCCESS) {
                 keyname = (char *) xmalloc(++MaxSubkeyLen);
                 for (i = 0; i < (int) InterfacesCount; ++i) {
                     DWORD j;
                     j = MaxSubkeyLen;
-                    if (RegEnumKeyEx(hndKey, i, keyname, &j, NULL, NULL, NULL, &ftLastWriteTime) == ERROR_SUCCESS) {
+                    if (RegEnumKeyEx(hndKey, i, keyname, &j, nullptr, nullptr, nullptr, &ftLastWriteTime) == ERROR_SUCCESS) {
                         char *newkeyname;
                         newkeyname = (char *) xmalloc(sizeof(REG_TCPIP_PARA_INTERFACES) + j + 2);
                         strcpy(newkeyname, REG_TCPIP_PARA_INTERFACES);
@@ -617,30 +617,30 @@ idnsParseWIN32Registry(void)
                             DWORD Type = 0;
                             DWORD Size = 0;
                             LONG Result;
-                            Result = RegQueryValueEx(hndKey2, "DhcpNameServer", NULL, &Type, NULL, &Size);
+                            Result = RegQueryValueEx(hndKey2, "DhcpNameServer", nullptr, &Type, nullptr, &Size);
                             if (Result == ERROR_SUCCESS && Size) {
                                 t = (char *) xmalloc(Size);
-                                RegQueryValueEx(hndKey2, "DhcpNameServer", NULL, &Type, (LPBYTE)t, &Size);
+                                RegQueryValueEx(hndKey2, "DhcpNameServer", nullptr, &Type, (LPBYTE)t, &Size);
                                 token = strtok(t, ", ");
                                 while (token) {
                                     debugs(78, DBG_IMPORTANT, "Adding DHCP nameserver " << token << " from Registry");
                                     idnsAddNameserver(token);
                                     result = true;
-                                    token = strtok(NULL, ", ");
+                                    token = strtok(nullptr, ", ");
                                 }
                                 xfree(t);
                             }
 
-                            Result = RegQueryValueEx(hndKey2, "NameServer", NULL, &Type, NULL, &Size);
+                            Result = RegQueryValueEx(hndKey2, "NameServer", nullptr, &Type, nullptr, &Size);
                             if (Result == ERROR_SUCCESS && Size) {
                                 t = (char *) xmalloc(Size);
-                                RegQueryValueEx(hndKey2, "NameServer", NULL, &Type, (LPBYTE)t, &Size);
+                                RegQueryValueEx(hndKey2, "NameServer", nullptr, &Type, (LPBYTE)t, &Size);
                                 token = strtok(t, ", ");
                                 while (token) {
                                     debugs(78, DBG_IMPORTANT, "Adding nameserver " << token << " from Registry");
                                     idnsAddNameserver(token);
                                     result = true;
-                                    token = strtok(NULL, ", ");
+                                    token = strtok(nullptr, ", ");
                                 }
 
                                 xfree(t);
@@ -674,18 +674,18 @@ idnsParseWIN32Registry(void)
             DWORD Type = 0;
             DWORD Size = 0;
             LONG Result;
-            Result = RegQueryValueEx(hndKey, "NameServer", NULL, &Type, NULL, &Size);
+            Result = RegQueryValueEx(hndKey, "NameServer", nullptr, &Type, nullptr, &Size);
 
             if (Result == ERROR_SUCCESS && Size) {
                 t = (char *) xmalloc(Size);
-                RegQueryValueEx(hndKey, "NameServer", NULL, &Type, (LPBYTE) t, &Size);
+                RegQueryValueEx(hndKey, "NameServer", nullptr, &Type, (LPBYTE) t, &Size);
                 token = strtok(t, ", ");
 
                 while (token) {
                     debugs(78, DBG_IMPORTANT, "Adding nameserver " << token << " from Registry");
                     idnsAddNameserver(token);
                     result = true;
-                    token = strtok(NULL, ", ");
+                    token = strtok(nullptr, ", ");
                 }
                 xfree(t);
             }
@@ -786,7 +786,7 @@ idnsTickleQueue(void)
 
     const double when = min(Config.Timeout.idns_query, Config.Timeout.idns_retransmit)/1000.0;
 
-    eventAdd("idnsCheckQueue", idnsCheckQueue, NULL, when, 1);
+    eventAdd("idnsCheckQueue", idnsCheckQueue, nullptr, when, 1);
 
     event_queued = 1;
 }
@@ -880,7 +880,7 @@ nsvc::~nsvc()
     delete queue;
     delete msg;
     if (ns < nameservers.size()) // XXX: idnsShutdownAndFreeState may have freed nameservers[]
-        nameservers[ns].vc = NULL;
+        nameservers[ns].vc = nullptr;
 }
 
 static void
@@ -1035,7 +1035,7 @@ idnsFindQuery(unsigned short id)
             return q;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 static unsigned short
@@ -1155,7 +1155,7 @@ idnsCallback(idns_query *q, const char *error)
 static void
 idnsGrokReply(const char *buf, size_t sz, int /*from_ns*/)
 {
-    rfc1035_message *message = NULL;
+    rfc1035_message *message = nullptr;
 
     int n = rfc1035MessageUnpack(buf, sz, &message);
 
@@ -1267,7 +1267,7 @@ idnsGrokReply(const char *buf, size_t sz, int /*from_ns*/)
             while (idns_query *slave = q->slave) {
                 dlinkDelete(&slave->lru, &lru_list);
                 q->slave = slave->slave;
-                slave->slave = NULL;
+                slave->slave = nullptr;
                 delete slave;
             }
 
@@ -1296,7 +1296,7 @@ idnsGrokReply(const char *buf, size_t sz, int /*from_ns*/)
     q->ancount = n;
 
     if (n >= 0)
-        idnsCallback(q, NULL);
+        idnsCallback(q, nullptr);
     else
         idnsCallback(q, rfc1035ErrorMessage(q->rcode));
 
@@ -1315,7 +1315,7 @@ idnsRead(int fd, void *)
 
     // Always keep reading. This stops (or at least makes harder) several
     // attacks on the DNS client.
-    Comm::SetSelect(fd, COMM_SELECT_READ, idnsRead, NULL, 0);
+    Comm::SetSelect(fd, COMM_SELECT_READ, idnsRead, nullptr, 0);
 
     /* BUG (UNRESOLVED)
      *  two code lines after returning from comm_udprecvfrom()
@@ -1391,7 +1391,7 @@ static void
 idnsCheckQueue(void *)
 {
     dlink_node *n;
-    dlink_node *p = NULL;
+    dlink_node *p = nullptr;
     idns_query *q;
     event_queued = 0;
 
@@ -1575,12 +1575,12 @@ Dns::Init(void)
         if (DnsSocketB >= 0) {
             comm_local_port(DnsSocketB);
             debugs(78, DBG_IMPORTANT, "DNS Socket created at " << addrV6 << ", FD " << DnsSocketB);
-            Comm::SetSelect(DnsSocketB, COMM_SELECT_READ, idnsRead, NULL, 0);
+            Comm::SetSelect(DnsSocketB, COMM_SELECT_READ, idnsRead, nullptr, 0);
         }
         if (DnsSocketA >= 0) {
             comm_local_port(DnsSocketA);
             debugs(78, DBG_IMPORTANT, "DNS Socket created at " << addrV4 << ", FD " << DnsSocketA);
-            Comm::SetSelect(DnsSocketA, COMM_SELECT_READ, idnsRead, NULL, 0);
+            Comm::SetSelect(DnsSocketA, COMM_SELECT_READ, idnsRead, nullptr, 0);
         }
     }
 
@@ -1843,7 +1843,7 @@ variable_list *
 snmp_netDnsFn(variable_list * Var, snint * ErrP)
 {
     int n = 0;
-    variable_list *Answer = NULL;
+    variable_list *Answer = nullptr;
     MemBuf tmp;
     debugs(49, 5, "snmp_netDnsFn: Processing request: " << snmpDebugOid(Var->name, Var->name_length, tmp));
     *ErrP = SNMP_ERR_NOERROR;

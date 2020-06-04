@@ -14,7 +14,7 @@
 #include "auth/SchemeConfig.h"
 #include "globals.h"
 
-std::vector<Auth::Scheme::Pointer> *Auth::Scheme::_Schemes = NULL;
+std::vector<Auth::Scheme::Pointer> *Auth::Scheme::_Schemes = nullptr;
 
 void
 Auth::Scheme::AddScheme(Auth::Scheme::Pointer instance)

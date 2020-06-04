@@ -35,8 +35,8 @@ Comm::CallbackTableDestruct()
 {
     // release any Comm::Connections being held.
     for (int pos = 0; pos < Squid_MaxFD; ++pos) {
-        iocb_table[pos].readcb.conn = NULL;
-        iocb_table[pos].writecb.conn = NULL;
+        iocb_table[pos].readcb.conn = nullptr;
+        iocb_table[pos].writecb.conn = nullptr;
     }
     safe_free(iocb_table);
 }
@@ -85,18 +85,18 @@ Comm::IoCallback::cancel(const char *reason)
         return;
 
     callback->cancel(reason);
-    callback = NULL;
+    callback = nullptr;
     reset();
 }
 
 void
 Comm::IoCallback::reset()
 {
-    conn = NULL;
+    conn = nullptr;
     if (freefunc) {
         freefunc(buf);
-        buf = NULL;
-        freefunc = NULL;
+        buf = nullptr;
+        freefunc = nullptr;
     }
     xerrno = 0;
 
@@ -115,8 +115,8 @@ Comm::IoCallback::finish(Comm::Flag code, int xerrn)
     /* free data */
     if (freefunc && buf) {
         freefunc(buf);
-        buf = NULL;
-        freefunc = NULL;
+        buf = nullptr;
+        freefunc = nullptr;
     }
 
     if (callback != NULL) {
@@ -129,7 +129,7 @@ Comm::IoCallback::finish(Comm::Flag code, int xerrn)
         params.flag = code;
         params.xerrno = xerrn;
         ScheduleCallHere(callback);
-        callback = NULL;
+        callback = nullptr;
     }
 
     /* Reset for next round. */

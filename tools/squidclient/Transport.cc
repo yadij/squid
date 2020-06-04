@@ -137,7 +137,7 @@ Transport::TheConfig::parseCommandOpts(int argc, char *argv[], int c, int &optIn
 static int
 client_comm_bind(int sock, const Ip::Address &addr)
 {
-    static struct addrinfo *AI = NULL;
+    static struct addrinfo *AI = nullptr;
     addr.getAddrInfo(AI);
     int res = bind(sock, AI->ai_addr, AI->ai_addrlen);
     Ip::Address::FreeAddr(AI);
@@ -147,7 +147,7 @@ client_comm_bind(int sock, const Ip::Address &addr)
 static void
 resolveDestination(Ip::Address &iaddr)
 {
-    struct addrinfo *AI = NULL;
+    struct addrinfo *AI = nullptr;
 
     debugVerbose(2, "Transport detected: IPv4" <<
                  ((Ip::EnableIpv6 & IPV6_SPECIAL_V4MAPPING) ? "-mapped " : "") <<
@@ -202,7 +202,7 @@ resolveDestination(Ip::Address &iaddr)
 static int
 client_comm_connect(int sock, const Ip::Address &addr)
 {
-    static struct addrinfo *AI = NULL;
+    static struct addrinfo *AI = nullptr;
     addr.getAddrInfo(AI);
     int res = connect(sock, AI->ai_addr, AI->ai_addrlen);
     Ip::Address::FreeAddr(AI);
@@ -431,7 +431,7 @@ doTlsHandshake(const char *type)
 static bool
 loadTlsParameters()
 {
-    const char *err = NULL;
+    const char *err = nullptr;
     int x;
     if ((x = gnutls_priority_set_direct(Transport::Config.session, Transport::Config.params, &err)) != GNUTLS_E_SUCCESS) {
         if (x == GNUTLS_E_INVALID_REQUEST)

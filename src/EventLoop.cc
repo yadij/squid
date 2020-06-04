@@ -16,7 +16,7 @@
 #include "fatal.h"
 #include "SquidTime.h"
 
-EventLoop *EventLoop::Running = NULL;
+EventLoop *EventLoop::Running = nullptr;
 
 EventLoop::EventLoop() : errcount(0), last_loop(false), timeService(NULL),
     primaryEngine(NULL),
@@ -82,7 +82,7 @@ EventLoop::run()
 
     while (!runOnce());
 
-    Running = NULL;
+    Running = nullptr;
 }
 
 bool

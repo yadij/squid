@@ -97,8 +97,8 @@ static url_entry *
 urnFindMinRtt(url_entry * urls, const HttpRequestMethod &, int *rtt_ret)
 {
     int min_rtt = 0;
-    url_entry *u = NULL;
-    url_entry *min_u = NULL;
+    url_entry *u = nullptr;
+    url_entry *min_u = nullptr;
     int i;
     int urlcnt = 0;
     debugs(52, 3, "urnFindMinRtt");
@@ -242,7 +242,7 @@ urnHandleReply(void *data, StoreIOBuffer result)
     UrnState *urnState = static_cast<UrnState *>(data);
     StoreEntry *e = urnState->entry;
     StoreEntry *urlres_e = urnState->urlres_e;
-    char *s = NULL;
+    char *s = nullptr;
     size_t k;
     HttpReply *rep;
     url_entry *urls;
@@ -329,7 +329,7 @@ urnHandleReply(void *data, StoreIOBuffer result)
 
     debugs(53, 3, "urnFindMinRtt: Counted " << i << " URLs");
 
-    min_u = urnFindMinRtt(urls, urnState->request->method, NULL);
+    min_u = urnFindMinRtt(urls, urnState->request->method, nullptr);
     qsort(urls, urlcnt, sizeof(*urls), url_entry_sort);
     e->buffer();
     SBuf body;
@@ -362,7 +362,7 @@ urnHandleReply(void *data, StoreIOBuffer result)
         "</ADDRESS>\n",
         APP_FULLNAME, getMyHostname());
     rep = new HttpReply;
-    rep->setHeaders(Http::scFound, NULL, "text/html", mb->length(), 0, squid_curtime);
+    rep->setHeaders(Http::scFound, nullptr, "text/html", mb->length(), 0, squid_curtime);
 
     if (min_u) {
         rep->header.putStr(Http::HdrType::LOCATION, min_u->url);
@@ -394,7 +394,7 @@ urnParseReply(const char *inbuf, const HttpRequestMethod& m)
     debugs(52, 3, "urnParseReply");
     list = (url_entry *)xcalloc(n + 1, sizeof(*list));
 
-    for (token = strtok(buf, crlf); token; token = strtok(NULL, crlf)) {
+    for (token = strtok(buf, crlf); token; token = strtok(nullptr, crlf)) {
         debugs(52, 3, "urnParseReply: got '" << token << "'");
 
         if (i == n) {

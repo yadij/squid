@@ -77,7 +77,7 @@ public:
     MimeEntry *next;
 };
 
-static MimeEntry *MimeTable = NULL;
+static MimeEntry *MimeTable = nullptr;
 static MimeEntry **MimeTableTail = &MimeTable;
 
 static MimeEntry *
@@ -88,7 +88,7 @@ mimeGetEntry(const char *fn, int skip_encodings)
     char *name = xstrdup(fn);
 
     do {
-        t = NULL;
+        t = nullptr;
 
         for (m = MimeTable; m; m = m->next) {
             if (regexec(&m->compiled_pattern, name, 0, 0, 0) == 0)
@@ -109,7 +109,7 @@ mimeGetEntry(const char *fn, int skip_encodings)
                 *t = '\0';
             } else {
                 /* What? A encoding without a extension? */
-                m = NULL;
+                m = nullptr;
             }
         }
     } while (t);
@@ -179,10 +179,10 @@ mimeGetContentType(const char *fn)
     MimeEntry *m = mimeGetEntry(fn, 1);
 
     if (m == NULL)
-        return NULL;
+        return nullptr;
 
     if (!strcmp(m->content_type, dash_str))
-        return NULL;
+        return nullptr;
 
     return m->content_type;
 }
@@ -193,10 +193,10 @@ mimeGetContentEncoding(const char *fn)
     MimeEntry *m = mimeGetEntry(fn, 0);
 
     if (m == NULL)
-        return NULL;
+        return nullptr;
 
     if (!strcmp(m->content_encoding, dash_str))
-        return NULL;
+        return nullptr;
 
     return m->content_encoding;
 }
@@ -281,22 +281,22 @@ mimeInit(char *filename)
             continue;
         }
 
-        if ((type = strtok(NULL, w_space)) == NULL) {
+        if ((type = strtok(nullptr, w_space)) == NULL) {
             debugs(25, DBG_IMPORTANT, "mimeInit: parse error: '" << buf << "'");
             continue;
         }
 
-        if ((icon = strtok(NULL, w_space)) == NULL) {
+        if ((icon = strtok(nullptr, w_space)) == NULL) {
             debugs(25, DBG_IMPORTANT, "mimeInit: parse error: '" << buf << "'");
             continue;
         }
 
-        if ((encoding = strtok(NULL, w_space)) == NULL) {
+        if ((encoding = strtok(nullptr, w_space)) == NULL) {
             debugs(25, DBG_IMPORTANT, "mimeInit: parse error: '" << buf << "'");
             continue;
         }
 
-        if ((mode = strtok(NULL, w_space)) == NULL) {
+        if ((mode = strtok(nullptr, w_space)) == NULL) {
             debugs(25, DBG_IMPORTANT, "mimeInit: parse error: '" << buf << "'");
             continue;
         }
@@ -304,7 +304,7 @@ mimeInit(char *filename)
         download_option = 0;
         view_option = 0;
 
-        while ((option = strtok(NULL, w_space)) != NULL) {
+        while ((option = strtok(nullptr, w_space)) != NULL) {
             if (!strcmp(option, "+download"))
                 download_option = 1;
             else if (!strcmp(option, "+view"))
@@ -415,9 +415,9 @@ MimeIcon::created(StoreEntry *newEntry)
     HttpReplyPointer reply(new HttpReply);
 
     if (status == Http::scNoContent)
-        reply->setHeaders(status, NULL, NULL, 0, -1, -1);
+        reply->setHeaders(status, nullptr, nullptr, 0, -1, -1);
     else
-        reply->setHeaders(status, NULL, mimeGetContentType(icon_.c_str()), sb.st_size, sb.st_mtime, -1);
+        reply->setHeaders(status, nullptr, mimeGetContentType(icon_.c_str()), sb.st_size, sb.st_mtime, -1);
     reply->cache_control = new HttpHdrCc();
     reply->cache_control->maxAge(86400);
     reply->header.putCc(reply->cache_control);

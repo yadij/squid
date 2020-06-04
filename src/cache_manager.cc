@@ -207,18 +207,18 @@ CacheManager::ParseUrl(const char *url)
     Mgr::ActionProfile::Pointer profile = findAction(request);
     if (!profile) {
         debugs(16, DBG_IMPORTANT, "CacheManager::ParseUrl: action '" << request << "' not found");
-        return NULL;
+        return nullptr;
     }
 
     const char *prot = ActionProtection(profile);
     if (!strcmp(prot, "disabled") || !strcmp(prot, "hidden")) {
         debugs(16, DBG_IMPORTANT, "CacheManager::ParseUrl: action '" << request << "' is " << prot);
-        return NULL;
+        return nullptr;
     }
 
     Mgr::Command::Pointer cmd = new Mgr::Command;
     if (!Mgr::QueryParams::Parse(params, cmd->params.queryParams))
-        return NULL;
+        return nullptr;
     cmd->profile = profile;
     cmd->params.httpUri = url;
     cmd->params.userName = String();
@@ -460,7 +460,7 @@ CacheManager::PasswdGet(Mgr::ActionPasswordList * a, const char *action)
         a = a->next;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 CacheManager*

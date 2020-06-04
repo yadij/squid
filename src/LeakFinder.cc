@@ -29,7 +29,7 @@ LeakFinderPtr::LeakFinderPtr(void *p, const char *f, const int l) :
 {
     // XXX: these bits should be done by hash_link()
     key = p;
-    next = NULL;
+    next = nullptr;
 }
 
 /* ========================================================================= */

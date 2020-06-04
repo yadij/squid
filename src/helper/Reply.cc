@@ -75,7 +75,7 @@ Helper::Reply::finalize()
             result = Helper::TT;
             p+=3;
             // followed by an auth token
-            char *w1 = strwordtok(NULL, &p);
+            char *w1 = strwordtok(nullptr, &p);
             if (w1 != NULL) {
                 const char *authToken = w1;
                 notes.add("token",authToken);
@@ -92,8 +92,8 @@ Helper::Reply::finalize()
             // followed by:
             //  an optional auth token and user field
             // or, an optional username field
-            char *w1 = strwordtok(NULL, &p);
-            char *w2 = strwordtok(NULL, &p);
+            char *w1 = strwordtok(nullptr, &p);
+            char *w2 = strwordtok(nullptr, &p);
             if (w2 != NULL) {
                 // Negotiate "token user"
                 const char *authToken = w1;
@@ -172,7 +172,7 @@ Helper::Reply::parseResponseKeys()
 
         // the value may be a quoted string or a token
         const bool urlDecode = (*p != '"'); // check before moving p.
-        char *v = strwordtok(NULL, &p);
+        char *v = strwordtok(nullptr, &p);
         if (v != NULL && urlDecode && (p-v) > 2) // 1-octet %-escaped requires 3 bytes
             rfc1738_unescape(v);
 

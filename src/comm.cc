@@ -70,7 +70,7 @@ static void commHandleWriteHelper(void * data);
 
 /* STATIC */
 
-static DescriptorSet *TheHalfClosed = NULL; /// the set of half-closed FDs
+static DescriptorSet *TheHalfClosed = nullptr; /// the set of half-closed FDs
 static bool WillCheckHalfClosed = false; /// true if check is scheduled
 static EVH commHalfClosedCheck;
 static void commPlanHalfClosedCheck();
@@ -123,7 +123,7 @@ comm_udp_recvfrom(int fd, void *buf, size_t len, int flags, Ip::Address &from)
 {
     ++ statCounter.syscalls.sock.recvfroms;
     debugs(5,8, "comm_udp_recvfrom: FD " << fd << " from " << from);
-    struct addrinfo *AI = NULL;
+    struct addrinfo *AI = nullptr;
     Ip::Address::InitAddr(AI);
     int x = recvfrom(fd, buf, len, flags, AI->ai_addr, &AI->ai_addrlen);
     from = *AI;
@@ -161,7 +161,7 @@ unsigned short
 comm_local_port(int fd)
 {
     Ip::Address temp;
-    struct addrinfo *addr = NULL;
+    struct addrinfo *addr = nullptr;
     fde *F = &fd_table[fd];
 
     /* If the fd is closed already, just return */
@@ -335,7 +335,7 @@ comm_openex(int sock_type,
             const char *note)
 {
     int new_socket;
-    struct addrinfo *AI = NULL;
+    struct addrinfo *AI = nullptr;
 
     PROF_start(comm_open);
     /* Create socket for accepting new connections. */
@@ -559,7 +559,7 @@ commUnsetFdTimeout(int fd)
     fde *F = &fd_table[fd];
     assert(F->flags.open);
 
-    F->timeoutHandler = NULL;
+    F->timeoutHandler = nullptr;
     F->timeout = 0;
 }
 
@@ -573,7 +573,7 @@ commSetConnTimeout(const Comm::ConnectionPointer &conn, int timeout, AsyncCall::
     assert(F->flags.open);
 
     if (timeout < 0) {
-        F->timeoutHandler = NULL;
+        F->timeoutHandler = nullptr;
         F->timeout = 0;
     } else {
         if (callback != NULL) {
@@ -610,7 +610,7 @@ comm_connect_addr(int sock, const Ip::Address &address)
     int x = 0;
     int err = 0;
     socklen_t errlen;
-    struct addrinfo *AI = NULL;
+    struct addrinfo *AI = nullptr;
     PROF_start(comm_connect_addr);
 
     assert(address.port() != 0);
@@ -783,7 +783,7 @@ comm_lingering_close(int fd)
     }
 
     fd_note(fd, "lingering close");
-    AsyncCall::Pointer call = commCbCall(5,4, "commLingerTimeout", FdeCbPtrFun(commLingerTimeout, NULL));
+    AsyncCall::Pointer call = commCbCall(5,4, "commLingerTimeout", FdeCbPtrFun(commLingerTimeout, nullptr));
 
     debugs(5, 3, HERE << "FD " << fd << " timeout " << timeout);
     assert(fd_table[fd].flags.open);
@@ -795,7 +795,7 @@ comm_lingering_close(int fd)
         fd_table[fd].timeout = squid_curtime + static_cast<time_t>(10);
     }
 
-    Comm::SetSelect(fd, COMM_SELECT_READ, commLingerClose, NULL, 0);
+    Comm::SetSelect(fd, COMM_SELECT_READ, commLingerClose, nullptr, 0);
 }
 
 #endif
@@ -914,11 +914,11 @@ _comm_close(int fd, char const *file, int line)
 
     // notify read/write handlers after canceling select reservations, if any
     if (COMMIO_FD_WRITECB(fd)->active()) {
-        Comm::SetSelect(fd, COMM_SELECT_WRITE, NULL, NULL, 0);
+        Comm::SetSelect(fd, COMM_SELECT_WRITE, nullptr, nullptr, 0);
         COMMIO_FD_WRITECB(fd)->finish(Comm::ERR_CLOSING, errno);
     }
     if (COMMIO_FD_READCB(fd)->active()) {
-        Comm::SetSelect(fd, COMM_SELECT_READ, NULL, NULL, 0);
+        Comm::SetSelect(fd, COMM_SELECT_READ, nullptr, nullptr, 0);
         COMMIO_FD_READCB(fd)->finish(Comm::ERR_CLOSING, errno);
     }
 
@@ -934,7 +934,7 @@ _comm_close(int fd, char const *file, int line)
     comm_empty_os_read_buffers(fd);
 
     AsyncCall::Pointer completeCall=commCbCall(5,4, "comm_close_complete",
-                                    FdeCbPtrFun(comm_close_complete, NULL));
+                                    FdeCbPtrFun(comm_close_complete, nullptr));
     FdeCbParams &completeParams = GetCommParams<FdeCbParams>(completeCall);
     completeParams.fd = fd;
     // must use async call to wait for all callbacks
@@ -957,7 +957,7 @@ comm_udp_sendto(int fd,
     debugs(50, 3, "comm_udp_sendto: Attempt to send UDP packet to " << to_addr <<
            " using FD " << fd << " using Port " << comm_local_port(fd) );
 
-    struct addrinfo *AI = NULL;
+    struct addrinfo *AI = nullptr;
     to_addr.getAddrInfo(AI, fd_table[fd].sock_family);
     int x = sendto(fd, buf, len, 0, AI->ai_addr, AI->ai_addrlen);
     int xerrno = errno;
@@ -1014,7 +1014,7 @@ comm_remove_close_handler(int fd, CLCB * handler, void *data)
     debugs(5, 5, "comm_remove_close_handler: FD " << fd << ", handler=" <<
            handler << ", data=" << data);
 
-    AsyncCall::Pointer p, prev = NULL;
+    AsyncCall::Pointer p, prev = nullptr;
     for (p = fd_table[fd].closeHandler; p != NULL; prev = p, p = p->Next()) {
         typedef CommCbFunPtrCallT<CommCloseCbPtrFun> Call;
         const Call *call = dynamic_cast<const Call*>(p.getRaw());
@@ -1042,7 +1042,7 @@ comm_remove_close_handler(int fd, AsyncCall::Pointer &call)
     debugs(5, 5, "comm_remove_close_handler: FD " << fd << ", AsyncCall=" << call);
 
     // comm_close removes all close handlers so our handler may be gone
-    AsyncCall::Pointer p, prev = NULL;
+    AsyncCall::Pointer p, prev = nullptr;
     for (p = fd_table[fd].closeHandler; p != NULL && p != call; prev = p, p = p->Next());
 
     if (p != NULL)
@@ -1256,7 +1256,7 @@ void
 comm_exit(void)
 {
     delete TheHalfClosed;
-    TheHalfClosed = NULL;
+    TheHalfClosed = nullptr;
 
     Comm::CallbackTableDestruct();
 }
@@ -1537,7 +1537,7 @@ void
 commCloseAllSockets(void)
 {
     int fd;
-    fde *F = NULL;
+    fde *F = nullptr;
 
     for (fd = 0; fd <= Biggest_FD; ++fd) {
         F = &fd_table[fd];
@@ -1553,7 +1553,7 @@ commCloseAllSockets(void)
 
         if (F->timeoutHandler != NULL) {
             AsyncCall::Pointer callback = F->timeoutHandler;
-            F->timeoutHandler = NULL;
+            F->timeoutHandler = nullptr;
             debugs(5, 5, "commCloseAllSockets: FD " << fd << ": Calling timeout handler");
             ScheduleCallHere(callback);
         } else {
@@ -1594,7 +1594,7 @@ void
 checkTimeouts(void)
 {
     int fd;
-    fde *F = NULL;
+    fde *F = nullptr;
     AsyncCall::Pointer callback;
 
     for (fd = 0; fd <= Biggest_FD; ++fd) {
@@ -1604,7 +1604,7 @@ checkTimeouts(void)
             // We have an active write callback and we are timed out
             CodeContext::Reset(F->codeContext);
             debugs(5, 5, "checkTimeouts: FD " << fd << " auto write timeout");
-            Comm::SetSelect(fd, COMM_SELECT_WRITE, NULL, NULL, 0);
+            Comm::SetSelect(fd, COMM_SELECT_WRITE, nullptr, nullptr, 0);
             COMMIO_FD_WRITECB(fd)->finish(Comm::COMM_ERROR, ETIMEDOUT);
             CodeContext::Reset();
 #if USE_DELAY_POOLS
@@ -1628,7 +1628,7 @@ checkTimeouts(void)
         if (F->timeoutHandler != NULL) {
             debugs(5, 5, "checkTimeouts: FD " << fd << ": Call timeout handler");
             callback = F->timeoutHandler;
-            F->timeoutHandler = NULL;
+            F->timeoutHandler = nullptr;
             ScheduleCallHere(callback);
         } else {
             debugs(5, 5, "checkTimeouts: FD " << fd << ": Forcing comm_close()");
@@ -1657,7 +1657,7 @@ void
 commPlanHalfClosedCheck()
 {
     if (!WillCheckHalfClosed && !TheHalfClosed->empty()) {
-        eventAdd("commHalfClosedCheck", &commHalfClosedCheck, NULL, 1.0, 1);
+        eventAdd("commHalfClosedCheck", &commHalfClosedCheck, nullptr, 1.0, 1);
         WillCheckHalfClosed = true;
     }
 }
@@ -1708,7 +1708,7 @@ commStopHalfClosedMonitor(int const fd)
     AsyncCall::Pointer reader = fd_table[fd].halfClosedReader;
     if (reader != NULL)
         Comm::ReadCancel(fd, reader);
-    fd_table[fd].halfClosedReader = NULL;
+    fd_table[fd].halfClosedReader = nullptr;
 
     TheHalfClosed->del(fd);
 }
@@ -1722,7 +1722,7 @@ commHalfClosedReader(const Comm::ConnectionPointer &conn, char *, size_t size, C
     assert(conn != NULL);
     assert(commHasHalfClosedMonitor(conn->fd)); // or we would have canceled the read
 
-    fd_table[conn->fd].halfClosedReader = NULL; // done reading, for now
+    fd_table[conn->fd].halfClosedReader = nullptr; // done reading, for now
 
     // nothing to do if fd is being closed
     if (flag == Comm::ERR_CLOSING)
@@ -1785,7 +1785,7 @@ DeferredReadManager::CloseHandler(const CommCloseCbParams &params)
 
     CbDataList<DeferredRead> *temp = (CbDataList<DeferredRead> *)params.data;
 
-    temp->element.closer = NULL;
+    temp->element.closer = nullptr;
     temp->element.markCancelled();
 }
 
@@ -1803,14 +1803,14 @@ DeferredReadManager::popHead(CbDataListContainer<DeferredRead> &deferredReads)
     if (!fd_table || !Comm::IsConnOpen(read.theRead.conn)) {
         if (read.closer != NULL) {
             read.closer->cancel("Connection closed before.");
-            read.closer = NULL;
+            read.closer = nullptr;
         }
         read.markCancelled();
     }
 
     if (!read.cancelled) {
         comm_remove_close_handler(read.theRead.conn->fd, read.closer);
-        read.closer = NULL;
+        read.closer = nullptr;
     }
 
     DeferredRead result = deferredReads.pop_front();
@@ -1928,8 +1928,8 @@ comm_open_uds(int sock_type,
     AI.ai_protocol = proto;
     AI.ai_addrlen = SUN_LEN(addr);
     AI.ai_addr = (sockaddr*)addr;
-    AI.ai_canonname = NULL;
-    AI.ai_next = NULL;
+    AI.ai_canonname = nullptr;
+    AI.ai_next = nullptr;
 
     debugs(50, 3, HERE << "Attempt open socket for: " << addr->sun_path);
 

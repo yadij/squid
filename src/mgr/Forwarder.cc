@@ -61,11 +61,11 @@ Mgr::Forwarder::swanSong()
     if (Comm::IsConnOpen(conn)) {
         if (closer != NULL) {
             comm_remove_close_handler(conn->fd, closer);
-            closer = NULL;
+            closer = nullptr;
         }
         conn->close();
     }
-    conn = NULL;
+    conn = nullptr;
     Ipc::Forwarder::swanSong();
 }
 
@@ -97,7 +97,7 @@ void
 Mgr::Forwarder::noteCommClosed(const CommCloseCbParams &)
 {
     debugs(16, 5, HERE);
-    conn = NULL; // needed?
+    conn = nullptr; // needed?
     mustStop("commClosed");
 }
 

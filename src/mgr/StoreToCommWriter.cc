@@ -45,7 +45,7 @@ Mgr::StoreToCommWriter::close()
     if (Comm::IsConnOpen(clientConnection)) {
         if (closer != NULL) {
             comm_remove_close_handler(clientConnection->fd, closer);
-            closer = NULL;
+            closer = nullptr;
         }
         clientConnection->close();
     }
@@ -110,7 +110,7 @@ Mgr::StoreToCommWriter::scheduleCommWrite(const StoreIOBuffer& ioBuf)
     AsyncCall::Pointer writer =
         asyncCall(16, 5, "Mgr::StoreToCommWriter::noteCommWrote",
                   MyDialer(this, &StoreToCommWriter::noteCommWrote));
-    Comm::Write(clientConnection, ioBuf.data, ioBuf.length, writer, NULL);
+    Comm::Write(clientConnection, ioBuf.data, ioBuf.length, writer, nullptr);
 }
 
 void
@@ -140,11 +140,11 @@ Mgr::StoreToCommWriter::swanSong()
     if (entry != NULL) {
         if (sc != NULL) {
             storeUnregister(sc, entry, this);
-            sc = NULL;
+            sc = nullptr;
         }
         entry->unregisterAbort();
         entry->unlock("Mgr::StoreToCommWriter::swanSong");
-        entry = NULL;
+        entry = nullptr;
     }
     close();
 }

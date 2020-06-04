@@ -66,7 +66,7 @@ DiskThreadsDiskFile::open(int flags, mode_t mode, RefCount<IORequestor> callback
 
 #else
 
-    openDone(fd, NULL, fd, 0);
+    openDone(fd, nullptr, fd, 0);
 
 #endif
 }
@@ -115,7 +115,7 @@ DiskThreadsDiskFile::create(int flags, mode_t mode, RefCount<IORequestor> callba
 
 #else
 
-    openDone (fd, NULL, fd, 0);
+    openDone (fd, nullptr, fd, 0);
 
 #endif
 }

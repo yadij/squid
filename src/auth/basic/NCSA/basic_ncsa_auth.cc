@@ -69,7 +69,7 @@ read_passwd_file(const char *passwdfile)
             fprintf(stderr, "ERROR: Missing user name at %s line %d\n", passwdfile, lineCount);
             continue;
         }
-        passwd = strtok(NULL, ":\n\r");
+        passwd = strtok(nullptr, ":\n\r");
         if ((strlen(user) > 0) && passwd) {
             usermap[user] = passwd;
         }
@@ -84,7 +84,7 @@ main(int argc, char **argv)
     time_t change_time = -1;
     char buf[HELPER_INPUT_BUFFER];
     char *user, *passwd, *p;
-    setbuf(stdout, NULL);
+    setbuf(stdout, nullptr);
     if (argc != 2) {
         fprintf(stderr, "Usage: ncsa_auth <passwordfile>\n");
         exit(EXIT_FAILURE);
@@ -106,7 +106,7 @@ main(int argc, char **argv)
             SEND_ERR("");
             continue;
         }
-        if ((passwd = strtok(NULL, "")) == NULL) {
+        if ((passwd = strtok(nullptr, "")) == NULL) {
             SEND_ERR("");
             continue;
         }
@@ -120,7 +120,7 @@ main(int argc, char **argv)
         std::string stored_pass = userpassIterator->second;
         const char *salted = stored_pass.c_str(); // locally stored version contains salt etc.
 
-        char *crypted = NULL;
+        char *crypted = nullptr;
 #if HAVE_CRYPT
         size_t passwordLength = strlen(passwd);
         // Bug 3831: given algorithms more secure than DES crypt() does not truncate, so we can ignore the bug 3107 length checks below

@@ -85,12 +85,12 @@ dup_addrinfo (struct addrinfo *info, void *addr, size_t addrlen) {
 
     ret = (struct addrinfo *)malloc(sizeof (struct addrinfo));
     if (ret == NULL)
-        return NULL;
+        return nullptr;
     memcpy (ret, info, sizeof (struct addrinfo));
     ret->ai_addr = (struct sockaddr*)malloc(addrlen);
     if (ret->ai_addr == NULL) {
         free (ret);
-        return NULL;
+        return nullptr;
     }
     memcpy (ret->ai_addr, addr, addrlen);
     ret->ai_addrlen = addrlen;
@@ -135,7 +135,7 @@ xgetaddrinfo (const char *nodename, const char *servname,
 
         /* Note: maintain port in host byte order to make debugging easier */
         if (isdigit (*servname))
-            port = strtol (servname, NULL, 10);
+            port = strtol (servname, nullptr, 10);
         else if ((servent = getservbyname (servname, socktype)) != NULL)
             port = ntohs (servent->s_port);
         else
@@ -233,7 +233,7 @@ xgetaddrinfo (const char *nodename, const char *servname,
 
     /* For each element pointed to by hp, create an element in the
        result linked list. */
-    sai = eai = NULL;
+    sai = eai = nullptr;
     for (addrs = hp->h_addr_list; *addrs != NULL; addrs++) {
         struct sockaddr sa;
         size_t addrlen;

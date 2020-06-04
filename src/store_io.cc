@@ -37,7 +37,7 @@ storeCreate(StoreEntry * e, StoreIOState::STFNCB * file_callback, StoreIOState::
     if (dirn == -1) {
         debugs(20, 2, "storeCreate: no swapdirs for " << *e);
         ++store_io_stats.create.select_fail;
-        return NULL;
+        return nullptr;
     }
 
     debugs(20, 2, "storeCreate: Selected dir " << dirn << " for " << *e);

@@ -33,9 +33,9 @@ start_announce(void *)
     if (!Comm::IsConnOpen(icpOutgoingConn))
         return;
 
-    ipcache_nbgethostbyname(Config.Announce.host, send_announce, NULL);
+    ipcache_nbgethostbyname(Config.Announce.host, send_announce, nullptr);
 
-    eventAdd("send_announce", start_announce, NULL, (double) Config.Announce.period, 1);
+    eventAdd("send_announce", start_announce, nullptr, (double) Config.Announce.period, 1);
 }
 
 static void
@@ -45,7 +45,7 @@ send_announce(const ipcache_addrs *ia, const Dns::LookupDetails &, void *)
     LOCAL_ARRAY(char, sndbuf, BUFSIZ);
 
     char *host = Config.Announce.host;
-    char *file = NULL;
+    char *file = nullptr;
     unsigned short port = Config.Announce.port;
     int l;
     int n;

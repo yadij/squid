@@ -30,8 +30,8 @@ Auth::User::User(Auth::SchemeConfig *aConfig, const char *aRequestRealm) :
     username_(nullptr),
     requestRealm_(aRequestRealm)
 {
-    proxy_match_cache.head = proxy_match_cache.tail = NULL;
-    ip_list.head = ip_list.tail = NULL;
+    proxy_match_cache.head = proxy_match_cache.tail = nullptr;
+    ip_list.head = ip_list.tail = nullptr;
     debugs(29, 5, HERE << "Initialised auth_user '" << this << "'.");
 }
 

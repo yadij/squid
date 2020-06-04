@@ -91,8 +91,8 @@ public:
 
 CBDATA_CLASS_INIT(netdbExchangeState);
 
-static hash_table *addr_table = NULL;
-static hash_table *host_table = NULL;
+static hash_table *addr_table = nullptr;
+static hash_table *host_table = nullptr;
 
 Ip::Address networkFromInaddr(const Ip::Address &a);
 static void netdbRelease(netdbEntry * n);
@@ -115,7 +115,7 @@ static STCB netdbExchangeHandleReply;
  * gets freed during a reconfigure.  We want this database to
  * remain persisitent, so _net_db_peer->peername points into this
  * linked list */
-static wordlist *peer_names = NULL;
+static wordlist *peer_names = nullptr;
 
 static void
 netdbHashInsert(netdbEntry * n, Ip::Address &addr)
@@ -196,9 +196,9 @@ netdbRelease(netdbEntry * n)
         netdbHostDelete(x);
     }
 
-    n->hosts = NULL;
+    n->hosts = nullptr;
     safe_free(n->peers);
-    n->peers = NULL;
+    n->peers = nullptr;
     n->n_peers = 0;
     n->n_peers_alloc = 0;
 
@@ -288,7 +288,7 @@ static void
 netdbSendPing(const ipcache_addrs *ia, const Dns::LookupDetails &, void *data)
 {
     Ip::Address addr;
-    char *hostname = NULL;
+    char *hostname = nullptr;
     static_cast<generic_cbdata *>(data)->unwrap(&hostname);
     netdbEntry *n;
     netdbEntry *na;
@@ -416,7 +416,7 @@ netdbPeerByName(const netdbEntry * n, const char *peername)
             return p;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 static net_db_peer *
@@ -529,7 +529,7 @@ netdbSaveState(void *foo)
     debugs(38, DBG_IMPORTANT, "NETDB state saved; " <<
            count << " entries, " <<
            tvSubMsec(start, current_time) << " msec" );
-    eventAddIsh("netdbSaveState", netdbSaveState, NULL, 3600.0, 1);
+    eventAddIsh("netdbSaveState", netdbSaveState, nullptr, 3600.0, 1);
 }
 
 static void
@@ -593,12 +593,12 @@ netdbReloadState(void)
         if (netdbLookupAddr(addr) != NULL)  /* no dups! */
             continue;
 
-        if ((q = strtok(NULL, w_space)) == NULL)
+        if ((q = strtok(nullptr, w_space)) == NULL)
             continue;
 
         N.pings_sent = atoi(q);
 
-        if ((q = strtok(NULL, w_space)) == NULL)
+        if ((q = strtok(nullptr, w_space)) == NULL)
             continue;
 
         N.pings_recv = atoi(q);
@@ -611,22 +611,22 @@ netdbReloadState(void)
 
         N.pings_recv = 1;
 
-        if ((q = strtok(NULL, w_space)) == NULL)
+        if ((q = strtok(nullptr, w_space)) == NULL)
             continue;
 
         N.hops = atof(q);
 
-        if ((q = strtok(NULL, w_space)) == NULL)
+        if ((q = strtok(nullptr, w_space)) == NULL)
             continue;
 
         N.rtt = atof(q);
 
-        if ((q = strtok(NULL, w_space)) == NULL)
+        if ((q = strtok(nullptr, w_space)) == NULL)
             continue;
 
         N.next_ping_time = (time_t) atoi(q);
 
-        if ((q = strtok(NULL, w_space)) == NULL)
+        if ((q = strtok(nullptr, w_space)) == NULL)
             continue;
 
         N.last_use_time = (time_t) atoi(q);
@@ -637,7 +637,7 @@ netdbReloadState(void)
 
         netdbHashInsert(n, addr);
 
-        while ((q = strtok(NULL, w_space)) != NULL) {
+        while ((q = strtok(nullptr, w_space)) != NULL) {
             if (netdbLookupHost(q) != NULL) /* no dups! */
                 continue;
 
@@ -897,7 +897,7 @@ netdbInit(void)
 
     host_table = hash_create((HASHCMP *) strcmp, n, hash_string);
 
-    eventAddIsh("netdbSaveState", netdbSaveState, NULL, 3600.0, 1);
+    eventAddIsh("netdbSaveState", netdbSaveState, nullptr, 3600.0, 1);
 
     netdbReloadState();
 
@@ -956,12 +956,12 @@ netdbFreeMemory(void)
 #if USE_ICMP
     hashFreeItems(addr_table, netdbFreeNetdbEntry);
     hashFreeMemory(addr_table);
-    addr_table = NULL;
+    addr_table = nullptr;
     hashFreeItems(host_table, netdbFreeNameEntry);
     hashFreeMemory(host_table);
-    host_table = NULL;
+    host_table = nullptr;
     wordlistDestroy(&peer_names);
-    peer_names = NULL;
+    peer_names = nullptr;
 #endif
 }
 
@@ -1191,7 +1191,7 @@ netdbBinaryExchange(StoreEntry * s)
 
     struct in_addr line_addr;
     s->buffer();
-    reply->setHeaders(Http::scOkay, "OK", NULL, -1, squid_curtime, -2);
+    reply->setHeaders(Http::scOkay, "OK", nullptr, -1, squid_curtime, -2);
     s->replaceHttpReply(reply);
     rec_sz = 0;
     rec_sz += 1 + sizeof(struct in_addr);
@@ -1257,7 +1257,7 @@ netdbBinaryExchange(StoreEntry * s)
     memFree(buf, MEM_4K_BUF);
 #else
 
-    reply->setHeaders(Http::scBadRequest, "Bad Request", NULL, -1, squid_curtime, -2);
+    reply->setHeaders(Http::scBadRequest, "Bad Request", nullptr, -1, squid_curtime, -2);
     s->replaceHttpReply(reply);
     storeAppendPrintf(s, "NETDB support not compiled into this Squid cache.\n");
 #endif
@@ -1310,7 +1310,7 @@ netdbClosestParent(PeerSelector *ps)
     assert(ps);
     HttpRequest *request = ps->request;
 
-    CachePeer *p = NULL;
+    CachePeer *p = nullptr;
     netdbEntry *n;
     const ipcache_addrs *ia;
     net_db_peer *h;
@@ -1326,10 +1326,10 @@ netdbClosestParent(PeerSelector *ps)
     }
 
     if (NULL == n)
-        return NULL;
+        return nullptr;
 
     if (0 == n->n_peers)
-        return NULL;
+        return nullptr;
 
     n->last_use_time = squid_curtime;
 
@@ -1360,6 +1360,6 @@ netdbClosestParent(PeerSelector *ps)
     }
 
 #endif
-    return NULL;
+    return nullptr;
 }
 

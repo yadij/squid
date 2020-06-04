@@ -29,7 +29,7 @@
 #include "snmp_core.h"
 #endif
 
-static hash_table *client_table = NULL;
+static hash_table *client_table = nullptr;
 
 static ClientInfo *clientdbAdd(const Ip::Address &addr);
 static FREE clientdbFreeItem;
@@ -82,7 +82,7 @@ clientdbAdd(const Ip::Address &addr)
 
     if ((statCounter.client_http.clients > max_clients) && !cleanup_running && cleanup_scheduled < 2) {
         ++cleanup_scheduled;
-        eventAdd("client_db garbage collector", clientdbScheduledGC, NULL, 90, 0);
+        eventAdd("client_db garbage collector", clientdbScheduledGC, nullptr, 90, 0);
     }
 
     return c;
@@ -123,14 +123,14 @@ ClientInfo * clientdbGetInfo(const Ip::Address &addr)
     ClientInfo *c;
 
     if (!Config.onoff.client_db)
-        return NULL;
+        return nullptr;
 
     addr.toStr(key,MAX_IPSTRLEN);
 
     c = (ClientInfo *) hash_lookup(client_table, key);
     if (c==NULL) {
         debugs(77, DBG_IMPORTANT,"Client db does not contain information for given IP address "<<(const char*)key);
-        return NULL;
+        return nullptr;
     }
     return c;
 }
@@ -339,7 +339,7 @@ ClientInfo::~ClientInfo()
 
 #if USE_DELAY_POOLS
     if (CommQuotaQueue *q = quotaQueue) {
-        q->clientInfo = NULL;
+        q->clientInfo = nullptr;
         delete q; // invalidates cbdata, cancelling any pending kicks
     }
 #endif
@@ -352,7 +352,7 @@ clientdbFreeMemory(void)
 {
     hashFreeItems(client_table, clientdbFreeItem);
     hashFreeMemory(client_table);
-    client_table = NULL;
+    client_table = nullptr;
 }
 
 static void
@@ -400,7 +400,7 @@ clientdbGC(void *)
     }
 
     if (bucket < CLIENT_DB_HASH_SIZE)
-        eventAdd("client_db garbage collector", clientdbGC, NULL, 0.15, 0);
+        eventAdd("client_db garbage collector", clientdbGC, nullptr, 0.15, 0);
     else {
         bucket = 0;
         cleanup_running = 0;
@@ -408,7 +408,7 @@ clientdbGC(void *)
 
         if (!cleanup_scheduled) {
             cleanup_scheduled = 1;
-            eventAdd("client_db garbage collector", clientdbScheduledGC, NULL, 6 * 3600, 0);
+            eventAdd("client_db garbage collector", clientdbScheduledGC, nullptr, 6 * 3600, 0);
         }
 
         debugs(49, 2, "clientdbGC: Removed " << cleanup_removed << " entries");
@@ -451,7 +451,7 @@ variable_list *
 snmp_meshCtblFn(variable_list * Var, snint * ErrP)
 {
     char key[MAX_IPSTRLEN];
-    ClientInfo *c = NULL;
+    ClientInfo *c = nullptr;
     Ip::Address keyIp;
 
     *ErrP = SNMP_ERR_NOERROR;
@@ -463,7 +463,7 @@ snmp_meshCtblFn(variable_list * Var, snint * ErrP)
         oid2addr(&(Var->name[12]), keyIp, 16);
     } else {
         *ErrP = SNMP_ERR_NOSUCHNAME;
-        return NULL;
+        return nullptr;
     }
 
     keyIp.toStr(key, sizeof(key));
@@ -473,10 +473,10 @@ snmp_meshCtblFn(variable_list * Var, snint * ErrP)
     if (c == NULL) {
         debugs(49, 5, HERE << "not found.");
         *ErrP = SNMP_ERR_NOSUCHNAME;
-        return NULL;
+        return nullptr;
     }
 
-    variable_list *Answer = NULL;
+    variable_list *Answer = nullptr;
     int aggr = 0;
 
     switch (Var->name[LEN_SQ_NET + 2]) {

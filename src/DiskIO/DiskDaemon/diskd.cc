@@ -45,7 +45,7 @@ struct _file_state {
     off_t offset;
 };
 
-static hash_table *hash = NULL;
+static hash_table *hash = nullptr;
 static pid_t mypid;
 static char *shmbuf;
 static int DebugLevel = 0;
@@ -231,7 +231,7 @@ do_unlink(diomsg * r, int, const char *buf)
 static void
 msg_handle(diomsg * r, int rl, diomsg * s)
 {
-    char *buf = NULL;
+    char *buf = nullptr;
     s->mtype = r->mtype;
     s->id = r->id;
     s->seq_no = r->seq_no;      /* optional, debugging */
@@ -312,8 +312,8 @@ main(int argc, char *argv[])
     char rbuf[512];
 
     struct sigaction sa;
-    setbuf(stdout, NULL);
-    setbuf(stderr, NULL);
+    setbuf(stdout, nullptr);
+    setbuf(stderr, nullptr);
     mypid = getpid();
     assert(4 == argc);
     key = atoi(argv[1]);
@@ -340,7 +340,7 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    shmbuf = (char *)shmat(shmid, NULL, 0);
+    shmbuf = (char *)shmat(shmid, nullptr, 0);
 
     if (shmbuf == (void *) -1) {
         perror("shmat");
@@ -356,7 +356,7 @@ main(int argc, char *argv[])
     memset(&sa, '\0', sizeof(sa));
     sa.sa_handler = alarm_handler;
     sa.sa_flags = SA_RESTART;
-    sigaction(SIGALRM, &sa, NULL);
+    sigaction(SIGALRM, &sa, nullptr);
 
     for (;;) {
         alarm(1);

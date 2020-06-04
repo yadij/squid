@@ -60,7 +60,7 @@ main(int argc, char *argv[])
     struct sockaddr_in R;
     socklen_t len;
 
-    struct hostent *hp = NULL;
+    struct hostent *hp = nullptr;
     const char *logfile;
     char ip[4];
 

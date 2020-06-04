@@ -33,11 +33,11 @@
 
 static AUTHSSTATS authenticateNegotiateStats;
 
-statefulhelper *negotiateauthenticators = NULL;
+statefulhelper *negotiateauthenticators = nullptr;
 
 static int authnegotiate_initialised = 0;
 
-static hash_table *proxy_auth_cache = NULL;
+static hash_table *proxy_auth_cache = nullptr;
 
 void
 Auth::Negotiate::Config::rotateHelpers()
@@ -65,7 +65,7 @@ Auth::Negotiate::Config::done()
         return;
 
     delete negotiateauthenticators;
-    negotiateauthenticators = NULL;
+    negotiateauthenticators = nullptr;
 
     if (authenticateProgram)
         wordlistDestroy(&authenticateProgram);

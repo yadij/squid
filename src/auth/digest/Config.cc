@@ -47,12 +47,12 @@
 
 static AUTHSSTATS authenticateDigestStats;
 
-helper *digestauthenticators = NULL;
+helper *digestauthenticators = nullptr;
 
 static hash_table *digest_nonce_cache;
 
 static int authdigest_initialised = 0;
-static MemAllocator *digest_nonce_pool = NULL;
+static MemAllocator *digest_nonce_pool = nullptr;
 
 enum http_digest_attr_type {
     DIGEST_USERNAME,
@@ -216,7 +216,7 @@ authenticateDigestNonceSetup(void)
     if (!digest_nonce_cache) {
         digest_nonce_cache = hash_create((HASHCMP *) strcmp, 7921, hash_string);
         assert(digest_nonce_cache);
-        eventAdd("Digest nonce cache maintenance", authenticateDigestNonceCacheCleanup, NULL, static_cast<Auth::Digest::Config*>(Auth::SchemeConfig::Find("digest"))->nonceGCInterval, 1);
+        eventAdd("Digest nonce cache maintenance", authenticateDigestNonceCacheCleanup, nullptr, static_cast<Auth::Digest::Config*>(Auth::SchemeConfig::Find("digest"))->nonceGCInterval, 1);
     }
 }
 
@@ -241,7 +241,7 @@ authenticateDigestNonceShutdown(void)
 #if DEBUGSHUTDOWN
     if (digest_nonce_pool) {
         delete digest_nonce_pool;
-        digest_nonce_pool = NULL;
+        digest_nonce_pool = nullptr;
     }
 
 #endif
@@ -280,7 +280,7 @@ authenticateDigestNonceCacheCleanup(void *)
     debugs(29, 3, "Finished cleaning the nonce cache.");
 
     if (static_cast<Auth::Digest::Config*>(Auth::SchemeConfig::Find("digest"))->active())
-        eventAdd("Digest nonce cache maintenance", authenticateDigestNonceCacheCleanup, NULL, static_cast<Auth::Digest::Config*>(Auth::SchemeConfig::Find("digest"))->nonceGCInterval, 1);
+        eventAdd("Digest nonce cache maintenance", authenticateDigestNonceCacheCleanup, nullptr, static_cast<Auth::Digest::Config*>(Auth::SchemeConfig::Find("digest"))->nonceGCInterval, 1);
 }
 
 static void
@@ -313,7 +313,7 @@ const char *
 authenticateDigestNonceNonceHex(const digest_nonce_h * nonce)
 {
     if (!nonce)
-        return NULL;
+        return nullptr;
 
     return (char const *) nonce->key;
 }
@@ -321,17 +321,17 @@ authenticateDigestNonceNonceHex(const digest_nonce_h * nonce)
 static digest_nonce_h *
 authenticateDigestNonceFindNonce(const char *noncehex)
 {
-    digest_nonce_h *nonce = NULL;
+    digest_nonce_h *nonce = nullptr;
 
     if (noncehex == NULL)
-        return NULL;
+        return nullptr;
 
     debugs(29, 9, "looking for noncehex '" << noncehex << "' in the nonce cache.");
 
     nonce = static_cast < digest_nonce_h * >(hash_lookup(digest_nonce_cache, noncehex));
 
     if ((nonce == NULL) || (strcmp(authenticateDigestNonceNonceHex(nonce), noncehex)))
-        return NULL;
+        return nullptr;
 
     debugs(29, 9, "Found nonce '" << nonce << "'");
 
@@ -347,7 +347,7 @@ authDigestNonceIsValid(digest_nonce_h * nonce, char nc[9])
     if (!nonce)
         return 0;
 
-    intnc = strtol(nc, NULL, 16);
+    intnc = strtol(nc, nullptr, 16);
 
     /* has it already been invalidated ? */
     if (!nonce->flags.valid) {
@@ -505,7 +505,7 @@ Auth::Digest::Config::fixHeader(Auth::UserRequest::Pointer auth_user_request, Ht
         return;
 
     bool stale = false;
-    digest_nonce_h *nonce = NULL;
+    digest_nonce_h *nonce = nullptr;
 
     /* on a 407 or 401 we always use a new nonce */
     if (auth_user_request != NULL) {
@@ -577,7 +577,7 @@ Auth::Digest::Config::done()
         return;
 
     delete digestauthenticators;
-    digestauthenticators = NULL;
+    digestauthenticators = nullptr;
 
     if (authenticateProgram)
         wordlistDestroy(&authenticateProgram);
@@ -653,14 +653,14 @@ authDigestNonceUserUnlink(digest_nonce_h * nonce)
             dlinkDelete(tmplink, &digest_user->nonces);
             authDigestNonceUnlink(static_cast < digest_nonce_h * >(tmplink->data));
             delete tmplink;
-            link = NULL;
+            link = nullptr;
         }
     }
 
     /* this reference to user was not locked because freeeing the user frees
      * the nonce too.
      */
-    nonce->user = NULL;
+    nonce->user = nullptr;
 }
 
 /* authDigesteserLinkNonce: add a nonce to a given user's struct */
@@ -724,8 +724,8 @@ Auth::Digest::Config::decode(char const *proxy_auth, const HttpRequest *request,
 {
     const char *item;
     const char *p;
-    const char *pos = NULL;
-    char *username = NULL;
+    const char *pos = nullptr;
+    char *username = nullptr;
     digest_nonce_h *nonce;
     int ilen;
 
@@ -995,7 +995,7 @@ Auth::Digest::Config::decode(char const *proxy_auth, const HttpRequest *request,
     /* check that we're not being hacked / the username hasn't changed */
     if (nonce && nonce->user && strcmp(username, nonce->user->username())) {
         debugs(29, 2, "Username for the nonce does not equal the username for the request");
-        nonce = NULL;
+        nonce = nullptr;
     }
 
     if (!nonce) {

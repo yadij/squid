@@ -41,8 +41,8 @@ void
 acl_ip_data::toStr(char *buf, int len) const
 {
     char *b1 = buf;
-    char *b2 = NULL;
-    char *b3 = NULL;
+    char *b2 = nullptr;
+    char *b3 = nullptr;
     int rlen = 0;
 
     addr1.toStr(b1, len - rlen );
@@ -211,8 +211,8 @@ acl_ip_data::FactoryParse(const char *t)
     LOCAL_ARRAY(char, addr1, 256);
     LOCAL_ARRAY(char, addr2, 256);
     LOCAL_ARRAY(char, mask, 256);
-    acl_ip_data *r = NULL;
-    acl_ip_data **Q = NULL;
+    acl_ip_data *r = nullptr;
+    acl_ip_data **Q = nullptr;
     Ip::Address temp;
     char c;
     unsigned int changed;
@@ -365,13 +365,13 @@ acl_ip_data::FactoryParse(const char *t)
          */
 
         debugs(28, 5, "aclIpParseIpData: Lookup Host/IP " << addr1);
-        struct addrinfo *hp = NULL, *x = NULL;
+        struct addrinfo *hp = nullptr, *x = nullptr;
         struct addrinfo hints;
-        Ip::Address *prev_addr = NULL;
+        Ip::Address *prev_addr = nullptr;
 
         memset(&hints, 0, sizeof(struct addrinfo));
 
-        int errcode = getaddrinfo(addr1,NULL,&hints,&hp);
+        int errcode = getaddrinfo(addr1, nullptr,&hints,&hp);
         if (hp == NULL) {
             delete q;
             if (strcmp(addr1, "::1") == 0) {
@@ -382,7 +382,7 @@ acl_ip_data::FactoryParse(const char *t)
                        " : (" << errcode << ") " << gai_strerror(errcode) );
                 self_destruct();
             }
-            return NULL;
+            return nullptr;
         }
 
         Q = &q;
@@ -398,7 +398,7 @@ acl_ip_data::FactoryParse(const char *t)
             if ( prev_addr && r->addr1 == *prev_addr) {
                 debugs(28, 3, "aclIpParseIpData: Duplicate host/IP: '" << r->addr1 << "' dropped.");
                 delete r;
-                *Q = NULL;
+                *Q = nullptr;
                 continue;
             } else
                 prev_addr = &r->addr1;
@@ -418,7 +418,7 @@ acl_ip_data::FactoryParse(const char *t)
         if (*Q != NULL) {
             debugs(28, DBG_CRITICAL, "aclIpParseIpData: Bad host/IP: '" << t << "'");
             self_destruct();
-            return NULL;
+            return nullptr;
         }
 
         return q;
@@ -428,7 +428,7 @@ acl_ip_data::FactoryParse(const char *t)
     if ( iptype == AF_INET6 && !Ip::EnableIpv6) {
         debugs(28, DBG_IMPORTANT, "aclIpParseIpData: IPv6 has not been enabled.");
         delete q;
-        return NULL;
+        return nullptr;
     }
 
     /* Decode addr1 */
@@ -436,7 +436,7 @@ acl_ip_data::FactoryParse(const char *t)
         debugs(28, DBG_CRITICAL, "aclIpParseIpData: unknown first address in '" << t << "'");
         delete q;
         self_destruct();
-        return NULL;
+        return nullptr;
     }
 
     /* Decode addr2 */
@@ -446,7 +446,7 @@ acl_ip_data::FactoryParse(const char *t)
         debugs(28, DBG_CRITICAL, "aclIpParseIpData: unknown second address in '" << t << "'");
         delete q;
         self_destruct();
-        return NULL;
+        return nullptr;
     }
 
     /* Decode mask (NULL or empty means a exact host mask) */
@@ -454,7 +454,7 @@ acl_ip_data::FactoryParse(const char *t)
         debugs(28, DBG_CRITICAL, "aclParseIpData: unknown netmask '" << mask << "' in '" << t << "'");
         delete q;
         self_destruct();
-        return NULL;
+        return nullptr;
     }
 
     changed = 0;
@@ -483,7 +483,7 @@ ACLIP::parse()
         while (q != NULL) {
             /* pop each result off the list and add it to the data tree individually */
             acl_ip_data *next_node = q->next;
-            q->next = NULL;
+            q->next = nullptr;
             if (!data->find(q,acl_ip_data::NetworkCompare))
                 data->insert(q, acl_ip_data::NetworkCompare);
             q = next_node;

@@ -37,7 +37,7 @@
 /* Basic Scheme */
 static AUTHSSTATS authenticateBasicStats;
 
-helper *basicauthenticators = NULL;
+helper *basicauthenticators = nullptr;
 
 static int authbasic_initialised = 0;
 
@@ -111,7 +111,7 @@ Auth::Basic::Config::done()
     }
 
     delete basicauthenticators;
-    basicauthenticators = NULL;
+    basicauthenticators = nullptr;
 
     if (authenticateProgram)
         wordlistDestroy(&authenticateProgram);
@@ -230,7 +230,7 @@ Auth::Basic::Config::decode(char const *proxy_auth, const HttpRequest *request, 
 
     Auth::User::Pointer lb;
     /* permitted because local_basic is purely local function scope. */
-    Auth::Basic::User *local_basic = NULL;
+    Auth::Basic::User *local_basic = nullptr;
 
     char *separator = strchr(cleartext, ':');
 

@@ -91,8 +91,8 @@ void Ssl::Helper::Init()
     {
         char *tmp = xstrdup(Ssl::TheConfig.ssl_crtd);
         char *tmp_begin = tmp;
-        char *token = NULL;
-        while ((token = strwordtok(NULL, &tmp))) {
+        char *token = nullptr;
+        while ((token = strwordtok(nullptr, &tmp))) {
             wordlistAdd(&ssl_crtd->cmdline, token);
         }
         safe_free(tmp_begin);
@@ -107,7 +107,7 @@ void Ssl::Helper::Shutdown()
     helperShutdown(ssl_crtd);
     wordlistDestroy(&ssl_crtd->cmdline);
     delete ssl_crtd;
-    ssl_crtd = NULL;
+    ssl_crtd = nullptr;
 }
 
 void
@@ -191,9 +191,9 @@ void Ssl::CertValidationHelper::Init()
     {
         char *tmp = xstrdup(Ssl::TheConfig.ssl_crt_validator);
         char *tmp_begin = tmp;
-        char * token = NULL;
+        char * token = nullptr;
         bool parseParams = true;
-        while ((token = strwordtok(NULL, &tmp))) {
+        while ((token = strwordtok(nullptr, &tmp))) {
             if (parseParams) {
                 if (strncmp(token, "ttl=", 4) == 0) {
                     ttl = atoi(token + 4);
@@ -222,13 +222,13 @@ void Ssl::CertValidationHelper::Shutdown()
     helperShutdown(ssl_crt_validator);
     wordlistDestroy(&ssl_crt_validator->cmdline);
     delete ssl_crt_validator;
-    ssl_crt_validator = NULL;
+    ssl_crt_validator = nullptr;
 
     // CertValidationHelper::HelperCache is a static member, it is not good policy to
     // reset it here. Will work because the current Ssl::CertValidationHelper is
     // always the same static object.
     delete HelperCache;
-    HelperCache = NULL;
+    HelperCache = nullptr;
 }
 
 void

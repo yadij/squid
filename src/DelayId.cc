@@ -85,7 +85,7 @@ DelayId::DelayClient(ClientHttpRequest * http, HttpReply *reply)
             continue;
         }
 
-        ACLFilledChecklist ch(DelayPools::delay_data[pool].access, r, NULL);
+        ACLFilledChecklist ch(DelayPools::delay_data[pool].access, r, nullptr);
         if (reply) {
             ch.reply = reply;
             HTTPMSGLOCK(reply);

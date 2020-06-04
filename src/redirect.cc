@@ -54,14 +54,14 @@ public:
 
 static HLPCB redirectHandleReply;
 static HLPCB storeIdHandleReply;
-static helper *redirectors = NULL;
-static helper *storeIds = NULL;
+static helper *redirectors = nullptr;
+static helper *storeIds = nullptr;
 static OBJH redirectStats;
 static OBJH storeIdStats;
 static int redirectorBypassed = 0;
 static int storeIdBypassed = 0;
-static Format::Format *redirectorExtrasFmt = NULL;
-static Format::Format *storeIdExtrasFmt = NULL;
+static Format::Format *redirectorExtrasFmt = nullptr;
+static Format::Format *storeIdExtrasFmt = nullptr;
 
 CBDATA_CLASS_INIT(RedirectStateData);
 
@@ -261,16 +261,16 @@ constructHelperQuery(const char *name, helper *hlp, HLPCB *replyHandler, ClientH
         Ip::Address tmpnoaddr;
         tmpnoaddr.setNoAddr();
         repContext->setReplyToError(ERR_GATEWAY_FAILURE, status,
-                                    http->request->method, NULL,
+                                    http->request->method, nullptr,
                                     http->getConn() != NULL && http->getConn()->clientConnection != NULL ?
                                     http->getConn()->clientConnection->remote : tmpnoaddr,
                                     http->request,
-                                    NULL,
+                                    nullptr,
 #if USE_AUTH
                                     http->getConn() != NULL && http->getConn()->getAuth() != NULL ?
                                     http->getConn()->getAuth() : http->request->auth_user_request);
 #else
-                                    NULL);
+                                    nullptr);
 #endif
 
         node = (clientStreamNode *)http->client_stream.tail->data;
@@ -422,16 +422,16 @@ redirectShutdown(void)
         return;
 
     delete redirectors;
-    redirectors = NULL;
+    redirectors = nullptr;
 
     delete storeIds;
-    storeIds = NULL;
+    storeIds = nullptr;
 
     delete redirectorExtrasFmt;
-    redirectorExtrasFmt = NULL;
+    redirectorExtrasFmt = nullptr;
 
     delete storeIdExtrasFmt;
-    storeIdExtrasFmt = NULL;
+    storeIdExtrasFmt = nullptr;
 }
 
 void

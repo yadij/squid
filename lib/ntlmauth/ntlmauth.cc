@@ -100,7 +100,7 @@ ntlm_fetch_string(const ntlmhdr *packet, const int32_t packet_size, const strhdr
     lstring rv;
     char *d;
 
-    rv.str = NULL;
+    rv.str = nullptr;
     rv.l = -1;
 
     int16_t l = le16toh(str->len);

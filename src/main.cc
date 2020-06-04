@@ -145,7 +145,7 @@ void WINAPI WIN32_svcHandler(DWORD);
 #endif
 
 static int opt_signal_service = FALSE;
-static char *opt_syslog_facility = NULL;
+static char *opt_syslog_facility = nullptr;
 static int icpPortNumOverride = 1;  /* Want to detect "-u 0" */
 static int configured_once = 0;
 #if MALLOC_DBG
@@ -224,7 +224,7 @@ private:
         Auth::Scheme::FreeAll();
 #endif
 
-        eventAdd("SquidTerminate", &StopEventLoop, NULL, 0, 1, false);
+        eventAdd("SquidTerminate", &StopEventLoop, nullptr, 0, 1, false);
     }
 
     void doShutdown(time_t wait);
@@ -907,7 +907,7 @@ mainReconfigureStart(void)
     icapLogClose();
 #endif
 
-    eventAdd("mainReconfigureFinish", &mainReconfigureFinish, NULL, 0, 1,
+    eventAdd("mainReconfigureFinish", &mainReconfigureFinish, nullptr, 0, 1,
              false);
 }
 
@@ -1022,11 +1022,11 @@ mainReconfigureFinish(void *)
 #endif
 
     if (Config.onoff.announce) {
-        if (!eventFind(start_announce, NULL))
-            eventAdd("start_announce", start_announce, NULL, 3600.0, 1);
+        if (!eventFind(start_announce, nullptr))
+            eventAdd("start_announce", start_announce, nullptr, 3600.0, 1);
     } else {
-        if (eventFind(start_announce, NULL))
-            eventDelete(start_announce, NULL);
+        if (eventFind(start_announce, nullptr))
+            eventDelete(start_announce, nullptr);
     }
 
     reconfiguring = 0;
@@ -1931,7 +1931,7 @@ watch_child(const CommandLine &masterCommand)
 #ifdef TIOCNOTTY
 
     if ((i = open("/dev/tty", O_RDWR | O_TEXT)) >= 0) {
-        ioctl(i, TIOCNOTTY, NULL);
+        ioctl(i, TIOCNOTTY, nullptr);
         close(i);
     }
 

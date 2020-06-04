@@ -194,7 +194,7 @@ Ssl::CertValidationMsg::getCertByName(std::vector<CertItem> const &certs, std::s
         if (ci->name.compare(name) == 0)
             return ci->cert.get();
     }
-    return NULL;
+    return nullptr;
 }
 
 Ssl::CertValidationResponse::RecvdError &

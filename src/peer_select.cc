@@ -126,7 +126,7 @@ PeerSelector::~PeerSelector()
     if (entry) {
         assert(entry->ping_status != PING_WAITING);
         entry->unlock("peerSelect");
-        entry = NULL;
+        entry = nullptr;
     }
 
     delete lastError;
@@ -404,7 +404,7 @@ PeerSelector::noteIps(const Dns::CachedIps *ia, const Dns::LookupDetails &detail
         debugs(44, 3, "Unknown host: " << (fs->_peer.valid() ? fs->_peer->host : request->url.host()));
         // discard any previous error.
         delete lastError;
-        lastError = NULL;
+        lastError = nullptr;
         if (fs->code == HIER_DIRECT) {
             lastError = new ErrorState(ERR_DNS_FAIL, Http::scServiceUnavailable, request, al);
             lastError->dnsError = details.error;
@@ -475,7 +475,7 @@ PeerSelector::selectMore()
         if (always_direct == ACCESS_DUNNO) {
             debugs(44, 3, "direct = " << DirectStr[direct] << " (always_direct to be checked)");
             /** check always_direct; */
-            ACLFilledChecklist *ch = new ACLFilledChecklist(Config.accessList.AlwaysDirect, request, NULL);
+            ACLFilledChecklist *ch = new ACLFilledChecklist(Config.accessList.AlwaysDirect, request, nullptr);
             ch->al = al;
             acl_checklist = ch;
             acl_checklist->syncAle(request, nullptr);
@@ -484,7 +484,7 @@ PeerSelector::selectMore()
         } else if (never_direct == ACCESS_DUNNO) {
             debugs(44, 3, "direct = " << DirectStr[direct] << " (never_direct to be checked)");
             /** check never_direct; */
-            ACLFilledChecklist *ch = new ACLFilledChecklist(Config.accessList.NeverDirect, request, NULL);
+            ACLFilledChecklist *ch = new ACLFilledChecklist(Config.accessList.NeverDirect, request, nullptr);
             ch->al = al;
             acl_checklist = ch;
             acl_checklist->syncAle(request, nullptr);
@@ -644,7 +644,7 @@ PeerSelector::selectSomeNeighbor()
 void
 PeerSelector::selectSomeNeighborReplies()
 {
-    CachePeer *p = NULL;
+    CachePeer *p = nullptr;
     hier_code code = HIER_NONE;
     assert(entry->ping_status == PING_WAITING);
     assert(direct != DIRECT_YES);

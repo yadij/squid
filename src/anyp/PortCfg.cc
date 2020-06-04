@@ -49,7 +49,7 @@ AnyP::PortCfg::~PortCfg()
 {
     if (Comm::IsConnOpen(listenConn)) {
         listenConn->close();
-        listenConn = NULL;
+        listenConn = nullptr;
     }
 
     safe_free(name);

@@ -66,7 +66,7 @@ static void set_our_signal(void);
 Parameters scParams;
 
 static int put_fd;
-static char *put_file = NULL;
+static char *put_file = nullptr;
 
 static struct stat sb;
 int total_bytes = 0;
@@ -75,7 +75,7 @@ int total_bytes = 0;
 /* Bug 3854: AIX 6.1 tries to link in this fde.h global symbol
  * despite squidclient not using any of the fd_* code.
  */
-fde *fde::Table = NULL;
+fde *fde::Table = nullptr;
 #endif
 
 #if _SQUID_WINDOWS_
@@ -246,9 +246,9 @@ main(int argc, char *argv[])
     time_t ims = 0;
     int max_forwards = -1;
 
-    const char *host = NULL;
+    const char *host = nullptr;
     const char *version = "1.0";
-    const char *useragent = NULL;
+    const char *useragent = nullptr;
 
     /* set the defaults */
     to_stdout = true;
@@ -425,7 +425,7 @@ main(int argc, char *argv[])
     /* Build the HTTP request */
     if (strncmp(url, "mgr:", 4) == 0) {
         char *t = xstrdup(url + 4);
-        const char *at = NULL;
+        const char *at = nullptr;
         if (!strrchr(t, '@')) { // ignore any -w password if @ is explicit already.
             at = ProxyAuthorization.password;
         }
@@ -653,7 +653,7 @@ set_our_signal(void)
     sa.sa_flags = SA_RESTART;
     sigemptyset(&sa.sa_mask);
 
-    if (sigaction(SIGPIPE, &sa, NULL) < 0) {
+    if (sigaction(SIGPIPE, &sa, nullptr) < 0) {
         std::cerr << "ERROR: Cannot set PIPE signal." << std::endl;
         exit(EXIT_FAILURE);
     }

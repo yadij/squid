@@ -76,7 +76,7 @@ typedef WINLDAPAPI ULONG(LDAPAPI * PFldap_start_tls_s) (IN PLDAP, OUT PULONG, OU
 typedef WINLDAPAPI ULONG(LDAPAPI * PFldap_start_tls_s) (IN PLDAP, OUT PULONG, OUT LDAPMessage **, IN PLDAPControlA *, IN PLDAPControlA *);
 #endif /* LDAP_UNICODE */
 PFldap_start_tls_s Win32_ldap_start_tls_s;
-#define ldap_start_tls_s(l,s,c) Win32_ldap_start_tls_s(l,NULL,NULL,s,c)
+#define ldap_start_tls_s(l,s,c) Win32_ldap_start_tls_s(l, nullptr, nullptr,s,c)
 #endif /* LDAP_VERSION3 */
 
 #else
@@ -95,19 +95,19 @@ PFldap_start_tls_s Win32_ldap_start_tls_s;
 
 /* Globals */
 
-static const char *basedn = NULL;
-static const char *searchfilter = NULL;
-static const char *userbasedn = NULL;
-static const char *userdnattr = NULL;
-static const char *usersearchfilter = NULL;
-static const char *binddn = NULL;
-static const char *bindpasswd = NULL;
+static const char *basedn = nullptr;
+static const char *searchfilter = nullptr;
+static const char *userbasedn = nullptr;
+static const char *userdnattr = nullptr;
+static const char *usersearchfilter = nullptr;
+static const char *binddn = nullptr;
+static const char *bindpasswd = nullptr;
 static int searchscope = LDAP_SCOPE_SUBTREE;
 static int persistent = 0;
 static int noreferrals = 0;
 static int aliasderef = LDAP_DEREF_NEVER;
 #if defined(NETSCAPE_SSL)
-static char *sslpath = NULL;
+static char *sslpath = nullptr;
 static int sslinit = 0;
 #endif
 static int connect_timeout = 0;
@@ -219,16 +219,16 @@ int
 main(int argc, char **argv)
 {
     char buf[HELPER_INPUT_BUFFER];
-    char *user, *group, *extension_dn = NULL;
-    char *ldapServer = NULL;
-    LDAP *ld = NULL;
+    char *user, *group, *extension_dn = nullptr;
+    char *ldapServer = nullptr;
+    LDAP *ld = nullptr;
     int tryagain = 0, rc;
     int port = LDAP_PORT;
     int use_extension_dn = 0;
     int strip_nt_domain = 0;
     int strip_kerberos_realm = 0;
 
-    setbuf(stdout, NULL);
+    setbuf(stdout, nullptr);
 
     while (argc > 1 && argv[1][0] == '-') {
         const char *value = "";
@@ -497,7 +497,7 @@ main(int argc, char **argv)
             }
         }
         if (use_extension_dn) {
-            extension_dn = strtok(NULL, " \n");
+            extension_dn = strtok(nullptr, " \n");
             if (!extension_dn) {
                 debug("%s: Invalid request: Extension DN configured, but none sent.\n", argv[0]);
                 SEND_BH(HLP_MSG("Invalid Request. Extension DN required"));
@@ -506,7 +506,7 @@ main(int argc, char **argv)
             rfc1738_unescape(extension_dn);
         }
         const char *broken = nullptr;
-        while (!found && user && (group = strtok(NULL, " \n")) != NULL) {
+        while (!found && user && (group = strtok(nullptr, " \n")) != NULL) {
             rfc1738_unescape(group);
 
 recover:
@@ -523,7 +523,7 @@ recover:
 #endif
 #if NETSCAPE_SSL
                     if (sslpath) {
-                        if (!sslinit && (ldapssl_client_init(sslpath, NULL) != LDAP_SUCCESS)) {
+                        if (!sslinit && (ldapssl_client_init(sslpath, nullptr) != LDAP_SUCCESS)) {
                             fprintf(stderr, "FATAL: Unable to initialise SSL with cert path %s\n", sslpath);
                             exit(EXIT_FAILURE);
                         } else {
@@ -552,7 +552,7 @@ recover:
                     broken = HLP_MSG("Could not set LDAP_OPT_PROTOCOL_VERSION");
                     fprintf(stderr, "ERROR: %s %d\n", broken, version);
                     ldap_unbind(ld);
-                    ld = NULL;
+                    ld = nullptr;
                     break;
                 }
                 if (use_tls) {
@@ -560,11 +560,11 @@ recover:
                     if (version != LDAP_VERSION3) {
                         fprintf(stderr, "FATAL: TLS requires LDAP version 3\n");
                         exit(EXIT_FAILURE);
-                    } else if (ldap_start_tls_s(ld, NULL, NULL) != LDAP_SUCCESS) {
+                    } else if (ldap_start_tls_s(ld, nullptr, nullptr) != LDAP_SUCCESS) {
                         broken = HLP_MSG("Could not Activate TLS connection");
                         fprintf(stderr, "ERROR: %s\n", broken);
                         ldap_unbind(ld);
-                        ld = NULL;
+                        ld = nullptr;
                         break;
                     }
 #else
@@ -582,7 +582,7 @@ recover:
                         broken = HLP_MSG("could not bind");
                         fprintf(stderr, PROGRAM_NAME ": WARNING: %s to binddn '%s'\n", broken, ldap_err2string(rc));
                         ldap_unbind(ld);
-                        ld = NULL;
+                        ld = nullptr;
                         break;
                     }
                 }
@@ -596,7 +596,7 @@ recover:
                 if (tryagain) {
                     tryagain = 0;
                     ldap_unbind(ld);
-                    ld = NULL;
+                    ld = nullptr;
                     goto recover;
                 }
                 broken = HLP_MSG("LDAP search error");
@@ -613,7 +613,7 @@ recover:
         if (ld != NULL) {
             if (!persistent || (squid_ldap_errno(ld) != LDAP_SUCCESS && squid_ldap_errno(ld) != LDAP_INVALID_CREDENTIALS)) {
                 ldap_unbind(ld);
-                ld = NULL;
+                ld = nullptr;
             } else {
                 tryagain = 1;
             }
@@ -723,9 +723,9 @@ static int
 searchLDAPGroup(LDAP * ld, const char *group, const char *member, const char *extension_dn)
 {
     std::string filter;
-    LDAPMessage *res = NULL;
+    LDAPMessage *res = nullptr;
     int rc;
-    char *searchattr[] = {(char *) LDAP_NO_ATTRS, NULL};
+    char *searchattr[] = {(char *) LDAP_NO_ATTRS, nullptr};
 
     const std::string searchbase = build_searchbase(extension_dn, basedn);
     if (!build_filter(filter, searchfilter, member, group)) {
@@ -759,11 +759,11 @@ searchLDAP(LDAP * ld, char *group, char *login, char *extension_dn)
 
     const char *current_userdn = userbasedn ? userbasedn : basedn;
     if (usersearchfilter) {
-        LDAPMessage *res = NULL;
+        LDAPMessage *res = nullptr;
         LDAPMessage *entry;
         int rc;
         char *userdn;
-        char *searchattr[] = {(char *) LDAP_NO_ATTRS, NULL};
+        char *searchattr[] = {(char *) LDAP_NO_ATTRS, nullptr};
         const std::string searchbase = build_searchbase(extension_dn, current_userdn);
         std::string filter(usersearchfilter);
         const std::string escaped_login = ldap_escape_value(login);

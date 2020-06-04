@@ -74,7 +74,7 @@ ACLChecklist::preCheck(const char *what)
     occupied_ = true;
     asyncLoopDepth_ = 0;
 
-    AclMatchedName = NULL;
+    AclMatchedName = nullptr;
     finished_ = false;
 }
 
@@ -163,7 +163,7 @@ ACLChecklist::checkCallback(Acl::Answer answer)
     debugs(28, 3, "ACLChecklist::checkCallback: " << this << " answer=" << answer);
 
     callback_ = callback;
-    callback = NULL;
+    callback = nullptr;
 
     if (cbdataReferenceValidDone(callback_data, &cbdata_))
         callback_(answer, cbdata_);

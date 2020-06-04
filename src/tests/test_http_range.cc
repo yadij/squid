@@ -23,7 +23,7 @@ void httpHeaderPutStr(HttpHeader * hdr, Http::HdrType type, const char *str)
 HttpHeaderEntry *httpHeaderGetEntry(const HttpHeader * hdr, HttpHeaderPos * pos)
 {
     fatal ("dummy function\n");
-    return NULL;
+    return nullptr;
 }
 
 String httpHeaderGetList(const HttpHeader * hdr, Http::HdrType id)
@@ -160,7 +160,7 @@ main(int argc, char **argv)
     try {
         Mem::Init();
         /* enable for debugging to console */
-        //    _db_init (NULL, NULL);
+        //    _db_init (nullptr, nullptr);
         //    Debug::Levels[64] = 9;
         testRangeParser("bytes=0-3");
         testRangeParser("bytes=-3");

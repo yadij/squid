@@ -187,7 +187,7 @@ testIpAddress::testCopyConstructor()
 void
 testIpAddress::testHostentConstructor()
 {
-    struct hostent *hp = NULL;
+    struct hostent *hp = nullptr;
     struct in_addr outval;
     struct in_addr expectval;
 
@@ -622,7 +622,7 @@ void
 testIpAddress::testAddrInfo()
 {
     struct addrinfo *expect;
-    struct addrinfo *ipval = NULL;
+    struct addrinfo *ipval = nullptr;
     struct addrinfo hints;
 
     memset(&hints, 0, sizeof(struct addrinfo));
@@ -632,7 +632,7 @@ testIpAddress::testAddrInfo()
     Ip::Address anIP = "127.0.0.1";
 
     /* assert this just to check that getaddrinfo is working properly */
-    CPPUNIT_ASSERT( getaddrinfo("127.0.0.1", NULL, &hints, &expect ) == 0 );
+    CPPUNIT_ASSERT( getaddrinfo("127.0.0.1", nullptr, &hints, &expect ) == 0 );
 
     anIP.getAddrInfo(ipval);
 

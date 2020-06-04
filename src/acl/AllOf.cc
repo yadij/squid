@@ -50,7 +50,7 @@ Acl::AllOf::doMatch(ACLChecklist *checklist, Nodes::const_iterator start) const
 void
 Acl::AllOf::parse()
 {
-    Acl::InnerNode *whole = NULL;
+    Acl::InnerNode *whole = nullptr;
     ACL *oldNode = empty() ? NULL : nodes.front();
 
     // optimization: this logic reduces subtree hight (number of tree levels)

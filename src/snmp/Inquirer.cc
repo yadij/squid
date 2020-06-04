@@ -46,11 +46,11 @@ Snmp::Inquirer::cleanup()
     if (Comm::IsConnOpen(conn)) {
         if (closer != NULL) {
             comm_remove_close_handler(conn->fd, closer);
-            closer = NULL;
+            closer = nullptr;
         }
         conn->close();
     }
-    conn = NULL;
+    conn = nullptr;
 }
 
 void
@@ -88,7 +88,7 @@ Snmp::Inquirer::noteCommClosed(const CommCloseCbParams& params)
 {
     debugs(49, 5, HERE);
     Must(!Comm::IsConnOpen(conn) || conn->fd == params.conn->fd);
-    conn = NULL;
+    conn = nullptr;
     mustStop("commClosed");
 }
 

@@ -31,10 +31,10 @@ char *
 Format::QuoteUrlEncodeUsername(const char *name)
 {
     if (NULL == name)
-        return NULL;
+        return nullptr;
 
     if (name[0] == '\0')
-        return NULL;
+        return nullptr;
 
     return QuoteMimeBlob(name);
 }

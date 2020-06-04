@@ -100,7 +100,7 @@ hex_dump(unsigned char *data, int size)
     if (0) { //temporary hack to keep the linker happy
         uc(NULL);
         lc(NULL);
-        hex_dump(NULL,0);
+        hex_dump(nullptr,0);
     }
 
 }

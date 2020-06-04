@@ -90,7 +90,7 @@ esiBufferRecipient (clientStreamNode *node, ClientHttpRequest *http, HttpReply *
     } else {
         if (rep) {
             if (rep->sline.status() != Http::scOkay) {
-                rep = NULL;
+                rep = nullptr;
                 esiStream->include->includeFail (esiStream);
                 esiStream->finished = 1;
                 httpRequestFree (http);
@@ -102,7 +102,7 @@ esiBufferRecipient (clientStreamNode *node, ClientHttpRequest *http, HttpReply *
             headersLog(0, 0, http->request->method, rep);
 
 #endif
-            rep = NULL;
+            rep = nullptr;
         }
     }
 
@@ -140,7 +140,7 @@ esiBufferRecipient (clientStreamNode *node, ClientHttpRequest *http, HttpReply *
     if (clientHttpRequestStatus(-1, http)) {
         /* TODO: Does thisNode if block leak htto ? */
         /* XXX when reviewing ESI this is the first place to look */
-        node->data = NULL;
+        node->data = nullptr;
         esiStream->finished = 1;
         esiStream->include->includeFail (esiStream);
         return;
@@ -204,9 +204,9 @@ void
 ESIStreamContext::freeResources()
 {
     debugs(86, 5, "Freeing stream context resources.");
-    buffer = NULL;
-    localbuffer = NULL;
-    include = NULL;
+    buffer = nullptr;
+    localbuffer = nullptr;
+    include = nullptr;
 }
 
 ESIStreamContext *
@@ -231,7 +231,7 @@ ESIInclude::~ESIInclude()
 void
 ESIInclude::finish()
 {
-    parent = NULL;
+    parent = nullptr;
 }
 
 ESIElement::Pointer
@@ -370,7 +370,7 @@ ESIInclude::start()
         Start (src, srcurl, varState);
         Start (alt, alturl, varState);
     } else {
-        alt = NULL;
+        alt = nullptr;
 
         debugs(86, DBG_IMPORTANT, "ESIIncludeNew: esi:include with no src attributes");
 
@@ -397,10 +397,10 @@ ESIInclude::render(ESISegment::Pointer output)
     /* Render the content */
     if (srccontent.getRaw()) {
         myout = srccontent;
-        srccontent = NULL;
+        srccontent = nullptr;
     } else if (altcontent.getRaw()) {
         myout = altcontent;
-        altcontent = NULL;
+        altcontent = nullptr;
     } else
         fatal ("ESIIncludeRender called with no content, and no failure!\n");
 
@@ -478,7 +478,7 @@ ESIInclude::subRequestDone (ESIStreamContext::Pointer stream, bool success)
             }
         }
 
-        src = NULL;
+        src = nullptr;
     } else if (stream == alt) {
         debugs(86, 3, "ESIInclude::subRequestDone: " << alturl);
 
@@ -502,7 +502,7 @@ ESIInclude::subRequestDone (ESIStreamContext::Pointer stream, bool success)
             }
         }
 
-        alt = NULL;
+        alt = nullptr;
     } else {
         fatal ("ESIIncludeSubRequestDone: non-owned stream found!\n");
     }
@@ -542,9 +542,9 @@ ESIInclude::subRequestDone (ESIStreamContext::Pointer stream, bool success)
             parent->provideData (srccontent.getRaw() ? srccontent:altcontent,this);
 
             if (srccontent.getRaw())
-                srccontent = NULL;
+                srccontent = nullptr;
             else
-                altcontent = NULL;
+                altcontent = nullptr;
         } else if (flags.onerrorcontinue) {
             /* render nothing but inform of completion */
 

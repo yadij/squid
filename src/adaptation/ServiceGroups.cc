@@ -33,7 +33,7 @@ Adaptation::ServiceGroup::parse()
 {
     id = ConfigParser::NextToken();
 
-    wordlist *names = NULL;
+    wordlist *names = nullptr;
     ConfigParser::ParseWordList(&names);
     for (wordlist *i = names; i; i = i->next)
         services.push_back(i->key);
@@ -247,9 +247,9 @@ Adaptation::DynamicServiceChain::Split(const ServiceFilter &filter,
     // walk the list of services and split it into two parts:
     // services that are applicable now and future services
     bool doingCurrent = true;
-    const char *item = NULL;
+    const char *item = nullptr;
     int ilen = 0;
-    const char *pos = NULL;
+    const char *pos = nullptr;
     while (strListGetItem(&ids, ',', &item, &ilen, &pos)) {
         String id;
         id.assign(item, ilen);
@@ -336,6 +336,6 @@ Adaptation::FindGroup(const ServiceGroup::Id &id)
             return *i;
     }
 
-    return NULL;
+    return nullptr;
 }
 

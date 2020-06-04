@@ -25,8 +25,8 @@
 
 #define PCONN_FDS_SZ    8   /* pconn set size, increase for better memcache hit rate */
 
-//TODO: re-attach to MemPools. WAS: static MemAllocator *pconn_fds_pool = NULL;
-PconnModule * PconnModule::instance = NULL;
+//TODO: re-attach to MemPools. WAS: static MemAllocator *pconn_fds_pool = nullptr;
+PconnModule * PconnModule::instance = nullptr;
 CBDATA_CLASS_INIT(IdleConnList);
 
 /* ========== IdleConnList ============================================ */
@@ -38,7 +38,7 @@ IdleConnList::IdleConnList(const char *aKey, PconnPool *thePool) :
 {
     //Initialize hash_link members
     key = xstrdup(aKey);
-    next = NULL;
+    next = nullptr;
 
     theList_ = new Comm::ConnectionPointer[capacity_];
 
@@ -53,7 +53,7 @@ IdleConnList::~IdleConnList()
         parent_->unlinkList(this);
 
     if (size_) {
-        parent_ = NULL; // prevent reentrant notifications and deletions
+        parent_ = nullptr; // prevent reentrant notifications and deletions
         closeN(size_);
     }
 
@@ -95,7 +95,7 @@ IdleConnList::removeAt(int index)
     // shuffle the remaining entries to fill the new gap.
     for (; index < size_ - 1; ++index)
         theList_[index] = theList_[index + 1];
-    theList_[--size_] = NULL;
+    theList_[--size_] = nullptr;
 
     if (parent_) {
         parent_->noteConnectionRemoved();
@@ -119,7 +119,7 @@ IdleConnList::closeN(size_t n)
         debugs(48, 2, HERE << "Closing all entries.");
         while (size_ > 0) {
             const Comm::ConnectionPointer conn = theList_[--size_];
-            theList_[size_] = NULL;
+            theList_[size_] = nullptr;
             clearHandlers(conn);
             conn->close();
             if (parent_)
@@ -132,7 +132,7 @@ IdleConnList::closeN(size_t n)
         // ensure the first N entries are closed
         for (index = 0; index < n; ++index) {
             const Comm::ConnectionPointer conn = theList_[index];
-            theList_[index] = NULL;
+            theList_[index] = nullptr;
             clearHandlers(conn);
             conn->close();
             if (parent_)
@@ -144,7 +144,7 @@ IdleConnList::closeN(size_t n)
         }
         // ensure the last N entries are unset
         while (index < ((size_t)size_)) {
-            theList_[index] = NULL;
+            theList_[index] = nullptr;
             ++index;
         }
         size_ -= n;
@@ -405,7 +405,7 @@ PconnPool::~PconnPool()
     PconnModule::GetInstance()->remove(this);
     hashFreeItems(table, &DeleteIdleConnList);
     hashFreeMemory(table);
-    descr = NULL;
+    descr = nullptr;
 }
 
 void

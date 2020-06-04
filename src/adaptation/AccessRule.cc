@@ -74,7 +74,7 @@ Adaptation::FindRule(const AccessRule::Id &id)
             return *i;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 Adaptation::AccessRule *
@@ -86,6 +86,6 @@ Adaptation::FindRuleByGroupId(const String &groupId)
             return *i;
     }
 
-    return NULL;
+    return nullptr;
 }
 

@@ -242,7 +242,7 @@ Fs::Ufs::UFSStoreState::readCompleted(const char *buf, int len, int, RefCount<Re
 
     assert(callback_);
 
-    read.callback = NULL;
+    read.callback = nullptr;
 
     void *cbdata;
 
@@ -308,7 +308,7 @@ Fs::Ufs::UFSStoreState::doCloseCallback(int errflag)
      */
     freePending();
     STIOCB *theCallback = callback;
-    callback = NULL;
+    callback = nullptr;
 
     void *cbdata;
 
@@ -320,13 +320,13 @@ Fs::Ufs::UFSStoreState::doCloseCallback(int errflag)
      * us that the file has been closed.  This must be the last line,
      * as theFile may be the only object holding us in memory.
      */
-    theFile = NULL; // refcounted
+    theFile = nullptr; // refcounted
 }
 
 /* ============= THE REAL UFS CODE ================ */
 
 Fs::Ufs::UFSStoreState::UFSStoreState(SwapDir * SD, StoreEntry * anEntry, STIOCB * cbIo, void *data) :
-    StoreIOState(NULL, cbIo, data),
+    StoreIOState(nullptr, cbIo, data),
     opening(false),
     creating(false),
     closing(false),

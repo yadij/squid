@@ -138,7 +138,7 @@ Comm::ConnOpener::sendAnswer(Comm::Flag errFlag, int xerrno, const char *why)
             params.xerrno = xerrno;
             ScheduleCallHere(callback_);
         }
-        callback_ = NULL;
+        callback_ = nullptr;
     }
 
     // The job will stop without this call because nil callback_ makes
@@ -170,27 +170,27 @@ Comm::ConnOpener::cleanFd()
          */
 
         delete static_cast<Pointer*>(f.write_data);
-        f.write_data = NULL;
-        f.write_handler = NULL;
+        f.write_data = nullptr;
+        f.write_handler = nullptr;
     }
     // Comm::DoSelect does not do this when calling and resetting write_handler
     // (because it expects more writes to come?). We could mimic that
     // optimization by resetting Comm "Select" state only when the FD is
     // actually closed.
-    Comm::SetSelect(temporaryFd_, COMM_SELECT_WRITE, NULL, NULL, 0);
+    Comm::SetSelect(temporaryFd_, COMM_SELECT_WRITE, nullptr, nullptr, 0);
 
     if (calls_.timeout_ != NULL) {
         calls_.timeout_->cancel("Comm::ConnOpener::cleanFd");
-        calls_.timeout_ = NULL;
+        calls_.timeout_ = nullptr;
     }
     // Comm checkTimeouts() and commCloseAllSockets() do not clear .timeout
     // when calling timeoutHandler (XXX fix them), so we clear unconditionally.
-    f.timeoutHandler = NULL;
+    f.timeoutHandler = nullptr;
     f.timeout = 0;
 
     if (calls_.earlyAbort_ != NULL) {
         comm_remove_close_handler(temporaryFd_, calls_.earlyAbort_);
-        calls_.earlyAbort_ = NULL;
+        calls_.earlyAbort_ = nullptr;
     }
 }
 
@@ -207,7 +207,7 @@ Comm::ConnOpener::closeFd()
     // "Select" state. It will not clear ours. XXX: It should always clear
     // because a callback may have been active but was called before comm_close
     // Update: we now do this in cleanFd()
-    // Comm::SetSelect(temporaryFd_, COMM_SELECT_WRITE, NULL, NULL, 0);
+    // Comm::SetSelect(temporaryFd_, COMM_SELECT_WRITE, nullptr, nullptr, 0);
 
     comm_close(temporaryFd_);
     temporaryFd_ = -1;
@@ -408,7 +408,7 @@ Comm::ConnOpener::cancelSleep()
 void
 Comm::ConnOpener::lookupLocalAddress()
 {
-    struct addrinfo *addr = NULL;
+    struct addrinfo *addr = nullptr;
     Ip::Address::InitAddr(addr);
 
     if (getsockname(conn_->fd, addr->ai_addr, &(addr->ai_addrlen)) != 0) {
@@ -430,7 +430,7 @@ void
 Comm::ConnOpener::earlyAbort(const CommCloseCbParams &io)
 {
     debugs(5, 3, HERE << io.conn);
-    calls_.earlyAbort_ = NULL;
+    calls_.earlyAbort_ = nullptr;
     // NP: is closing or shutdown better?
     sendAnswer(Comm::ERR_CLOSING, io.xerrno, "Comm::ConnOpener::earlyAbort");
 }
@@ -443,7 +443,7 @@ void
 Comm::ConnOpener::timeout(const CommTimeoutCbParams &)
 {
     debugs(5, 5, HERE << conn_ << ": * - ERR took too long to receive response.");
-    calls_.timeout_ = NULL;
+    calls_.timeout_ = nullptr;
     sendAnswer(Comm::TIMEOUT, ETIMEDOUT, "Comm::ConnOpener::timeout");
 }
 

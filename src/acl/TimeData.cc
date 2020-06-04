@@ -30,7 +30,7 @@ ACLTimeData::operator=(ACLTimeData const &old)
     weekbits = old.weekbits;
     start = old.start;
     stop = old.stop;
-    next = NULL;
+    next = nullptr;
 
     if (old.next)
         next = (ACLTimeData *)old.next->clone();
@@ -105,7 +105,7 @@ ACLTimeData::parse()
     long parsed_weekbits = 0;
 
     for (Tail = &next; *Tail; Tail = &((*Tail)->next));
-    ACLTimeData *q = NULL;
+    ACLTimeData *q = nullptr;
 
     int h1, m1, h2, m2;
 

@@ -44,7 +44,7 @@ Adaptation::Icap::ServiceRep::ServiceRep(const ServiceConfigPointer &svcCfg):
     isDetached(false)
 {
     setMaxConnections();
-    theIdleConns = new IdleConnList("ICAP Service", NULL);
+    theIdleConns = new IdleConnList("ICAP Service", nullptr);
 }
 
 Adaptation::Icap::ServiceRep::~ServiceRep()
@@ -272,7 +272,7 @@ void Adaptation::Icap::ServiceRep::busyCheckpoint()
         Client i = theNotificationWaiters.front();
         theNotificationWaiters.pop_front();
         ScheduleCallHere(i.callback);
-        i.callback = NULL;
+        i.callback = nullptr;
         --freed;
     }
 }
@@ -398,7 +398,7 @@ void Adaptation::Icap::ServiceRep::noteTimeToNotify()
 
     // note: we must notify even if we are invalidated
 
-    Pointer us = NULL;
+    Pointer us = nullptr;
 
     while (!theClients.empty()) {
         Client i = theClients.back();
@@ -562,7 +562,7 @@ void Adaptation::Icap::ServiceRep::noteAdaptationAnswer(const Answer &answer)
 
     debugs(93,5, HERE << "is interpreting new options " << status());
 
-    Adaptation::Icap::Options *newOptions = NULL;
+    Adaptation::Icap::Options *newOptions = nullptr;
     if (const HttpReply *r = dynamic_cast<const HttpReply*>(msg)) {
         newOptions = new Adaptation::Icap::Options;
         newOptions->configure(r);

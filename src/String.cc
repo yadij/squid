@@ -134,7 +134,7 @@ String::clean()
 
     size_ = 0;
 
-    buf_ = NULL;
+    buf_ = nullptr;
     PROF_stop(StringClean);
 }
 
@@ -215,7 +215,7 @@ String::absorb(String &old)
     setBuffer(old.buf_, old.size_);
     len_ = old.len_;
     old.size_ = 0;
-    old.buf_ = NULL;
+    old.buf_ = nullptr;
     old.len_ = 0;
 }
 
@@ -406,7 +406,7 @@ stringHasCntl(const char *s)
 char *
 strwordtok(char *buf, char **t)
 {
-    unsigned char *word = NULL;
+    unsigned char *word = nullptr;
     unsigned char *p = (unsigned char *) buf;
     unsigned char *d;
     unsigned char ch;
@@ -498,7 +498,7 @@ const char *
 String::pos(char const *aString) const
 {
     if (undefined())
-        return NULL;
+        return nullptr;
     return strstr(termedBuf(), aString);
 }
 
@@ -506,7 +506,7 @@ const char *
 String::pos(char const ch) const
 {
     if (undefined())
-        return NULL;
+        return nullptr;
     return strchr(termedBuf(), ch);
 }
 
@@ -514,7 +514,7 @@ const char *
 String::rpos(char const ch) const
 {
     if (undefined())
-        return NULL;
+        return nullptr;
     return strrchr(termedBuf(), (ch));
 }
 

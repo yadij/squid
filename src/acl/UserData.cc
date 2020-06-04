@@ -87,7 +87,7 @@ ACLUserData::parse()
 {
     debugs(28, 2, "parsing user list");
 
-    char *t = NULL;
+    char *t = nullptr;
     if ((t = ConfigParser::strtokFile())) {
         SBuf s(t);
         debugs(28, 5, "first token is " << s);

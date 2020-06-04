@@ -30,15 +30,15 @@ static int xprof_events = 0;
 static int xprof_inited = 0;
 static xprof_stats_data Totals;
 
-static TimersArray *xprof_stats_avg1sec = NULL;
-static TimersArray *xprof_stats_avg5sec = NULL;
-static TimersArray *xprof_stats_avg30sec = NULL;
-static TimersArray *xprof_stats_avg1min = NULL;
-static TimersArray *xprof_stats_avg5min = NULL;
-static TimersArray *xprof_stats_avg30min = NULL;
-static TimersArray *xprof_stats_avg1hour = NULL;
-static TimersArray *xprof_stats_avg5hour = NULL;
-static TimersArray *xprof_stats_avg24hour = NULL;
+static TimersArray *xprof_stats_avg1sec = nullptr;
+static TimersArray *xprof_stats_avg5sec = nullptr;
+static TimersArray *xprof_stats_avg30sec = nullptr;
+static TimersArray *xprof_stats_avg1min = nullptr;
+static TimersArray *xprof_stats_avg5min = nullptr;
+static TimersArray *xprof_stats_avg30min = nullptr;
+static TimersArray *xprof_stats_avg1hour = nullptr;
+static TimersArray *xprof_stats_avg5hour = nullptr;
+static TimersArray *xprof_stats_avg24hour = nullptr;
 
 static xprof_stats_node *sortlist[XPROF_LAST + 2];
 static void xprof_summary(StoreEntry * sentry);
@@ -304,7 +304,7 @@ xprof_event(void *data)
 
     xprof_chk_overhead(30);
 
-    eventAdd("cpuProfiling", xprof_event, NULL, 1.0, 1);
+    eventAdd("cpuProfiling", xprof_event, nullptr, 1.0, 1);
 }
 
 #endif /* USE_XPROF_STATS */

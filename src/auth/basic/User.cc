@@ -70,7 +70,7 @@ Auth::Basic::User::updateCached(Auth::Basic::User *from)
         credentials(Auth::Unchecked);
         xfree(passwd);
         passwd = from->passwd;
-        from->passwd = NULL;
+        from->passwd = nullptr;
     }
 
     if (credentials() == Auth::Failed) {

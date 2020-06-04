@@ -101,12 +101,12 @@ testRock::tearDown()
 
     Store::FreeMemory();
 
-    store = NULL;
+    store = nullptr;
 
     free_cachedir(&Config.cacheSwap);
 
     rr->finishShutdown(); // deletes rr
-    rr = NULL;
+    rr = nullptr;
 
     // TODO: do this once, or each time.
     // safe_free(Config.replPolicy->type);
@@ -134,7 +134,7 @@ testRock::commonInit()
 
     Config.replPolicy = new RemovalPolicySettings;
     Config.replPolicy->type = xstrdup("lru");
-    Config.replPolicy->args = NULL;
+    Config.replPolicy->args = nullptr;
 
     /* garh garh */
     storeReplAdd("lru", createRemovalPolicy_lru);

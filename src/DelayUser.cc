@@ -142,7 +142,7 @@ DelayUserBucket::DelayUserBucket(Auth::User::Pointer aUser) : authUser(aUser)
 
 DelayUserBucket::~DelayUserBucket()
 {
-    authUser = NULL;
+    authUser = nullptr;
     debugs(77, 3, "DelayUserBucket::~DelayUserBucket");
 }
 

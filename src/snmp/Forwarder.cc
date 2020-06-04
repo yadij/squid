@@ -40,7 +40,7 @@ Snmp::Forwarder::swanSong()
     if (fd >= 0) {
         if (closer != NULL) {
             comm_remove_close_handler(fd, closer);
-            closer = NULL;
+            closer = nullptr;
         }
         fd = -1;
     }
@@ -94,7 +94,7 @@ Snmp::SendResponse(unsigned int requestId, const Pdu& pdu)
     // snmpAgentResponse() can modify arg
     Pdu tmp = pdu;
     Snmp::Response response(requestId);
-    snmp_pdu* response_pdu = NULL;
+    snmp_pdu* response_pdu = nullptr;
     try {
         response_pdu = snmpAgentResponse(&tmp);
         Must(response_pdu != NULL);

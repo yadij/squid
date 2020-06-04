@@ -134,7 +134,7 @@ SharedMemPagesRr::open()
 SharedMemPagesRr::~SharedMemPagesRr()
 {
     delete ThePagePool;
-    ThePagePool = NULL;
+    ThePagePool = nullptr;
     delete owner;
 }
 

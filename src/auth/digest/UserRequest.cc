@@ -107,7 +107,7 @@ Auth::Digest::UserRequest::authenticate(HttpRequest * request, ConnStateData *, 
         return;
     }
 
-    DigestCalcHA1(digest_request->algorithm, NULL, NULL, NULL,
+    DigestCalcHA1(digest_request->algorithm, nullptr, nullptr, nullptr,
                   authenticateDigestNonceNonceHex(digest_request->nonce),
                   digest_request->cnonce,
                   digest_user->HA1, SESSIONKEY);
@@ -386,7 +386,7 @@ Auth::Digest::UserRequest::HandleReply(void *data, const Helper::Reply &reply)
     break;
     }
 
-    void *cbdata = NULL;
+    void *cbdata = nullptr;
     if (cbdataReferenceValidDone(replyData->data, &cbdata))
         replyData->handler(cbdata);
 

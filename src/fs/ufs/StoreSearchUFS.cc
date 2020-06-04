@@ -26,7 +26,7 @@ Fs::Ufs::StoreSearchUFS::StoreSearchUFS(RefCount<UFSSwapDir> aSwapDir) :
 Fs::Ufs::StoreSearchUFS::~StoreSearchUFS()
 {
     walker->Done(walker);
-    walker = NULL;
+    walker = nullptr;
 }
 
 void

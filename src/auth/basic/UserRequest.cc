@@ -42,7 +42,7 @@ Auth::Basic::UserRequest::credentialsStr()
     Auth::Basic::User const *basic_auth = dynamic_cast<Auth::Basic::User const *>(user().getRaw());
     if (basic_auth)
         return basic_auth->passwd;
-    return NULL;
+    return nullptr;
 }
 
 /* log a basic user in
@@ -192,7 +192,7 @@ Auth::Basic::UserRequest::HandleReply(void *data, const Helper::Reply &reply)
             basic_auth->queue->handler(cbdata);
 
         Auth::QueueNode *tmpnode = basic_auth->queue->next;
-        basic_auth->queue->next = NULL;
+        basic_auth->queue->next = nullptr;
         delete basic_auth->queue;
 
         basic_auth->queue = tmpnode;

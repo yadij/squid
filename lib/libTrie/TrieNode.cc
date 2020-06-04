@@ -16,7 +16,7 @@
 TrieNode::TrieNode() : _privateData(NULL)
 {
     for (int i = 0; i < 256; ++i)
-        internal[i] = NULL;
+        internal[i] = nullptr;
 }
 
 TrieNode::~TrieNode()

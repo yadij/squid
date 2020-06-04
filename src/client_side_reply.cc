@@ -182,9 +182,9 @@ clientReplyContext::removeStoreReference(store_client ** scp,
     store_client *sc_tmp = *scp;
 
     if ((e = *ep) != NULL) {
-        *ep = NULL;
+        *ep = nullptr;
         storeUnregister(sc_tmp, e, this);
-        *scp = NULL;
+        *scp = nullptr;
         e->unlock("clientReplyContext::removeStoreReference");
     }
 }
@@ -210,7 +210,7 @@ clientReplyContext::saveState()
     tempBuffer.offset = reqofs;
     /* Prevent accessing the now saved entries */
     http->storeEntry(NULL);
-    sc = NULL;
+    sc = nullptr;
     reqsize = 0;
     reqofs = 0;
 }
@@ -228,8 +228,8 @@ clientReplyContext::restoreState()
     http->request->lastmod = old_lastmod;
     http->request->etag = old_etag;
     /* Prevent accessed the old saved entries */
-    old_entry = NULL;
-    old_sc = NULL;
+    old_entry = nullptr;
+    old_sc = nullptr;
     old_lastmod = -1;
     old_etag.clean();
     old_reqsize = 0;
@@ -342,7 +342,7 @@ clientReplyContext::processExpired()
     http->request->lastmod = lastmod;
 
     if (!http->request->header.has(Http::HdrType::IF_NONE_MATCH)) {
-        ETag etag = {NULL, -1}; // TODO: make that a default ETag constructor
+        ETag etag = {nullptr, -1}; // TODO: make that a default ETag constructor
         if (old_entry->hasEtag(etag) && !etag.weak)
             http->request->etag = etag.str;
     }
@@ -613,7 +613,7 @@ clientReplyContext::cacheHit(StoreIOBuffer result)
          * to requery the cache.
          */
         removeClientStoreReference(&sc, http);
-        e = NULL;
+        e = nullptr;
         /* Note: varyEvalyateMatch updates the request with vary information
          * so we only get here once. (it also takes care of cancelling loops)
          */
@@ -632,7 +632,7 @@ clientReplyContext::cacheHit(StoreIOBuffer result)
     if (r->method == Http::METHOD_PURGE) {
         debugs(88, 5, "PURGE gets a HIT");
         removeClientStoreReference(&sc, http);
-        e = NULL;
+        e = nullptr;
         purgeRequest();
         return;
     }
@@ -727,7 +727,7 @@ clientReplyContext::processMiss()
 {
     char *url = http->uri;
     HttpRequest *r = http->request;
-    ErrorState *err = NULL;
+    ErrorState *err = nullptr;
     debugs(88, 4, r->method << ' ' << url);
 
     /**
@@ -807,7 +807,7 @@ clientReplyContext::processOnlyIfCachedMiss()
     http->al->http.code = Http::scGatewayTimeout;
     Ip::Address tmp_noaddr;
     tmp_noaddr.setNoAddr();
-    ErrorState *err = clientBuildError(ERR_ONLY_IF_CACHED_MISS, Http::scGatewayTimeout, NULL,
+    ErrorState *err = clientBuildError(ERR_ONLY_IF_CACHED_MISS, Http::scGatewayTimeout, nullptr,
                                        http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr,
                                        http->request, http->al);
     removeClientStoreReference(&sc, http);
@@ -980,7 +980,7 @@ clientReplyContext::purgeFoundObject(StoreEntry *entry)
         http->logType.update(LOG_TCP_DENIED);
         Ip::Address tmp_noaddr;
         tmp_noaddr.setNoAddr(); // TODO: make a global const
-        ErrorState *err = clientBuildError(ERR_ACCESS_DENIED, Http::scForbidden, NULL,
+        ErrorState *err = clientBuildError(ERR_ACCESS_DENIED, Http::scForbidden, nullptr,
                                            http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr,
                                            http->request, http->al);
         startError(err);
@@ -1021,7 +1021,7 @@ clientReplyContext::purgeRequest()
         http->logType.update(LOG_TCP_DENIED);
         Ip::Address tmp_noaddr;
         tmp_noaddr.setNoAddr();
-        ErrorState *err = clientBuildError(ERR_ACCESS_DENIED, Http::scForbidden, NULL,
+        ErrorState *err = clientBuildError(ERR_ACCESS_DENIED, Http::scForbidden, nullptr,
                                            http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr, http->request, http->al);
         startError(err);
         return;
@@ -1116,7 +1116,7 @@ clientReplyContext::purgeDoPurgeHead(StoreEntry *newEntry)
     triggerInitialStoreRead();
 
     const HttpReplyPointer rep(new HttpReply);
-    rep->setHeaders(purgeStatus, NULL, NULL, 0, 0, -1);
+    rep->setHeaders(purgeStatus, nullptr, nullptr, 0, 0, -1);
     http->storeEntry()->replaceHttpReply(rep);
     http->storeEntry()->complete();
 }
@@ -1135,7 +1135,7 @@ clientReplyContext::traceReply(clientStreamNode * node)
     http->storeEntry()->releaseRequest();
     http->storeEntry()->buffer();
     const HttpReplyPointer rep(new HttpReply);
-    rep->setHeaders(Http::scOkay, NULL, "text/plain", http->request->prefixLen(), 0, squid_curtime);
+    rep->setHeaders(Http::scOkay, nullptr, "text/plain", http->request->prefixLen(), 0, squid_curtime);
     http->storeEntry()->replaceHttpReply(rep);
     http->request->swapOut(http->storeEntry());
     http->storeEntry()->complete();
@@ -1932,7 +1932,7 @@ clientReplyContext::sendStreamError(StoreIOBuffer const &result)
     flags.complete = 1;
     http->request->flags.streamError = true;
     localTempBuffer.flags.error = result.flags.error;
-    clientStreamCallback((clientStreamNode*)http->client_stream.head->data, http, NULL,
+    clientStreamCallback((clientStreamNode*)http->client_stream.head->data, http, nullptr,
                          localTempBuffer);
 }
 
@@ -1953,7 +1953,7 @@ clientReplyContext::pushStreamData(StoreIOBuffer const &result, char *source)
     if (localTempBuffer.length)
         localTempBuffer.data = source;
 
-    clientStreamCallback((clientStreamNode*)http->client_stream.head->data, http, NULL,
+    clientStreamCallback((clientStreamNode*)http->client_stream.head->data, http, nullptr,
                          localTempBuffer);
 }
 
@@ -1970,7 +1970,7 @@ clientReplyContext::sendBodyTooLargeError()
     Ip::Address tmp_noaddr;
     tmp_noaddr.setNoAddr(); // TODO: make a global const
     http->logType.update(LOG_TCP_DENIED_REPLY);
-    ErrorState *err = clientBuildError(ERR_TOO_BIG, Http::scForbidden, NULL,
+    ErrorState *err = clientBuildError(ERR_TOO_BIG, Http::scForbidden, nullptr,
                                        http->getConn() != NULL ? http->getConn()->clientConnection->remote : tmp_noaddr,
                                        http->request, http->al);
     removeClientStoreReference(&(sc), http);
@@ -1988,7 +1988,7 @@ clientReplyContext::sendPreconditionFailedError()
     tmp_noaddr.setNoAddr();
     ErrorState *const err =
         clientBuildError(ERR_PRECONDITION_FAILED, Http::scPreconditionFailed,
-                         NULL, http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr, http->request, http->al);
+                         nullptr, http->getConn() ? http->getConn()->clientConnection->remote : tmp_noaddr, http->request, http->al);
     removeClientStoreReference(&sc, http);
     HTTPMSGUNLOCK(reply);
     startError(err);
@@ -2099,7 +2099,7 @@ clientReplyContext::processReplyAccessResult(const Acl::Answer &accessAllowed)
 
         Ip::Address tmp_noaddr;
         tmp_noaddr.setNoAddr();
-        err = clientBuildError(page_id, Http::scForbidden, NULL,
+        err = clientBuildError(page_id, Http::scForbidden, nullptr,
                                http->getConn() != NULL ? http->getConn()->clientConnection->remote : tmp_noaddr,
                                http->request, http->al);
 
@@ -2132,7 +2132,7 @@ clientReplyContext::processReplyAccessResult(const Acl::Answer &accessAllowed)
             esiEnableProcessing(reply)) {
         debugs(88, 2, "Enabling ESI processing for " << http->uri);
         clientStreamInsertHead(&http->client_stream, esiStreamRead,
-                               esiProcessStream, esiStreamDetach, esiStreamStatus, NULL);
+                               esiProcessStream, esiStreamDetach, esiStreamStatus, nullptr);
     }
 
 #endif
@@ -2162,7 +2162,7 @@ clientReplyContext::processReplyAccessResult(const Acl::Answer &accessAllowed)
         if (next()->readBuffer.offset > body_size) {
             /* Can't use any of the body we received. send nothing */
             localTempBuffer.length = 0;
-            localTempBuffer.data = NULL;
+            localTempBuffer.data = nullptr;
         } else {
             localTempBuffer.length = body_size - next()->readBuffer.offset;
             localTempBuffer.data = body_buf + next()->readBuffer.offset;

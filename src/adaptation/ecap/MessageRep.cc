@@ -389,7 +389,7 @@ libecap::shared_ptr<libecap::Message>
 Adaptation::Ecap::MessageRep::clone() const
 {
     Http::Message *hdr = theMessage.header->clone();
-    hdr->body_pipe = NULL; // if any; TODO: remove pipe cloning from ::clone?
+    hdr->body_pipe = nullptr; // if any; TODO: remove pipe cloning from ::clone?
     libecap::shared_ptr<libecap::Message> res(new MessageRep(hdr));
 
     // restore indication of a body if needed, but not the pipe

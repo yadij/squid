@@ -90,7 +90,7 @@ PeerPoolMgr::doneAll() const
 void
 PeerPoolMgr::handleOpenedConnection(const CommConnectCbParams &params)
 {
-    opener = NULL;
+    opener = nullptr;
 
     if (!validPeer()) {
         debugs(48, 3, "peer gone");
@@ -145,14 +145,14 @@ void
 PeerPoolMgr::handleSecuredPeer(Security::EncryptorAnswer &answer)
 {
     Must(securer != NULL);
-    securer = NULL;
+    securer = nullptr;
 
     if (closer != NULL) {
         if (answer.conn != NULL)
             comm_remove_close_handler(answer.conn->fd, closer);
         else
             closer->cancel("securing completed");
-        closer = NULL;
+        closer = nullptr;
     }
 
     if (!validPeer()) {
@@ -179,8 +179,8 @@ PeerPoolMgr::handleSecureClosure(const CommCloseCbParams &params)
     Must(closer != NULL);
     Must(securer != NULL);
     securer->cancel("conn closed by a 3rd party");
-    securer = NULL;
-    closer = NULL;
+    securer = nullptr;
+    closer = nullptr;
     // allow the closing connection to fully close before we check again
     Checkpoint(this, "conn closure while securing");
 }

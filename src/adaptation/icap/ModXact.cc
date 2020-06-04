@@ -1558,7 +1558,7 @@ void Adaptation::Icap::ModXact::makeUsernameHeader(const HttpRequest *request, M
     struct base64_encode_ctx ctx;
     base64_encode_init(&ctx);
 
-    const char *value = NULL;
+    const char *value = nullptr;
     if (request->auth_user_request != NULL) {
         value = request->auth_user_request->username();
     } else if (request->extacl_user.size() > 0) {

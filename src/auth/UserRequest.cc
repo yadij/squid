@@ -34,7 +34,7 @@ Auth::UserRequest::username() const
     if (user() != NULL)
         return user()->username();
     else
-        return NULL;
+        return nullptr;
 }
 
 /**** PUBLIC FUNCTIONS (ALL GENERIC!)  ****/
@@ -209,7 +209,7 @@ const char *
 Auth::UserRequest::connLastHeader()
 {
     fatal("Auth::UserRequest::connLastHeader should always be overridden by conn based auth schemes");
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -295,10 +295,10 @@ Auth::UserRequest::authenticate(Auth::UserRequest::Pointer * auth_user_request, 
 
         /* connection auth we must reset on auth errors */
         if (conn != NULL) {
-            conn->setAuth(NULL, "HTTP request missing credentials");
+            conn->setAuth(nullptr, "HTTP request missing credentials");
         }
 
-        *auth_user_request = NULL;
+        *auth_user_request = nullptr;
         return AUTH_ACL_CHALLENGE;
     }
 
@@ -322,7 +322,7 @@ Auth::UserRequest::authenticate(Auth::UserRequest::Pointer * auth_user_request, 
          * authenticateAuthenticate
          */
         assert(*auth_user_request == NULL);
-        conn->setAuth(NULL, "changed credentials token");
+        conn->setAuth(nullptr, "changed credentials token");
     }
 
     /* we have a proxy auth header and as far as we know this connection has
@@ -343,7 +343,7 @@ Auth::UserRequest::authenticate(Auth::UserRequest::Pointer * auth_user_request, 
                        "' to '" << proxy_auth << "' (client " <<
                        src_addr << ")");
 
-                conn->setAuth(NULL, "changed auth scheme");
+                conn->setAuth(nullptr, "changed auth scheme");
             }
         }
 
@@ -362,7 +362,7 @@ Auth::UserRequest::authenticate(Auth::UserRequest::Pointer * auth_user_request, 
                     request->auth_user_request = *auth_user_request;
                 }
 
-                *auth_user_request = NULL;
+                *auth_user_request = nullptr;
                 return AUTH_ACL_CHALLENGE;
             }
 
@@ -375,7 +375,7 @@ Auth::UserRequest::authenticate(Auth::UserRequest::Pointer * auth_user_request, 
             } else {
                 /* failed connection based authentication */
                 debugs(29, 4, HERE << "Auth user request " << *auth_user_request << " conn-auth missing and failed to authenticate.");
-                *auth_user_request = NULL;
+                *auth_user_request = nullptr;
                 return AUTH_ACL_CHALLENGE;
             }
         }
@@ -397,7 +397,7 @@ Auth::UserRequest::authenticate(Auth::UserRequest::Pointer * auth_user_request, 
 
         case Auth::CRED_ERROR:
             /* this ACL check is finished. */
-            *auth_user_request = NULL;
+            *auth_user_request = nullptr;
             return AUTH_ACL_CHALLENGE;
 
         case Auth::CRED_LOOKUP:
@@ -416,7 +416,7 @@ Auth::UserRequest::authenticate(Auth::UserRequest::Pointer * auth_user_request, 
                     }
                 }
 
-                *auth_user_request = NULL;
+                *auth_user_request = nullptr;
                 return AUTH_ACL_CHALLENGE;
             }
             // otherwise fallthrough to acceptance.
@@ -465,7 +465,7 @@ static Auth::ConfigVector &
 schemesConfig(HttpRequest *request, HttpReply *rep)
 {
     if (!Auth::TheConfig.schemeLists.empty() && Auth::TheConfig.schemeAccess) {
-        ACLFilledChecklist ch(NULL, request, NULL);
+        ACLFilledChecklist ch(nullptr, request, nullptr);
         ch.reply = rep;
         HTTPMSGLOCK(ch.reply);
         const auto answer = ch.fastCheck(Auth::TheConfig.schemeAccess);
@@ -518,7 +518,7 @@ Auth::UserRequest::AddReplyAuthHeader(HttpReply * rep, Auth::UserRequest::Pointe
                     if (auth_user_request != NULL && auth_user_request->scheme()->type() == scheme->type())
                         scheme->fixHeader(auth_user_request, rep, type, request);
                     else
-                        scheme->fixHeader(NULL, rep, type, request);
+                        scheme->fixHeader(nullptr, rep, type, request);
                 } else
                     debugs(29, 4, HERE << "Configured scheme " << scheme->type() << " not Active");
             }
@@ -557,7 +557,7 @@ Auth::UserRequest::helperRequestKeyExtras(HttpRequest *request, AccessLogEntry::
         debugs(29, 5, "Assembled line to send :" << mb.content());
         return mb.content();
     }
-    return NULL;
+    return nullptr;
 }
 
 void

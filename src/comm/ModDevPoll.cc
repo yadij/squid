@@ -384,7 +384,7 @@ Comm::DoSelect(int msec)
                     HERE << "Calling read handler on FD " << fd
                 );
                 PROF_start(comm_read_handler);
-                F->read_handler = NULL;
+                F->read_handler = nullptr;
                 hdl(fd, F->read_data);
                 PROF_stop(comm_read_handler);
                 ++ statCounter.select_fds;
@@ -395,7 +395,7 @@ Comm::DoSelect(int msec)
                     HERE << "no read handler for FD " << fd
                 );
                 // remove interest since no handler exist for this event.
-                SetSelect(fd, COMM_SELECT_READ, NULL, NULL, 0);
+                SetSelect(fd, COMM_SELECT_READ, nullptr, nullptr, 0);
             }
         }
 
@@ -408,7 +408,7 @@ Comm::DoSelect(int msec)
                     HERE << "Calling write handler on FD " << fd
                 );
                 PROF_start(comm_write_handler);
-                F->write_handler = NULL;
+                F->write_handler = nullptr;
                 hdl(fd, F->write_data);
                 PROF_stop(comm_write_handler);
                 ++ statCounter.select_fds;
@@ -419,7 +419,7 @@ Comm::DoSelect(int msec)
                     HERE << "no write handler for FD " << fd
                 );
                 // remove interest since no handler exist for this event.
-                SetSelect(fd, COMM_SELECT_WRITE, NULL, NULL, 0);
+                SetSelect(fd, COMM_SELECT_WRITE, nullptr, nullptr, 0);
             }
         }
     }

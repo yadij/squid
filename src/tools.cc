@@ -104,7 +104,7 @@ dead_msg(void)
 static void
 mail_warranty(void)
 {
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     static char command[256];
 
     /*
@@ -127,7 +127,7 @@ mail_warranty(void)
     char *filename;
     // XXX tempnam is obsolete since POSIX.2008-1
     // tmpfile is not an option, we want the created files to stick around
-    if ((filename = tempnam(NULL, APP_SHORTNAME)) == NULL ||
+    if ((filename = tempnam(nullptr, APP_SHORTNAME)) == NULL ||
             (fp = fopen(filename, "w")) == NULL) {
         umask(prev_umask);
         return;
@@ -413,7 +413,7 @@ getMyHostname(void)
 {
     LOCAL_ARRAY(char, host, SQUIDHOSTNAMELEN + 1);
     static int present = 0;
-    struct addrinfo *AI = NULL;
+    struct addrinfo *AI = nullptr;
     Ip::Address sa;
 
     if (Config.visibleHostname != NULL)
@@ -435,7 +435,7 @@ getMyHostname(void)
 
         sa.getAddrInfo(AI);
         /* we are looking for a name. */
-        if (getnameinfo(AI->ai_addr, AI->ai_addrlen, host, SQUIDHOSTNAMELEN, NULL, 0, NI_NAMEREQD ) == 0) {
+        if (getnameinfo(AI->ai_addr, AI->ai_addrlen, host, SQUIDHOSTNAMELEN, nullptr, 0, NI_NAMEREQD ) == 0) {
             /* DNS lookup successful */
             /* use the official name from DNS lookup */
             debugs(50, 4, "getMyHostname: resolved " << sa << " to '" << host << "'");
@@ -462,7 +462,7 @@ getMyHostname(void)
         memset(&hints, 0, sizeof(addrinfo));
         hints.ai_flags = AI_CANONNAME;
 
-        if (getaddrinfo(host, NULL, NULL, &AI) == 0) {
+        if (getaddrinfo(host, nullptr, nullptr, &AI) == 0) {
             /* DNS lookup successful */
             /* use the official name from DNS lookup */
             debugs(50, 6, "getMyHostname: '" << host << "' has DNS resolution.");
@@ -841,7 +841,7 @@ squid_signal(int sig, SIGHDLR * func, int flags)
     sa.sa_flags = flags;
     sigemptyset(&sa.sa_mask);
 
-    if (sigaction(sig, &sa, NULL) < 0) {
+    if (sigaction(sig, &sa, nullptr) < 0) {
         int xerrno = errno;
         debugs(50, DBG_CRITICAL, "sigaction: sig=" << sig << " func=" << func << ": " << xstrerr(xerrno));
     }
@@ -960,7 +960,7 @@ parseEtcHosts(void)
         SBufList hosts;
 
         while ((nt = strpbrk(lt, w_space))) {
-            char *host = NULL;
+            char *host = nullptr;
 
             if (nt == lt) { /* multiple spaces */
                 debugs(1, 5, "etc_hosts: multiple spaces, skipping");
@@ -1140,8 +1140,8 @@ WaitForOnePid(pid_t pid, PidStatus &status, int flags)
 {
 #if _SQUID_NEXT_
     if (pid < 0)
-        return wait3(&status, flags, NULL);
-    return wait4(pid, &status, flags, NULL);
+        return wait3(&status, flags, nullptr);
+    return wait4(pid, &status, flags, nullptr);
 #elif _SQUID_WINDOWS_
     return 0; // function not used on Windows
 #else

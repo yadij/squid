@@ -117,7 +117,7 @@ hash_create(HASHCMP * cmp_func, int hash_sz, HASHHASH * hash_func)
     hid->buckets = (hash_link **)xcalloc(hid->size, sizeof(hash_link *));
     hid->cmp = cmp_func;
     hid->hash = hash_func;
-    hid->next = NULL;
+    hid->next = nullptr;
     hid->current_slot = 0;
     return hid;
 }
@@ -158,7 +158,7 @@ hash_lookup(hash_table * hid, const void *k)
         assert(walker != walker->next);
     }
     PROF_stop(hash_lookup);
-    return NULL;
+    return nullptr;
 }
 
 static void
@@ -193,7 +193,7 @@ hash_next(hash_table * hid)
 {
     hash_link *p = hid->next;
     if (NULL == p)
-        return NULL;
+        return nullptr;
     hid->next = p->next;
     if (NULL == hid->next)
         hash_next_bucket(hid);
@@ -208,7 +208,7 @@ void
 hash_last(hash_table * hid)
 {
     assert(hid != NULL);
-    hid->next = NULL;
+    hid->next = nullptr;
     hid->current_slot = 0;
 }
 
@@ -248,7 +248,7 @@ hash_link *
 hash_get_bucket(hash_table * hid, unsigned int bucket)
 {
     if (bucket >= hid->size)
-        return NULL;
+        return nullptr;
     return (hid->buckets[bucket]);
 }
 
@@ -331,7 +331,7 @@ main(void)
     hash_table *hid;
     LOCAL_ARRAY(char, buf, BUFSIZ);
     LOCAL_ARRAY(char, todelete, BUFSIZ);
-    hash_link *walker = NULL;
+    hash_link *walker = nullptr;
 
     todelete[0] = '\0';
     printf("init\n");

@@ -444,7 +444,7 @@ ClientHttpRequest::logRequest()
         al->syncNotes(request);
     }
 
-    ACLFilledChecklist checklist(NULL, request, NULL);
+    ACLFilledChecklist checklist(nullptr, request, nullptr);
     if (al->reply) {
         checklist.reply = al->reply.getRaw();
         HTTPMSGLOCK(checklist.reply);
@@ -461,7 +461,7 @@ ClientHttpRequest::logRequest()
 
     bool updatePerformanceCounters = true;
     if (Config.accessList.stats_collection) {
-        ACLFilledChecklist statsCheck(Config.accessList.stats_collection, request, NULL);
+        ACLFilledChecklist statsCheck(Config.accessList.stats_collection, request, nullptr);
         statsCheck.al = al;
         if (al->reply) {
             statsCheck.reply = al->reply.getRaw();
@@ -563,7 +563,7 @@ ConnStateData::setAuth(const Auth::UserRequest::Pointer &aur, const char *by)
     if (aur == NULL) {
         debugs(33, 2, "WARNING: Graceful closure on " << clientConnection << " due to connection-auth erase from " << by);
         auth_->releaseAuthServer();
-        auth_ = NULL;
+        auth_ = nullptr;
         // XXX: need to test whether the connection re-auth challenge is sent. If not, how to trigger it from here.
         // NP: the current situation seems to fix challenge loops in Safari without visible issues in others.
         // we stop receiving more traffic but can leave the Job running to terminate after the error or challenge is delivered.
@@ -575,7 +575,7 @@ ConnStateData::setAuth(const Auth::UserRequest::Pointer &aur, const char *by)
     if (aur != auth_) {
         debugs(33, 2, "ERROR: Closing " << clientConnection << " due to change of connection-auth from " << by);
         auth_->releaseAuthServer();
-        auth_ = NULL;
+        auth_ = nullptr;
         // this is a fatal type of problem.
         // Close the connection immediately with TCP RST to abort all traffic flow
         comm_reset_close(clientConnection);
@@ -604,7 +604,7 @@ ConnStateData::swanSong()
 
 #if USE_AUTH
     // NP: do this bit after closing the connections to avoid side effects from unwanted TCP RST
-    setAuth(NULL, "ConnStateData::SwanSong cleanup");
+    setAuth(nullptr, "ConnStateData::SwanSong cleanup");
 #endif
 
     flags.swanSang = true;
@@ -1089,7 +1089,7 @@ findTrailingHTTPVersion(const char *uriAndHTTPVersion, const char *end)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 static char *
@@ -1293,7 +1293,7 @@ ConnStateData::parseHttpRequest(const Http1::RequestParserPointer &hp)
 
         if (hp->needsMoreData()) {
             debugs(33, 5, "Incomplete request, waiting for end of request line");
-            return NULL;
+            return nullptr;
         }
 
         if (!parsedOk) {
@@ -1389,7 +1389,7 @@ ConnStateData::parseHttpRequest(const Http1::RequestParserPointer &hp)
     } else if (internalCheck(hp->requestUri())) { // NP: only matches relative-URI
         /* internal URL mode */
         /* prepend our name & port */
-        http->uri = xstrdup(internalLocalUri(NULL, hp->requestUri()));
+        http->uri = xstrdup(internalLocalUri(nullptr, hp->requestUri()));
         // We just re-wrote the URL. Must replace the Host: header.
         //  But have not parsed there yet!! flag for local-only handling.
         http->flags.internal = true;
@@ -1509,7 +1509,7 @@ bool ConnStateData::serveDelayedError(Http::Stream *context)
                 check.syncAle(request, http->log_uri);
                 allowDomainMismatch = check.fastCheck().allowed();
                 delete check.sslErrors;
-                check.sslErrors = NULL;
+                check.sslErrors = nullptr;
             }
 
             if (!allowDomainMismatch) {
@@ -1580,7 +1580,7 @@ ConnStateData::tunnelOnError(const HttpRequestMethod &method, const err_type req
         debugs(33, 3, "Request will be tunneled to server");
         if (context)
             context->finished(); // Will remove from pipeline queue
-        Comm::SetSelect(clientConnection->fd, COMM_SELECT_READ, NULL, NULL, 0);
+        Comm::SetSelect(clientConnection->fd, COMM_SELECT_READ, nullptr, nullptr, 0);
         return initiateTunneledRequest(request, Http::METHOD_NONE, "unknown-protocol", preservedClientData);
     }
     debugs(33, 3, "denied; send error: " << requestError);
@@ -1681,8 +1681,8 @@ clientProcessRequest(ConnStateData *conn, const Http1::RequestParserPointer &hp,
         conn->quitAfterError(request.getRaw());
         clientReplyContext *repContext = dynamic_cast<clientReplyContext *>(node->data.getRaw());
         assert (repContext);
-        repContext->setReplyToError(ERR_UNSUP_REQ, Http::scNotImplemented, request->method, NULL,
-                                    conn->clientConnection->remote, request.getRaw(), NULL, NULL);
+        repContext->setReplyToError(ERR_UNSUP_REQ, Http::scNotImplemented, request->method, nullptr,
+                                    conn->clientConnection->remote, request.getRaw(), nullptr, nullptr);
         assert(context->http->out.offset == 0);
         context->pullData();
         clientProcessRequestFinished(conn, request);
@@ -1695,8 +1695,8 @@ clientProcessRequest(ConnStateData *conn, const Http1::RequestParserPointer &hp,
         assert (repContext);
         conn->quitAfterError(request.getRaw());
         repContext->setReplyToError(ERR_INVALID_REQ,
-                                    Http::scLengthRequired, request->method, NULL,
-                                    conn->clientConnection->remote, request.getRaw(), NULL, NULL);
+                                    Http::scLengthRequired, request->method, nullptr,
+                                    conn->clientConnection->remote, request.getRaw(), nullptr, nullptr);
         assert(context->http->out.offset == 0);
         context->pullData();
         clientProcessRequestFinished(conn, request);
@@ -1731,8 +1731,8 @@ clientProcessRequest(ConnStateData *conn, const Http1::RequestParserPointer &hp,
             assert (repContext);
             conn->quitAfterError(request.getRaw());
             repContext->setReplyToError(ERR_TOO_BIG,
-                                        Http::scPayloadTooLarge, Http::METHOD_NONE, NULL,
-                                        conn->clientConnection->remote, http->request, NULL, NULL);
+                                        Http::scPayloadTooLarge, Http::METHOD_NONE, nullptr,
+                                        conn->clientConnection->remote, http->request, nullptr, nullptr);
             assert(context->http->out.offset == 0);
             context->pullData();
             clientProcessRequestFinished(conn, request);
@@ -1811,7 +1811,7 @@ ConnStateData::proxyProtocolValidateClient()
     if (!Config.accessList.proxyProtocol)
         return proxyProtocolError("PROXY client not permitted by default ACL");
 
-    ACLFilledChecklist ch(Config.accessList.proxyProtocol, NULL, clientConnection->rfc931);
+    ACLFilledChecklist ch(Config.accessList.proxyProtocol, nullptr, clientConnection->rfc931);
     ch.src_addr = clientConnection->remote;
     ch.my_addr = clientConnection->local;
     ch.conn(this);
@@ -2041,7 +2041,7 @@ ConnStateData::handleRequestBodyData()
 
         if (!bodyPipe->mayNeedMoreData()) {
             // BodyPipe will clear us automagically when we produced everything
-            bodyPipe = NULL;
+            bodyPipe = nullptr;
         }
     }
 
@@ -2124,7 +2124,7 @@ ConnStateData::abortChunkedRequestBody(const err_type error)
                                     repContext->http->uri,
                                     CachePeer,
                                     repContext->http->request,
-                                    inBuf, NULL);
+                                    inBuf, nullptr);
         context->pullData();
     } else {
         // close or otherwise we may get stuck as nobody will notice the error?
@@ -2204,13 +2204,13 @@ ConnStateData::ConnStateData(const MasterXaction::Pointer &xact) :
     flags.readMore = true; // kids may overwrite
     flags.swanSang = false;
 
-    pinning.host = NULL;
+    pinning.host = nullptr;
     pinning.port = -1;
     pinning.pinned = false;
     pinning.auth = false;
     pinning.zeroReply = false;
     pinning.peerAccessDenied = false;
-    pinning.peer = NULL;
+    pinning.peer = nullptr;
 
     // store the details required for creating more MasterXaction objects as new requests come in
     log_addr = xact->tcpClient->remote;
@@ -2268,7 +2268,7 @@ ConnStateData::whenClientIpKnown()
 
 #if USE_IDENT
     if (Ident::TheConfig.identLookup) {
-        ACLFilledChecklist identChecklist(Ident::TheConfig.identLookup, NULL, NULL);
+        ACLFilledChecklist identChecklist(Ident::TheConfig.identLookup, nullptr, nullptr);
         identChecklist.src_addr = clientConnection->remote;
         identChecklist.my_addr = clientConnection->local;
         if (identChecklist.fastCheck().allowed())
@@ -2279,14 +2279,14 @@ ConnStateData::whenClientIpKnown()
     clientdbEstablished(clientConnection->remote, 1);
 
 #if USE_DELAY_POOLS
-    fd_table[clientConnection->fd].clientInfo = NULL;
+    fd_table[clientConnection->fd].clientInfo = nullptr;
 
     if (!Config.onoff.client_db)
         return; // client delay pools require client_db
 
     const auto &pools = ClientDelayPools::Instance()->pools;
     if (pools.size()) {
-        ACLFilledChecklist ch(NULL, NULL, NULL);
+        ACLFilledChecklist ch(nullptr, nullptr, nullptr);
 
         // TODO: we check early to limit error response bandwidth but we
         // should recheck when we can honor delay_pool_uses_indirect
@@ -2642,7 +2642,7 @@ ConnStateData::postHttpsAccept()
         CodeContext::Reset(connectAle);
         // TODO: Use these request/ALE when waiting for new bumped transactions.
 
-        ACLFilledChecklist *acl_checklist = new ACLFilledChecklist(Config.accessList.ssl_bump, request, NULL);
+        ACLFilledChecklist *acl_checklist = new ACLFilledChecklist(Config.accessList.ssl_bump, request, nullptr);
         acl_checklist->src_addr = clientConnection->remote;
         acl_checklist->my_addr = port->s;
         // Build a local AccessLogEntry to allow requiresAle() acls work
@@ -2730,7 +2730,7 @@ void ConnStateData::buildSslCertGenerationParams(Ssl::CertificateProperties &cer
         if (X509 *mimicCert = sslServerBump->serverCert.get())
             certProperties.mimicCert.resetAndLock(mimicCert);
 
-        ACLFilledChecklist checklist(NULL, sslServerBump->request.getRaw(),
+        ACLFilledChecklist checklist(nullptr, sslServerBump->request.getRaw(),
                                      clientConnection != NULL ? clientConnection->rfc931 : dash_str);
         checklist.sslErrors = cbdataReference(sslServerBump->sslErrors());
 
@@ -2901,7 +2901,7 @@ ConnStateData::getSslContextDone(Security::ContextPointer &ctx)
         debugs(33, 2, "Failed to generate TLS context for " << tlsConnectHostOrIp);
     }
 
-    // If generated ssl context = NULL, try to use static ssl context.
+    // If generated ssl context = nullptr, try to use static ssl context.
     if (!ctx) {
         if (!port->secure.staticContext) {
             debugs(83, DBG_IMPORTANT, "Closing " << clientConnection->remote << " as lacking TLS context");
@@ -3517,7 +3517,7 @@ clientConnectionsClose()
         if (s->listenConn != NULL) {
             debugs(1, DBG_IMPORTANT, "Closing HTTP(S) port " << s->listenConn->local);
             s->listenConn->close();
-            s->listenConn = NULL;
+            s->listenConn = nullptr;
         }
     }
 
@@ -3714,7 +3714,7 @@ ConnStateData::finishDechunkingRequest(bool withSuccess)
     }
 
     delete bodyParser;
-    bodyParser = NULL;
+    bodyParser = nullptr;
 }
 
 // XXX: this is an HTTP/1-only operation
@@ -3770,7 +3770,7 @@ ConnStateData::clientPinnedConnectionClosed(const CommCloseCbParams &io)
     // FwdState might repin a failed connection sooner than this close
     // callback is called for the failed connection.
     assert(pinning.serverConnection == io.conn);
-    pinning.closeHandler = NULL; // Comm unregisters handlers before calling
+    pinning.closeHandler = nullptr; // Comm unregisters handlers before calling
     const bool sawZeroReply = pinning.zeroReply; // reset when unpinning
     pinning.serverConnection->noteClosure();
     unpinConnection(false);
@@ -3865,7 +3865,7 @@ ConnStateData::stopPinnedConnectionMonitoring()
 {
     if (pinning.readHandler != NULL) {
         Comm::ReadCancel(pinning.serverConnection->fd, pinning.readHandler);
-        pinning.readHandler = NULL;
+        pinning.readHandler = nullptr;
     }
 }
 
@@ -3914,7 +3914,7 @@ ConnStateData::handleIdleClientPinnedTlsRead()
 void
 ConnStateData::clientPinnedConnectionRead(const CommIoCbParams &io)
 {
-    pinning.readHandler = NULL; // Comm unregisters handlers before calling
+    pinning.readHandler = nullptr; // Comm unregisters handlers before calling
 
     if (io.flag == Comm::ERR_CLOSING)
         return; // close handler will clean up
@@ -3994,7 +3994,7 @@ ConnStateData::unpinConnection(const bool andClose)
     if (Comm::IsConnOpen(pinning.serverConnection)) {
         if (pinning.closeHandler != NULL) {
             comm_remove_close_handler(pinning.serverConnection->fd, pinning.closeHandler);
-            pinning.closeHandler = NULL;
+            pinning.closeHandler = nullptr;
         }
 
         stopPinnedConnectionMonitoring();
@@ -4002,7 +4002,7 @@ ConnStateData::unpinConnection(const bool andClose)
         // close the server side socket if requested
         if (andClose)
             pinning.serverConnection->close();
-        pinning.serverConnection = NULL;
+        pinning.serverConnection = nullptr;
     }
 
     safe_free(pinning.host);

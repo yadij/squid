@@ -112,7 +112,7 @@ bool
 Ip::Address::applyMask(const unsigned int cidrMask, int mtype)
 {
     uint8_t clearbits = 0;
-    uint8_t* p = NULL;
+    uint8_t* p = nullptr;
 
     // validation and short-cuts.
     if (cidrMask > 128)
@@ -384,8 +384,8 @@ Ip::Address::lookupHostIP(const char *s, bool nodns)
     }
 
     int err = 0;
-    struct addrinfo *res = NULL;
-    if ( (err = getaddrinfo(s, NULL, &want, &res)) != 0) {
+    struct addrinfo *res = nullptr;
+    if ( (err = getaddrinfo(s, nullptr, &want, &res)) != 0) {
         debugs(14,3, HERE << "Given Non-IP '" << s << "': " << gai_strerror(err) );
         /* free the memory getaddrinfo() dynamically allocated. */
         if (res)
@@ -501,9 +501,9 @@ bool
 Ip::Address::operator =(const struct hostent &s)
 {
 
-    struct in_addr* ipv4 = NULL;
+    struct in_addr* ipv4 = nullptr;
 
-    struct in6_addr* ipv6 = NULL;
+    struct in6_addr* ipv6 = nullptr;
 
     //struct hostent {
     //        char    *h_name;        /* official name of host */
@@ -545,9 +545,9 @@ bool
 Ip::Address::operator =(const struct addrinfo &s)
 {
 
-    struct sockaddr_in* ipv4 = NULL;
+    struct sockaddr_in* ipv4 = nullptr;
 
-    struct sockaddr_in6* ipv6 = NULL;
+    struct sockaddr_in6* ipv6 = nullptr;
 
     //struct addrinfo {
     //             int ai_flags;           /* input flags */
@@ -689,14 +689,14 @@ Ip::Address::FreeAddr(struct addrinfo *&ai)
 
     if (ai->ai_addr) delete ai->ai_addr;
 
-    ai->ai_addr = NULL;
+    ai->ai_addr = nullptr;
 
     ai->ai_addrlen = 0;
 
     // NP: name fields are NOT allocated at present.
     delete ai;
 
-    ai = NULL;
+    ai = nullptr;
 }
 
 int
@@ -803,7 +803,7 @@ Ip::Address::toStr(char* buf, const unsigned int blen, int force) const
 {
     // Ensure we have a buffer.
     if (buf == NULL) {
-        return NULL;
+        return nullptr;
     }
 
     /* some external code may have blindly memset a parent. */
@@ -888,7 +888,7 @@ Ip::Address::toUrl(char* buf, unsigned int blen) const
     // Ensure we have a buffer.
 
     if (buf == NULL) {
-        return NULL;
+        return nullptr;
     }
 
     p += toHostStr(p, blen);
@@ -933,7 +933,7 @@ Ip::Address::fromHost(const char *host)
 void
 Ip::Address::getSockAddr(struct sockaddr_storage &addr, const int family) const
 {
-    struct sockaddr_in *sin = NULL;
+    struct sockaddr_in *sin = nullptr;
 
     if ( family == AF_INET && !isIPv4()) {
         // FIXME INET6: caller using the wrong socket type!

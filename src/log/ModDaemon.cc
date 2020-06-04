@@ -131,7 +131,7 @@ logfileHandleWrite(int, void *data)
     if (b->written_len == b->len) {
         /* written the whole buffer! */
         logfileFreeBuffer(lf, b);
-        b = NULL;
+        b = nullptr;
     }
     /* Is there more to write? */
     if (!ll->bufs.head)
@@ -230,9 +230,9 @@ logfile_mod_daemon_open(Logfile * lf, const char *path, size_t, int)
         Ip::Address localhost;
         args[0] = "(logfile-daemon)";
         args[1] = path;
-        args[2] = NULL;
+        args[2] = nullptr;
         localhost.setLocalhost();
-        ll->pid = ipcCreate(IPC_STREAM, Log::TheConfig.logfile_daemon, args, "logfile-daemon", localhost, &ll->rfd, &ll->wfd, NULL);
+        ll->pid = ipcCreate(IPC_STREAM, Log::TheConfig.logfile_daemon, args, "logfile-daemon", localhost, &ll->rfd, &ll->wfd, nullptr);
         if (ll->pid < 0)
             fatal("Couldn't start logfile helper");
     }
@@ -265,7 +265,7 @@ logfile_mod_daemon_close(Logfile * lf)
     kill(ll->pid, SIGTERM);
     eventDelete(logfileFlushEvent, lf);
     xfree(ll);
-    lf->data = NULL;
+    lf->data = nullptr;
     cbdataInternalUnlock(lf); // WTF??
 }
 

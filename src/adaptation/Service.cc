@@ -72,7 +72,7 @@ Adaptation::FindService(const Service::Id& key)
         if ((*i)->cfg().key == key)
             return *i;
     }
-    return NULL;
+    return nullptr;
 }
 
 void Adaptation::DetachServices()

@@ -217,7 +217,7 @@ Adaptation::Icap::Xaction::dnsLookupDone(const ipcache_addrs *ia)
     connection = new Comm::Connection;
     connection->remote = ia->current();
     connection->remote.port(s.cfg().port);
-    getOutgoingAddress(NULL, connection);
+    getOutgoingAddress(nullptr, connection);
 
     // TODO: service bypass status may differ from that of a transaction
     typedef CommCbMemFunT<Adaptation::Icap::Xaction, CommConnectCbParams> ConnectDialer;
@@ -247,7 +247,7 @@ void Adaptation::Icap::Xaction::closeConnection()
 
         if (closer != NULL) {
             comm_remove_close_handler(connection->fd, closer);
-            closer = NULL;
+            closer = nullptr;
         }
 
         cancelRead(); // may not work
@@ -267,17 +267,17 @@ void Adaptation::Icap::Xaction::closeConnection()
         Adaptation::Icap::ServiceRep &s = service();
         s.putConnection(connection, reuseConnection, reset, status());
 
-        writer = NULL;
-        reader = NULL;
-        connector = NULL;
-        connection = NULL;
+        writer = nullptr;
+        reader = nullptr;
+        connector = nullptr;
+        connection = nullptr;
     }
 }
 
 // connection with the ICAP service established
 void Adaptation::Icap::Xaction::noteCommConnected(const CommConnectCbParams &io)
 {
-    cs = NULL;
+    cs = nullptr;
 
     if (io.flag == Comm::TIMEOUT) {
         handleCommTimedout();
@@ -285,7 +285,7 @@ void Adaptation::Icap::Xaction::noteCommConnected(const CommConnectCbParams &io)
     }
 
     Must(connector != NULL);
-    connector = NULL;
+    connector = nullptr;
 
     if (io.flag != Comm::OK)
         dieOnConnectionFailure(); // throws
@@ -344,7 +344,7 @@ void Adaptation::Icap::Xaction::scheduleWrite(MemBuf &buf)
 void Adaptation::Icap::Xaction::noteCommWrote(const CommIoCbParams &io)
 {
     Must(writer != NULL);
-    writer = NULL;
+    writer = nullptr;
 
     if (ignoreLastWrite) {
         // a hack due to comm inability to cancel a pending write
@@ -386,9 +386,9 @@ void Adaptation::Icap::Xaction::noteCommClosed(const CommCloseCbParams &)
 {
     if (securer != NULL) {
         securer->cancel("Connection closed before SSL negotiation finished");
-        securer = NULL;
+        securer = nullptr;
     }
-    closer = NULL;
+    closer = nullptr;
     handleCommClosed();
 }
 
@@ -453,7 +453,7 @@ void Adaptation::Icap::Xaction::scheduleRead()
 void Adaptation::Icap::Xaction::noteCommRead(const CommIoCbParams &io)
 {
     Must(reader != NULL);
-    reader = NULL;
+    reader = nullptr;
 
     Must(io.flag == Comm::OK);
 
@@ -515,7 +515,7 @@ void Adaptation::Icap::Xaction::cancelRead()
     if (reader != NULL) {
         Must(haveConnection());
         Comm::ReadCancel(connection->fd, reader);
-        reader = NULL;
+        reader = nullptr;
     }
 }
 
@@ -601,7 +601,7 @@ void Adaptation::Icap::Xaction::swanSong()
     if (cs.valid()) {
         debugs(93,6, HERE << id << " about to notify ConnOpener!");
         CallJobHere(93, 3, cs, Comm::ConnOpener, noteAbort);
-        cs = NULL;
+        cs = nullptr;
         service().noteConnectionFailed("abort");
     }
 
@@ -738,14 +738,14 @@ void
 Adaptation::Icap::Xaction::handleSecuredPeer(Security::EncryptorAnswer &answer)
 {
     Must(securer != NULL);
-    securer = NULL;
+    securer = nullptr;
 
     if (closer != NULL) {
         if (Comm::IsConnOpen(answer.conn))
             comm_remove_close_handler(answer.conn->fd, closer);
         else
             closer->cancel("securing completed");
-        closer = NULL;
+        closer = nullptr;
     }
 
     if (answer.error.get()) {

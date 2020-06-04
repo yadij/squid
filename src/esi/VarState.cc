@@ -108,7 +108,7 @@ ESIVarState::extractList()
 {
     doIt();
     ESISegment::Pointer rv = output;
-    output = NULL;
+    output = nullptr;
     debugs(86, 6, "ESIVarStateExtractList: Extracted list");
     return rv;
 }
@@ -133,7 +133,7 @@ ESIVarState::extractChar ()
 ESIVarState::~ESIVarState()
 {
     // freeResources
-    input = NULL;
+    input = nullptr;
     ESISegmentFreeList(output);
     hdr.clean();
 
@@ -373,7 +373,7 @@ ESIVariableUserAgent::identifyOs(char const *s) const
 void
 ESIVariableCookie::eval (ESIVarState &state, char const *subref, char const *found_default) const
 {
-    const char *s = NULL;
+    const char *s = nullptr;
     state.cookieUsed();
 
     if (state.header().has(Http::HdrType::COOKIE)) {
@@ -397,7 +397,7 @@ ESIVariableCookie::eval (ESIVarState &state, char const *subref, char const *fou
 void
 ESIVariableHost::eval (ESIVarState &state, char const *subref, char const *found_default) const
 {
-    const char *s = NULL;
+    const char *s = nullptr;
     state.hostUsed();
 
     if (!subref && state.header().has(Http::HdrType::HOST)) {
@@ -411,7 +411,7 @@ ESIVariableHost::eval (ESIVarState &state, char const *subref, char const *found
 void
 ESIVariableLanguage::eval (ESIVarState &state, char const *subref, char const *found_default) const
 {
-    char const *s = NULL;
+    char const *s = nullptr;
     state.languageUsed();
 
     if (state.header().has(Http::HdrType::ACCEPT_LANGUAGE)) {
@@ -436,7 +436,7 @@ ESIVariableLanguage::eval (ESIVarState &state, char const *subref, char const *f
 void
 ESIVariableQuery::eval (ESIVarState &state, char const *subref, char const *found_default) const
 {
-    char const *s = NULL;
+    char const *s = nullptr;
 
     if (!subref)
         s = queryString();
@@ -460,7 +460,7 @@ ESIVariableQuery::eval (ESIVarState &state, char const *subref, char const *foun
 void
 ESIVariableReferer::eval (ESIVarState &state, char const *subref, char const *found_default) const
 {
-    const char *s = NULL;
+    const char *s = nullptr;
     state.refererUsed();
 
     if (!subref && state.header().has(Http::HdrType::REFERER))
@@ -474,7 +474,7 @@ ESIVariableReferer::eval (ESIVarState &state, char const *subref, char const *fo
 void
 ESIVariableUserAgent::eval (ESIVarState &state, char const *subref, char const *found_default) const
 {
-    char const *s = NULL;
+    char const *s = nullptr;
     state.useragentUsed();
 
     if (state.header().has(Http::HdrType::USER_AGENT)) {
@@ -528,7 +528,7 @@ ESIFunction::GetFunction(char const *symbol, ESIVariableProcessor &aProcessor)
     if (*symbol == '(')
         return new ESIFunction(aProcessor);
 
-    return NULL;
+    return nullptr;
 }
 
 class ESIVariableProcessor

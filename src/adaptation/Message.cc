@@ -32,7 +32,7 @@ void
 Adaptation::Message::clear()
 {
     HTTPMSGUNLOCK(header);
-    body_pipe = NULL;
+    body_pipe = nullptr;
 }
 
 void

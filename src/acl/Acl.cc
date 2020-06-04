@@ -27,7 +27,7 @@
 #include <algorithm>
 #include <map>
 
-const char *AclMatchedName = NULL;
+const char *AclMatchedName = nullptr;
 
 namespace Acl {
 
@@ -101,7 +101,7 @@ ACL::FindByName(const char *name)
 
     debugs(28, 9, "ACL::FindByName found no match");
 
-    return NULL;
+    return nullptr;
 }
 
 ACL::ACL() :
@@ -168,8 +168,8 @@ void
 ACL::ParseAclLine(ConfigParser &parser, ACL ** head)
 {
     /* we're already using strtok() to grok the line */
-    char *t = NULL;
-    ACL *A = NULL;
+    char *t = nullptr;
+    ACL *A = nullptr;
     LOCAL_ARRAY(char, aclname, ACL_NAME_SZ);
     int new_acl = 0;
 
@@ -259,7 +259,7 @@ ACL::ParseAclLine(ConfigParser &parser, ACL ** head)
     /*
      * Clear AclMatchedName from our temporary hack
      */
-    AclMatchedName = NULL;  /* ugly */
+    AclMatchedName = nullptr;  /* ugly */
 
     if (!new_acl)
         return;
@@ -400,7 +400,7 @@ ACL::~ACL()
 {
     debugs(28, 3, "freeing ACL " << name);
     safe_free(cfgline);
-    AclMatchedName = NULL; // in case it was pointing to our name
+    AclMatchedName = nullptr; // in case it was pointing to our name
 }
 
 void

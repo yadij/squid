@@ -23,7 +23,7 @@
 #include <algorithm>
 
 bool Adaptation::Config::Enabled = false;
-char *Adaptation::Config::masterx_shared_name = NULL;
+char *Adaptation::Config::masterx_shared_name = nullptr;
 int Adaptation::Config::service_iteration_limit = 16;
 int Adaptation::Config::send_client_ip = false;
 int Adaptation::Config::send_username = false;
@@ -94,7 +94,7 @@ Adaptation::Config::findServiceConfig(const String &service)
         if ((*cfg)->key == service)
             return *cfg;
     }
-    return NULL;
+    return nullptr;
 }
 
 void

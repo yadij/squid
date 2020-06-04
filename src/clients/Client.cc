@@ -61,7 +61,7 @@ Client::~Client()
 
     if (responseBodyBuffer != NULL) {
         delete responseBodyBuffer;
-        responseBodyBuffer = NULL;
+        responseBodyBuffer = nullptr;
     }
 }
 
@@ -229,7 +229,7 @@ bool Client::startRequestBodyFlow()
 
     debugs(11,3, HERE << "aborting on partially consumed request body: " <<
            requestBodySource->status());
-    requestBodySource = NULL;
+    requestBodySource = nullptr;
     return false;
 }
 
@@ -346,7 +346,7 @@ Client::sentRequestBody(const CommIoCbParams &io)
     debugs(11, 5, "sentRequestBody: FD " << io.fd << ": size " << io.size << ": errflag " << io.flag << ".");
     debugs(32,3,HERE << "sentRequestBody called");
 
-    requestSender = NULL;
+    requestSender = nullptr;
 
     if (io.size > 0) {
         fd_bytes(io.fd, io.size, FD_WRITE);
@@ -409,7 +409,7 @@ Client::sendMoreRequestBody()
         Comm::Write(conn, &buf, requestSender);
     } else {
         debugs(9,3, HERE << "will wait for more request body bytes or eof");
-        requestSender = NULL;
+        requestSender = nullptr;
     }
 }
 
@@ -457,7 +457,7 @@ purgeEntriesByHeader(HttpRequest *req, const char *reqUrl, Http::Message *rep, H
 {
     const char *hdrUrl, *absUrl;
 
-    absUrl = NULL;
+    absUrl = nullptr;
     hdrUrl = rep->header.getStr(hdr);
     if (hdrUrl == NULL) {
         return;
@@ -620,7 +620,7 @@ Client::adaptVirginReplyBody(const char *data, ssize_t len)
     if (responseBodyBuffer) {
         if (putSize == responseBodyBuffer->contentSize()) {
             delete responseBodyBuffer;
-            responseBodyBuffer = NULL;
+            responseBodyBuffer = nullptr;
         } else {
             responseBodyBuffer->consume(putSize);
         }
@@ -641,7 +641,7 @@ void
 Client::noteMoreBodySpaceAvailable(BodyPipe::Pointer)
 {
     if (responseBodyBuffer) {
-        addVirginReplyBody(NULL, 0); // kick the buffered fragment alive again
+        addVirginReplyBody(nullptr, 0); // kick the buffered fragment alive again
         if (completed && !responseBodyBuffer) {
             serverComplete2();
             return;

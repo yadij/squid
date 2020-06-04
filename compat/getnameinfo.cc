@@ -195,7 +195,7 @@ found:
          */
     } else {
         if (flags & NI_NUMERICSERV)
-            sp = NULL;
+            sp = nullptr;
         else {
             sp = getservbyport(port,
                                (flags & NI_DGRAM) ? "udp" : "tcp");

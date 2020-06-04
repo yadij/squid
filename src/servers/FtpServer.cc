@@ -168,7 +168,7 @@ Ftp::Server::readUploadData(const CommIoCbParams &io)
 {
     debugs(33, 5, io.conn << " size " << io.size);
     Must(reader != NULL);
-    reader = NULL;
+    reader = nullptr;
 
     assert(Comm::IsConnOpen(dataConn));
     assert(io.conn->fd == dataConn->fd);
@@ -288,7 +288,7 @@ Ftp::StopListening()
         if (s->listenConn != NULL) {
             debugs(1, DBG_IMPORTANT, "Closing FTP port " << s->listenConn->local);
             s->listenConn->close();
-            s->listenConn = NULL;
+            s->listenConn = nullptr;
         }
     }
 }
@@ -422,7 +422,7 @@ Ftp::Server::acceptDataConnection(const CommAcceptCbParams &params)
         debugs(33, 7, "ready for data");
         if (onDataAcceptCall != NULL) {
             AsyncCall::Pointer call = onDataAcceptCall;
-            onDataAcceptCall = NULL;
+            onDataAcceptCall = nullptr;
             // If we got an upload request, start reading data from the client.
             if (master->serverState == fssHandleUploadRequest)
                 maybeReadUploadData();
@@ -441,7 +441,7 @@ Ftp::Server::closeDataConnection()
 {
     if (listener != NULL) {
         listener->cancel("no longer needed");
-        listener = NULL;
+        listener = nullptr;
     }
 
     if (Comm::IsConnOpen(dataListenConn)) {
@@ -449,12 +449,12 @@ Ftp::Server::closeDataConnection()
                *dataListenConn);
         dataListenConn->close();
     }
-    dataListenConn = NULL;
+    dataListenConn = nullptr;
 
     if (reader != NULL) {
         // Comm::ReadCancel can deal with negative FDs
         Comm::ReadCancel(dataConn->fd, reader);
-        reader = NULL;
+        reader = nullptr;
     }
 
     if (Comm::IsConnOpen(dataConn)) {
@@ -462,7 +462,7 @@ Ftp::Server::closeDataConnection()
                *dataConn);
         dataConn->close();
     }
-    dataConn = NULL;
+    dataConn = nullptr;
 }
 
 /// Writes FTP [error] response before we fully parsed the FTP request and
@@ -688,7 +688,7 @@ Ftp::Server::parseOneRequest()
             flags.readMore = true;
             debugs(33, 5, "Waiting for more, up to " <<
                    (Config.maxRequestHeaderSize - inBuf.length()));
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -778,8 +778,8 @@ Ftp::Server::handleReply(HttpReply *reply, StoreIOBuffer data)
     assert(context != nullptr);
 
     static ReplyHandler handlers[] = {
-        NULL, // fssBegin
-        NULL, // fssConnected
+        nullptr, // fssBegin
+        nullptr, // fssConnected
         &Ftp::Server::handleFeatReply, // fssHandleFeat
         &Ftp::Server::handlePasvReply, // fssHandlePasv
         &Ftp::Server::handlePortReply, // fssHandlePort
@@ -787,9 +787,9 @@ Ftp::Server::handleReply(HttpReply *reply, StoreIOBuffer data)
         &Ftp::Server::handleUploadReply, // fssHandleUploadRequest
         &Ftp::Server::handleEprtReply,// fssHandleEprt
         &Ftp::Server::handleEpsvReply,// fssHandleEpsv
-        NULL, // fssHandleCwd
-        NULL, // fssHandlePass
-        NULL, // fssHandleCdup
+        nullptr, // fssHandleCwd
+        nullptr, // fssHandlePass
+        nullptr, // fssHandleCdup
         &Ftp::Server::handleErrorReply // fssError
     };
     try {
@@ -1333,7 +1333,7 @@ Ftp::Server::handleRequest(HttpRequest *request)
         handlers["CDUP"] = &Ftp::Server::handleCdupRequest;
     }
 
-    RequestHandler handler = NULL;
+    RequestHandler handler = nullptr;
     if (request->method == Http::METHOD_PUT)
         handler = &Ftp::Server::handleUploadRequest;
     else {
@@ -1397,7 +1397,7 @@ Ftp::Server::handleUserRequest(const SBuf &, SBuf &params)
         resetLogin("URI reset");
     }
 
-    return NULL; // no early errors
+    return nullptr; // no early errors
 }
 
 bool
@@ -1501,7 +1501,7 @@ Ftp::Server::handlePortRequest(String &, String &params)
     }
 
     Ip::Address cltAddr;
-    if (!Ftp::ParseIpPort(params.termedBuf(), NULL, cltAddr)) {
+    if (!Ftp::ParseIpPort(params.termedBuf(), nullptr, cltAddr)) {
         setReply(501, "Invalid parameter");
         return false;
     }
@@ -1537,7 +1537,7 @@ Ftp::Server::handleUploadRequest(String &, String &)
     if (Config.accessList.forceRequestBodyContinuation) {
         ClientHttpRequest *http = pipeline.front()->http;
         HttpRequest *request = http->request;
-        ACLFilledChecklist bodyContinuationCheck(Config.accessList.forceRequestBodyContinuation, request, NULL);
+        ACLFilledChecklist bodyContinuationCheck(Config.accessList.forceRequestBodyContinuation, request, nullptr);
         bodyContinuationCheck.al = http->al;
         bodyContinuationCheck.syncAle(request, http->log_uri);
         if (bodyContinuationCheck.fastCheck().allowed()) {
@@ -1700,7 +1700,7 @@ Ftp::Server::checkDataConnPost() const
 void
 Ftp::Server::connectedForData(const CommConnectCbParams &params)
 {
-    connector = NULL;
+    connector = nullptr;
 
     if (params.flag != Comm::OK) {
         /* it might have been a timeout with a partially open link */

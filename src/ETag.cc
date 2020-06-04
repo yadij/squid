@@ -30,7 +30,7 @@ etagParseInit(ETag * etag, const char *str)
 {
     int len;
     assert(etag && str);
-    etag->str = NULL;
+    etag->str = nullptr;
     etag->weak = !strncmp(str, "W/", 2);
 
     if (etag->weak)

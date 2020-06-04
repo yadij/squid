@@ -24,7 +24,7 @@ Log::Format::SquidNative(const AccessLogEntry::Pointer &al, Logfile * logfile)
 {
     char hierHost[MAX_IPSTRLEN];
 
-    const char *user = NULL;
+    const char *user = nullptr;
 
 #if USE_AUTH
     if (al->request && al->request->auth_user_request != NULL)

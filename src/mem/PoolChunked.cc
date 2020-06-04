@@ -108,7 +108,7 @@ MemChunk::MemChunk(MemPoolChunked *aPool)
      * free the first chunk.
      */
     inuse_count = 0;
-    next = NULL;
+    next = nullptr;
     pool = aPool;
 
     if (pool->doZero)
@@ -191,7 +191,7 @@ MemPoolChunked::get()
         Free = (void **)freeCache;
         (void) VALGRIND_MAKE_MEM_DEFINED(Free, obj_size);
         freeCache = *Free;
-        *Free = NULL;
+        *Free = nullptr;
         return Free;
     }
     /* then try perchunk freelist chain */
@@ -205,7 +205,7 @@ MemPoolChunked::get()
 
     Free = (void **)chunk->freeList;
     chunk->freeList = *Free;
-    *Free = NULL;
+    *Free = nullptr;
     ++chunk->inuse_count;
     chunk->lastref = squid_curtime;
 
@@ -334,7 +334,7 @@ MemPoolChunked::convertFreeCacheToChunkFreeCache()
      */
 
     while ((Free = freeCache) != NULL) {
-        MemChunk *chunk = NULL;
+        MemChunk *chunk = nullptr;
         chunk = const_cast<MemChunk *>(*allChunks.find(Free, memCompObjChunks));
         assert(splayLastResult == 0);
         assert(chunk->inuse_count > 0);
@@ -369,12 +369,12 @@ MemPoolChunked::clean(time_t maxage)
     chunk = Chunks;
     while ((freechunk = chunk->next) != NULL) {
         age = squid_curtime - freechunk->lastref;
-        freechunk->nextFreeChunk = NULL;
+        freechunk->nextFreeChunk = nullptr;
         if (freechunk->inuse_count == 0)
             if (age >= maxage) {
                 chunk->next = freechunk->next;
                 delete freechunk;
-                freechunk = NULL;
+                freechunk = nullptr;
             }
         if (chunk->next == NULL)
             break;
@@ -388,10 +388,10 @@ MemPoolChunked::clean(time_t maxage)
 
     chunk = Chunks;
     nextFreeChunk = chunk;
-    chunk->nextFreeChunk = NULL;
+    chunk->nextFreeChunk = nullptr;
 
     while (chunk->next) {
-        chunk->next->nextFreeChunk = NULL;
+        chunk->next->nextFreeChunk = nullptr;
         if (chunk->next->inuse_count < chunk_capacity) {
             listTail = nextFreeChunk;
             while (listTail->nextFreeChunk) {

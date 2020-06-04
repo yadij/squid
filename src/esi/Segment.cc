@@ -21,7 +21,7 @@ ESISegmentFreeList (ESISegment::Pointer &head)
     while (head.getRaw()) {
         ESISegment::Pointer temp = head;
         head = head->next;
-        temp->next = NULL;
+        temp->next = nullptr;
     }
 }
 
@@ -54,13 +54,13 @@ ESISegment::ListTransfer (ESISegment::Pointer &from, ESISegment::Pointer &to)
 {
     if (!to.getRaw()) {
         to = from;
-        from = NULL;
+        from = nullptr;
         return;
     }
 
     ESISegment::Pointer temp = to->tail();
     temp->adsorbList (from);
-    from = NULL;
+    from = nullptr;
 }
 
 size_t

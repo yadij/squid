@@ -67,14 +67,14 @@ DiskdFile::open(int flags, mode_t, RefCount<IORequestor> callback)
                      strlen(buf) + 1,
                      mode,
                      shm_offset,
-                     NULL);
+                     nullptr);
 
     if (x < 0) {
         ioCompleted();
         errorOccured = true;
         //        IO->shm.put (shm_offset);
         ioRequestor->ioCompletedNotification();
-        ioRequestor = NULL;
+        ioRequestor = nullptr;
     }
 
     ++diskd_stats.open.ops;
@@ -98,7 +98,7 @@ DiskdFile::create(int flags, mode_t, RefCount<IORequestor> callback)
                      strlen(buf) + 1,
                      mode,
                      shm_offset,
-                     NULL);
+                     nullptr);
 
     if (x < 0) {
         int xerrno = errno;
@@ -107,7 +107,7 @@ DiskdFile::create(int flags, mode_t, RefCount<IORequestor> callback)
         //        IO->shm.put (shm_offset);
         debugs(79, DBG_IMPORTANT, "storeDiskdSend CREATE: " << xstrerr(xerrno));
         notifyClient();
-        ioRequestor = NULL;
+        ioRequestor = nullptr;
         return;
     }
 
@@ -137,7 +137,7 @@ DiskdFile::read(ReadRequest *aRead)
         //        IO->shm.put (shm_offset);
         debugs(79, DBG_IMPORTANT, "storeDiskdSend READ: " << xstrerr(xerrno));
         notifyClient();
-        ioRequestor = NULL;
+        ioRequestor = nullptr;
         return;
     }
 
@@ -156,7 +156,7 @@ DiskdFile::close()
                      0,
                      0,
                      -1,
-                     NULL);
+                     nullptr);
 
     if (x < 0) {
         int xerrno = errno;
@@ -164,7 +164,7 @@ DiskdFile::close()
         errorOccured = true;
         debugs(79, DBG_IMPORTANT, "storeDiskdSend CLOSE: " << xstrerr(xerrno));
         notifyClient();
-        ioRequestor = NULL;
+        ioRequestor = nullptr;
         return;
     }
 
@@ -303,7 +303,7 @@ DiskdFile::write(WriteRequest *aRequest)
         debugs(79, DBG_IMPORTANT, "storeDiskdSend WRITE: " << xstrerr(xerrno));
         //        IO->shm.put (shm_offset);
         notifyClient();
-        ioRequestor = NULL;
+        ioRequestor = nullptr;
         return;
     }
 
@@ -340,7 +340,7 @@ DiskdFile::closeDone(diomsg * M)
     if (canNotifyClient())
         ioRequestor->closeCompleted();
 
-    ioRequestor = NULL;
+    ioRequestor = nullptr;
 }
 
 void
@@ -362,7 +362,7 @@ DiskdFile::readDone(diomsg * M)
         ++diskd_stats.read.fail;
         ioCompleted();
         errorOccured = true;
-        ioRequestor->readCompleted(NULL, -1, DISK_ERROR, readRequest);
+        ioRequestor->readCompleted(nullptr, -1, DISK_ERROR, readRequest);
         return;
     }
 

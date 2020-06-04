@@ -201,7 +201,7 @@ const char *ErrLDAP(int);
 extern "C" void SigTrap(int);
 
 /* Global variables */
-const char *search_attrib[] = { "cn", "uid", "networkAddress", "groupMembership", NULL };
+const char *search_attrib[] = { "cn", "uid", "networkAddress", "groupMembership", nullptr};
 static edui_conf_t edui_conf;
 static edui_ldap_t edui_ldap;
 time_t edui_now;
@@ -558,13 +558,13 @@ InitLDAP(edui_ldap_t *l)
 {
     if (l == NULL) return;
 
-    l->lp = NULL;
+    l->lp = nullptr;
     if (l->lm != NULL)
         ldap_msgfree(l->lm);
     if (l->val != NULL)
         ldap_value_free_len(l->val);
-    l->lm = NULL;
-    l->val = NULL;
+    l->lm = nullptr;
+    l->val = nullptr;
     *(l->basedn) = '\0';
     *(l->host) = '\0';
     *(l->dn) = '\0';
@@ -657,11 +657,11 @@ CloseLDAP(edui_ldap_t *l)
 
     if (l->lm != NULL) {
         ldap_msgfree(l->lm);
-        l->lm = NULL;
+        l->lm = nullptr;
     }
     if (l->val != NULL) {
         ldap_value_free_len(l->val);
-        l->val = NULL;
+        l->val = nullptr;
     }
 
     /* okay, so it's open, close it - No need to check other criteria */
@@ -775,7 +775,7 @@ BindLDAP(edui_ldap_t *l, char *dn, char *pw, unsigned int t)
     /* Bind */
 #if defined(LDAP_AUTH_TLS) && defined(NETSCAPE_SSL) && HAVE_LDAP_START_TLS_S
     if (l->type == LDAP_AUTH_TLS)
-        s = ldap_start_tls_s(l->lp, NULL, NULL);
+        s = ldap_start_tls_s(l->lp, nullptr, nullptr);
     else
 #endif
         s = ldap_bind_s(l->lp, l->dn, l->passwd, l->type);
@@ -865,8 +865,8 @@ ConvertIP(edui_ldap_t *l, char *ip)
     y = memchr((void *)ip, ':', EDUI_MAXLEN);
     z = memchr((void *)ip, '.', EDUI_MAXLEN);
     if ((y != NULL) && (z != NULL)) {
-        y = NULL;
-        z = NULL;
+        y = nullptr;
+        z = nullptr;
         return LDAP_ERR_INVALID;
     }
     if ((y != NULL) && (edui_conf.mode & EDUI_MODE_IPV4)) {
@@ -878,7 +878,7 @@ ConvertIP(edui_ldap_t *l, char *ip)
             l->status &= ~(LDAP_IPV4_S);
         if (!(l->status & LDAP_IPV6_S))
             l->status |= (LDAP_IPV6_S);
-        y = NULL;
+        y = nullptr;
     }
     if ((z != NULL) && (edui_conf.mode & EDUI_MODE_IPV6)) {
         /* IPv6 Mode forced */
@@ -889,7 +889,7 @@ ConvertIP(edui_ldap_t *l, char *ip)
             l->status &= ~(LDAP_IPV6_S);
         if (!(l->status & LDAP_IPV4_S))
             l->status |= (LDAP_IPV4_S);
-        z = NULL;
+        z = nullptr;
     }
 
     size_t s = LDAP_ERR_INVALID;
@@ -935,11 +935,11 @@ ResetLDAP(edui_ldap_t *l)
         l->status &= ~(LDAP_IPV6_S);
     if (l->lm != NULL) {
         ldap_msgfree(l->lm);
-        l->lm = NULL;
+        l->lm = nullptr;
     }
     if (l->val != NULL) {
         ldap_value_free_len(l->val);
-        l->val = NULL;
+        l->val = nullptr;
     }
     memset(l->search_ip, '\0', sizeof(l->search_ip));
     *(l->search_filter) = '\0';
@@ -1129,7 +1129,7 @@ SearchIPLDAP(edui_ldap_t *l)
         xstrncpy(edui_conf.attrib, "cn", sizeof(edui_conf.attrib));         /* Make sure edui_conf.attrib is set */
 
     /* Sift through entries */
-    struct berval **ber = NULL;
+    struct berval **ber = nullptr;
     for (ent = ldap_first_entry(l->lp, l->lm); ent != NULL; ent = ldap_next_entry(l->lp, ent)) {
         l->val = ldap_get_values_len(l->lp, ent, "networkAddress");
         ber = ldap_get_values_len(l->lp, ent, edui_conf.attrib);            /* edui_conf.attrib is the <userid> mapping */
@@ -1179,9 +1179,9 @@ SearchIPLDAP(edui_ldap_t *l)
                                 /* Using bv_len of min() breaks the result by 2 chars */
                             }
                             ldap_value_free_len(l->val);
-                            l->val = NULL;
+                            l->val = nullptr;
                             ldap_value_free_len(ber);
-                            ber = NULL;
+                            ber = nullptr;
                             l->num_val = 0;
                             l->err = LDAP_SUCCESS;
                             l->status &= ~(LDAP_SEARCH_S);
@@ -1206,9 +1206,9 @@ SearchIPLDAP(edui_ldap_t *l)
                                 /* Using bv_len of min() breaks the result by 2 chars */
                             }
                             ldap_value_free_len(l->val);
-                            l->val = NULL;
+                            l->val = nullptr;
                             ldap_value_free_len(ber);
-                            ber = NULL;
+                            ber = nullptr;
                             l->num_val = 0;
                             l->err = LDAP_SUCCESS;
                             l->status &= ~(LDAP_SEARCH_S);
@@ -1233,9 +1233,9 @@ SearchIPLDAP(edui_ldap_t *l)
                                 /* Using bv_len of min() breaks the result by 2 chars */
                             }
                             ldap_value_free_len(l->val);
-                            l->val = NULL;
+                            l->val = nullptr;
                             ldap_value_free_len(ber);
-                            ber = NULL;
+                            ber = nullptr;
                             l->num_val = 0;
                             l->err = LDAP_SUCCESS;
                             l->status &= ~(LDAP_SEARCH_S);
@@ -1249,26 +1249,26 @@ SearchIPLDAP(edui_ldap_t *l)
                 }
                 if (ber != NULL) {
                     ldap_value_free_len(ber);
-                    ber = NULL;
+                    ber = nullptr;
                 }
             }
             ldap_value_free_len(l->val);
-            l->val = NULL;
+            l->val = nullptr;
         }
         if (ber != NULL) {
             ldap_value_free_len(ber);
-            ber = NULL;
+            ber = nullptr;
         }
         /* Attr not found, continue */
     }
     /* No entries found using given attr */
     if (l->val != NULL) {
         ldap_value_free_len(l->val);
-        l->val = NULL;
+        l->val = nullptr;
     }
     if (l->lm != NULL) {
         ldap_msgfree(l->lm);
-        l->lm = NULL;
+        l->lm = nullptr;
     }
     l->num_ent = 0;
     l->num_val = 0;
@@ -1355,7 +1355,7 @@ SigTrap(int s)
 static int
 MainSafe(int argc, char **argv)
 {
-    char bufa[EDUI_MAXLEN], bufb[EDUI_MAXLEN], *p = NULL;
+    char bufa[EDUI_MAXLEN], bufb[EDUI_MAXLEN], *p = nullptr;
     char bufc[EDUI_MAXLEN];
     char sfmod[EDUI_MAXLEN];
     int x;
@@ -1581,15 +1581,15 @@ MainSafe(int argc, char **argv)
     /* Trap the following signals */
     sigemptyset(&sv.sa_mask);
     sv.sa_handler = SigTrap;
-    sigaction(SIGTERM, &sv, NULL);
+    sigaction(SIGTERM, &sv, nullptr);
     sv.sa_handler = SigTrap;
-    sigaction(SIGHUP, &sv, NULL);
+    sigaction(SIGHUP, &sv, nullptr);
     sv.sa_handler = SigTrap;
-    sigaction(SIGABRT, &sv, NULL);
+    sigaction(SIGABRT, &sv, nullptr);
     sv.sa_handler = SigTrap;
-    sigaction(SIGINT, &sv, NULL);
+    sigaction(SIGINT, &sv, nullptr);
     sv.sa_handler = SigTrap;
-    sigaction(SIGSEGV, &sv, NULL);
+    sigaction(SIGSEGV, &sv, nullptr);
 
     DisplayConf();
     /* Done with arguments */
@@ -1773,13 +1773,13 @@ MainSafe(int argc, char **argv)
             } else {
                 debug("ConvertIP(-, %s) -> Result[%d]: %s\n", bufa, x, edui_ldap.search_ip);
                 /* Do search */
-                x = SearchFilterLDAP(&edui_ldap, NULL);
+                x = SearchFilterLDAP(&edui_ldap, nullptr);
                 if (x < 0) {
                     debug("SearchFilterLDAP() -> %s\n", ErrLDAP(x));
                     local_printfx("BH message=\"(SearchFilterLDAP: %s)\"\n", ErrLDAP(x));
                 } else {
                     edui_ldap.err = -1;
-                    debug("SearchFilterLDAP(-, NULL) -> Length: %u\n", x);
+                    debug("SearchFilterLDAP(-, nullptr) -> Length: %u\n", x);
                     x = SearchLDAP(&edui_ldap, edui_ldap.scope, edui_ldap.search_filter, (char **) &search_attrib);
                     if (x != LDAP_ERR_SUCCESS) {
                         debug("SearchLDAP() -> %s (LDAP: %s)\n", ErrLDAP(x), ldap_err2string(x));

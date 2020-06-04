@@ -83,13 +83,13 @@ static int berEncodePasswordData(
     const char    *password2)
 {
     int err = 0, rc=0;
-    BerElement *requestBer = NULL;
+    BerElement *requestBer = nullptr;
 
-    const char    * utf8ObjPtr = NULL;
+    const char    * utf8ObjPtr = nullptr;
     int     utf8ObjSize = 0;
-    const char    * utf8PwdPtr = NULL;
+    const char    * utf8PwdPtr = nullptr;
     int     utf8PwdSize = 0;
-    const char    * utf8Pwd2Ptr = NULL;
+    const char    * utf8Pwd2Ptr = nullptr;
     int     utf8Pwd2Size = 0;
 
     /* Convert objectDN and tag strings from Unicode to UTF-8 */
@@ -160,7 +160,7 @@ static int berEncodeLoginData(
     char    *utf8ObjPtr=NULL;
     int     utf8ObjSize = 0;
 
-    char    *utf8TagPtr = NULL;
+    char    *utf8TagPtr = nullptr;
     int     utf8TagSize = 0;
 
     utf8ObjPtr = objectDN;
@@ -235,8 +235,8 @@ static int berDecodeLoginData(
     void     *retData )
 {
     int err = 0;
-    BerElement *replyBer = NULL;
-    char    *retOctStr = NULL;
+    BerElement *replyBer = nullptr;
+    char    *retOctStr = nullptr;
     size_t  retOctStrLen = 0;
 
     if ((replyBer = ber_init(replyBV)) == NULL) {
@@ -292,9 +292,9 @@ static int getLoginConfig(
     void     *data )
 {
     int     err = 0;
-    struct  berval *requestBV = NULL;
-    char    *replyOID = NULL;
-    struct  berval *replyBV = NULL;
+    struct  berval *requestBV = nullptr;
+    char    *replyOID = nullptr;
+    struct  berval *replyBV = nullptr;
     int     serverVersion = 0;
 
     /* Validate unicode parameters. */
@@ -302,11 +302,11 @@ static int getLoginConfig(
         return LDAP_NO_SUCH_ATTRIBUTE;
     }
 
-    err = berEncodeLoginData(&requestBV, objectDN, methodIDLen, methodID, tag, 0, NULL);
+    err = berEncodeLoginData(&requestBV, objectDN, methodIDLen, methodID, tag, 0, nullptr);
     if (err) {
         ;
     } else if (!err && (err = ldap_extended_operation_s(ld, NMASLDAP_GET_LOGIN_CONFIG_REQUEST,
-                              requestBV, NULL, NULL, &replyOID, &replyBV))) {
+                              requestBV, nullptr, nullptr, &replyOID, &replyBV))) {
         /* Call the ldap_extended_operation (synchronously) */
         ;
     } else if (!replyOID) {
@@ -418,9 +418,9 @@ static int nmasldap_get_password(
 {
     int err = 0;
 
-    struct berval *requestBV = NULL;
-    char *replyOID = NULL;
-    struct berval *replyBV = NULL;
+    struct berval *requestBV = nullptr;
+    char *replyOID = nullptr;
+    struct berval *replyBV = nullptr;
     int serverVersion;
     char *pwdBuf;
     size_t pwdBufLen, bufferLen;
@@ -436,10 +436,10 @@ static int nmasldap_get_password(
         return LDAP_NO_MEMORY;
     }
 
-    err = berEncodePasswordData(&requestBV, objectDN, NULL, NULL);
+    err = berEncodePasswordData(&requestBV, objectDN, nullptr, nullptr);
     if (err) {
         ;
-    } else if ((err = ldap_extended_operation_s(ld, NMASLDAP_GET_PASSWORD_REQUEST, requestBV, NULL, NULL, &replyOID, &replyBV))) {
+    } else if ((err = ldap_extended_operation_s(ld, NMASLDAP_GET_PASSWORD_REQUEST, requestBV, nullptr, nullptr, &replyOID, &replyBV))) {
         ; /* Call the ldap_extended_operation (synchronously) */
     } else if (!replyOID) {
         /* Make sure there is a return OID */

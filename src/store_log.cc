@@ -30,7 +30,7 @@ static const char *storeLogTags[] = {
 static int storeLogTagsCounts[STORE_LOG_SWAPOUTFAIL+1];
 static OBJH storeLogTagsHist;
 
-static Logfile *storelog = NULL;
+static Logfile *storelog = nullptr;
 
 static String str_unknown;
 
@@ -109,7 +109,7 @@ storeLogClose(void)
 
     logfileClose(storelog);
 
-    storelog = NULL;
+    storelog = nullptr;
 }
 
 static void

@@ -187,8 +187,8 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    setbuf(stdout, NULL);
-    setbuf(stderr, NULL);
+    setbuf(stdout, nullptr);
+    setbuf(stderr, nullptr);
 
     if (argv[var][0] == '-') {
         if (argv[var][1] == '4')
@@ -272,7 +272,7 @@ main(int argc, char *argv[])
             FD_SET(s, &R);
             to.tv_sec = 10;
             to.tv_usec = 0;
-            rl = select(s + 1, &R, NULL, NULL, &to);
+            rl = select(s + 1, &R, nullptr, nullptr, &to);
         } while (0);
 
         if (rl < 1) {
@@ -286,7 +286,7 @@ main(int argc, char *argv[])
             unsigned short rid = 0;
             int i;
             int n;
-            rfc1035_rr *answers = NULL;
+            rfc1035_rr *answers = nullptr;
             n = rfc1035AnswersUnpack(rbuf,
                                      rl,
                                      &answers,

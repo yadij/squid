@@ -195,7 +195,7 @@ inet_pton6(const char *src, u_char *dst)
 
     memset((tp = tmp), '\0', NS_IN6ADDRSZ);
     endp = tp + NS_IN6ADDRSZ;
-    colonp = NULL;
+    colonp = nullptr;
     /* Leading :: requires some special handling. */
     if (*src == ':')
         if (*++src != ':')

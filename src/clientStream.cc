@@ -72,9 +72,9 @@
  *
  \code
    mycontext = thisObject->data;
-   thisObject->data = NULL;
+   thisObject->data = nullptr;
    delete thisObject->head;
-   mycontext = NULL;
+   mycontext = nullptr;
    return;
  \endcode
  *
@@ -97,7 +97,7 @@ clientStreamNode::~clientStreamNode()
     debugs(87, 3, "Freeing clientStreamNode " << this);
 
     removeFromStream();
-    data = NULL;
+    data = nullptr;
 }
 
 /**
@@ -113,10 +113,10 @@ clientStreamInit(dlink_list * list, CSR * func, CSD * rdetach, CSS * readstatus,
                  ClientStreamData readdata, CSCB * callback, CSD * cdetach, ClientStreamData callbackdata,
                  StoreIOBuffer tailBuffer)
 {
-    clientStreamNode *temp = new clientStreamNode(func, NULL, rdetach, readstatus, readdata);
+    clientStreamNode *temp = new clientStreamNode(func, nullptr, rdetach, readstatus, readdata);
     dlinkAdd(cbdataReference(temp), &temp->node, list);
     temp->head = list;
-    clientStreamInsertHead(list, NULL, callback, cdetach, NULL, callbackdata);
+    clientStreamInsertHead(list, nullptr, callback, cdetach, nullptr, callbackdata);
     temp = (clientStreamNode *)list->tail->data;
     temp->readBuffer = tailBuffer;
 }
@@ -198,7 +198,7 @@ clientStreamDetach(clientStreamNode * thisObject, ClientHttpRequest * http)
     debugs(87, 3, "clientStreamDetach: Detaching node " << thisObject);
     /* And clean up thisObject node */
     /* ESI TODO: push refcount class through to head */
-    clientStreamNode *prev = NULL;
+    clientStreamNode *prev = nullptr;
 
     if (thisObject->prev())
         prev = cbdataReference(thisObject->prev());
@@ -269,7 +269,7 @@ clientStreamNode::removeFromStream()
     if (head)
         dlinkDelete(&node, head);
 
-    head = NULL;
+    head = nullptr;
 }
 
 clientStreamNode *
@@ -278,7 +278,7 @@ clientStreamNode::prev() const
     if (node.prev)
         return (clientStreamNode *)node.prev->data;
     else
-        return NULL;
+        return nullptr;
 }
 
 clientStreamNode *
@@ -287,6 +287,6 @@ clientStreamNode::next() const
     if (node.next)
         return (clientStreamNode *)node.next->data;
     else
-        return NULL;
+        return nullptr;
 }
 

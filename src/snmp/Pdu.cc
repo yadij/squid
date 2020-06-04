@@ -123,7 +123,7 @@ Snmp::Pdu::clearVars()
         var = var->next_variable;
         snmp_var_free(tmp);
     }
-    variables = NULL;
+    variables = nullptr;
 }
 
 void
@@ -141,7 +141,7 @@ Snmp::Pdu::clearSystemOid()
 {
     if (enterprise != NULL) {
         xfree(enterprise);
-        enterprise = NULL;
+        enterprise = nullptr;
     }
     enterprise_length = 0;
 }

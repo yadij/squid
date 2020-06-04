@@ -65,7 +65,7 @@ static IOCB WriteFeedback;
 static CLCB Close;
 static CTCB Timeout;
 static CNCB ConnectDone;
-static hash_table *ident_hash = NULL;
+static hash_table *ident_hash = nullptr;
 static void ClientAdd(IdentStateData * state, IDCB * callback, void *callback_data);
 
 } // namespace Ident
@@ -180,8 +180,8 @@ void
 Ident::ReadReply(const Comm::ConnectionPointer &conn, char *buf, size_t len, Comm::Flag flag, int, void *data)
 {
     IdentStateData *state = (IdentStateData *)data;
-    char *ident = NULL;
-    char *t = NULL;
+    char *ident = nullptr;
+    char *t = nullptr;
 
     assert(buf == state->buf);
     assert(conn->fd == state->conn->fd);
@@ -210,7 +210,7 @@ Ident::ReadReply(const Comm::ConnectionPointer &conn, char *buf, size_t len, Com
         if ((ident = strrchr(buf, ':'))) {
             while (xisspace(*++ident));
             if (ident && *ident == '\0')
-                ident = NULL;
+                ident = nullptr;
             state->notify(ident);
         }
     }

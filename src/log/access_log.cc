@@ -40,7 +40,7 @@
 #endif
 
 #if HEADERS_LOG
-static Logfile *headerslog = NULL;
+static Logfile *headerslog = nullptr;
 #endif
 
 #if MULTICAST_MISS_STREAM
@@ -56,8 +56,8 @@ typedef struct {
     hash_link hash;
     int n;
 } fvdb_entry;
-static hash_table *via_table = NULL;
-static hash_table *forw_table = NULL;
+static hash_table *via_table = nullptr;
+static hash_table *forw_table = nullptr;
 static void fvdbInit();
 static void fvdbDumpTable(StoreEntry * e, hash_table * hash);
 static void fvdbCount(hash_table * hash, const char *key);
@@ -206,7 +206,7 @@ accessLogClose(void)
     for (log = Config.Log.accesslogs; log; log = log->next) {
         if (log->logfile) {
             logfileClose(log->logfile);
-            log->logfile = NULL;
+            log->logfile = nullptr;
         }
     }
 
@@ -214,7 +214,7 @@ accessLogClose(void)
 
     logfileClose(headerslog);
 
-    headerslog = NULL;
+    headerslog = nullptr;
 
 #endif
 }
@@ -596,7 +596,7 @@ headersLog(int cs, int pq, const HttpRequestMethod& method, void *data)
     if (0 == pq) {
         /* reply */
         rep = data;
-        req = NULL;
+        req = nullptr;
         magic = 0x0050;
         hmask = rep->header.mask;
 
@@ -605,7 +605,7 @@ headersLog(int cs, int pq, const HttpRequestMethod& method, void *data)
     } else {
         /* request */
         req = data;
-        rep = NULL;
+        rep = nullptr;
         magic = 0x0051;
         hmask = req->header.mask;
 

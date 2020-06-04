@@ -28,10 +28,10 @@ void Mgr::Action::add(const Action &action) STUB
 void Mgr::Action::respond(const Request &request) STUB
 void Mgr::Action::sendResponse(unsigned int requestId) STUB
 bool Mgr::Action::atomic() const STUB_RETVAL(false)
-const char * Mgr::Action::name() const STUB_RETVAL(NULL)
+const char * Mgr::Action::name() const STUB_RETVAL(nullptr)
 static Mgr::Command static_Command;
 const Mgr::Command & Mgr::Action::command() const STUB_RETVAL(static_Command)
-StoreEntry * Mgr::Action::createStoreEntry() const STUB_RETVAL(NULL)
+StoreEntry * Mgr::Action::createStoreEntry() const STUB_RETVAL(nullptr)
 static Mgr::Action::Pointer dummyAction;
 
 #include "mgr/ActionParams.h"
@@ -191,7 +191,7 @@ void Mgr::Request::pack(Ipc::TypedMsgHdr& msg) const STUB
 Ipc::Request::Pointer Mgr::Request::clone() const STUB_RETVAL(const_cast<Mgr::Request*>(this))
 
 #include "mgr/Response.h"
-//Mgr::Response::Response(unsigned int aRequestId, Action::Pointer anAction = NULL) STUB
+//Mgr::Response::Response(unsigned int aRequestId, Action::Pointer anAction = nullptr) STUB
 //Mgr::Response::Response(const Ipc::TypedMsgHdr& msg) STUB
 void Mgr::Response::pack(Ipc::TypedMsgHdr& msg) const STUB
 static Ipc::Response::Pointer ipr_static;

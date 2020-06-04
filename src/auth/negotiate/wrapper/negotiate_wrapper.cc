@@ -72,7 +72,7 @@ LogTime()
     static time_t last_t = 0;
     static char buf[128];
 
-    gettimeofday(&now, NULL);
+    gettimeofday(&now, nullptr);
     if (now.tv_sec != last_t) {
         time_t *tmp = (time_t *) & now.tv_sec;
         struct tm *tm = localtime(tmp);
@@ -113,7 +113,7 @@ processingLoop(FILE *FDKIN, FILE *FDKOUT, FILE *FDNIN, FILE *FDNOUT)
     char buff[MAX_AUTHTOKEN_LEN+2];
     char *c;
     size_t length;
-    uint8_t *token = NULL;
+    uint8_t *token = nullptr;
 
     while (1) {
         if (fgets(buf, sizeof(buf) - 1, stdin) == NULL) {
@@ -278,8 +278,8 @@ main(int argc, char *const argv[])
     int pnin[2];
     int pnout[2];
 
-    setbuf(stdout, NULL);
-    setbuf(stdin, NULL);
+    setbuf(stdout, nullptr);
+    setbuf(stdin, nullptr);
 
     if (argc ==1 || !strncasecmp(argv[1],"-h",2)) {
         usage();
@@ -368,8 +368,8 @@ main(int argc, char *const argv[])
         dup2(pkout[1],STDOUT_FILENO);
         close(pkout[1]);
 
-        setbuf(stdin, NULL);
-        setbuf(stdout, NULL);
+        setbuf(stdin, nullptr);
+        setbuf(stdout, nullptr);
 
         execv(kargs[0], kargs);
         fprintf(stderr, "%s| %s: Failed execv for %s: %s\n", LogTime(), PROGRAM, kargs[0], strerror(errno));
@@ -404,8 +404,8 @@ main(int argc, char *const argv[])
         dup2(pnout[1],STDOUT_FILENO);
         close(pnout[1]);
 
-        setbuf(stdin, NULL);
-        setbuf(stdout, NULL);
+        setbuf(stdin, nullptr);
+        setbuf(stdout, nullptr);
 
         execv(nargs[0], nargs);
         fprintf(stderr, "%s| %s: Failed execv for %s: %s\n", LogTime(), PROGRAM, nargs[0], strerror(errno));
@@ -427,10 +427,10 @@ main(int argc, char *const argv[])
         exit(EXIT_FAILURE);
     }
 
-    setbuf(FDKIN, NULL);
-    setbuf(FDKOUT, NULL);
-    setbuf(FDNIN, NULL);
-    setbuf(FDNOUT, NULL);
+    setbuf(FDKIN, nullptr);
+    setbuf(FDKOUT, nullptr);
+    setbuf(FDNIN, nullptr);
+    setbuf(FDNOUT, nullptr);
 
     int result = processingLoop(FDKIN, FDKOUT, FDNIN, FDNOUT);
     closeFds(FDKIN, FDKOUT, FDNIN, FDNOUT);

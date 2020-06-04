@@ -136,6 +136,6 @@ Mgr::QueryParams::CreateParam(QueryParam::Type aType)
         throw TexcHere("unknown parameter type");
         break;
     }
-    return NULL;
+    return nullptr;
 }
 

@@ -72,7 +72,7 @@ void
 DelayPool::freeData()
 {
     delete pool;
-    pool = NULL;
+    pool = nullptr;
 }
 
 /** \todo XXX create DelayIdComposite.cc */

@@ -119,27 +119,27 @@ const Ftp::Relay::SM_FUNC Ftp::Relay::SM_FUNCS[] = {
     &Ftp::Relay::readGreeting, // BEGIN
     &Ftp::Relay::readUserOrPassReply, // SENT_USER
     &Ftp::Relay::readUserOrPassReply, // SENT_PASS
-    NULL,/* &Ftp::Relay::readReply */ // SENT_TYPE
-    NULL,/* &Ftp::Relay::readReply */ // SENT_MDTM
-    NULL,/* &Ftp::Relay::readReply */ // SENT_SIZE
-    NULL, // SENT_EPRT
-    NULL, // SENT_PORT
+    nullptr,/* &Ftp::Relay::readReply */ // SENT_TYPE
+    nullptr,/* &Ftp::Relay::readReply */ // SENT_MDTM
+    nullptr,/* &Ftp::Relay::readReply */ // SENT_SIZE
+    nullptr, // SENT_EPRT
+    nullptr, // SENT_PORT
     &Ftp::Relay::readEpsvReply, // SENT_EPSV_ALL
     &Ftp::Relay::readEpsvReply, // SENT_EPSV_1
     &Ftp::Relay::readEpsvReply, // SENT_EPSV_2
     &Ftp::Relay::readPasvReply, // SENT_PASV
     &Ftp::Relay::readCwdOrCdupReply,  // SENT_CWD
-    NULL,/* &Ftp::Relay::readDataReply, */ // SENT_LIST
-    NULL,/* &Ftp::Relay::readDataReply, */ // SENT_NLST
-    NULL,/* &Ftp::Relay::readReply */ // SENT_REST
-    NULL,/* &Ftp::Relay::readDataReply */ // SENT_RETR
-    NULL,/* &Ftp::Relay::readReply */ // SENT_STOR
-    NULL,/* &Ftp::Relay::readReply */ // SENT_QUIT
+    nullptr,/* &Ftp::Relay::readDataReply, */ // SENT_LIST
+    nullptr,/* &Ftp::Relay::readDataReply, */ // SENT_NLST
+    nullptr,/* &Ftp::Relay::readReply */ // SENT_REST
+    nullptr,/* &Ftp::Relay::readDataReply */ // SENT_RETR
+    nullptr,/* &Ftp::Relay::readReply */ // SENT_STOR
+    nullptr,/* &Ftp::Relay::readReply */ // SENT_QUIT
     &Ftp::Relay::readTransferDoneReply, // READING_DATA
     &Ftp::Relay::readReply, // WRITING_DATA
-    NULL,/* &Ftp::Relay::readReply */ // SENT_MKDIR
+    nullptr,/* &Ftp::Relay::readReply */ // SENT_MKDIR
     &Ftp::Relay::readFeatReply, // SENT_FEAT
-    NULL,/* &Ftp::Relay::readPwdReply */ // SENT_PWD
+    nullptr,/* &Ftp::Relay::readPwdReply */ // SENT_PWD
     &Ftp::Relay::readCwdOrCdupReply, // SENT_CDUP
     &Ftp::Relay::readDataReply,// SENT_DATA_REQUEST
     &Ftp::Relay::readReply, // SENT_COMMAND
@@ -153,9 +153,9 @@ Ftp::Relay::Relay(FwdState *const fwdState):
     forwardingCompleted(false),
     originWaitInProgress(false)
 {
-    savedReply.message = NULL;
-    savedReply.lastCommand = NULL;
-    savedReply.lastReply = NULL;
+    savedReply.message = nullptr;
+    savedReply.lastCommand = nullptr;
+    savedReply.lastReply = nullptr;
     savedReply.replyCode = 0;
 
     // Nothing we can do at request creation time can mark the response as
@@ -411,7 +411,7 @@ Ftp::Relay::proceedAfterPreliminaryReply()
 
     Must(thePreliminaryCb != NULL);
     const PreliminaryCb cb = thePreliminaryCb;
-    thePreliminaryCb = NULL;
+    thePreliminaryCb = nullptr;
     (this->*cb)();
 }
 
@@ -642,9 +642,9 @@ Ftp::Relay::startDirTracking()
     savedReply.lastReply = ctrl.last_reply;
     savedReply.replyCode = ctrl.replycode;
 
-    ctrl.last_command = NULL;
-    ctrl.last_reply = NULL;
-    ctrl.message = NULL;
+    ctrl.last_command = nullptr;
+    ctrl.last_reply = nullptr;
+    ctrl.message = nullptr;
     ctrl.offset = 0;
     writeCommand("PWD\r\n");
     return true;
@@ -667,9 +667,9 @@ Ftp::Relay::stopDirTracking()
     ctrl.last_reply = savedReply.lastReply;
     ctrl.replycode = savedReply.replyCode;
 
-    savedReply.message = NULL;
-    savedReply.lastReply = NULL;
-    savedReply.lastCommand = NULL;
+    savedReply.message = nullptr;
+    savedReply.lastReply = nullptr;
+    savedReply.lastCommand = nullptr;
 }
 
 void
@@ -726,7 +726,7 @@ void
 Ftp::Relay::dataChannelConnected(const CommConnectCbParams &io)
 {
     debugs(9, 3, status());
-    data.opener = NULL;
+    data.opener = nullptr;
 
     if (io.flag != Comm::OK) {
         debugs(9, 2, "failed to connect FTP server data channel");

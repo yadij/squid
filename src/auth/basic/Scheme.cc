@@ -12,7 +12,7 @@
 #include "Debug.h"
 #include "helper.h"
 
-Auth::Scheme::Pointer Auth::Basic::Scheme::_instance = NULL;
+Auth::Scheme::Pointer Auth::Basic::Scheme::_instance = nullptr;
 
 Auth::Scheme::Pointer
 Auth::Basic::Scheme::GetInstance()
@@ -36,7 +36,7 @@ Auth::Basic::Scheme::shutdownCleanup()
     if (_instance == NULL)
         return;
 
-    _instance = NULL;
+    _instance = nullptr;
     debugs(29, DBG_CRITICAL, "Shutdown: Basic authentication.");
 }
 
