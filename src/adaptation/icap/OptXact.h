@@ -9,6 +9,7 @@
 #ifndef SQUID_ICAPOPTXACT_H
 #define SQUID_ICAPOPTXACT_H
 
+#include "adaptation/icap/forward.h"
 #include "adaptation/icap/Launcher.h"
 #include "adaptation/icap/Xaction.h"
 
@@ -47,6 +48,7 @@ private:
     virtual void finalizeLogInfo();
 
     bool readAll; ///< read the entire OPTIONS response
+    ResponseParserPointer replyParser;
 };
 
 // An Launcher that stores OptXact construction info and
