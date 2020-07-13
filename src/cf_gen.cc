@@ -98,7 +98,6 @@ public:
 
     /* Documentation details for squid.conf.documented */
 
-    std::string comment;     /// COMMENT: line
     LineList doc;            ///< between DOC_START and DOC_END
 
     /* Documentation details for squid.conf.default */
@@ -300,13 +299,6 @@ main(int argc, char *argv[])
                 if ((strlen(buff) == 0) || (!strncmp(buff, "#", 1))) {
                     /* ignore empty and comment lines */
                     (void) 0;
-                } else if (!strncmp(buff, "COMMENT:", 8)) {
-                    ptr = buff + 8;
-
-                    while (isspace((unsigned char)*ptr))
-                        ++ptr;
-
-                    curr.comment = ptr;
                 } else if (!strncmp(buff, "DEFAULT:", 8)) {
                     ptr = buff + 8;
 
@@ -776,14 +768,8 @@ gen_conf(const EntryList &head, std::ostream &fout, bool verbose_output)
             (void) 0;
         else if (!entry.name.compare("obsolete"))
             (void) 0;
-        else if (verbose_output) {
-            fout << "#  TAG: " << entry.name;
-
-            if (entry.comment.size())
-                fout << "\t" << entry.comment;
-
-            fout << std::endl;
-        }
+        else if (verbose_output)
+            fout << "#  TAG: " << entry.name << std::endl;
 
         // Display --enable/--disable disclaimer
         if (!isDefined(entry.ifdef)) {
