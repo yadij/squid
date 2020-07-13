@@ -86,17 +86,27 @@ class Entry
 public:
     explicit Entry(const char *str) : name(str) {}
 
-    std::string name;
-    EntryAliasList alias;
-    std::string type;
-    std::string loc;
-    DefaultValues defaults;
-    std::string comment;
-    std::string ifdef;
-    LineList doc;
-    LineList cfgLines; ///< between CONFIG_START and CONFIG_END
-    int array_flag = 0; ///< TYPE is a raw array[] declaration
+    /* Directive details for cf_parser.cci code generation */
 
+    std::string name;        ///< tag NAME: name
+    EntryAliasList alias;    ///< tag NAME: alias list
+    std::string ifdef;       ///< tag IFDEF:
+    std::string type;        ///< tag TYPE:
+    int array_flag = 0;      ///< tag TYPE is a raw array[] declaration
+    std::string loc;         ///< tag LOC:
+    DefaultValues defaults;  ///< tag DEFAULT[_*]: lines
+
+    /* Documentation details for squid.conf.documented */
+
+    std::string comment;     /// COMMENT: line
+    LineList doc;            ///< between DOC_START and DOC_END
+
+    /* Documentation details for squid.conf.default */
+
+    LineList cfgLines;       ///< between CONFIG_START and CONFIG_END
+
+    /// generate the code for parse_line() to handle this
+    /// directive being found in squid.conf
     void genParse(std::ostream &fout) const;
 
 private:
