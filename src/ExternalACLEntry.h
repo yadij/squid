@@ -18,33 +18,6 @@
 #include "SquidString.h"
 
 class external_acl;
-/******************************************************************
- * ExternalACLEntryData
- * Core data that ExternalACLEntry manages.
- * Not meant to be used as remote storage at any point:
- * stack or static or composition use only.
- */
-
-class ExternalACLEntryData
-{
-
-public:
-    ExternalACLEntryData() : result(ACCESS_DUNNO) {}
-
-    Acl::Answer result;
-
-    /// list of all kv-pairs returned by the helper
-    NotePairs notes;
-
-#if USE_AUTH
-    // TODO use an AuthUser to hold this info
-    String user;
-    String password;
-#endif
-    String message;
-    String tag;
-    String log;
-};
 
 /*******************************************************************
  * external_acl cache entry
@@ -59,7 +32,6 @@ public:
     ExternalACLEntry();
     ~ExternalACLEntry();
 
-    void update(ExternalACLEntryData const &);
     dlink_node lru;
     Acl::Answer result;
     time_t date;

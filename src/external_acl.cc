@@ -77,7 +77,7 @@ public:
 
     /// try to cache the helper response data.
     /// \returns a Pointer to the cached entry, or an equivalent non-cached entry
-    ExternalACLEntryPointer maybeCache(const char *key, ExternalACLEntryData const &);
+    ExternalACLEntryPointer maybeCache(const char *key, ExternalACLEntryPointer const &);
 
     /// \returns whether a cache entry has entered its grace period
     bool graceExpired(const ExternalACLEntryPointer &) const;
@@ -790,36 +790,24 @@ external_acl::graceExpired(const ExternalACLEntryPointer &entry) const
 }
 
 ExternalACLEntryPointer
-external_acl::maybeCache(const char *key, ExternalACLEntryData const &data)
+external_acl::maybeCache(const char *key, ExternalACLEntryPointer const &data)
 {
-    ExternalACLEntryPointer entry;
+    ExternalACLEntryPointer entry = data;
+    entry->key = xstrdup(key);
+    entry->date = squid_curtime;
+    entry->def = this;
 
-    if (!isCacheable(data.result)) {
-        if (data.result == ACCESS_DUNNO) {
+    if (!isCacheable(entry->result)) {
+        if (entry->result == ACCESS_DUNNO) {
             cache.del(SBuf(key));
             debugs(82, 3, "removed cache entry: " << key);
         }
-        entry = new ExternalACLEntry;
-        entry->key = xstrdup(key);
-        entry->update(data);
-        entry->def = this;
         debugs(82, 2, "using entry (uncacheable): " << key);
         return entry;
     }
 
-    if ((entry = *cache.get(SBuf(key)))) {
-        debugs(82, 3, "update cache entry: '" << key << "' = " << data.result);
-        entry->update(data);
-        debugs(82, 2, "using entry (cached): " << key);
-        return entry;
-    }
-
-    entry = new ExternalACLEntry;
-    entry->key = xstrdup(key);
-    entry->update(data);
-    entry->def = this;
-    if (cache.add(SBuf(key), entry, (data.result.allowed() ? ttl : negative_ttl))) {
-        debugs(82, 3, "added cache entry: '" << key << "' = " << data.result);
+    if (cache.add(SBuf(key), entry, (entry->result.allowed() ? ttl : negative_ttl))) {
+        debugs(82, 3, "added cache entry: '" << key << "' = " << entry->result);
     }
 
     debugs(82, 2, "using entry (miss): " << key);
@@ -888,50 +876,49 @@ externalAclHandleReply(void *data, const Helper::Reply &reply)
 {
     externalAclState *state = static_cast<externalAclState *>(data);
     externalAclState *next;
-    ExternalACLEntryData entryData;
+    ExternalACLEntryPointer entry = new ExternalACLEntry;
 
     debugs(82, 2, HERE << "reply=" << reply);
 
     if (reply.result == Helper::Okay)
-        entryData.result = ACCESS_ALLOWED;
+        entry->result = ACCESS_ALLOWED;
     else if (reply.result == Helper::Error)
-        entryData.result = ACCESS_DENIED;
+        entry->result = ACCESS_DENIED;
     else //BrokenHelper,TimedOut or Unknown. Should not cached.
-        entryData.result = ACCESS_DUNNO;
+        entry->result = ACCESS_DUNNO;
 
     // XXX: make entryData store a proper Helper::Reply object instead of copying.
 
-    entryData.notes.append(&reply.notes);
+    entry->notes.append(&reply.notes);
 
     const char *label = reply.notes.findFirst("tag");
     if (label != NULL && *label != '\0')
-        entryData.tag = label;
+        entry->tag = label;
 
     label = reply.notes.findFirst("message");
     if (label != NULL && *label != '\0')
-        entryData.message = label;
+        entry->message = label;
 
     label = reply.notes.findFirst("log");
     if (label != NULL && *label != '\0')
-        entryData.log = label;
+        entry->log = label;
 
 #if USE_AUTH
     label = reply.notes.findFirst("user");
     if (label != NULL && *label != '\0')
-        entryData.user = label;
+        entry->user = label;
 
     label = reply.notes.findFirst("password");
     if (label != NULL && *label != '\0')
-        entryData.password = label;
+        entry->password = label;
 #endif
 
     // XXX: This state->def access conflicts with the cbdata validity check
     // below.
     dlinkDelete(&state->list, &state->def->queue);
 
-    ExternalACLEntryPointer entry;
     if (cbdataReferenceValid(state->def))
-        entry = state->def->maybeCache(state->key, entryData);
+        entry = state->def->maybeCache(state->key, entry);
 
     do {
         void *cbdata;
