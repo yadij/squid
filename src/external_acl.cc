@@ -57,7 +57,7 @@
 #define DEFAULT_EXTERNAL_ACL_CHILDREN 5
 #endif
 
-static char *makeExternalAclKey(ACLFilledChecklist * ch, external_acl_data * acl_data);
+static SBuf makeExternalAclKey(ACLFilledChecklist * ch, external_acl_data * acl_data);
 
 /******************************************************************
  * external_acl directive
@@ -77,7 +77,7 @@ public:
 
     /// try to cache the helper response data.
     /// \returns a Pointer to the cached entry, or an equivalent non-cached entry
-    ExternalACLEntryPointer maybeCache(const char *key, ExternalACLEntryPointer const &);
+    ExternalACLEntryPointer maybeCache(const SBuf &key, ExternalACLEntryPointer const &);
 
     /// \returns whether a cache entry has entered its grace period
     bool graceExpired(const ExternalACLEntryPointer &) const;
@@ -579,10 +579,10 @@ aclMatchExternal(external_acl_data *acl, ACLFilledChecklist *ch)
     if (entry != NULL) {
         if (entry->def == acl->def) {
             /* Ours, use it.. if the key matches */
-            const char *key = makeExternalAclKey(ch, acl);
-            if (!key)
+            const auto key = makeExternalAclKey(ch, acl);
+            if (key.isEmpty())
                 return ACCESS_DUNNO; // insufficient data to continue
-            if (strcmp(key, entry->key) != 0) {
+            if (key != entry->key) {
                 debugs(82, 9, "entry key='" << entry->key << "', our key='" << key << "' do not match. Discarded.");
                 // too bad. need a new lookup.
                 entry = ch->extacl_entry = NULL;
@@ -592,7 +592,7 @@ aclMatchExternal(external_acl_data *acl, ACLFilledChecklist *ch)
             debugs(82, 9, "entry " << entry << " not valid or not ours. Discarded.");
             if (entry != NULL) {
                 debugs(82, 9, "entry def=" << entry->def << ", our def=" << acl->def);
-                const char *key = makeExternalAclKey(ch, acl); // may be nil
+                const auto key = makeExternalAclKey(ch, acl); // may be nil
                 debugs(82, 9, "entry key='" << entry->key << "', our key='" << key << "'");
             }
             entry = ch->extacl_entry = NULL;
@@ -613,14 +613,14 @@ aclMatchExternal(external_acl_data *acl, ACLFilledChecklist *ch)
             debugs(82, 3, HERE << acl->def->name << " user is authenticated.");
         }
 #endif
-        const char *key = makeExternalAclKey(ch, acl);
+        const auto key = makeExternalAclKey(ch, acl);
 
-        if (!key) {
+        if (key.isEmpty()) {
             /* Not sufficient data to process */
             return ACCESS_DUNNO;
         }
 
-        entry = *acl->def->cache.get(SBuf(key));
+        entry = *acl->def->cache.get(key);
 
         const ExternalACLEntryPointer staleEntry = entry;
         if (entry && entry->result == ACCESS_DUNNO) // XXX: DUNNO is not cacheable, yet retrieved from cache?
@@ -719,7 +719,7 @@ ACLExternal::dump() const
  * external_acl cache
  */
 
-static char *
+static SBuf
 makeExternalAclKey(ACLFilledChecklist * ch, external_acl_data * acl_data)
 {
     static MemBuf mb;
@@ -762,7 +762,7 @@ makeExternalAclKey(ACLFilledChecklist * ch, external_acl_data * acl_data)
                 // if we fail to go async, we still return NULL and the caller
                 // will detect the failure in ACLExternal::match().
                 (void)ch->goAsync(IdentLookup::Instance());
-                return NULL;
+                return SBuf();
             }
         }
 #endif
@@ -771,7 +771,7 @@ makeExternalAclKey(ACLFilledChecklist * ch, external_acl_data * acl_data)
     // assemble the full helper lookup string
     acl_data->def->format.assemble(mb, ch->al, 0);
 
-    return mb.buf;
+    return SBuf(mb.content(), mb.contentSize());
 }
 
 bool
@@ -790,23 +790,23 @@ external_acl::graceExpired(const ExternalACLEntryPointer &entry) const
 }
 
 ExternalACLEntryPointer
-external_acl::maybeCache(const char *key, ExternalACLEntryPointer const &data)
+external_acl::maybeCache(const SBuf &key, ExternalACLEntryPointer const &data)
 {
     ExternalACLEntryPointer entry = data;
-    entry->key = xstrdup(key);
+    entry->key = key;
     entry->date = squid_curtime;
     entry->def = this;
 
     if (!isCacheable(entry->result)) {
         if (entry->result == ACCESS_DUNNO) {
-            cache.del(SBuf(key));
+            cache.del(key);
             debugs(82, 3, "removed cache entry: " << key);
         }
         debugs(82, 2, "using entry (uncacheable): " << key);
         return entry;
     }
 
-    if (cache.add(SBuf(key), entry, (entry->result.allowed() ? ttl : negative_ttl))) {
+    if (cache.add(key, entry, (entry->result.allowed() ? ttl : negative_ttl))) {
         debugs(82, 3, "added cache entry: '" << key << "' = " << entry->result);
     }
 
@@ -823,10 +823,10 @@ class externalAclState
     CBDATA_CLASS(externalAclState);
 
 public:
-    externalAclState(external_acl* aDef, const char *aKey) :
+    externalAclState(external_acl* aDef, const SBuf &aKey) :
         callback(NULL),
         callback_data(NULL),
-        key(xstrdup(aKey)),
+        key(aKey),
         def(cbdataReference(aDef)),
         queue(NULL)
     {}
@@ -834,7 +834,7 @@ public:
 
     EAH *callback;
     void *callback_data;
-    char *key;
+    SBuf key;
     external_acl *def;
     dlink_node list;
     externalAclState *queue;
@@ -844,7 +844,6 @@ CBDATA_CLASS_INIT(externalAclState);
 
 externalAclState::~externalAclState()
 {
-    xfree(key);
     cbdataReferenceDone(callback_data);
     cbdataReferenceDone(def);
 }
@@ -946,8 +945,8 @@ ExternalACLLookup::Start(ACLChecklist *checklist, external_acl_data *acl, bool i
     external_acl *def = acl->def;
 
     ACLFilledChecklist *ch = Filled(checklist);
-    const char *key = makeExternalAclKey(ch, acl);
-    assert(key); // XXX: will fail if EXT_ACL_IDENT case needs an async lookup
+    const auto key = makeExternalAclKey(ch, acl);
+    assert(!key.isEmpty()); // XXX: will fail if EXT_ACL_IDENT case needs an async lookup
 
     debugs(82, 2, HERE << (inBackground ? "bg" : "fg") << " lookup in '" <<
            def->name << "' for '" << key << "'");
@@ -959,7 +958,7 @@ ExternalACLLookup::Start(ACLChecklist *checklist, external_acl_data *acl, bool i
         for (dlink_node *node = def->queue.head; node; node = node->next) {
             externalAclState *oldstatetmp = static_cast<externalAclState *>(node->data);
 
-            if (strcmp(key, oldstatetmp->key) == 0) {
+            if (key == oldstatetmp->key) {
                 oldstate = oldstatetmp;
                 break;
             }
@@ -989,7 +988,7 @@ ExternalACLLookup::Start(ACLChecklist *checklist, external_acl_data *acl, bool i
 
         MemBuf buf;
         buf.init();
-        buf.appendf("%s\n", key);
+        buf.appendf(SQUIDSBUFPH "\n", SQUIDSBUFPRINT(key));
         debugs(82, 4, "externalAclLookup: looking up for '" << key << "' in '" << def->name << "'.");
 
         if (!def->theHelper->trySubmit(buf.buf, externalAclHandleReply, state)) {

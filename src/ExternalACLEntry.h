@@ -25,7 +25,7 @@ class ExternalACLEntry : public RefCountable
     MEMPROXY_CLASS(ExternalACLEntry);
 
 public:
-    const char *key = nullptr;
+    SBuf key;
     Acl::Answer result = ACCESS_DENIED;
     time_t date = 0;
 
