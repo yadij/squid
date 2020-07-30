@@ -12,29 +12,22 @@
 #define SQUID_EXTERNALACLENTRY_H
 
 #include "acl/Acl.h"
-#include "acl/forward.h"
-#include "hash.h"
 #include "Notes.h"
 #include "SquidString.h"
 
 class external_acl;
 
-/*******************************************************************
+/**
  * external_acl cache entry
- * Used opaque in the interface
  */
-
-class ExternalACLEntry: public hash_link, public RefCountable
+class ExternalACLEntry : public RefCountable
 {
     MEMPROXY_CLASS(ExternalACLEntry);
 
 public:
-    ExternalACLEntry();
-    ~ExternalACLEntry();
-
-    dlink_node lru;
-    Acl::Answer result;
-    time_t date;
+    const char *key = nullptr;
+    Acl::Answer result = ACCESS_DENIED;
+    time_t date = 0;
 
     /// list of all kv-pairs returned by the helper
     NotePairs notes;
@@ -46,7 +39,7 @@ public:
     String message;
     String tag;
     String log;
-    external_acl *def;
+    external_acl *def = nullptr;
 };
 
 #endif

@@ -582,8 +582,8 @@ aclMatchExternal(external_acl_data *acl, ACLFilledChecklist *ch)
             const char *key = makeExternalAclKey(ch, acl);
             if (!key)
                 return ACCESS_DUNNO; // insufficient data to continue
-            if (strcmp(key, (char*)entry->key) != 0) {
-                debugs(82, 9, "entry key='" << (char *)entry->key << "', our key='" << key << "' do not match. Discarded.");
+            if (strcmp(key, entry->key) != 0) {
+                debugs(82, 9, "entry key='" << entry->key << "', our key='" << key << "' do not match. Discarded.");
                 // too bad. need a new lookup.
                 entry = ch->extacl_entry = NULL;
             }
@@ -593,7 +593,7 @@ aclMatchExternal(external_acl_data *acl, ACLFilledChecklist *ch)
             if (entry != NULL) {
                 debugs(82, 9, "entry def=" << entry->def << ", our def=" << acl->def);
                 const char *key = makeExternalAclKey(ch, acl); // may be nil
-                debugs(82, 9, "entry key='" << (char *)entry->key << "', our key='" << key << "'");
+                debugs(82, 9, "entry key='" << entry->key << "', our key='" << key << "'");
             }
             entry = ch->extacl_entry = NULL;
         }
