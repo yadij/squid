@@ -25,6 +25,20 @@ class ExternalACLEntry : public RefCountable
     MEMPROXY_CLASS(ExternalACLEntry);
 
 public:
+    static uint64_t MemoryUsedByEntry(const ExternalACLEntryPointer &e)
+    {
+        return sizeof(ExternalACLEntry) +
+               // XXX: get size of data stored in notes
+#if USE_AUTH
+               e->user.size() +
+               e->password.size() +
+#endif
+               e->message.size() +
+               e->tag.size() +
+               e->log.size();
+               // def is a link to Config so does not count
+    }
+
     SBuf key;
     Acl::Answer result = ACCESS_DENIED;
     time_t date = 0;

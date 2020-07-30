@@ -102,7 +102,7 @@ public:
 
     helper *theHelper;
 
-    using CacheType = ClpMap<SBuf, ExternalACLEntryPointer>;
+    using CacheType = ClpMap<SBuf, ExternalACLEntryPointer, ExternalACLEntry::MemoryUsedByEntry>;
     CacheType cache;
 
     dlink_list queue;
