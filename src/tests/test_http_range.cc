@@ -18,7 +18,8 @@ void httpHeaderPutStr(HttpHeader * hdr, Http::HdrType type, const char *str)
     fatal ("dummy function\n");
 }
 
-HttpHeaderEntry *httpHeaderGetEntry(const HttpHeader * hdr, HttpHeaderPos * pos)
+Http::HeaderField *
+httpHeaderGetEntry(const HttpHeader * hdr, HttpHeaderPos * pos)
 {
     fatal ("dummy function\n");
     return NULL;
