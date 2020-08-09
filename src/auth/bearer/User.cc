@@ -38,7 +38,7 @@ Auth::Bearer::User::ttl() const
 CbcPointer<Auth::CredentialsCache>
 Auth::Bearer::User::Cache()
 {
-    static CbcPointer<Auth::CredentialsCache> p(new Auth::CredentialsCache("basic", "GC Bearer user credentials"));
+    static CbcPointer<Auth::CredentialsCache> p(new Auth::CredentialsCache("bearer", "GC Bearer user credentials"));
     return p;
 }
 
