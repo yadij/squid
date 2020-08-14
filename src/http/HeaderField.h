@@ -17,6 +17,8 @@
 namespace Http
 {
 
+/// Internal representation of an HTTP header field.
+/// see RFC 7230 section 3.2
 class HeaderField
 {
     MEMPROXY_CLASS(HeaderField);
