@@ -189,13 +189,13 @@ class Raw
 {
 public:
     Raw(const char *label, const char *data, const size_t size) :
-        level(-1), label_(label), data_(data), size_(size), limit_(std::min(size, 256)), useHex_(false), useGap_(true) {}
+        level(-1), label_(label), data_(data), size_(size), printableSize_(std::min(size, 256)), useHex_(false), useGap_(true) {}
 
     /// limit data printing to at least the given debugging level
     Raw &minLevel(const int aLevel) { level = aLevel; return *this; }
 
     /// print no more than n bytes of data
-    Raw &atMost(const size_t n) { limit_ = std::min(n, limit_); return *this; }
+    Raw &atMost(const size_t n) { printableSize_ = std::min(n, printableSize_); return *this; }
 
     /// print data using two hex digits per byte (decoder: xxd -r -p)
     Raw &hex() { useHex_ = true; return *this; }
@@ -217,12 +217,12 @@ public:
 
 private:
     void printHex(std::ostream &os) const;
-    size_t printableSize() const { return limit_; }
+    size_t printableSize() const { return printableSize_; }
 
     const char *label_; ///< optional data name or ID; triggers size printing
     const char *data_; ///< raw data to be printed
     size_t size_; ///< data length
-    size_t limit_; ///< do not print more data
+    size_t printableSize_; ///< do not print more data
     bool useHex_; ///< whether hex() has been called
     bool useGap_; ///< whether to print leading space if label is missing
 };
