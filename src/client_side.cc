@@ -1804,9 +1804,9 @@ ConnStateData::proxyProtocolValidateClient()
     if (!Config.accessList.proxyProtocol)
         return proxyProtocolError("PROXY client not permitted by default ACL");
 
-    ACLFilledChecklist ch(Config.accessList.proxyProtocol, NULL, clientConnection->rfc931);
-    ch.src_addr = clientConnection->remote;
-    ch.my_addr = clientConnection->local;
+    ACLFilledChecklist ch(Config.accessList.proxyProtocol, nullptr, xaction->tcpClient->rfc931);
+    ch.src_addr = xaction->tcpClient->remote;
+    ch.my_addr = xaction->tcpClient->local;
     ch.conn(this);
 
     if (!ch.fastCheck().allowed())
@@ -1828,9 +1828,9 @@ ConnStateData::proxyProtocolError(const char *msg)
 #if QUIET_PROXY_PROTOCOL
         // display the first of every 32 occurrences at level 1, the others at level 2.
         static uint8_t hide = 0;
-        debugs(33, (hide++ % 32 == 0 ? DBG_IMPORTANT : 2), msg << " from " << clientConnection);
+        debugs(33, (hide++ % 32 == 0 ? DBG_IMPORTANT : 2), msg << " from " << xaction->tcpClient);
 #else
-        debugs(33, DBG_IMPORTANT, msg << " from " << clientConnection);
+        debugs(33, DBG_IMPORTANT, msg << " from " << xaction->tcpClient);
 #endif
         mustStop(msg);
     }
@@ -1851,13 +1851,18 @@ ConnStateData::parseProxyProtocolHeader()
         inBuf.consume(parsed.size);
         needProxyProtocolHeader_ = false;
         if (proxyProtocolHeader_->hasForwardedAddresses()) {
-            // XXX: update state in xaction member instead,
-            //      to preserve original data as xaction->txParent->tcpClient
-            clientConnection->local = proxyProtocolHeader_->destinationAddress;
-            clientConnection->remote = proxyProtocolHeader_->sourceAddress;
-            if ((clientConnection->flags & COMM_TRANSPARENT))
-                clientConnection->flags ^= COMM_TRANSPARENT; // prevent TPROXY spoofing of this new IP.
-            debugs(33, 5, "PROXY/" << proxyProtocolHeader_->version() << " upgrade: " << clientConnection);
+
+            // switch from TCP to PROXY details
+            xaction = xaction->spawnChildLayer("PROXY");
+            auto oldConn = xaction->tcpClient->cloneIdentDetails();
+            xaction->txParent->tcpClient = oldConn;
+            assert(clientConnection == xaction->tcpClient);
+
+            xaction->tcpClient->local = proxyProtocolHeader_->destinationAddress;
+            xaction->tcpClient->remote = proxyProtocolHeader_->sourceAddress;
+            if ((xaction->tcpClient->flags & COMM_TRANSPARENT))
+                xaction->tcpClient->flags ^= COMM_TRANSPARENT; // prevent TPROXY spoofing of this new IP.
+            debugs(33, 5, "PROXY/" << proxyProtocolHeader_->version() << " upgrade: " << xaction->tcpClient);
         }
     } catch (const Parser::BinaryTokenizer::InsufficientInput &) {
         debugs(33, 3, "PROXY protocol: waiting for more than " << inBuf.length() << " bytes");
@@ -1913,9 +1918,6 @@ ConnStateData::clientParseRequests()
         if (needProxyProtocolHeader_) {
             if (!parseProxyProtocolHeader())
                 break;
-
-            // switch from TCP to PROXY details
-            xaction = xaction.spawnChildLayer("PROXY");
 
             // we have been waiting for PROXY to provide client-IP
             // for some lookups, ie rDNS and IDENT.
