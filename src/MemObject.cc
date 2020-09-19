@@ -125,8 +125,7 @@ MemObject::~MemObject()
      * There is no way to abort FD-less clients, so they might
      * still have mem->clients set.
      */
-    assert(clients.head == NULL);
-
+    assert(clients.size() == 0);
 #endif
 
     ctx_exit(ctx);              /* must exit before we free mem->url */
@@ -174,7 +173,7 @@ MemObject::dump() const
     debugs(20, DBG_IMPORTANT, "MemObject->start_ping: " << start_ping);
     debugs(20, DBG_IMPORTANT, "MemObject->inmem_hi: " << data_hdr.endOffset());
     debugs(20, DBG_IMPORTANT, "MemObject->inmem_lo: " << inmem_lo);
-    debugs(20, DBG_IMPORTANT, "MemObject->nclients: " << nclients);
+    debugs(20, DBG_IMPORTANT, "MemObject->nclients: " << clients.size());
     debugs(20, DBG_IMPORTANT, "MemObject->reply: " << reply_);
     debugs(20, DBG_IMPORTANT, "MemObject->updatedReply: " << updatedReply_);
     debugs(20, DBG_IMPORTANT, "MemObject->appliedUpdates: " << appliedUpdates);
@@ -182,29 +181,6 @@ MemObject::dump() const
     debugs(20, DBG_IMPORTANT, "MemObject->logUri: " << logUri_);
     debugs(20, DBG_IMPORTANT, "MemObject->storeId: " << storeId_);
 }
-
-struct LowestMemReader : public unary_function<store_client, void> {
-    LowestMemReader(int64_t seed):current(seed) {}
-
-    void operator() (store_client const &x) {
-        if (x.memReaderHasLowerOffset(current))
-            current = x.copyInto.offset;
-    }
-
-    int64_t current;
-};
-
-struct StoreClientStats : public unary_function<store_client, void> {
-    StoreClientStats(MemBuf *anEntry):where(anEntry),index(0) {}
-
-    void operator()(store_client const &x) {
-        x.dumpStats(where, index);
-        ++index;
-    }
-
-    MemBuf *where;
-    size_t index;
-};
 
 void
 MemObject::stat(MemBuf * mb) const
@@ -226,9 +202,11 @@ MemObject::stat(MemBuf * mb) const
     if (object_sz >= 0)
         mb->appendf("\tobject_sz: %" PRId64 "\n", object_sz);
 
-    StoreClientStats statsVisitor(mb);
-
-    for_each<StoreClientStats>(clients, statsVisitor);
+    int64_t index = 0;
+    for (const auto &sc : clients) {
+        sc->dumpStats(mb, index);
+        ++index;
+    }
 }
 
 int64_t
@@ -297,11 +275,12 @@ MemObject::reset()
 int64_t
 MemObject::lowestMemReaderOffset() const
 {
-    LowestMemReader lowest (endOffset() + 1);
-
-    for_each <LowestMemReader>(clients, lowest);
-
-    return lowest.current;
+    auto current = endOffset() + 1;
+    for (const auto &sc : clients) {
+       if (sc->memReaderHasLowerOffset(current))
+            current = sc->copyInto.offset;
+    }
+    return current;
 }
 
 /* XXX: This is wrong. It breaks *badly* on range combining */
@@ -318,13 +297,6 @@ MemObject::readAheadPolicyCanRead() const
     }
 
     return canRead;
-}
-
-void
-MemObject::addClient(store_client *aClient)
-{
-    ++nclients;
-    dlinkAdd(aClient, &aClient->node, &clients);
 }
 
 #if URL_CHECKSUM_DEBUG
@@ -444,12 +416,8 @@ void
 MemObject::setNoDelay(bool const newValue)
 {
 #if USE_DELAY_POOLS
-
-    for (dlink_node *node = clients.head; node; node = node->next) {
-        store_client *sc = (store_client *) node->data;
+    for (const auto &sc : clients)
         sc->delayId.setNoDelay(newValue);
-    }
-
 #endif
 }
 
@@ -481,8 +449,7 @@ MemObject::mostBytesAllowed() const
     int jmax = -1;
     DelayId result;
 
-    for (dlink_node *node = clients.head; node; node = node->next) {
-        store_client *sc = (store_client *) node->data;
+    for (const auto &sc : clients) {
 #if 0
         /* This test is invalid because the client may be writing data
          * and thus will want data immediately.
