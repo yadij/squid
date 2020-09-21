@@ -204,7 +204,8 @@ MemObject::stat(MemBuf * mb) const
 
     int64_t index = 0;
     for (const auto &sc : clients) {
-        sc->dumpStats(mb, index);
+        if (sc.valid())
+            sc->dumpStats(mb, index);
         ++index;
     }
 }
@@ -277,7 +278,7 @@ MemObject::lowestMemReaderOffset() const
 {
     auto current = endOffset() + 1;
     for (const auto &sc : clients) {
-       if (sc->memReaderHasLowerOffset(current))
+       if (sc.valid() && sc->memReaderHasLowerOffset(current))
             current = sc->copyInto.offset;
     }
     return current;
@@ -416,8 +417,10 @@ void
 MemObject::setNoDelay(bool const newValue)
 {
 #if USE_DELAY_POOLS
-    for (const auto &sc : clients)
-        sc->delayId.setNoDelay(newValue);
+    for (const auto &sc : clients) {
+        if (sc.valid())
+            sc->delayId.setNoDelay(newValue);
+    }
 #endif
 }
 
@@ -450,6 +453,8 @@ MemObject::mostBytesAllowed() const
     DelayId result;
 
     for (const auto &sc : clients) {
+        if (!sc)
+            continue;
 #if 0
         /* This test is invalid because the client may be writing data
          * and thus will want data immediately.
