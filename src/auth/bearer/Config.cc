@@ -43,11 +43,11 @@ Auth::Bearer::Config::configured() const
 {
     if (authenticateProgram && (authenticateChildren.n_max != 0) &&
             !realm.isEmpty() && bearerAuthScope) {
-        debugs(29, 9, "returning configured");
+        debugs(29, 8, "yes");
         return true;
     }
 
-    debugs(29, 9, "returning unconfigured");
+    debugs(29, 8, "no");
     return false;
 }
 
@@ -61,7 +61,7 @@ void
 Auth::Bearer::Config::fixHeader(Auth::UserRequest::Pointer, HttpReply *rep, Http::HdrType hdrType, HttpRequest *)
 {
     if (authenticateProgram) {
-        debugs(29, 9, "Sending type:" << hdrType << " header: 'Bearer realm=\"" << realm << "\", scope=\"" << bearerAuthScope << "\"'");
+        debugs(29, 2, "Sending type=" << hdrType << ", field-value='Bearer realm=\"" << realm << "\", scope=\"" << bearerAuthScope << "\"'");
         httpHeaderPutStrf(&rep->header, hdrType, "Bearer realm=\"" SQUIDSBUFPH "\", scope=\"%s\"", SQUIDSBUFPRINT(realm), bearerAuthScope);
     }
 }
@@ -74,7 +74,7 @@ Auth::Bearer::Config::rotateHelpers()
         helperShutdown(bearerauthenticators);
     }
 
-    /* NP: dynamic helper restart will ensure they start up again as needed. */
+    /* dynamic helper restart will ensure they start up again as needed. */
 }
 
 /** shutdown the auth helpers and free any allocated configuration details */
@@ -159,23 +159,30 @@ Auth::Bearer::Config::decode(char const *proxy_auth, const HttpRequest *, const 
 {
     Auth::UserRequest::Pointer auth_user_request = dynamic_cast<Auth::UserRequest*>(new Auth::Bearer::UserRequest);
 
-    // retrieve the b68token
-    SBuf blob(proxy_auth);
-    if (!blob.isEmpty()) {
-        // trim prefix: WSP "Bearer" WSP
-        SBuf::size_type p = blob.findFirstNotOf(CharacterSet::WSP);
-        blob.consume(p);
-        p = blob.findFirstOf(CharacterSet::WSP);
-        blob.consume(p);
-        p = blob.findFirstNotOf(CharacterSet::WSP);
-        blob.consume(p);
-    }
+    Parser::Tokenizer tok(SBuf(proxy_auth));
 
-    // empty header? no auth details produced...
-    if (blob.isEmpty())
+    // trim prefix: OWS "Bearer" RWS
+    SBuf label;
+    if (tok.token(label, CharacterSet::WSP)) {
+        if (label.cmp("Bearer") != 0) // case sensitive
+            return auth_user_request;
+    } else
         return auth_user_request;
 
-    // XXX: if the token contains non-b68token characters it is invalid.
+    // RFC 6750
+    //   b64token  = 1*( ALPHA / DIGIT / "-" / "." / "_" / "~" / "+" / "/" ) *"="
+    // aka. RFC 7235 token68
+    SBuf blob;
+    if (tok.prefix(blob, CharacterSet::TOKEN68C)) {
+        while (tok.skip('='))
+            blob.append("=", 1);
+        (void)tok.skipAll(CharacterSet::WSP);
+    } else
+        return auth_user_request;
+
+    // garbage after b64token
+    if (!tok.atEnd())
+        return auth_user_request;
 
     Auth::User::Pointer auth_user;
 
