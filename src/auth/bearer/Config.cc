@@ -191,7 +191,7 @@ Auth::Bearer::Config::decode(char const *proxy_auth, const HttpRequest *, const 
         auth_user = (*entry)->user;
 
     } else {
-        // generate a User object for this token and cache it
+        // generate a User object for this token and cache the token
         auto *usr = new Auth::Bearer::User(this, aRequestRealm);
         usr->token = new Token(blob);
         usr->token->user = usr;
@@ -202,7 +202,7 @@ Auth::Bearer::Config::decode(char const *proxy_auth, const HttpRequest *, const 
         auth_user = usr;
     }
 
-    debugs(29, 3, "Found Bearer token " << blob <<" , user=" << auth_user->username() << ", " << auth_user);
+    debugs(29, 3, "found Bearer token " << blob << ", user=" << auth_user->username() << ", " << auth_user);
 
     assert(auth_user);
     auth_user_request->user(auth_user);
@@ -233,7 +233,7 @@ Auth::Bearer::Config::init(Auth::SchemeConfig * schemeCfg)
 }
 
 void
-Auth::Bearer::Config::registerWithCacheManager(void)
+Auth::Bearer::Config::registerWithCacheManager()
 {
     Mgr::RegisterAction("bearerauthenticator",
                         "Bearer User Authenticator Stats",

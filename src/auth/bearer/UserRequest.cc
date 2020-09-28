@@ -42,8 +42,7 @@ Auth::Bearer::UserRequest::credentialsStr()
     static char buf[MAX_AUTHTOKEN_LEN];
     buf[0] = '\0';
 
-    Auth::Bearer::User const *usr = dynamic_cast<Auth::Bearer::User const *>(user().getRaw());
-    if (usr)
+    if (const auto usr = dynamic_cast<const Auth::Bearer::User*>(user().getRaw()))
         snprintf(buf, sizeof(buf), SQUIDSBUFPH "\n", SQUIDSBUFPRINT(usr->token->b68encoded));
     return buf;
 }

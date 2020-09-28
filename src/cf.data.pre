@@ -742,7 +742,7 @@ IF HAVE_AUTH_MODULE_BEARER
 	=== Bearer authentication parameters ===
 
 	"scope" scopestring
-		Specifies the scope name(s) which are to be reported to the
+		A space-delimited list of case-sensitive scope names to be sent to the
 		client for the Bearer proxy authentication scheme.
 		The default is:   proxy:HTTP
 

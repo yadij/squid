@@ -37,7 +37,7 @@ public:
     /// the Auth::User this token is tied to
     Auth::Bearer::User *user = nullptr;
 
-    /// when this token will expire
+    /// this token should be ignored when received passed this time
     time_t expires = 0;
 
     /// a cache of known tokens
