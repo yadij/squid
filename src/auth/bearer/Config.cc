@@ -20,6 +20,7 @@
 #include "HttpHeaderTools.h"
 #include "HttpReply.h"
 #include "mgr/Registration.h"
+#include "parser/Tokenizer.h"
 #include "Store.h"
 #include "wordlist.h"
 
@@ -159,7 +160,8 @@ Auth::Bearer::Config::decode(char const *proxy_auth, const HttpRequest *, const 
 {
     Auth::UserRequest::Pointer auth_user_request = dynamic_cast<Auth::UserRequest*>(new Auth::Bearer::UserRequest);
 
-    Parser::Tokenizer tok(SBuf(proxy_auth));
+    SBuf tmp(proxy_auth);
+    ::Parser::Tokenizer tok(tmp);
 
     // trim prefix: OWS "Bearer" RWS
     SBuf label;
