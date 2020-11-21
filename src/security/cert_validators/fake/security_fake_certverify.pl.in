@@ -106,9 +106,9 @@ while (<>) {
     my $bodylen = $line_args[2];
     my $body = $line_args[3] . "\n";
     if ($channelId !~ /\d+/) {
-        $response = $channelId." BH message=\"This helper is  concurrent and requires the concurrency option to be specified.\"\1";
+        $response = $channelId." BH message=\"This helper is  concurrent and requires the concurrency option to be specified.\" \0x1E";
     } elsif ($bodylen !~ /\d+/) {
-        $response = $channelId." BH message=\"cert validator request syntax error \" \1";
+        $response = $channelId." BH message=\"cert validator request syntax error \" \0x1E";
     } else {
         my $readlen = length($body);
         my %certs = ();
@@ -158,9 +158,9 @@ while (<>) {
         $response = createResponse(\@responseErrors);
         my $len = length($response);
         if ($haserror) {
-            $response = $channelId." ERR ".$len." ".$response."\1";
+            $response = $channelId." ERR ".$len." ".$response." \0x1E";
         } else {
-            $response = $channelId." OK ".$len." ".$response."\1";
+            $response = $channelId." OK ".$len." ".$response." \0x1E";
         }
     }
 

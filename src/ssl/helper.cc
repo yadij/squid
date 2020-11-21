@@ -88,8 +88,8 @@ void Ssl::Helper::Init()
     ssl_crtd->childs.updateLimits(Ssl::TheConfig.ssl_crtdChildren);
     ssl_crtd->ipc_type = IPC_STREAM;
     // The crtd messages may contain the eol ('\n') character. We are
-    // going to use the '\1' char as the end-of-message mark.
-    ssl_crtd->eom = '\1';
+    // going to use the 0x1E (RS) char as the end-of-message mark.
+    ssl_crtd->eom = char(0x1E);
     assert(ssl_crtd->cmdline == NULL);
     {
         char *tmp = xstrdup(Ssl::TheConfig.ssl_crtd);
@@ -185,8 +185,8 @@ void Ssl::CertValidationHelper::Init()
     ssl_crt_validator->childs.updateLimits(Ssl::TheConfig.ssl_crt_validator_Children);
     ssl_crt_validator->ipc_type = IPC_STREAM;
     // The crtd messages may contain the eol ('\n') character. We are
-    // going to use the '\1' char as the end-of-message mark.
-    ssl_crt_validator->eom = '\1';
+    // going to use the 0x1E (RS) char as the end-of-message mark.
+    ssl_crt_validator->eom = char(0x1E);
     assert(ssl_crt_validator->cmdline == NULL);
 
     /* defaults */

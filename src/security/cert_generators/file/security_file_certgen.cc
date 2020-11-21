@@ -239,8 +239,8 @@ static bool processNewRequest(Ssl::CrtdMessage & request_message, std::string co
     response_message.setCode("OK");
     response_message.setBody(bufferToWrite);
 
-    // Use the '\1' char as end-of-message character
-    std::cout << response_message.compose() << '\1' << std::flush;
+    // Use the 0x1E (RS) character as end-of-message character
+    std::cout << response_message.compose() << char(0x1E) << std::flush;
 
     return true;
 }
