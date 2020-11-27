@@ -2621,9 +2621,7 @@ ConnStateData::postHttpsAccept()
         acl_checklist->al->cache.port = port;
         acl_checklist->al->cache.caddr = log_addr;
         acl_checklist->al->proxyProtocolHeader = proxyProtocolHeader_;
-        HTTPMSGUNLOCK(acl_checklist->al->request);
         acl_checklist->al->request = request;
-        HTTPMSGLOCK(acl_checklist->al->request);
         Http::StreamPointer context = pipeline.front();
         ClientHttpRequest *http = context ? context->http : nullptr;
         const char *log_uri = http ? http->log_uri : nullptr;

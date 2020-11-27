@@ -1666,7 +1666,6 @@ ClientHttpRequest::initRequest(HttpRequest *aRequest)
     assert(al);
     if (!al->request) {
         al->request = request;
-        HTTPMSGLOCK(al->request);
         al->syncNotes(request);
     }
 }

@@ -370,12 +370,13 @@ actualRequestHeader(const AccessLogEntry::Pointer &al)
         return nullptr;
     }
 #endif
-    return al->request;
+    return al->request.getRaw();
 }
 
 void
 Format::Format::assemble(MemBuf &mb, const AccessLogEntry::Pointer &al, int logSequenceNumber) const
 {
+    static const HttpRequestPointer nilRequest;
     static char tmp[1024];
     SBuf sb;
 
@@ -514,7 +515,7 @@ Format::Format::assemble(MemBuf &mb, const AccessLogEntry::Pointer &al, int logS
             break;
 
         case LFT_LOCAL_LISTENING_PORT:
-            if (const auto addr = FindListeningPortAddress(nullptr, al.getRaw())) {
+            if (const auto addr = FindListeningPortAddress(nilRequest, al.getRaw())) {
                 outint = addr->port();
                 doint = 1;
             }

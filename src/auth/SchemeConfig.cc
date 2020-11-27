@@ -52,7 +52,7 @@ Auth::SchemeConfig::CreateAuthUser(const char *proxy_auth, AccessLogEntry::Point
         config->keyExtras->assemble(rmb, al, 0);
     }
 
-    return config->decode(proxy_auth, al->request, rmb.hasContent() ? rmb.content() : nullptr);
+    return config->decode(proxy_auth, al->request.getRaw(), rmb.hasContent() ? rmb.content() : nullptr);
 }
 
 Auth::SchemeConfig *

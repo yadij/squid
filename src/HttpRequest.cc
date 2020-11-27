@@ -800,12 +800,12 @@ FindListeningPortAddressInConn(const Comm::ConnectionPointer &conn)
 }
 
 const Ip::Address *
-FindListeningPortAddress(const HttpRequest *callerRequest, const AccessLogEntry *ale)
+FindListeningPortAddress(const HttpRequestPointer &callerRequest, const AccessLogEntry *ale)
 {
     // Check all sources of usable listening port information, giving
     // HttpRequest and masterXaction a preference over ALE.
 
-    const HttpRequest *request = callerRequest;
+    auto request = callerRequest;
     if (!request && ale)
         request = ale->request;
     if (!request)

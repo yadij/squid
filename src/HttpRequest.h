@@ -280,7 +280,7 @@ void UpdateRequestNotes(ConnStateData *csd, HttpRequest &request, NotePairs cons
 
 /// \returns listening/*_port address used by the client connection (or nil)
 /// nil parameter(s) indicate missing caller information and are handled safely
-const Ip::Address *FindListeningPortAddress(const HttpRequest *, const AccessLogEntry *);
+const Ip::Address *FindListeningPortAddress(const HttpRequestPointer &, const AccessLogEntry *);
 
 #endif /* SQUID_HTTPREQUEST_H */
 

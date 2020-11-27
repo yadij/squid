@@ -96,7 +96,6 @@ ACLFilledChecklist::verifyAle() const
             // XXX: al->request should be original,
             // but the request may be already adapted
             al->request = request;
-            HTTPMSGLOCK(al->request);
         }
 
         if (!al->adapted_request) {

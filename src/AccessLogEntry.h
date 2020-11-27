@@ -187,7 +187,7 @@ public:
 
     HierarchyLogEntry hier;
     HttpReplyPointer reply;
-    HttpRequest *request = nullptr; //< virgin HTTP request
+    HttpRequestPointer request; //< virgin HTTP request
     HttpRequest *adapted_request = nullptr; //< HTTP request after adaptation and redirection
 
     /// key:value pairs set by squid.conf note directive and

@@ -935,7 +935,7 @@ ErrorState::compileLegacyCode(Build &build)
 
     case 'A':
         // TODO: When/if we get ALE here, pass it as well
-        if (const auto addr = FindListeningPortAddress(request.getRaw(), nullptr))
+        if (const auto addr = FindListeningPortAddress(request, nullptr))
             mb.appendf("%s", addr->toStr(ntoabuf, MAX_IPSTRLEN));
         else
             p = "-";
