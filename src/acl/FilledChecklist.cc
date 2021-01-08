@@ -101,7 +101,6 @@ ACLFilledChecklist::verifyAle() const
         if (!al->adapted_request) {
             showDebugWarning("adapted HttpRequest object");
             al->adapted_request = request;
-            HTTPMSGLOCK(al->adapted_request);
         }
 
         if (al->url.isEmpty()) {
@@ -130,10 +129,8 @@ ACLFilledChecklist::syncAle(HttpRequest *adaptedRequest, const char *logUri) con
 {
     if (!al)
         return;
-    if (adaptedRequest && !al->adapted_request) {
+    if (adaptedRequest && !al->adapted_request)
         al->adapted_request = adaptedRequest;
-        HTTPMSGLOCK(al->adapted_request);
-    }
     if (logUri && al->url.isEmpty())
         al->url = logUri;
 }

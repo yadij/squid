@@ -109,7 +109,6 @@ AccessLogEntry::~AccessLogEntry()
 #endif
 
     safe_free(headers.adapted_request);
-    HTTPMSGUNLOCK(adapted_request);
 
     safe_free(lastAclName);
 #if ICAP_CLIENT

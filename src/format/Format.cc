@@ -353,7 +353,7 @@ actualReplyHeader(const AccessLogEntry::Pointer &al)
 #if ICAP_CLIENT
     // al->icap.reqMethod is methodNone in access.log context
     if (!msg && al->icap.reqMethod == Adaptation::methodReqmod)
-        msg = al->adapted_request;
+        msg = al->adapted_request.getRaw();
 #endif
     return msg;
 }

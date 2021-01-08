@@ -450,11 +450,9 @@ ClientHttpRequest::logRequest()
         HTTPMSGLOCK(checklist.reply);
     }
 
-    if (request) {
-        HTTPMSGUNLOCK(al->adapted_request);
+    if (request)
         al->adapted_request = request;
-        HTTPMSGLOCK(al->adapted_request);
-    }
+
     // no need checklist.syncAle(): already synced
     checklist.al = al;
     accessLogLog(al, &checklist);
