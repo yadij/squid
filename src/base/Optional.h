@@ -58,3 +58,4 @@ private:
 };
 
 #endif /* SQUID__SRC_BASE_OPTIONAL_H */
+
