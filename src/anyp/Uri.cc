@@ -48,6 +48,44 @@ UserInfoChars()
     return userInfoValid;
 }
 
+/// Characters which are valid within a URI path section
+static const CharacterSet &
+PathChars()
+{
+    /*
+     * RFC 3986 section 3.2.1
+     *
+     *  path          = path-abempty    ; begins with "/" or is empty
+     *                / path-absolute   ; begins with "/" but not "//"
+     *                / path-noscheme   ; begins with a non-colon segment
+     *                / path-rootless   ; begins with a segment
+     *                / path-empty      ; zero characters
+     *
+     *  path-abempty  = *( "/" segment )
+     *
+     *  segment       = *pchar
+     *  segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
+     *                ; non-zero-length segment without any colon ":"
+     */
+    static const auto pathValid = CharacterSet("path", "/@") +
+                                  CharacterSet::PCHAR;
+    return pathValid;
+}
+
+/// Characters which are valid within a URI query section
+static const CharacterSet &
+QueryChars()
+{
+    /*
+     * RFC 3986 section 3.4
+     *
+     *  query       = *( pchar / "/" / "?" )
+     */
+    static const auto queryValid = CharacterSet("query", "/?") +
+                                   CharacterSet::PCHAR;
+    return queryValid;
+}
+
 /**
  * Governed by RFC 3986 section 2.1
  */
@@ -136,10 +174,21 @@ const SBuf &
 AnyP::Uri::relativePathRef() const
 {
     if (relativePathRef_.isEmpty()) {
-         // TODO: Encode URI subcomponents as needed.
-         relativePathRef_.append(path());
-         relativePathRef_.append("?", 1);
-         relativePathRef_.append(query());
+        // Performance optimization to reduce memory allocations.
+        // At least until fragments supported.
+        if (path_.at(0) == '/')
+            return (relativePathRef_ = originForm());
+
+        static const auto pChars = PathChars();
+        relativePathRef_.append(Encode(path(), pChars));
+
+        if (!query_.isEmpty()) {
+            static const auto qChars = QueryChars();
+            relativePathRef_.append("?", 1);
+            relativePathRef_.append(Encode(query_, qChars));
+        }
+
+        // XXX: fragment section needed
     }
 
     return relativePathRef_;
