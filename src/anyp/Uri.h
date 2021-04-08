@@ -45,6 +45,7 @@ public:
         hostAddr_ = o.hostAddr_;
         port_ = o.port_;
         path_ = o.path_;
+        query_ = o.query_;
         touch();
         return *this;
     }
@@ -55,6 +56,8 @@ public:
         *host_ = 0;
         hostAddr_.setEmpty();
         port_ = 0;
+        path_.clear();
+        query_.clear();
         touch();
     }
     void touch(); ///< clear the cached URI display forms
@@ -99,6 +102,18 @@ public:
     void path(const char *p) {path_=p; touch();}
     void path(const SBuf &p) {path_=p; touch();}
     const SBuf &path() const;
+
+    /**
+     * The relative-path reference URI for currently stored values.
+     *
+     * As defined by RFC 3986 section 4.2 this form omits the scheme
+     * and authority sections. It contains (at most) the path, query
+     * and fragment URI sections, or may be an empty string.
+     */
+    const SBuf &relativePathRef() const;
+
+    void query(const SBuf &q) {query_=q; touch();}
+    const SBuf &query() const { return query_; }
 
     /**
      * Merge a relative-path URL into the existing URI details.
@@ -177,10 +192,11 @@ private:
 
     unsigned short port_;   ///< URL port
 
-    // XXX: for now includes query-string.
-    SBuf path_;     ///< URI path segment
+    SBuf path_; ///< URI path segment
+    SBuf query_; ///< URI query segment
 
     // pre-assembled URI forms
+    mutable SBuf relativePathRef_; ///< RFC 3986 section 4.2 relative-path reference URI
     mutable SBuf authorityHttp_;     ///< RFC 7230 section 5.3.3 authority, maybe without default-port
     mutable SBuf authorityWithPort_; ///< RFC 7230 section 5.3.3 authority with explicit port
     mutable SBuf absolute_;          ///< RFC 7230 section 5.3.2 absolute-URI
@@ -202,6 +218,11 @@ operator <<(std::ostream &os, const AnyP::Uri &url)
 
     // path is what it is - including absent
     os << url.path();
+
+    // no query section on URN
+    if (!url.query().isEmpty() && url.getScheme() != AnyP::PROTO_URN)
+        os << '?' << url.query();
+
     return os;
 }
 

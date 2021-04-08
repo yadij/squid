@@ -132,6 +132,19 @@ AnyP::Uri::path() const
     return path_;
 }
 
+const SBuf &
+AnyP::Uri::relativePathRef() const
+{
+    if (relativePathRef_.isEmpty()) {
+         // TODO: Encode URI subcomponents as needed.
+         relativePathRef_.append(path());
+         relativePathRef_.append("?", 1);
+         relativePathRef_.append(query());
+    }
+
+    return relativePathRef_;
+}
+
 void
 urlInitialize(void)
 {
@@ -559,6 +572,7 @@ AnyP::Uri::touch()
     absolute_.clear();
     authorityHttp_.clear();
     authorityWithPort_.clear();
+    relativePathRef_.clear();
 }
 
 SBuf &
@@ -605,7 +619,7 @@ AnyP::Uri::absolute() const
             absolute_.append(host());
             absolute_.append(":", 1);
         }
-        absolute_.append(path()); // TODO: Encode each URI subcomponent in path_ as needed.
+        absolute_.append(relativePathRef());
     }
 
     return absolute_;
@@ -849,7 +863,7 @@ urlCheckRequest(const HttpRequest * r)
     // we support OPTIONS and TRACE directed at us (with a 501 reply, for now)
     // we also support forwarding OPTIONS and TRACE, except for the *-URI ones
     if (r->method == Http::METHOD_OPTIONS || r->method == Http::METHOD_TRACE)
-        return (r->header.getInt64(Http::HdrType::MAX_FORWARDS) == 0 || r->url.path() != AnyP::Uri::Asterisk());
+        return (r->header.getInt64(Http::HdrType::MAX_FORWARDS) == 0 || r->url.relativePathRef() != AnyP::Uri::Asterisk());
 
     if (r->method == Http::METHOD_PURGE)
         return 1;

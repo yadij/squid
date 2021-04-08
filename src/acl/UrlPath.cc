@@ -18,10 +18,10 @@
 int
 ACLUrlPathStrategy::match (ACLData<char const *> * &data, ACLFilledChecklist *checklist)
 {
-    if (checklist->request->url.path().isEmpty())
+    if (checklist->request->url.relativePathRef().isEmpty())
         return -1;
 
-    char *esc_buf = SBufToCstring(checklist->request->url.path());
+    char *esc_buf = SBufToCstring(checklist->request->url.relativePathRef());
     rfc1738_unescape(esc_buf);
     int result = data->match(esc_buf);
     xfree(esc_buf);

@@ -845,7 +845,7 @@ ErrorState::Dump(MemBuf * mb)
     if (request) {
         str.appendf(SQUIDSBUFPH " " SQUIDSBUFPH " %s/%d.%d\n",
                     SQUIDSBUFPRINT(request->method.image()),
-                    SQUIDSBUFPRINT(request->url.path()),
+                    SQUIDSBUFPRINT(request->url.relativePathRef()),
                     AnyP::ProtocolType_str[request->http_ver.protocol],
                     request->http_ver.major, request->http_ver.minor);
         request->header.packInto(&str);
@@ -1102,7 +1102,7 @@ ErrorState::compileLegacyCode(Build &build)
     case 'R':
         if (building_deny_info_url) {
             if (request != NULL) {
-                const SBuf &tmp = request->url.path();
+                const SBuf &tmp = request->url.relativePathRef();
                 mb.append(tmp.rawContent(), tmp.length());
                 no_urlescape = 1;
             } else
@@ -1112,7 +1112,7 @@ ErrorState::compileLegacyCode(Build &build)
         if (request) {
             mb.appendf(SQUIDSBUFPH " " SQUIDSBUFPH " %s/%d.%d\n",
                        SQUIDSBUFPRINT(request->method.image()),
-                       SQUIDSBUFPRINT(request->url.path()),
+                       SQUIDSBUFPRINT(request->url.relativePathRef()),
                        AnyP::ProtocolType_str[request->http_ver.protocol],
                        request->http_ver.major, request->http_ver.minor);
             request->header.packInto(&mb, true); //hide authorization data

@@ -18,6 +18,7 @@ bool AnyP::Uri::parse(const HttpRequestMethod&, const SBuf &) STUB_RETVAL(true)
 void AnyP::Uri::host(const char *) STUB
 static SBuf nil;
 const SBuf &AnyP::Uri::path() const STUB_RETVAL(nil)
+const SBuf &AnyP::Uri::relativePathRef() const STUB_RETVAL(nil)
 void AnyP::Uri::addRelativePath(const char *) STUB
 const SBuf &AnyP::Uri::SlashPath()
 {

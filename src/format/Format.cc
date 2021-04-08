@@ -1057,7 +1057,7 @@ Format::Format::assemble(MemBuf &mb, const AccessLogEntry::Pointer &al, int logS
         case LFT_REQUEST_URLPATH_OLD_31:
         case LFT_CLIENT_REQ_URLPATH:
             if (al->request) {
-                sb = al->request->url.path();
+                sb = al->request->url.relativePathRef();
                 out = sb.c_str();
                 quote = 1;
             }
@@ -1132,7 +1132,7 @@ Format::Format::assemble(MemBuf &mb, const AccessLogEntry::Pointer &al, int logS
 
         case LFT_SERVER_REQ_URLPATH:
             if (al->adapted_request) {
-                sb = al->adapted_request->url.path();
+                sb = al->adapted_request->url.relativePathRef();
                 out = sb.c_str();
                 quote = 1;
             }
