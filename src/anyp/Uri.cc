@@ -543,6 +543,8 @@ AnyP::Uri::parseUrn(Parser::Tokenizer &tok)
 {
     static const auto nidChars = CharacterSet("NID","-") + CharacterSet::ALPHA + CharacterSet::DIGIT;
     static const auto alphanum = (CharacterSet::ALPHA + CharacterSet::DIGIT).rename("alphanum");
+    static const auto nssChars = CharacterSet("NSS","/") + CharacterSet::PCHAR;
+
     SBuf nid;
     if (!tok.prefix(nid, nidChars, 32))
         throw TextException("NID not found", Here());
@@ -559,11 +561,17 @@ AnyP::Uri::parseUrn(Parser::Tokenizer &tok)
     if (!alphanum[*nid.rbegin()])
         throw TextException("NID suffix is not alphanumeric", Here());
 
+    SBuf nss;
+    if (!tok.prefix(nss, nssChars))
+        throw TextException("NSS not found", Here());
+
+    if (!tok.atEnd())
+        throw TextException("invalid characters after NSS", Here());
+
     setScheme(AnyP::PROTO_URN, nullptr);
     host(nid.c_str());
-    // TODO validate path characters
-    path(tok.remaining());
-    debugs(23, 3, "Split URI into proto=urn, nid=" << nid << ", " << Raw("path",path().rawContent(),path().length()));
+    path(nss);
+    debugs(23, 3, "Split URI into proto=urn, nid=" << nid << ", " << Raw("nss",nss.rawContent(),nss.length()));
 }
 
 void

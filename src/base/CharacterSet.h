@@ -71,6 +71,10 @@ public:
     /// optional set label for debugging (default: "anonymous")
     const char * name;
 
+    // generic URI character sets, RFC 3986
+    // unreserved / pct-encoded / sub-delims / ":" / "@"
+    static const CharacterSet PCHAR;
+
     // common character sets, RFC 5234
     // A-Za-z
     static const CharacterSet ALPHA;
