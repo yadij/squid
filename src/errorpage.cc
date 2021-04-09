@@ -845,7 +845,7 @@ ErrorState::Dump(MemBuf * mb)
     if (request) {
         str.appendf(SQUIDSBUFPH " " SQUIDSBUFPH " %s/%d.%d\n",
                     SQUIDSBUFPRINT(request->method.image()),
-                    SQUIDSBUFPRINT(request->url.relativePathRef()),
+                    SQUIDSBUFPRINT(request->url.originForm()),
                     AnyP::ProtocolType_str[request->http_ver.protocol],
                     request->http_ver.major, request->http_ver.minor);
         request->header.packInto(&str);
@@ -1112,7 +1112,7 @@ ErrorState::compileLegacyCode(Build &build)
         if (request) {
             mb.appendf(SQUIDSBUFPH " " SQUIDSBUFPH " %s/%d.%d\n",
                        SQUIDSBUFPRINT(request->method.image()),
-                       SQUIDSBUFPRINT(request->url.relativePathRef()),
+                       SQUIDSBUFPRINT(request->url.originForm()),
                        AnyP::ProtocolType_str[request->http_ver.protocol],
                        request->http_ver.major, request->http_ver.minor);
             request->header.packInto(&mb, true); //hide authorization data

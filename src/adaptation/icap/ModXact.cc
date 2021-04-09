@@ -1642,7 +1642,7 @@ void Adaptation::Icap::ModXact::decideOnPreview()
         return;
     }
 
-    const SBuf urlPath(virginRequest().url.relativePathRef());
+    const auto &urlPath = virginRequest().url.relativePathRef();
     size_t wantedSize;
     if (!service().wantsPreview(urlPath, wantedSize)) {
         debugs(93, 5, "should not offer preview for " << urlPath);

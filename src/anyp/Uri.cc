@@ -630,6 +630,7 @@ AnyP::Uri::touch()
     authorityHttp_.clear();
     authorityWithPort_.clear();
     relativePathRef_.clear();
+    originForm_.clear();
 }
 
 SBuf &
@@ -648,6 +649,29 @@ AnyP::Uri::authority(bool requirePort) const
     }
 
     return requirePort ? authorityWithPort_ : authorityHttp_;
+}
+
+const SBuf &
+AnyP::Uri::originForm() const
+{
+    if (originForm_.isEmpty()) {
+        // RFC 7230 sections 2.7.3, 5.3.1, 5.7.2 - says path cannot be empty,
+        // normalize to "/" when it is.
+        if (path_.isEmpty()) {
+            originForm_ = SlashPath();
+        } else {
+            static const auto pChars = PathChars();
+            originForm_.append(Encode(path_, pChars));
+        }
+
+        if (!query_.isEmpty()) {
+            static const auto qChars = QueryChars();
+            originForm_.append("?", 1);
+            originForm_.append(Encode(query_, qChars));
+        }
+    }
+
+    return originForm_;
 }
 
 SBuf &

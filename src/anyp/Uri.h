@@ -149,6 +149,16 @@ public:
     SBuf &authority(bool requirePort = false) const;
 
     /**
+     * The origin-form URI for currently stored values.
+     *
+     * As defined by RFC 7230 section 5.3.1 the origin-form is a
+     * variant of relative-path reference URI specific to HTTP
+     * request-target URLs. The path is guaranteed to begin
+     * with a '/' delimiter and no fragment section is permitted.
+     */
+    const SBuf &originForm() const;
+
+    /**
      * The absolute-form URI for currently stored values.
      *
      * As defined by RFC 7230 section 5.3.3 this form omits the
@@ -197,6 +207,7 @@ private:
 
     // pre-assembled URI forms
     mutable SBuf relativePathRef_; ///< RFC 3986 section 4.2 relative-path reference URI
+    mutable SBuf originForm_; ///< RFC 7230 section 5.3.1 origin-form URI
     mutable SBuf authorityHttp_;     ///< RFC 7230 section 5.3.3 authority, maybe without default-port
     mutable SBuf authorityWithPort_; ///< RFC 7230 section 5.3.3 authority with explicit port
     mutable SBuf absolute_;          ///< RFC 7230 section 5.3.2 absolute-URI
