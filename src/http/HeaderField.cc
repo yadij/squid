@@ -26,7 +26,7 @@ Http::HeaderField::HeaderField(Http::HdrType anId, const SBuf &aName, const char
     if (id != Http::HdrType::BAD_HDR)
         ++ headerStatsTable[id].aliveCount;
 
-    debugs(55, 9, "Http::HeaderField contruct, this=" << this << ", '" << name << " : " << value );
+    debugs(55, 9, "Http::HeaderField construct, this=" << this << ", '" << name << " : " << value );
 }
 
 Http::HeaderField::~HeaderField()
