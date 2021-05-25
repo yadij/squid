@@ -1547,3 +1547,4 @@ Format::Format::assemble(MemBuf &mb, const AccessLogEntry::Pointer &al, int logS
             safe_free(out);
     }
 }
+
