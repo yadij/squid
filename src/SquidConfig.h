@@ -423,7 +423,7 @@ public:
                 xffTruncate,
                 xffOn,
                 xffOff
-            } mode = SquidConfig::Http::ExtForwarded::Modes::fwdAnonymize;
+            } mode = Modes::fwdAnonymize;
         } header_forwarded;
 
     } http;
