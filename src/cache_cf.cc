@@ -1852,20 +1852,20 @@ parse_http_header_forwarded(SquidConfig::Http::ExtForwarded *cfg)
 
     // legacy X-Forwarded-For modes
     if (strcmp(t, "on") == 0) {
-        cfg->mode = SquidConfig::Http::ExtForwarded::Modes::xffOn;
+        cfg->mode = SquidConfig::Http::ExtForwarded::Mode::xffOn;
     } else if (strcmp(t, "off") == 0) {
-        cfg->mode = SquidConfig::Http::ExtForwarded::Modes::xffOff;
+        cfg->mode = SquidConfig::Http::ExtForwarded::Mode::xffOff;
     } else if (strcmp(t, "truncate") == 0) {
-        cfg->mode = SquidConfig::Http::ExtForwarded::Modes::xffTruncate;
+        cfg->mode = SquidConfig::Http::ExtForwarded::Mode::xffTruncate;
     }
 
     // TODO: else options specific to Forwarded
 
     // modes shared by X-Forwarded-For and Forwarded
     if (strcmp(t, "delete") == 0) {
-        cfg->mode = SquidConfig::Http::ExtForwarded::Modes::fwdDelete;
+        cfg->mode = SquidConfig::Http::ExtForwarded::Mode::fwdDelete;
     } else if (strcmp(t, "transparent") == 0) {
-        cfg->mode = SquidConfig::Http::ExtForwarded::Modes::fwdTransparent;
+        cfg->mode = SquidConfig::Http::ExtForwarded::Mode::fwdTransparent;
     }
 }
 
@@ -1874,23 +1874,20 @@ dump_http_header_forwarded(StoreEntry *e, const char *name, const SquidConfig::H
 {
     switch (cfg.mode)
     {
-    case SquidConfig::Http::ExtForwarded::Modes::xffOn:
+    case SquidConfig::Http::ExtForwarded::Mode::xffOn:
         // default.
         break;
-    case SquidConfig::Http::ExtForwarded::Modes::xffOff:
+    case SquidConfig::Http::ExtForwarded::Mode::xffOff:
         e->append("forwarded_for off\n", 18);
         break;
-    case SquidConfig::Http::ExtForwarded::Modes::xffTruncate:
+    case SquidConfig::Http::ExtForwarded::Mode::xffTruncate:
         e->append("forwarded_for truncate\n", 23);
         break;
-    case SquidConfig::Http::ExtForwarded::Modes::fwdDelete:
+    case SquidConfig::Http::ExtForwarded::Mode::fwdDelete:
         e->appendf("%s delete\n", name);
         break;
-    case SquidConfig::Http::ExtForwarded::Modes::fwdTransparent:
+    case SquidConfig::Http::ExtForwarded::Mode::fwdTransparent:
         e->appendf("%s transparent\n", name);
-        break;
-    case SquidConfig::Http::ExtForwarded::Modes::fwdAnonymize:
-        e->appendf("%s anonymize\n", name);
         break;
     }
 }

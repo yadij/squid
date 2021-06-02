@@ -416,14 +416,13 @@ public:
         // settings for the 'Forwarded:' HTTP header extension
         // and legacy X-Forwarded-For header
         struct ExtForwarded {
-            enum Modes {
-                fwdAnonymize = 0,
+            enum class Mode {
                 fwdTransparent,
                 fwdDelete,
                 xffTruncate,
                 xffOn,
                 xffOff
-            } mode = Modes::fwdAnonymize;
+            } mode;
         } header_forwarded;
 
     } http;
