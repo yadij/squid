@@ -1848,7 +1848,7 @@ httpFixupAuthentication(HttpRequest * request, const HttpHeader * hdr_in, HttpHe
 static void
 fixupForwardedHeader(const StoreEntry *entry, const HttpRequest * request, HttpHeader * hdr_out)
 {
-    if (Config.Http.header_forwarded.mode == SquidConfig::http_::ExtForwarded::Modes::fwdDelete)
+    if (Config.http.header_forwarded.mode == SquidConfig::Http::ExtForwarded::Modes::fwdDelete)
         return;
 
     String strFwd = request->header.getList(Http::HdrType::X_FORWARDED_FOR);
@@ -1867,13 +1867,13 @@ fixupForwardedHeader(const StoreEntry *entry, const HttpRequest * request, HttpH
         }
     }
 
-    if (Config.Http.header_forwarded.mode == SquidConfig::http_::ExtForwarded::Modes::xffOff) {
+    if (Config.http.header_forwarded.mode == SquidConfig::Http::ExtForwarded::Modes::xffOff) {
         strListAdd(&strFwd, "unknown", ',');
         hdr_out->putStr(Http::HdrType::X_FORWARDED_FOR, strFwd.termedBuf());
         return;
     }
 
-    if (Config.Http.header_forwarded.mode == SquidConfig::http_::ExtForwarded::Modes::xffTruncate)
+    if (Config.http.header_forwarded.mode == SquidConfig::Http::ExtForwarded::Modes::xffTruncate)
         strFwd = "";
 
     if (request->client_addr.isNoAddr()) {
@@ -2270,7 +2270,7 @@ copyOneHeaderFromClientsideRequestToUpstreamRequest(const HttpHeaderEntry *e, co
         /** \par X-Forwarded-For:, Forwarded:
          * Pass thru only if configured as 'transparent'
          */
-        if (Config.Http.header_forwarded.mode == SquidConfig::http_::ExtForwarded::Modes::fwdTransparent) {
+        if (Config.http.header_forwarded.mode == SquidConfig::Http::ExtForwarded::Modes::fwdTransparent) {
             hdr_out->addEntry(e->clone());
         }
         break;

@@ -412,7 +412,7 @@ public:
     } accessList;
     AclDenyInfoList *denyInfoList;
 
-    struct http_ {
+    struct Http {
         // settings for the 'Forwarded:' HTTP header extension
         // and legacy X-Forwarded-For header
         struct ExtForwarded {
@@ -423,10 +423,10 @@ public:
                 xffTruncate,
                 xffOn,
                 xffOff
-            } mode = SquidConfig::http_::ExtForwarded::Modes::fwdAnonymize;
+            } mode = SquidConfig::Http::ExtForwarded::Modes::fwdAnonymize;
         } header_forwarded;
 
-    } Http;
+    } http;
 
     struct {
         size_t list_width;

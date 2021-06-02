@@ -1840,7 +1840,7 @@ parse_client_delay_pool_access(ClientDelayConfig * cfg)
 #endif
 
 static void
-parse_http_header_forwarded(SquidConfig::http_::ExtForwarded *cfg)
+parse_http_header_forwarded(SquidConfig::Http::ExtForwarded *cfg)
 {
     char *t = ConfigParser::NextToken();
 
@@ -1852,51 +1852,51 @@ parse_http_header_forwarded(SquidConfig::http_::ExtForwarded *cfg)
 
     // legacy X-Forwarded-For modes
     if (strcmp(t, "on") == 0) {
-        cfg->mode = SquidConfig::http_::ExtForwarded::Modes::xffOn;
+        cfg->mode = SquidConfig::Http::ExtForwarded::Modes::xffOn;
     } else if (strcmp(t, "off") == 0) {
-        cfg->mode = SquidConfig::http_::ExtForwarded::Modes::xffOff;
+        cfg->mode = SquidConfig::Http::ExtForwarded::Modes::xffOff;
     } else if (strcmp(t, "truncate") == 0) {
-        cfg->mode = SquidConfig::http_::ExtForwarded::Modes::xffTruncate;
+        cfg->mode = SquidConfig::Http::ExtForwarded::Modes::xffTruncate;
     }
 
     // TODO: else options specific to Forwarded
 
     // modes shared by X-Forwarded-For and Forwarded
     if (strcmp(t, "delete") == 0) {
-        cfg->mode = SquidConfig::http_::ExtForwarded::Modes::fwdDelete;
+        cfg->mode = SquidConfig::Http::ExtForwarded::Modes::fwdDelete;
     } else if (strcmp(t, "transparent") == 0) {
-        cfg->mode = SquidConfig::http_::ExtForwarded::Modes::fwdTransparent;
+        cfg->mode = SquidConfig::Http::ExtForwarded::Modes::fwdTransparent;
     }
 }
 
 static void
-dump_http_header_forwarded(StoreEntry *e, const char *name, const SquidConfig::http_::ExtForwarded &cfg)
+dump_http_header_forwarded(StoreEntry *e, const char *name, const SquidConfig::Http::ExtForwarded &cfg)
 {
     switch (cfg.mode)
     {
-    case SquidConfig::http_::ExtForwarded::Modes::xffOn:
+    case SquidConfig::Http::ExtForwarded::Modes::xffOn:
         // default.
         break;
-    case SquidConfig::http_::ExtForwarded::Modes::xffOff:
+    case SquidConfig::Http::ExtForwarded::Modes::xffOff:
         e->append("forwarded_for off\n", 18);
         break;
-    case SquidConfig::http_::ExtForwarded::Modes::xffTruncate:
+    case SquidConfig::Http::ExtForwarded::Modes::xffTruncate:
         e->append("forwarded_for truncate\n", 23);
         break;
-    case SquidConfig::http_::ExtForwarded::Modes::fwdDelete:
+    case SquidConfig::Http::ExtForwarded::Modes::fwdDelete:
         e->appendf("%s delete\n", name);
         break;
-    case SquidConfig::http_::ExtForwarded::Modes::fwdTransparent:
+    case SquidConfig::Http::ExtForwarded::Modes::fwdTransparent:
         e->appendf("%s transparent\n", name);
         break;
-    case SquidConfig::http_::ExtForwarded::Modes::fwdAnonymize:
+    case SquidConfig::Http::ExtForwarded::Modes::fwdAnonymize:
         e->appendf("%s anonymize\n", name);
         break;
     }
 }
 
 static void
-free_http_header_forwarded(SquidConfig::http_::ExtForwarded *)
+free_http_header_forwarded(SquidConfig::Http::ExtForwarded *)
 {
     ; // do nothing
 }

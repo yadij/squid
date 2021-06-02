@@ -10219,7 +10219,7 @@ NAME: http_header_forwarded forwarded_for
 COMMENT: on|off|transparent|truncate|delete
 TYPE: http_header_forwarded
 DEFAULT: on
-LOC: Config.Http.header_forwarded
+LOC: Config.http.header_forwarded
 DOC_START
 	Controls how Squid handles the X-Forwarded-For and Forwarded
 	HTTP headers.
