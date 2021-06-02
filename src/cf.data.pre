@@ -10227,23 +10227,28 @@ DOC_START
 	Actions:
 
 	transparent
-		Squid will not alter the Forwarded or X-Forwarded-For
-		headers in any way.
+		Squid will send all Forwarded or X-Forwarded-For
+		headers received.
 
-	delete	Remove all Forwarded and X-Forwarded-For headers.
+	delete	Do not send any Forwarded and X-Forwarded-For headers.
 
 
-	Actions which cause output to be produced in an X-Forwarded-For
-	header are deprecated, but may still be used if required. When
-	these options are used the Forwarded header may not be sent:
+	Actions that send a changed X-Forwarded-For header are deprecated.
 
-	on	Append client IP address to the X-Forwarded-For header.
+	When these options are used the Forwarded header is not sent:
 
-	off	Append 'unknown' to the X-Forwarded-For header.
+	on	Sends received X-Forwarded-For with client IP address
+		or 'unknown' appended. Or, if no such header was
+		received, sends a new one containing the client IP or
+		'unknown' word.
+
+	off	Sends received X-Forwarded-For with 'unknown' appended.
+		Or, if no such header was received, sends a new one
+		containing the 'unknown' word.
 
 	truncate
-		Remove all existing X-Forwarded-For and Forwarded headers,
-		then add X-Forwarded-For containing only the client IP.
+		Send X-Forwarded-For containing only the client IP or
+		'unknown' word.
 DOC_END
 
 NAME: cachemgr_passwd
