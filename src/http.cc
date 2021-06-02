@@ -1835,6 +1835,58 @@ httpFixupAuthentication(HttpRequest * request, const HttpHeader * hdr_in, HttpHe
     return;
 }
 
+/** Handle X-Forwarded-For
+ *
+ *  off          - append 'unknown'.
+ *  on           - append client IP or 'unknown'.
+ *  truncate     - replace with client IP or 'unknown'.
+ *  delete       - do not copy through.
+ *
+ * Default handled by copyOneHeaderFromClientsideRequestToUpstreamRequest()
+ *  transparent  - pass through unchanged.
+ */
+static void
+fixupForwardedHeader(const StoreEntry *entry, const HttpRequest * request, HttpHeader * hdr_out)
+{
+    if (Config.Http.header_forwarded.mode == SquidConfig::http_::ExtForwarded::Modes::fwdDelete)
+        return;
+
+    String strFwd = request->header.getList(Http::HdrType::X_FORWARDED_FOR);
+
+    // if we cannot double strFwd size, then it grew past 50% of the limit
+    if (!strFwd.canGrowBy(strFwd.size())) {
+        // There is probably a forwarding loop with Via detection disabled.
+        // If we do nothing, String will assert on overflow soon.
+        // TODO: Terminate all transactions with huge XFF?
+        strFwd = "error";
+
+        static int warnedCount = 0;
+        if (warnedCount++ < 100) {
+            const SBuf url(entry ? SBuf(entry->url()) : request->effectiveRequestUri());
+            debugs(11, DBG_IMPORTANT, "Warning: likely forwarding loop with " << url);
+        }
+    }
+
+    if (Config.Http.header_forwarded.mode == SquidConfig::http_::ExtForwarded::Modes::xffOff) {
+        strListAdd(&strFwd, "unknown", ',');
+        hdr_out->putStr(Http::HdrType::X_FORWARDED_FOR, strFwd.termedBuf());
+        return;
+    }
+
+    if (Config.Http.header_forwarded.mode == SquidConfig::http_::ExtForwarded::Modes::xffTruncate)
+        strFwd = "";
+
+    if (request->client_addr.isNoAddr()) {
+        strListAdd(&strFwd, "unknown", ',');
+    } else {
+        static char ntoabuf[MAX_IPSTRLEN];
+        strListAdd(&strFwd, request->client_addr.toStr(ntoabuf, MAX_IPSTRLEN), ',');
+    }
+
+    if (strFwd.size() > 0)
+        hdr_out->putStr(Http::HdrType::X_FORWARDED_FOR, strFwd.termedBuf());
+}
+
 /*
  * build request headers and append them to a given MemBuf
  * used by buildRequestPrefix()
@@ -1850,7 +1902,6 @@ HttpStateData::httpBuildRequestHeader(HttpRequest * request,
     /* building buffer for complex strings */
 #define BBUF_SZ (MAX_URL+32)
     LOCAL_ARRAY(char, bbuf, BBUF_SZ);
-    LOCAL_ARRAY(char, ntoabuf, MAX_IPSTRLEN);
     const HttpHeader *hdr_in = &request->header;
     const HttpHeaderEntry *e = NULL;
     HttpHeaderPos pos = HttpHeaderInitPos;
@@ -1899,42 +1950,7 @@ HttpStateData::httpBuildRequestHeader(HttpRequest * request,
         hdr_out->putStr(Http::HdrType::SURROGATE_CAPABILITY, strSurrogate.termedBuf());
     }
 
-    /** \pre Handle X-Forwarded-For */
-    if (Config.Http.header_forwarded.mode != SquidConfig::http_::ExtForwarded::Modes::fwdDelete) {
-
-        String strFwd = hdr_in->getList(Http::HdrType::X_FORWARDED_FOR);
-
-        // if we cannot double strFwd size, then it grew past 50% of the limit
-        if (!strFwd.canGrowBy(strFwd.size())) {
-            // There is probably a forwarding loop with Via detection disabled.
-            // If we do nothing, String will assert on overflow soon.
-            // TODO: Terminate all transactions with huge XFF?
-            strFwd = "error";
-
-            static int warnedCount = 0;
-            if (warnedCount++ < 100) {
-                const SBuf url(entry ? SBuf(entry->url()) : request->effectiveRequestUri());
-                debugs(11, DBG_IMPORTANT, "Warning: likely forwarding loop with " << url);
-            }
-        }
-
-        if (Config.Http.header_forwarded.mode == SquidConfig::http_::ExtForwarded::Modes::xffOn ||
-                Config.Http.header_forwarded.mode == SquidConfig::http_::ExtForwarded::Modes::xffTruncate) {
-            /** If set to ON or TRUNCATE - append client IP or 'unknown'. */
-            if ( request->client_addr.isNoAddr() )
-                strListAdd(&strFwd, "unknown", ',');
-            else
-                strListAdd(&strFwd, request->client_addr.toStr(ntoabuf, MAX_IPSTRLEN), ',');
-        } else if (Config.Http.header_forwarded.mode == SquidConfig::http_::ExtForwarded::Modes::xffOff) {
-            /** If set to OFF - append 'unknown'. */
-            strListAdd(&strFwd, "unknown", ',');
-        }
-        /** If set to TRANSPARENT - pass through unchanged. */
-
-        if (strFwd.size() > 0)
-            hdr_out->putStr(Http::HdrType::X_FORWARDED_FOR, strFwd.termedBuf());
-    }
-    /** If set to DELETE - do not copy through. */
+    fixupForwardedHeader(entry, request, hdr_out);
 
     /* append Host if not there already */
     if (!hdr_out->has(Http::HdrType::HOST)) {
@@ -2252,10 +2268,9 @@ copyOneHeaderFromClientsideRequestToUpstreamRequest(const HttpHeaderEntry *e, co
     case Http::HdrType::X_FORWARDED_FOR:
     case Http::HdrType::FORWARDED:
         /** \par X-Forwarded-For:, Forwarded:
-         * skip if deleting or truncating
+         * Pass thru only if configured as 'transparent'
          */
-        if (Config.Http.header_forwarded.mode != SquidConfig::http_::ExtForwarded::Modes::fwdDelete &&
-                Config.Http.header_forwarded.mode != SquidConfig::http_::ExtForwarded::Modes::xffTruncate) {
+        if (Config.Http.header_forwarded.mode == SquidConfig::http_::ExtForwarded::Modes::fwdTransparent) {
             hdr_out->addEntry(e->clone());
         }
         break;
