@@ -1851,18 +1851,12 @@ parse_http_header_forwarded(SquidConfig::http_::ExtForwarded *cfg)
     }
 
     // legacy X-Forwarded-For modes
-    if (strcmp(cfg_directive, "forwarded_for") == 0) {
-            cfg->xffLegacyConfig = true;
-        if (strcmp(t, "on") == 0) {
-            cfg->mode = SquidConfig::http_::ExtForwarded::Modes::xffOn;
-            return;
-        } else if (strcmp(t, "off") == 0) {
-            cfg->mode = SquidConfig::http_::ExtForwarded::Modes::xffOff;
-            return;
-        } else if (strcmp(t, "truncate") == 0) {
-            cfg->mode = SquidConfig::http_::ExtForwarded::Modes::xffTruncate;
-            return;
-        }
+    if (strcmp(t, "on") == 0) {
+        cfg->mode = SquidConfig::http_::ExtForwarded::Modes::xffOn;
+    } else if (strcmp(t, "off") == 0) {
+        cfg->mode = SquidConfig::http_::ExtForwarded::Modes::xffOff;
+    } else if (strcmp(t, "truncate") == 0) {
+        cfg->mode = SquidConfig::http_::ExtForwarded::Modes::xffTruncate;
     }
 
     // TODO: else options specific to Forwarded
@@ -1881,7 +1875,7 @@ dump_http_header_forwarded(StoreEntry *e, const char *name, const SquidConfig::h
     switch (cfg.mode)
     {
     case SquidConfig::http_::ExtForwarded::Modes::xffOn:
-        // default. e->append("forwarded_for on\n", 17);
+        // default.
         break;
     case SquidConfig::http_::ExtForwarded::Modes::xffOff:
         e->append("forwarded_for off\n", 18);

@@ -416,7 +416,6 @@ public:
         // settings for the 'Forwarded:' HTTP header extension
         // and legacy X-Forwarded-For header
         struct ExtForwarded {
-            bool xffLegacyConfig = false;
             enum Modes {
                 fwdAnonymize = 0,
                 fwdTransparent,
