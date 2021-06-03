@@ -1445,7 +1445,7 @@ Ftp::Server::createDataConnection(Ip::Address cltAddr)
     Comm::ConnectionPointer conn = new Comm::Connection();
     conn->flags |= COMM_DOBIND;
 
-    if (clientConnection->flags & COMM_INTERCEPTION) {
+    if (port->flags.natIntercept) {
         // In the case of NAT interception conn->local value is not set
         // because the TCP stack will automatically pick correct source
         // address for the data connection. We must only ensure that IP
@@ -1468,7 +1468,7 @@ Ftp::Server::createDataConnection(Ip::Address cltAddr)
         conn->setAddrs(clientConnection->local, cltAddr);
 
         // Using non-local addresses in TPROXY mode requires appropriate socket option.
-        if (clientConnection->flags & COMM_TRANSPARENT)
+        if (port->flags.tproxyIntercept)
             conn->flags |= COMM_TRANSPARENT;
     }
 
