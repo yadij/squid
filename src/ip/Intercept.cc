@@ -369,7 +369,7 @@ Ip::Intercept::PfInterception(const Comm::ConnectionPointer &newConn)
 }
 
 bool
-Ip::Intercept::Lookup(const Comm::ConnectionPointer &newConn, const Comm::ConnectionPointer &listenConn)
+Ip::Intercept::LookupNat(const Comm::ConnectionPointer &newConn)
 {
     /* --enable-linux-netfilter    */
     /* --enable-ipfw-transparent   */
@@ -377,23 +377,20 @@ Ip::Intercept::Lookup(const Comm::ConnectionPointer &newConn, const Comm::Connec
     /* --enable-pf-transparent     */
 #if IPF_TRANSPARENT || LINUX_NETFILTER || IPFW_TRANSPARENT || PF_TRANSPARENT
 
-    debugs(89, 5, HERE << "address BEGIN: me/client= " << newConn->local << ", destination/me= " << newConn->remote);
+    debugs(89, 5, "address BEGIN: me/client= " << newConn->local << ", destination/me= " << newConn->remote);
 
-    newConn->flags |= (listenConn->flags & (COMM_TRANSPARENT|COMM_INTERCEPTION));
-
-    /* NP: try TPROXY first, its much quieter than NAT when non-matching */
-    if (transparentActive_ && listenConn->flags&COMM_TRANSPARENT) {
-        if (TproxyTransparent(newConn)) return true;
-    }
-
-    if (interceptActive_ && listenConn->flags&COMM_INTERCEPTION) {
+    if (interceptActive_) {
         /* NAT methods that use sock-opts to return client address */
-        if (NetfilterInterception(newConn)) return true;
-        if (IpfwInterception(newConn)) return true;
+        if (NetfilterInterception(newConn))
+            return true;
+        if (IpfwInterception(newConn))
+            return true;
 
         /* NAT methods that use ioctl to return client address AND destination address */
-        if (PfInterception(newConn)) return true;
-        if (IpfInterception(newConn)) return true;
+        if (PfInterception(newConn))
+            return true;
+        if (IpfInterception(newConn))
+            return true;
     }
 
 #else /* none of the transparent options configured */
@@ -401,6 +398,13 @@ Ip::Intercept::Lookup(const Comm::ConnectionPointer &newConn, const Comm::Connec
 #endif
 
     return false;
+}
+
+bool
+Ip::Intercept::LookupTproxy(const Comm::ConnectionPointer &newConn)
+{
+    debugs(89, 5, "address BEGIN: me/client= " << newConn->local << ", destination/me= " << newConn->remote);
+    return (transparentActive_ && TproxyTransparent(newConn));
 }
 
 bool

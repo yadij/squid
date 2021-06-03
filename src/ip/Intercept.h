@@ -31,7 +31,10 @@ public:
     ~Intercept() {};
 
     /** Perform NAT lookups */
-    bool Lookup(const Comm::ConnectionPointer &newConn, const Comm::ConnectionPointer &listenConn);
+    bool LookupNat(const Comm::ConnectionPointer &newConn);
+
+    /** Perform Transparent Proxy lookups */
+    bool LookupTproxy(const Comm::ConnectionPointer &newConn);
 
     /**
      * Test system networking calls for TPROXY support.
