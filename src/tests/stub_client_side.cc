@@ -23,7 +23,6 @@ int64_t ConnStateData::mayNeedToReadMoreBody() const STUB_RETVAL(0)
 #if USE_AUTH
 void ConnStateData::setAuth(const Auth::UserRequest::Pointer &, const char *) STUB
 #endif
-bool ConnStateData::transparent() const STUB_RETVAL(false)
 void ConnStateData::stopReceiving(const char *) STUB
 void ConnStateData::stopSending(const char *) STUB
 void ConnStateData::expectNoForwarding() STUB

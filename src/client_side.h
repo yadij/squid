@@ -154,8 +154,6 @@ public:
         AsyncCall::Pointer closeHandler; ///< The close handler for pinned server side connection
     } pinning;
 
-    bool transparent() const;
-
     /// true if we stopped receiving the request
     const char *stoppedReceiving() const { return stoppedReceiving_; }
     /// true if we stopped sending the response

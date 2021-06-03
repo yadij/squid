@@ -1404,7 +1404,7 @@ ConnStateData::parseHttpRequest(const Http1::RequestParserPointer &hp)
 
     /* set url */
     debugs(33,5, "Prepare absolute URL from " <<
-           (transparent()?"intercept":(port->flags.accelSurrogate ? "accel":"")));
+           (port->flags.isIntercepted()?"intercept":(port->flags.accelSurrogate ? "accel":"")));
     /* Rewrite the URL in transparent or accelerator mode */
     /* NP: there are several cases to traverse here:
      *  - standard mode (forward proxy)
@@ -1420,8 +1420,8 @@ ConnStateData::parseHttpRequest(const Http1::RequestParserPointer &hp)
      */
     if (switchedToHttps()) {
         http->uri = prepareTlsSwitchingURL(hp);
-    } else if (transparent()) {
-        /* intercept or transparent mode, properly working with no failures */
+    } else if (port->flags.isIntercepted()) {
+        /* intercepted traffic, properly working with no failures */
         http->uri = prepareTransparentURL(this, hp);
 
     } else if (internalCheck(hp->requestUri())) { // NP: only matches relative-URI
@@ -1823,7 +1823,7 @@ ConnStateData::concurrentRequestQueueFilled() const
     // default to the configured pipeline size.
     // add 1 because the head of pipeline is counted in concurrent requests and not prefetch queue
 #if USE_OPENSSL
-    const int internalRequest = (transparent() && sslBumpMode == Ssl::bumpSplice) ? 1 : 0;
+    const int internalRequest = (port->flags.isIntercepted() && sslBumpMode == Ssl::bumpSplice) ? 1 : 0;
 #else
     const int internalRequest = 0;
 #endif
@@ -2228,7 +2228,7 @@ ConnStateData::start()
     HttpControlMsgSink::start();
 
     if (port->disable_pmtu_discovery != DISABLE_PMTU_OFF &&
-            (transparent() || port->disable_pmtu_discovery == DISABLE_PMTU_ALWAYS)) {
+            (port->flags.isIntercepted() || port->disable_pmtu_discovery == DISABLE_PMTU_ALWAYS)) {
 #if defined(IP_MTU_DISCOVER) && defined(IP_PMTUDISC_DONT)
         int i = IP_PMTUDISC_DONT;
         if (setsockopt(clientConnection->fd, SOL_IP, IP_MTU_DISCOVER, &i, sizeof(i)) < 0) {
@@ -3053,7 +3053,7 @@ ConnStateData::splice()
     ClientHttpRequest *http = context->http;
     HttpRequest::Pointer request = http->request;
     context->finished();
-    if (transparent()) {
+    if (port->flags.isIntercepted()) {
         // For transparent connections, make a new fake CONNECT request, now
         // with SNI as target. doCallout() checks, adaptations may need that.
         return fakeAConnectRequest("splice", preservedClientData);
@@ -3210,7 +3210,7 @@ ConnStateData::initiateTunneledRequest(HttpRequest::Pointer const &cause, Http::
         connectHost = tlsConnectHostOrIp;
         connectPort = tlsConnectPort;
 #endif
-    } else if (transparent()) {
+    } else if (port->flags.isIntercepted()) {
         static char ip[MAX_IPSTRLEN];
         connectHost = clientConnection->local.toStr(ip, sizeof(ip));
         connectPort = clientConnection->local.port();
@@ -3241,7 +3241,7 @@ ConnStateData::fakeAConnectRequest(const char *reason, const SBuf &payload)
     debugs(33, 2, "fake a CONNECT request to force connState to tunnel for " << reason);
 
     SBuf connectHost;
-    assert(transparent());
+    assert(port->flags.isIntercepted());
     const unsigned short connectPort = clientConnection->local.port();
 
 #if USE_OPENSSL
@@ -3640,12 +3640,6 @@ ConnStateData::fillConnectionLevelDetails(ACLFilledChecklist &checklist) const
     if (!checklist.rfc931[0]) // checklist creator may have supplied it already
         checklist.setIdent(clientConnection->rfc931);
 
-}
-
-bool
-ConnStateData::transparent() const
-{
-    return clientConnection != NULL && (clientConnection->flags & (COMM_TRANSPARENT|COMM_INTERCEPTION));
 }
 
 BodyPipe::Pointer
@@ -4116,7 +4110,7 @@ ConnStateData::shouldPreserveClientData() const
 #endif
 
     // the 1st HTTP(S) request on a connection to an intercepting port
-    if (!pipeline.nrequests && transparent())
+    if (!pipeline.nrequests && port->flags.isIntercepted())
         return true;
 
     return false;

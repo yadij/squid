@@ -92,12 +92,12 @@ Ftp::Server::start()
 {
     ConnStateData::start();
 
-    if (transparent()) {
+    if (port->flags.isIntercepted()) {
         char buf[MAX_IPSTRLEN];
         clientConnection->local.toUrl(buf, MAX_IPSTRLEN);
         host = buf;
         calcUri(NULL);
-        debugs(33, 5, "FTP transparent URL: " << uri);
+        debugs(33, 5, "FTP intercepted URL: " << uri);
     }
 
     writeEarlyReply(220, "Service ready");
@@ -368,7 +368,7 @@ Ftp::Server::listenForDataConnection()
 
     Comm::ConnectionPointer conn = new Comm::Connection;
     conn->flags = COMM_NONBLOCKING;
-    conn->local = transparent() ? port->s : clientConnection->local;
+    conn->local = port->flags.isIntercepted() ? port->s : clientConnection->local;
     conn->local.port(0);
     const char *const note = uri.c_str();
     comm_open_listener(SOCK_STREAM, IPPROTO_TCP, conn, note);
@@ -701,7 +701,7 @@ Ftp::Server::parseOneRequest()
     cmd.toUpper(); // this should speed up and simplify future comparisons
 
     // interception cases do not need USER to calculate the uri
-    if (!transparent()) {
+    if (!port->flags.isIntercepted()) {
         if (!master->clientReadGreeting) {
             // the first command must be USER
             if (!pinning.pinned && cmd != cmdUser())
@@ -891,7 +891,7 @@ Ftp::Server::handlePasvReply(const HttpReply *reply, StoreIOBuffer)
 
     char addr[MAX_IPSTRLEN];
     // remote server in interception setups and local address otherwise
-    const Ip::Address &server = transparent() ?
+    const Ip::Address &server = port->flags.isIntercepted() ?
                                 clientConnection->local : dataListenConn->local;
     server.toStr(addr, MAX_IPSTRLEN, AF_INET);
     addr[MAX_IPSTRLEN - 1] = '\0';
