@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1996-2020 The Squid Software Foundation and contributors
+ * Copyright (C) 1996-2021 The Squid Software Foundation and contributors
  *
  * Squid software is distributed under GPLv2+ license and includes
  * contributions from numerous individuals and organizations.
@@ -16,8 +16,8 @@
 #include "comm/Read.h"
 #include "comm/TcpAcceptor.h"
 #include "comm/Write.h"
-#include "errorpage.h"
 #include "error/SysErrorDetail.h"
+#include "errorpage.h"
 #include "fd.h"
 #include "ftp/Parsing.h"
 #include "http/Stream.h"
@@ -95,6 +95,7 @@ Ftp::Channel::opened(const Comm::ConnectionPointer &newConn,
     assert(aCloser != NULL);
 
     conn = newConn;
+    conn->leaveOrphanage();
     closer = aCloser;
     comm_add_close_handler(conn->fd, closer);
 }

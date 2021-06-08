@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1996-2020 The Squid Software Foundation and contributors
+ * Copyright (C) 1996-2021 The Squid Software Foundation and contributors
  *
  * Squid software is distributed under GPLv2+ license and includes
  * contributions from numerous individuals and organizations.
@@ -908,6 +908,7 @@ mainReconfigureStart(void)
 #if ICAP_CLIENT
     icapLogClose();
 #endif
+    Security::CloseLogs();
 
     eventAdd("mainReconfigureFinish", &mainReconfigureFinish, NULL, 0, 1,
              false);
@@ -979,6 +980,7 @@ mainReconfigureFinish(void *)
     Adaptation::Config::Finalize(enableAdaptation);
 #endif
 
+    Security::OpenLogs();
 #if ICAP_CLIENT
     icapLogOpen();
 #endif
@@ -1051,6 +1053,7 @@ mainRotate(void)
     storeDirWriteCleanLogs(1);
     storeLogRotate();       /* store.log */
     accessLogRotate();      /* access.log */
+    Security::RotateLogs();
 #if ICAP_CLIENT
     icapLogRotate();               /*icap.log*/
 #endif
@@ -1205,6 +1208,8 @@ mainInitialize(void)
     errorInitialize();
 
     accessLogInit();
+
+    Security::OpenLogs();
 
 #if ICAP_CLIENT
     icapLogOpen();
