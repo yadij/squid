@@ -367,10 +367,10 @@ httpRequestPack(void *obj, Packable *p)
 int
 HttpRequest::prefixLen() const
 {
-    return method.image().length() + 1 +
-           url.originForm().length() + 1 +
-           4 + 1 + 3 + 2 +
-           header.len + 2;
+    return method.image().length() + 1 /* SP */ +
+           url.originForm().length() + 1 /* SP */ +
+           8 /* HTTP/1.1 */ + 2 /* CRLF */ +
+           header.len + 2 /* CRLF */;
 }
 
 /* sync this routine when you update HttpRequest struct */
