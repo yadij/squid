@@ -9,12 +9,11 @@
 #ifndef SQUID_COMM_TCPACCEPTOR_H
 #define SQUID_COMM_TCPACCEPTOR_H
 
-#include "anyp/forward.h"
 #include "base/AsyncJob.h"
 #include "base/CbcPointer.h"
 #include "base/Subscription.h"
 #include "comm/Flag.h"
-#include "comm/forward.h"
+#include "MasterXaction.h"
 
 class CommCloseCbParams;
 
@@ -95,6 +94,9 @@ private:
 
     /// listen socket closure handler
     AsyncCall::Pointer closer_;
+
+    /// transaction initiated by accept()'ing a client socket
+    MasterXaction::Pointer clientXaction;
 
     /// Method callback for whenever an FD is ready to accept a client connection.
     static void doAccept(int fd, void *data);
