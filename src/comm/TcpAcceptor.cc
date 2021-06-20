@@ -10,7 +10,6 @@
 
 #include "squid.h"
 #include "acl/FilledChecklist.h"
-#include "anyp/PortCfg.h"
 #include "base/TextException.h"
 #include "client_db.h"
 #include "comm/AcceptLimiter.h"
@@ -26,7 +25,6 @@
 #include "ip/Intercept.h"
 #include "ip/QosConfig.h"
 #include "log/access_log.h"
-#include "MasterXaction.h"
 #include "profiler/Profiler.h"
 #include "SquidConfig.h"
 #include "SquidTime.h"
@@ -297,6 +295,7 @@ Comm::TcpAcceptor::acceptOne()
         CodeContext::Reset(listenPort_);
     }
 
+    clientXaction = nullptr; // reset for next cycle
     SetSelect(conn->fd, COMM_SELECT_READ, doAccept, this, 0);
 }
 
@@ -320,10 +319,9 @@ Comm::TcpAcceptor::notify(const Comm::Flag flag, const Comm::ConnectionPointer &
     if (theCallSub != NULL) {
         AsyncCall::Pointer call = theCallSub->callback();
         CommAcceptCbParams &params = GetCommParams<CommAcceptCbParams>(call);
-        params.xaction = new MasterXaction(XactionInitiator::initClient);
-        params.xaction->squidPort = listenPort_;
+        params.xaction = clientXaction;
         params.fd = conn->fd;
-        params.conn = params.xaction->tcpClient = newConnDetails;
+        params.conn = newConnDetails;
         params.flag = flag;
         params.xerrno = errcode;
         ScheduleCallHere(call);
@@ -370,6 +368,10 @@ Comm::TcpAcceptor::oldAccept(Comm::ConnectionPointer &details)
 
     Must(sock >= 0);
     ++incoming_sockets_accepted;
+
+    clientXaction = new MasterXaction(XactionInitiator::initClient);
+    clientXaction->squidPort = listenPort_;
+    clientXaction->tcpClient = details;
 
     // Sync with Comm ASAP so that abandoned details can properly close().
     // XXX : these are not all HTTP requests. use a note about type and ip:port details->
