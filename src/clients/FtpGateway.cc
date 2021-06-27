@@ -1869,6 +1869,9 @@ ftpReadEPRT(Ftp::Gateway * ftpState)
 void
 Ftp::Gateway::ftpAcceptDataConnection(const CommAcceptCbParams &io)
 {
+    MasterXaction::Pointer xact = io.xaction;
+    const AnyP::PortCfgPointer s = xact->squidPort;
+
     debugs(9, 3, HERE);
 
     if (!Comm::IsConnOpen(ctrl.conn)) { /*Close handlers will cleanup*/
@@ -1879,7 +1882,7 @@ Ftp::Gateway::ftpAcceptDataConnection(const CommAcceptCbParams &io)
     if (io.flag != Comm::OK) {
         data.listenConn->close();
         data.listenConn = NULL;
-        debugs(9, DBG_IMPORTANT, "FTP AcceptDataConnection: " << io.conn << ": " << xstrerr(io.xerrno));
+        debugs(9, DBG_IMPORTANT, "FTP AcceptDataConnection: " << xact->tcpClient << ": " << xstrerr(io.xerrno));
         // TODO: need to send error message on control channel
         ftpFail(this);
         return;
@@ -1889,19 +1892,21 @@ Ftp::Gateway::ftpAcceptDataConnection(const CommAcceptCbParams &io)
         abortAll("entry aborted when accepting data conn");
         data.listenConn->close();
         data.listenConn = NULL;
-        io.conn->close();
+        xact->tcpClient->close();
         return;
     }
 
     /* data listening conn is no longer even open. abort. */
     if (!Comm::IsConnOpen(data.listenConn)) {
         data.listenConn = NULL; // ensure that it's cleared and not just closed.
+        xact->tcpClient->close();
         return;
     }
 
     /* data listening conn is no longer even open. abort. */
     if (!Comm::IsConnOpen(data.conn)) {
         data.clear(); // ensure that it's cleared and not just closed.
+        xact->tcpClient->close();
         return;
     }
 
@@ -1913,14 +1918,14 @@ Ftp::Gateway::ftpAcceptDataConnection(const CommAcceptCbParams &io)
      */
     if (Config.Ftp.sanitycheck) {
         // accept if either our data or ctrl connection is talking to this remote peer.
-        if (data.conn->remote != io.conn->remote && ctrl.conn->remote != io.conn->remote) {
+        if (data.conn->remote != xact->tcpClient->remote && ctrl.conn->remote != xact->tcpClient->remote) {
             debugs(9, DBG_IMPORTANT,
                    "FTP data connection from unexpected server (" <<
-                   io.conn->remote << "), expecting " <<
+                   xact->tcpClient->remote << "), expecting " <<
                    data.conn->remote << " or " << ctrl.conn->remote);
 
             /* close the bad sources connection down ASAP. */
-            io.conn->close();
+            xact->tcpClient->close();
 
             /* drop the bad connection (io) by ignoring the attempt. */
             return;
@@ -1929,11 +1934,11 @@ Ftp::Gateway::ftpAcceptDataConnection(const CommAcceptCbParams &io)
 
     /** On Comm::OK start using the accepted data socket and discard the temporary listen socket. */
     data.close();
-    data.opened(io.conn, dataCloser());
-    data.addr(io.conn->remote);
+    data.opened(xact->tcpClient, dataCloser());
+    data.addr(xact->tcpClient->remote);
 
     debugs(9, 3, HERE << "Connected data socket on " <<
-           io.conn << ". FD table says: " <<
+           xact->tcpClient << ". FD table says: " <<
            "ctrl-peer= " << fd_table[ctrl.conn->fd].ipaddr << ", " <<
            "data-peer= " << fd_table[data.conn->fd].ipaddr);
 

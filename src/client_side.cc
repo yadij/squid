@@ -2315,7 +2315,7 @@ void
 httpAccept(const CommAcceptCbParams &params)
 {
     MasterXaction::Pointer xact = params.xaction;
-    AnyP::PortCfgPointer s = xact->squidPort;
+    const AnyP::PortCfgPointer s = xact->squidPort;
 
     // NP: it is possible the port was reconfigured when the call or accept() was queued.
 
@@ -2325,8 +2325,8 @@ httpAccept(const CommAcceptCbParams &params)
         return;
     }
 
-    debugs(33, 4, params.conn << ": accepted");
-    fd_note(params.conn->fd, "client http connect");
+    debugs(33, 4, xact->tcpClient << ": accepted");
+    fd_note(xact->tcpClient->fd, "client http connect");
 
     // Socket is ready, setup the connection manager to start using it
     auto *srv = Http::NewServer(xact);
@@ -2521,12 +2521,12 @@ httpsAccept(const CommAcceptCbParams &params)
 
     if (params.flag != Comm::OK) {
         // Its possible the call was still queued when the client disconnected
-        debugs(33, 2, "httpsAccept: " << s->listenConn << ": accept failure: " << xstrerr(params.xerrno));
+        debugs(33, 2, s->listenConn << ": accept failure: " << xstrerr(params.xerrno));
         return;
     }
 
-    debugs(33, 4, HERE << params.conn << " accepted, starting SSL negotiation.");
-    fd_note(params.conn->fd, "client https connect");
+    debugs(33, 4, xact->tcpClient << " accepted, starting SSL negotiation.");
+    fd_note(xact->tcpClient->fd, "client https connect");
 
     // Socket is ready, setup the connection manager to start using it
     auto *srv = Https::NewServer(xact);

@@ -241,7 +241,7 @@ void
 Ftp::Server::AcceptCtrlConnection(const CommAcceptCbParams &params)
 {
     MasterXaction::Pointer xact = params.xaction;
-    AnyP::PortCfgPointer s = xact->squidPort;
+    const AnyP::PortCfgPointer s = xact->squidPort;
 
     // NP: it is possible the port was reconfigured when the call or accept() was queued.
 
@@ -251,8 +251,8 @@ Ftp::Server::AcceptCtrlConnection(const CommAcceptCbParams &params)
         return;
     }
 
-    debugs(33, 4, params.conn << ": accepted");
-    fd_note(params.conn->fd, "client ftp connect");
+    debugs(33, 4, xact->tcpClient << ": accepted");
+    fd_note(xact->tcpClient->fd, "client ftp connect");
 
     AsyncJob::Start(new Server(xact));
 }
@@ -390,28 +390,32 @@ Ftp::Server::listenForDataConnection()
 void
 Ftp::Server::acceptDataConnection(const CommAcceptCbParams &params)
 {
+    MasterXaction::Pointer xact = params.xaction;
+    // XXX: this DATA connection is a child TCP transaction of the FTP CTRL channel's transaction
+
     if (params.flag != Comm::OK) {
         // Its possible the call was still queued when the client disconnected
         debugs(33, 2, dataListenConn << ": accept "
                "failure: " << xstrerr(params.xerrno));
+        xact->tcpClient->close();
         return;
     }
 
-    debugs(33, 4, "accepted " << params.conn);
-    fd_note(params.conn->fd, "passive client ftp data");
+    debugs(33, 4, "accepted " << xact->tcpClient);
+    fd_note(xact->tcpClient->fd, "passive client ftp data");
 
     if (!clientConnection) {
         debugs(33, 5, "late data connection?");
         closeDataConnection(); // in case we are still listening
-        params.conn->close();
-    } else if (params.conn->remote != clientConnection->remote) {
+        xact->tcpClient->close();
+    } else if (xact->tcpClient->remote != clientConnection->remote) {
         debugs(33, 2, "rogue data conn? ctrl: " << clientConnection->remote);
-        params.conn->close();
+        xact->tcpClient->close();
         // Some FTP servers close control connection here, but it may make
         // things worse from DoS p.o.v. and no better from data stealing p.o.v.
     } else {
         closeDataConnection();
-        dataConn = params.conn;
+        dataConn = xact->tcpClient; // TODO store the xact here instead?
         dataConn->leaveOrphanage();
         uploadAvailSize = 0;
         debugs(33, 7, "ready for data");
