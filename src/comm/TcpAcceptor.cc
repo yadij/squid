@@ -269,15 +269,16 @@ Comm::TcpAcceptor::acceptOne()
      */
 
     /* Accept a new connection */
-    ConnectionPointer newConnDetails = new Connection();
-    const Comm::Flag flag = oldAccept(newConnDetails);
+    clientXaction = new MasterXaction(XactionInitiator::initClient);
+    clientXaction->squidPort = listenPort_;
+    const Comm::Flag flag = oldAccept();
 
     if (flag == Comm::COMM_ERROR) {
         // A non-recoverable error; notify the caller */
         debugs(5, 5, HERE << "non-recoverable error:" << status() << " handler Subscription: " << theCallSub);
         if (intendedForUserConnections())
-            logAcceptError(newConnDetails);
-        notify(flag, newConnDetails);
+            logAcceptError(clientXaction->tcpClient);
+        notify(flag, clientXaction->tcpClient);
         mustStop("Listener socket closed");
         return;
     }
@@ -287,11 +288,11 @@ Comm::TcpAcceptor::acceptOne()
         debugs(5, 5, "try later: " << conn << " handler Subscription: " << theCallSub);
     } else {
         // TODO: When ALE, MasterXaction merge, use them or ClientConn instead.
-        CodeContext::Reset(newConnDetails);
+        CodeContext::Reset(clientXaction->tcpClient);
         debugs(5, 5, "Listener: " << conn <<
-               " accepted new connection " << newConnDetails <<
+               " accepted new connection " << clientXaction->tcpClient <<
                " handler Subscription: " << theCallSub);
-        notify(flag, newConnDetails);
+        notify(flag, clientXaction->tcpClient);
         CodeContext::Reset(listenPort_);
     }
 
@@ -338,7 +339,7 @@ Comm::TcpAcceptor::notify(const Comm::Flag flag, const Comm::ConnectionPointer &
  * \retval Comm::COMM_ERROR  an outright failure occurred.
  */
 Comm::Flag
-Comm::TcpAcceptor::oldAccept(Comm::ConnectionPointer &details)
+Comm::TcpAcceptor::oldAccept()
 {
     PROF_start(comm_accept);
     ++statCounter.syscalls.sock.accepts;
@@ -369,35 +370,32 @@ Comm::TcpAcceptor::oldAccept(Comm::ConnectionPointer &details)
     Must(sock >= 0);
     ++incoming_sockets_accepted;
 
-    clientXaction = new MasterXaction(XactionInitiator::initClient);
-    clientXaction->squidPort = listenPort_;
-    clientXaction->tcpClient = details;
-
-    // Sync with Comm ASAP so that abandoned details can properly close().
+    // Sync with Comm ASAP so that abandoned clientXaction->tcpClient can properly close().
     // XXX : these are not all HTTP requests. use a note about type and ip:port details->
     // so we end up with a uniform "(HTTP|FTP-data|HTTPS|...) remote-ip:remote-port"
     fd_open(sock, FD_SOCKET, "HTTP Request");
-    details->fd = sock;
-    details->enterOrphanage();
+    clientXaction->tcpClient = new Connection();
+    clientXaction->tcpClient->fd = sock;
+    clientXaction->tcpClient->enterOrphanage();
 
-    details->remote = *gai;
+    clientXaction->tcpClient->remote = *gai;
 
     // lookup the local-end details of this new connection
     Ip::Address::InitAddr(gai);
-    details->local.setEmpty();
+    clientXaction->tcpClient->local.setEmpty();
     if (getsockname(sock, gai->ai_addr, &gai->ai_addrlen) != 0) {
         int xerrno = errno;
-        debugs(50, DBG_IMPORTANT, "ERROR: getsockname() failed to locate local-IP on " << details << ": " << xstrerr(xerrno));
+        debugs(50, DBG_IMPORTANT, "ERROR: getsockname() failed to locate local-IP on " << clientXaction->tcpClient << ": " << xstrerr(xerrno));
         Ip::Address::FreeAddr(gai);
         PROF_stop(comm_accept);
         return Comm::COMM_ERROR;
     }
-    details->local = *gai;
+    clientXaction->tcpClient->local = *gai;
     Ip::Address::FreeAddr(gai);
 
     // Perform NAT or TPROXY operations to retrieve the real client/dest IP addresses
-    if (conn->flags&(COMM_TRANSPARENT|COMM_INTERCEPTION) && !Ip::Interceptor.Lookup(details, conn)) {
-        debugs(50, DBG_IMPORTANT, "ERROR: NAT/TPROXY lookup failed to locate original IPs on " << details);
+    if (conn->flags&(COMM_TRANSPARENT|COMM_INTERCEPTION) && !Ip::Interceptor.Lookup(clientXaction->tcpClient, conn)) {
+        debugs(50, DBG_IMPORTANT, "ERROR: NAT/TPROXY lookup failed to locate original IPs on " << clientXaction->tcpClient);
         // Failed.
         PROF_stop(comm_accept);
         return Comm::COMM_ERROR;
@@ -405,29 +403,29 @@ Comm::TcpAcceptor::oldAccept(Comm::ConnectionPointer &details)
 
 #if USE_SQUID_EUI
     if (Eui::TheConfig.euiLookup) {
-        if (details->remote.isIPv4()) {
-            details->remoteEui48.lookup(details->remote);
-        } else if (details->remote.isIPv6()) {
-            details->remoteEui64.lookup(details->remote);
+        if (clientXaction->tcpClient->remote.isIPv4()) {
+            clientXaction->tcpClient->remoteEui48.lookup(clientXaction->tcpClient->remote);
+        } else if (clientXaction->tcpClient->remote.isIPv6()) {
+            clientXaction->tcpClient->remoteEui64.lookup(clientXaction->tcpClient->remote);
         }
     }
 #endif
 
-    details->nfConnmark = Ip::Qos::getNfConnmark(details, Ip::Qos::dirAccepted);
+    clientXaction->tcpClient->nfConnmark = Ip::Qos::getNfConnmark(clientXaction->tcpClient, Ip::Qos::dirAccepted);
 
     if (Config.client_ip_max_connections >= 0) {
-        if (clientdbEstablished(details->remote, 0) > Config.client_ip_max_connections) {
-            debugs(50, DBG_IMPORTANT, "WARNING: " << details->remote << " attempting more than " << Config.client_ip_max_connections << " connections.");
+        if (clientdbEstablished(clientXaction->tcpClient->remote, 0) > Config.client_ip_max_connections) {
+            debugs(50, DBG_IMPORTANT, "WARNING: " << clientXaction->tcpClient->remote << " attempting more than " << Config.client_ip_max_connections << " connections.");
             PROF_stop(comm_accept);
             return Comm::NOMESSAGE;
         }
     }
 
     fde *F = &fd_table[sock];
-    details->remote.toStr(F->ipaddr,MAX_IPSTRLEN);
-    F->remote_port = details->remote.port();
-    F->local_addr = details->local;
-    F->sock_family = details->local.isIPv6()?AF_INET6:AF_INET;
+    clientXaction->tcpClient->remote.toStr(F->ipaddr,MAX_IPSTRLEN);
+    F->remote_port = clientXaction->tcpClient->remote.port();
+    F->local_addr = clientXaction->tcpClient->local;
+    F->sock_family = clientXaction->tcpClient->local.isIPv6()?AF_INET6:AF_INET;
 
     // set socket flags
     commSetCloseOnExec(sock);
