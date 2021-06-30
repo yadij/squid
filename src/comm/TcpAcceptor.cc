@@ -26,6 +26,7 @@
 #include "ip/QosConfig.h"
 #include "log/access_log.h"
 #include "profiler/Profiler.h"
+#include "sbuf/Stream.h"
 #include "SquidConfig.h"
 #include "SquidTime.h"
 #include "StatCounters.h"
@@ -207,22 +208,15 @@ Comm::TcpAcceptor::handleClosure(const CommCloseCbParams &)
 void
 Comm::TcpAcceptor::doAccept(int fd, void *data)
 {
-    try {
-        debugs(5, 2, HERE << "New connection on FD " << fd);
+    debugs(5, 2, HERE << "New connection on FD " << fd);
 
-        Must(isOpen(fd));
-        TcpAcceptor *afd = static_cast<TcpAcceptor*>(data);
+    Must(isOpen(fd));
+    TcpAcceptor *afd = static_cast<TcpAcceptor*>(data);
 
-        if (!okToAccept()) {
-            AcceptLimiter::Instance().defer(afd);
-        } else {
-            afd->acceptNext();
-        }
-
-    } catch (const std::exception &e) {
-        fatalf("FATAL: error while accepting new client connection: %s\n", e.what());
-    } catch (...) {
-        fatal("FATAL: error while accepting new client connection: [unknown]\n");
+    if (!okToAccept()) {
+        AcceptLimiter::Instance().defer(afd);
+    } else {
+        afd->acceptNext();
     }
 }
 
@@ -274,16 +268,8 @@ Comm::TcpAcceptor::acceptOne()
     const Comm::Flag flag = oldAccept();
 
     if (flag == Comm::COMM_ERROR) {
-        // A non-recoverable error; notify the caller */
-        debugs(5, 5, HERE << "non-recoverable error:" << status() << " handler Subscription: " << theCallSub);
-        if (intendedForUserConnections())
-            logAcceptError();
-        notify(flag);
-        mustStop("Listener socket closed");
-        return;
-    }
-
-    if (flag == Comm::NOMESSAGE) {
+        throw TextException(SBuf(status()), Here());
+    } else if (flag == Comm::NOMESSAGE) {
         /* register interest again */
         debugs(5, 5, "try later: " << conn << " handler Subscription: " << theCallSub);
     } else {
@@ -303,9 +289,20 @@ Comm::TcpAcceptor::acceptOne()
 void
 Comm::TcpAcceptor::acceptNext()
 {
-    Must(IsConnOpen(conn));
-    debugs(5, 2, HERE << "connection on " << conn);
-    acceptOne();
+    try {
+        Must(IsConnOpen(conn));
+        debugs(5, 2, "connection on " << conn);
+        acceptOne();
+    } catch (...) {
+        // A non-recoverable error; notify the caller
+        debugs(5, 5, "non-recoverable error:" << status() << " handler Subscription: " << theCallSub << " " << CurrentException);
+        if (intendedForUserConnections())
+            logAcceptError();
+        notify(Comm::COMM_ERROR);
+        if (IsConnOpen(clientXaction->tcpClient))
+            clientXaction->tcpClient->close();
+        mustStop("Listener socket closed");
+    }
 }
 
 void
@@ -385,20 +382,17 @@ Comm::TcpAcceptor::oldAccept()
     clientXaction->tcpClient->local.setEmpty();
     if (getsockname(sock, gai->ai_addr, &gai->ai_addrlen) != 0) {
         int xerrno = errno;
-        debugs(50, DBG_IMPORTANT, "ERROR: getsockname() failed to locate local-IP on " << clientXaction->tcpClient << ": " << xstrerr(xerrno));
         Ip::Address::FreeAddr(gai);
         PROF_stop(comm_accept);
-        return Comm::COMM_ERROR;
+        throw TextException(ToSBuf("getsockname() failed to locate local-IP on ", clientXaction->tcpClient, ": ", xstrerr(xerrno)), Here());
     }
     clientXaction->tcpClient->local = *gai;
     Ip::Address::FreeAddr(gai);
 
     // Perform NAT or TPROXY operations to retrieve the real client/dest IP addresses
     if (conn->flags&(COMM_TRANSPARENT|COMM_INTERCEPTION) && !Ip::Interceptor.Lookup(clientXaction->tcpClient, conn)) {
-        debugs(50, DBG_IMPORTANT, "ERROR: NAT/TPROXY lookup failed to locate original IPs on " << clientXaction->tcpClient);
-        // Failed.
         PROF_stop(comm_accept);
-        return Comm::COMM_ERROR;
+        throw TextException(ToSBuf("NAT/TPROXY lookup failed to locate original IPs on ", clientXaction->tcpClient), Here());
     }
 
 #if USE_SQUID_EUI
