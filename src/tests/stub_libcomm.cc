@@ -74,7 +74,7 @@ void comm_read_cancel(int fd, IOCB *callback, void *data) STUB
 void Comm::TcpAcceptor::subscribe(const Subscription::Pointer &aSub) STUB
 void Comm::TcpAcceptor::unsubscribe(const char *) STUB
 void Comm::TcpAcceptor::acceptNext() STUB
-void Comm::TcpAcceptor::notify(const Comm::Flag flag, const Comm::ConnectionPointer &) const STUB
+void Comm::TcpAcceptor::notify(const Comm::Flag flag) const STUB
 
 #include "comm/Write.h"
 void Comm::Write(const Comm::ConnectionPointer &, const char *, int, AsyncCall::Pointer &, FREE *) STUB

@@ -71,7 +71,7 @@ protected:
     void acceptNext();
 
     /// Call the subscribed callback handler with details about a new connection.
-    void notify(const Comm::Flag flag, const Comm::ConnectionPointer &details) const;
+    void notify(const Comm::Flag flag) const;
 
     /// errno code of the last accept() or listen() action if one occurred.
     int errcode;
