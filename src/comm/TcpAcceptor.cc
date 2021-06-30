@@ -243,16 +243,16 @@ Comm::TcpAcceptor::okToAccept()
 }
 
 void
-Comm::TcpAcceptor::logAcceptError(const ConnectionPointer &tcpClient) const
+Comm::TcpAcceptor::logAcceptError() const
 {
     AccessLogEntry::Pointer al = new AccessLogEntry;
     CodeContext::Reset(al);
-    al->tcpClient = tcpClient;
+    al->tcpClient = clientXaction->tcpClient;
     al->url = "error:accept-client-connection";
     al->setVirginUrlForMissingRequest(al->url);
     ACLFilledChecklist ch(nullptr, nullptr, nullptr);
-    ch.src_addr = tcpClient->remote;
-    ch.my_addr = tcpClient->local;
+    ch.src_addr = clientXaction->tcpClient->remote;
+    ch.my_addr = clientXaction->tcpClient->local;
     ch.al = al;
     accessLogLog(al, &ch);
 
@@ -277,7 +277,7 @@ Comm::TcpAcceptor::acceptOne()
         // A non-recoverable error; notify the caller */
         debugs(5, 5, HERE << "non-recoverable error:" << status() << " handler Subscription: " << theCallSub);
         if (intendedForUserConnections())
-            logAcceptError(clientXaction->tcpClient);
+            logAcceptError();
         notify(flag, clientXaction->tcpClient);
         mustStop("Listener socket closed");
         return;
