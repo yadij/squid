@@ -278,7 +278,7 @@ Comm::TcpAcceptor::acceptOne()
         debugs(5, 5, HERE << "non-recoverable error:" << status() << " handler Subscription: " << theCallSub);
         if (intendedForUserConnections())
             logAcceptError();
-        notify(flag, clientXaction->tcpClient);
+        notify(flag);
         mustStop("Listener socket closed");
         return;
     }
@@ -292,7 +292,7 @@ Comm::TcpAcceptor::acceptOne()
         debugs(5, 5, "Listener: " << conn <<
                " accepted new connection " << clientXaction->tcpClient <<
                " handler Subscription: " << theCallSub);
-        notify(flag, clientXaction->tcpClient);
+        notify(flag);
         CodeContext::Reset(listenPort_);
     }
 
@@ -309,7 +309,7 @@ Comm::TcpAcceptor::acceptNext()
 }
 
 void
-Comm::TcpAcceptor::notify(const Comm::Flag flag, const Comm::ConnectionPointer &newConnDetails) const
+Comm::TcpAcceptor::notify(const Comm::Flag flag) const
 {
     // listener socket handlers just abandon the port with Comm::ERR_CLOSING
     // it should only happen when this object is deleted...
@@ -321,8 +321,8 @@ Comm::TcpAcceptor::notify(const Comm::Flag flag, const Comm::ConnectionPointer &
         AsyncCall::Pointer call = theCallSub->callback();
         CommAcceptCbParams &params = GetCommParams<CommAcceptCbParams>(call);
         params.xaction = clientXaction;
-        params.fd = conn->fd;
-        params.conn = newConnDetails;
+        params.fd = clientXaction->tcpClient->fd;
+        params.conn = clientXaction->tcpClient;
         params.flag = flag;
         params.xerrno = errcode;
         ScheduleCallHere(call);
