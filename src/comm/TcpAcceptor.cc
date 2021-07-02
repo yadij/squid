@@ -208,13 +208,13 @@ Comm::TcpAcceptor::handleClosure(const CommCloseCbParams &)
 void
 Comm::TcpAcceptor::doAccept(int fd, void *data)
 {
-    debugs(5, 2, HERE << "New connection on FD " << fd);
-
     Must(isOpen(fd));
     TcpAcceptor *afd = static_cast<TcpAcceptor*>(data);
+    Must(fd == afd->conn->fd);
 
     if (!okToAccept()) {
         AcceptLimiter::Instance().defer(afd);
+        debugs(5, 2, "TCP client DEFER, " << afd->conn);
     } else {
         afd->acceptNext();
     }
@@ -271,13 +271,14 @@ Comm::TcpAcceptor::acceptOne()
         throw TextException(SBuf(status()), Here());
     } else if (flag == Comm::NOMESSAGE) {
         /* register interest again */
-        debugs(5, 5, "try later: " << conn << " handler Subscription: " << theCallSub);
+        debugs(5, 2, "TCP client NOMESSAGE, " << conn <<
+               Debug::Extra << "handler Subscription: " << theCallSub);
     } else {
         // TODO: When ALE, MasterXaction merge, use them or ClientConn instead.
         CodeContext::Reset(clientXaction->tcpClient);
-        debugs(5, 5, "Listener: " << conn <<
-               " accepted new connection " << clientXaction->tcpClient <<
-               " handler Subscription: " << theCallSub);
+        debugs(5, 2, "TCP client ACCEPT, " << conn <<
+               Debug::Extra << "accepted: " << clientXaction <<
+               Debug::Extra << "handler Subscription: " << theCallSub);
         notify(flag);
         CodeContext::Reset(listenPort_);
     }
@@ -291,11 +292,14 @@ Comm::TcpAcceptor::acceptNext()
 {
     try {
         Must(IsConnOpen(conn));
-        debugs(5, 2, "connection on " << conn);
         acceptOne();
+
     } catch (...) {
         // A non-recoverable error; notify the caller
-        debugs(5, 5, "non-recoverable error:" << status() << " handler Subscription: " << theCallSub << " " << CurrentException);
+        debugs(5, 2, "TCP client FATAL, " << conn <<
+               Debug::Extra << "status: " << status() <<
+               Debug::Extra << "handler Subscription: " << theCallSub <<
+               Debug::Extra << "exception: " << CurrentException);
         if (intendedForUserConnections())
             logAcceptError();
         notify(Comm::COMM_ERROR);
