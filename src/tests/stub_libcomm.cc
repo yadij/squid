@@ -15,8 +15,7 @@
 #include "comm/AcceptLimiter.h"
 Comm::AcceptLimiter dummy;
 Comm::AcceptLimiter & Comm::AcceptLimiter::Instance() STUB_RETVAL(dummy)
-void Comm::AcceptLimiter::defer(const Comm::TcpAcceptor::Pointer &afd) STUB
-void Comm::AcceptLimiter::removeDead(const Comm::TcpAcceptor::Pointer &afd) STUB
+void Comm::AcceptLimiter::defer(const AsyncCall::Pointer &) STUB
 void Comm::AcceptLimiter::kick() STUB
 
 #include "comm/Connection.h"
@@ -73,7 +72,7 @@ void comm_read_cancel(int fd, IOCB *callback, void *data) STUB
 //Comm::TcpAcceptor(const Comm::ConnectionPointer &conn, const char *note, const Subscription::Pointer &aSub) STUB
 void Comm::TcpAcceptor::subscribe(const Subscription::Pointer &aSub) STUB
 void Comm::TcpAcceptor::unsubscribe(const char *) STUB
-void Comm::TcpAcceptor::acceptNext() STUB
+void Comm::TcpAcceptor::acceptNext(const CommIoCbParams &) STUB
 void Comm::TcpAcceptor::notify(const Comm::Flag flag, const Comm::ConnectionPointer &) const STUB
 
 #include "comm/Write.h"
