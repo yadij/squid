@@ -254,8 +254,6 @@ Ftp::Server::AcceptCtrlConnection(const CommAcceptCbParams &params)
     debugs(33, 4, params.conn << ": accepted");
     fd_note(params.conn->fd, "client ftp connect");
 
-    ++incoming_sockets_accepted;
-
     AsyncJob::Start(new Server(xact));
 }
 
@@ -401,7 +399,6 @@ Ftp::Server::acceptDataConnection(const CommAcceptCbParams &params)
 
     debugs(33, 4, "accepted " << params.conn);
     fd_note(params.conn->fd, "passive client ftp data");
-    ++incoming_sockets_accepted;
 
     if (!clientConnection) {
         debugs(33, 5, "late data connection?");
