@@ -240,8 +240,8 @@ Ftp::Server::noteBodyConsumerAborted(BodyPipe::Pointer ptr)
 void
 Ftp::Server::AcceptCtrlConnection(const CommAcceptCbParams &params)
 {
-    MasterXaction::Pointer xact = params.xaction;
-    const AnyP::PortCfgPointer s = xact->squidPort;
+    auto xact = params.xaction;
+    const auto s = xact->squidPort;
 
     // NP: it is possible the port was reconfigured when the call or accept() was queued.
 
@@ -390,7 +390,7 @@ Ftp::Server::listenForDataConnection()
 void
 Ftp::Server::acceptDataConnection(const CommAcceptCbParams &params)
 {
-    MasterXaction::Pointer xact = params.xaction;
+    auto xact = params.xaction;
     // XXX: this DATA connection is a child TCP transaction of the FTP CTRL channel's transaction
 
     if (params.flag != Comm::OK) {
