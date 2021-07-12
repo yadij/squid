@@ -2343,8 +2343,8 @@ ConnStateData::acceptTls()
 void
 httpAccept(const CommAcceptCbParams &params)
 {
-    MasterXaction::Pointer xact = params.xaction;
-    const AnyP::PortCfgPointer s = xact->squidPort;
+    auto xact = params.xaction;
+    const auto s = xact->squidPort;
 
     // NP: it is possible the port was reconfigured when the call or accept() was queued.
 
@@ -2546,8 +2546,8 @@ httpsSslBumpAccessCheckDone(Acl::Answer answer, void *data)
 static void
 httpsAccept(const CommAcceptCbParams &params)
 {
-    MasterXaction::Pointer xact = params.xaction;
-    const AnyP::PortCfgPointer s = xact->squidPort;
+    auto xact = params.xaction;
+    const auto s = xact->squidPort;
 
     // NP: it is possible the port was reconfigured when the call or accept() was queued.
 
