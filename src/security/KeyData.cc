@@ -94,9 +94,8 @@ Security::KeyData::tryAddChainCa(const Security::CertPointer &ca)
     }
 #endif
 
-    CertPointer latestCert(chain.size() > 0 ? chain.front() : cert);
+    CertPointer latestCert(chain.empty() ? cert : chain.front());
 
-    // checks that the chained certs are actually part of a chain for validating cert
     if (CertIsIssuedBy(latestCert, ca)) {
         debugs(83, DBG_PARSE_NOTE(3), "Adding issuer CA: " << CertSubjectName(ca));
         // OpenSSL API requires that we order certificates such that the
@@ -232,4 +231,3 @@ Security::KeyData::loadFromFiles(const AnyP::PortCfg &port, const char *portType
         chain.clear();
     }
 }
-
