@@ -18,6 +18,7 @@
 #if USE_AUTH
 #include "auth/UserRequest.h"
 #endif
+#include "MasterXaction.h"
 #include "security/CertError.h"
 
 class CachePeer;
@@ -35,6 +36,8 @@ class ACLFilledChecklist: public ACLChecklist
 
 public:
     ACLFilledChecklist();
+    ACLFilledChecklist(const acl_access *, const MasterXaction::Pointer &);
+    /// \deprecated use MasterXaction based constructor instead
     ACLFilledChecklist(const acl_access *, HttpRequest *, const char *ident = nullptr);
     ~ACLFilledChecklist();
 
@@ -47,7 +50,7 @@ public:
     /// The client connection manager
     ConnStateData * conn() const;
 
-    /// The client side fd. It uses conn() if available
+    /// The client side fd. It uses xaction or conn() if available
     int fd() const;
 
     /// set either conn
@@ -70,6 +73,8 @@ public:
     virtual void verifyAle() const;
 
 public:
+    MasterXaction::Pointer xaction;
+
     Ip::Address src_addr;
     Ip::Address dst_addr;
     Ip::Address my_addr;

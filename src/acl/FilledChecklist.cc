@@ -49,6 +49,18 @@ ACLFilledChecklist::ACLFilledChecklist() :
     rfc931[0] = '\0';
 }
 
+ACLFilledChecklist::ACLFilledChecklist(const acl_access *A, const MasterXaction::Pointer &xact) :
+    ACLFilledChecklist()
+{
+    xaction = xact;
+    my_addr = xact->squidPort->s;
+    src_addr = xact->tcpClient->remote;
+    dst_addr = xact->tcpClient->remote;
+
+    changeAcl(A);
+    setIdent(xact->tcpClient->rfc931);
+}
+
 ACLFilledChecklist::~ACLFilledChecklist()
 {
     assert (!asyncInProgress());
@@ -85,6 +97,11 @@ ACLFilledChecklist::verifyAle() const
     // make sure the ALE fields used by Format::assemble to
     // fill the old external_acl_type codes are set if any
     // data on them exists in the Checklist
+
+    if (!al->cache.port && xaction && xaction->squidPort) {
+        showDebugWarning("listening port");
+        al->cache.port = xaction->squidPort;
+    }
 
     if (!al->cache.port && conn()) {
         showDebugWarning("listening port");
@@ -166,6 +183,10 @@ ACLFilledChecklist::setConn(ConnStateData *aConn)
 int
 ACLFilledChecklist::fd() const
 {
+    if (xaction && xaction->tcpClient)
+        return xaction->tcpClient->fd;
+
+    // deprecated data source
     const auto c = conn();
     return (c && c->clientConnection) ? c->clientConnection->fd : fd_;
 }
@@ -173,6 +194,12 @@ ACLFilledChecklist::fd() const
 void
 ACLFilledChecklist::fd(int aDescriptor)
 {
+    if (xaction && xaction->tcpClient) {
+        assert(xaction->tcpClient->fd == aDescriptor);
+        return; // no change
+    }
+
+    // deprecated logic
     const auto c = conn();
     assert(!c || !c->clientConnection || c->clientConnection->fd == aDescriptor);
     fd_ = aDescriptor;
