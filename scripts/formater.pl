@@ -33,6 +33,7 @@ use Getopt::Long;
 my $ASTYLE_BIN = "astyle";
 my $ASTYLE_ARGS ="--mode=c -s4 --convert-tabs --keep-one-line-blocks --lineend=linux";
 #$ASTYLE_ARGS="--mode=c -s4 -O --break-blocks -l";
+my $ASTYLE_CC_ARGS = "--break-return-type";
 
 Getopt::Long::Configure("require_order");
 GetOptions(
@@ -66,7 +67,12 @@ while($out){
     rename($out, $in);
 
     local (*FROM_ASTYLE, *TO_ASTYLE);
-    my $pid_style=open2(\*FROM_ASTYLE, \*TO_ASTYLE, $ASTYLE_BIN);
+    my $pid_style;
+    if ($out =~ /\.cc$|\.cci$|\.c$/) {
+        $pid_style = open2(\*FROM_ASTYLE, \*TO_ASTYLE, $ASTYLE_BIN." ".$ASTYLE_CC_ARGS);
+    } else {
+        $pid_style = open2(\*FROM_ASTYLE, \*TO_ASTYLE, $ASTYLE_BIN);
+    }
 
     if(!$pid_style){
         print "An error while running $ASTYLE_BIN\n";
