@@ -12,7 +12,8 @@
 #include "ipc/ReadWriteLock.h"
 #include "Store.h"
 
-void Ipc::AssertFlagIsSet(std::atomic_flag &flag)
+void
+Ipc::AssertFlagIsSet(std::atomic_flag &flag)
 {
     // If the flag was false, then we set it to true and assert. A true flag
     // may help keep other processes away from this broken entry.

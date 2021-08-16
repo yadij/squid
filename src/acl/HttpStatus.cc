@@ -37,7 +37,8 @@ acl_httpstatus_data::toStr() const
     return rv;
 }
 
-int acl_httpstatus_data::compare(acl_httpstatus_data* const& a, acl_httpstatus_data* const& b)
+int
+acl_httpstatus_data::compare(acl_httpstatus_data* const& a, acl_httpstatus_data* const& b)
 {
     int ret;
     ret = aclHTTPStatusCompare(b, a);
@@ -155,7 +156,8 @@ aclHTTPStatusCompare(acl_httpstatus_data * const &a, acl_httpstatus_data * const
 
 struct HttpStatusAclDumpVisitor {
     SBufList contents;
-    void operator() (const acl_httpstatus_data * node) {
+    void
+    operator() (const acl_httpstatus_data * node) {
         contents.push_back(node->toStr());
     }
 };

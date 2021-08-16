@@ -170,7 +170,8 @@ MemObject::dump() const
 struct LowestMemReader : public unary_function<store_client, void> {
     LowestMemReader(int64_t seed):current(seed) {}
 
-    void operator() (store_client const &x) {
+    void
+    operator() (store_client const &x) {
         if (x.memReaderHasLowerOffset(current))
             current = x.copyInto.offset;
     }
@@ -181,7 +182,8 @@ struct LowestMemReader : public unary_function<store_client, void> {
 struct StoreClientStats : public unary_function<store_client, void> {
     StoreClientStats(MemBuf *anEntry):where(anEntry),index(0) {}
 
-    void operator()(store_client const &x) {
+    void
+    operator()(store_client const &x) {
         x.dumpStats(where, index);
         ++index;
     }

@@ -32,7 +32,8 @@ Ipc::UdsOp::~UdsOp()
     conn_ = NULL;
 }
 
-void Ipc::UdsOp::setOptions(int newOptions)
+void
+Ipc::UdsOp::setOptions(int newOptions)
 {
     options = newOptions;
 }
@@ -51,7 +52,8 @@ Ipc::UdsOp::conn()
     return conn_;
 }
 
-void Ipc::UdsOp::setTimeout(int seconds, const char *handlerName)
+void
+Ipc::UdsOp::setTimeout(int seconds, const char *handlerName)
 {
     typedef CommCbMemFunT<UdsOp, CommTimeoutCbParams> Dialer;
     AsyncCall::Pointer handler = asyncCall(54,5, handlerName,
@@ -59,12 +61,14 @@ void Ipc::UdsOp::setTimeout(int seconds, const char *handlerName)
     commSetConnTimeout(conn(), seconds, handler);
 }
 
-void Ipc::UdsOp::clearTimeout()
+void
+Ipc::UdsOp::clearTimeout()
 {
     commUnsetConnTimeout(conn());
 }
 
-void Ipc::UdsOp::noteTimeout(const CommTimeoutCbParams &)
+void
+Ipc::UdsOp::noteTimeout(const CommTimeoutCbParams &)
 {
     timedout(); // our kid handles communication timeout
 }
@@ -93,7 +97,8 @@ Ipc::UdsSender::UdsSender(const String& pathAddr, const TypedMsgHdr& aMessage):
     message.address(address);
 }
 
-void Ipc::UdsSender::swanSong()
+void
+Ipc::UdsSender::swanSong()
 {
     // did we abort while waiting between retries?
     if (sleeping)
@@ -102,7 +107,8 @@ void Ipc::UdsSender::swanSong()
     UdsOp::swanSong();
 }
 
-void Ipc::UdsSender::start()
+void
+Ipc::UdsSender::start()
 {
     UdsOp::start();
     write();
@@ -110,12 +116,14 @@ void Ipc::UdsSender::start()
         setTimeout(timeout, "Ipc::UdsSender::noteTimeout");
 }
 
-bool Ipc::UdsSender::doneAll() const
+bool
+Ipc::UdsSender::doneAll() const
 {
     return !writing && !sleeping && UdsOp::doneAll();
 }
 
-void Ipc::UdsSender::write()
+void
+Ipc::UdsSender::write()
 {
     debugs(54, 5, HERE);
     typedef CommCbMemFunT<UdsSender, CommIoCbParams> Dialer;
@@ -125,7 +133,8 @@ void Ipc::UdsSender::write()
     writing = true;
 }
 
-void Ipc::UdsSender::wrote(const CommIoCbParams& params)
+void
+Ipc::UdsSender::wrote(const CommIoCbParams& params)
 {
     debugs(54, 5, HERE << params.conn << " flag " << params.flag << " retries " << retries << " [" << this << ']');
     writing = false;
@@ -137,7 +146,8 @@ void Ipc::UdsSender::wrote(const CommIoCbParams& params)
 }
 
 /// pause for a while before resending the message
-void Ipc::UdsSender::startSleep()
+void
+Ipc::UdsSender::startSleep()
 {
     Must(!sleeping);
     sleeping = true;
@@ -147,7 +157,8 @@ void Ipc::UdsSender::startSleep()
 }
 
 /// stop sleeping (or do nothing if we were not)
-void Ipc::UdsSender::cancelSleep()
+void
+Ipc::UdsSender::cancelSleep()
 {
     if (sleeping) {
         // Why not delete the event? See Comm::ConnOpener::cancelSleep().
@@ -157,7 +168,8 @@ void Ipc::UdsSender::cancelSleep()
 }
 
 /// legacy wrapper for Ipc::UdsSender::delayedRetry()
-void Ipc::UdsSender::DelayedRetry(void *data)
+void
+Ipc::UdsSender::DelayedRetry(void *data)
 {
     Pointer *ptr = static_cast<Pointer*>(data);
     assert(ptr);
@@ -170,7 +182,8 @@ void Ipc::UdsSender::DelayedRetry(void *data)
 }
 
 /// make another sending attempt after a pause
-void Ipc::UdsSender::delayedRetry()
+void
+Ipc::UdsSender::delayedRetry()
 {
     debugs(54, 5, HERE << sleeping);
     if (sleeping) {
@@ -179,13 +192,15 @@ void Ipc::UdsSender::delayedRetry()
     }
 }
 
-void Ipc::UdsSender::timedout()
+void
+Ipc::UdsSender::timedout()
 {
     debugs(54, 5, HERE);
     mustStop("timedout");
 }
 
-void Ipc::SendMessage(const String& toAddress, const TypedMsgHdr &message)
+void
+Ipc::SendMessage(const String& toAddress, const TypedMsgHdr &message)
 {
     AsyncJob::Start(new UdsSender(toAddress, message));
 }

@@ -34,7 +34,8 @@ namespace Acl {
 /// ACL type name comparison functor
 class TypeNameCmp {
 public:
-    bool operator()(TypeName a, TypeName b) const { return strcmp(a, b) < 0; }
+    bool
+    operator()(TypeName a, TypeName b) const { return strcmp(a, b) < 0; }
 };
 
 /// ACL makers indexed by ACL type name
@@ -112,7 +113,8 @@ ACL::ACL() :
     *name = 0;
 }
 
-bool ACL::valid () const
+bool
+ACL::valid () const
 {
     return true;
 }

@@ -38,7 +38,8 @@ Adaptation::Icap::Config::createService(const ServiceConfigPointer &cfg)
     return new Adaptation::Icap::ServiceRep(cfg);
 }
 
-time_t Adaptation::Icap::Config::connect_timeout(bool bypassable) const
+time_t
+Adaptation::Icap::Config::connect_timeout(bool bypassable) const
 {
     if (connect_timeout_raw > 0)
         return connect_timeout_raw; // explicitly configured
@@ -46,7 +47,8 @@ time_t Adaptation::Icap::Config::connect_timeout(bool bypassable) const
     return bypassable ? ::Config.Timeout.peer_connect : ::Config.Timeout.connect;
 }
 
-time_t Adaptation::Icap::Config::io_timeout(bool) const
+time_t
+Adaptation::Icap::Config::io_timeout(bool) const
 {
     if (io_timeout_raw > 0)
         return io_timeout_raw; // explicitly configured

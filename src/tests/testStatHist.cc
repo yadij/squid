@@ -21,7 +21,8 @@ class InspectingStatHist : public StatHist
 {
 public:
     bool operator==(const InspectingStatHist &);
-    bins_type counter(double v) {
+    bins_type
+    counter(double v) {
         return bins[findBin(v)];
     }
 };

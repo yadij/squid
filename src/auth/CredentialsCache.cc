@@ -21,24 +21,28 @@ namespace Auth {
 class CredentialCacheRr : public RegisteredRunner
 {
 public:
-    explicit CredentialCacheRr(const char *n, CredentialsCache * const c) :
+    explicit
+    CredentialCacheRr(const char *n, CredentialsCache * const c) :
         name(n),
         whichCache(c)
     {}
 
-    virtual ~CredentialCacheRr() {
+    virtual
+    ~CredentialCacheRr() {
         debugs(29, 5, "Terminating Auth credentials cache: " << name);
         // invalidate the CBDATA reference.
         // causes Auth::*::User::Cache() to produce nil / invalid pointer
         delete whichCache.get();
     }
 
-    virtual void endingShutdown() override {
+    virtual void
+    endingShutdown() override {
         debugs(29, 5, "Clearing Auth credentials cache: " << name);
         whichCache->reset();
     }
 
-    virtual void syncConfig() override {
+    virtual void
+    syncConfig() override {
         debugs(29, 5, "Reconfiguring Auth credentials cache: " << name);
         whichCache->doConfigChangeCleanup();
     }

@@ -112,13 +112,15 @@ class esiRemove : public ESIElement
 
 public:
     esiRemove() : ESIElement() {}
-    virtual ~esiRemove() {}
+    virtual
+    ~esiRemove() {}
 
     virtual void render(ESISegment::Pointer);
     virtual bool addElement (ESIElement::Pointer);
     virtual Pointer makeCacheable() const;
     virtual Pointer makeUsable(esiTreeParentPtr, ESIVarState &) const;
-    virtual void finish() {}
+    virtual void
+    finish() {}
 };
 
 class esiTry : public ESIElement
@@ -200,9 +202,11 @@ public:
     Pointer makeCacheable() const;
     Pointer makeUsable(esiTreeParentPtr, ESIVarState &) const;
 
-    bool testsTrue() const { return testValue;}
+    bool
+    testsTrue() const { return testValue;}
 
-    void setTestResult(bool aBool) {testValue = aBool;}
+    void
+    setTestResult(bool aBool) {testValue = aBool;}
 
 private:
     esiWhen (esiWhen const &);
@@ -218,19 +222,22 @@ struct esiOtherwise : public esiSequence {
 
 CBDATA_CLASS_INIT(ESIContext);
 
-void ESIContext::startRead()
+void
+ESIContext::startRead()
 {
     assert (!reading_);
     reading_ = true;
 }
 
-void ESIContext::finishRead()
+void
+ESIContext::finishRead()
 {
     assert (reading_);
     reading_ = false;
 }
 
-bool ESIContext::reading() const
+bool
+ESIContext::reading() const
 {
     return reading_;
 }

@@ -41,7 +41,8 @@ public:
         record_size = sizeof(UFSSwapLogParser_v1_32bs::StoreSwapLogDataOld);
     }
     /// Convert the on-disk 32-bit format to our current format while reading
-    bool ReadRecord(StoreSwapLogData &swapData) {
+    bool
+    ReadRecord(StoreSwapLogData &swapData) {
         UFSSwapLogParser_v1_32bs::StoreSwapLogDataOld readData;
         int bytes = sizeof(UFSSwapLogParser_v1_32bs::StoreSwapLogDataOld);
 
@@ -71,7 +72,8 @@ public:
     UFSSwapLogParser_v2(FILE *fp): Fs::Ufs::UFSSwapLogParser(fp) {
         record_size = sizeof(StoreSwapLogData);
     }
-    bool ReadRecord(StoreSwapLogData &swapData) {
+    bool
+    ReadRecord(StoreSwapLogData &swapData) {
         assert(log);
         return fread(&swapData, sizeof(StoreSwapLogData), 1, log) == 1;
     }

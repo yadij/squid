@@ -139,7 +139,8 @@ static long fqdncache_low = 180;
 static long fqdncache_high = 200;
 
 /// \ingroup FQDNCacheInternal
-inline int fqdncacheCount() { return fqdn_table ? fqdn_table->count : 0; }
+inline int
+fqdncacheCount() { return fqdn_table ? fqdn_table->count : 0; }
 
 int
 fqdncache_entry::age() const

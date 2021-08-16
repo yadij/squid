@@ -144,7 +144,8 @@ static struct pam_conv conv = {
     NULL
 };
 
-static void usage(char *program)
+static void
+usage(char *program)
 {
     fprintf(stderr, "Usage: %s [options..]\n", program);
     fprintf(stderr, " -n service_name\n");

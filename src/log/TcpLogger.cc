@@ -133,7 +133,8 @@ Log::TcpLogger::writeIfNeeded()
 }
 
 /// starts writing if possible
-void Log::TcpLogger::writeIfPossible()
+void
+Log::TcpLogger::writeIfPossible()
 {
     debugs(MY_DEBUG_SECTION, 7, "guards: " << (!writeScheduled) <<
            (bufferedSize > 0) << (conn != NULL) <<

@@ -119,7 +119,8 @@ ACLDomainData::match(char const *host)
 
 struct AclDomainDataDumpVisitor {
     SBufList contents;
-    void operator() (char * const & node_data) {
+    void
+    operator() (char * const & node_data) {
         contents.push_back(SBuf(node_data));
     }
 };

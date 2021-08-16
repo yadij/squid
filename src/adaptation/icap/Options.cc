@@ -60,29 +60,34 @@ Adaptation::Icap::Options::transferKind(const SBuf &urlPath) const
     return theTransfers.byDefault->kind;
 }
 
-bool Adaptation::Icap::Options::valid() const
+bool
+Adaptation::Icap::Options::valid() const
 {
     return !error;
 }
 
-bool Adaptation::Icap::Options::fresh() const
+bool
+Adaptation::Icap::Options::fresh() const
 {
     return squid_curtime <= expire();
 }
 
-int Adaptation::Icap::Options::ttl() const
+int
+Adaptation::Icap::Options::ttl() const
 {
     Must(valid());
     return theTTL >= 0 ? theTTL : TheConfig.default_options_ttl;
 }
 
-time_t Adaptation::Icap::Options::expire() const
+time_t
+Adaptation::Icap::Options::expire() const
 {
     Must(valid());
     return theTimestamp + ttl();
 }
 
-void Adaptation::Icap::Options::configure(const HttpReply *reply)
+void
+Adaptation::Icap::Options::configure(const HttpReply *reply)
 {
     error = NULL; // reset initial "unconfigured" value (or an old error?)
 
@@ -135,14 +140,16 @@ void Adaptation::Icap::Options::configure(const HttpReply *reply)
     cfgTransferList(h, theTransfers.complete);
 }
 
-void Adaptation::Icap::Options::cfgMethod(ICAP::Method m)
+void
+Adaptation::Icap::Options::cfgMethod(ICAP::Method m)
 {
     Must(m != ICAP::methodNone);
     methods.push_back(m);
 }
 
 // TODO: HttpHeader should provide a general method for this type of conversion
-void Adaptation::Icap::Options::cfgIntHeader(const HttpHeader *h, const char *fname, int &value)
+void
+Adaptation::Icap::Options::cfgIntHeader(const HttpHeader *h, const char *fname, int &value)
 {
     const String s = h->getByName(fname);
 
@@ -154,7 +161,8 @@ void Adaptation::Icap::Options::cfgIntHeader(const HttpHeader *h, const char *fn
     debugs(93,5, HERE << "int header: " << fname << ": " << value);
 }
 
-void Adaptation::Icap::Options::cfgTransferList(const HttpHeader *h, TransferList &list)
+void
+Adaptation::Icap::Options::cfgTransferList(const HttpHeader *h, TransferList &list)
 {
     const String buf = h->getByName(list.name);
     bool foundStar = false;
@@ -180,12 +188,14 @@ Adaptation::Icap::Options::TransferList::~TransferList()
     wordlistDestroy(&extensions);
 };
 
-void Adaptation::Icap::Options::TransferList::add(const char *extension)
+void
+Adaptation::Icap::Options::TransferList::add(const char *extension)
 {
     wordlistAdd(&extensions, extension);
 };
 
-bool Adaptation::Icap::Options::TransferList::matches(const SBuf &urlPath) const
+bool
+Adaptation::Icap::Options::TransferList::matches(const SBuf &urlPath) const
 {
     const SBuf::size_type urlLen = urlPath.length();
     for (wordlist *e = extensions; e; e = e->next) {
@@ -206,7 +216,8 @@ bool Adaptation::Icap::Options::TransferList::matches(const SBuf &urlPath) const
     return false;
 }
 
-void Adaptation::Icap::Options::TransferList::parse(const String &buf, bool &foundStar)
+void
+Adaptation::Icap::Options::TransferList::parse(const String &buf, bool &foundStar)
 {
     foundStar = false;
 
@@ -224,7 +235,8 @@ void Adaptation::Icap::Options::TransferList::parse(const String &buf, bool &fou
     }
 }
 
-void Adaptation::Icap::Options::TransferList::report(int level, const char *prefix) const
+void
+Adaptation::Icap::Options::TransferList::report(int level, const char *prefix) const
 {
     if (extensions) {
         for (wordlist *e = extensions; e; e = e->next)

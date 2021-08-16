@@ -15,7 +15,8 @@
 
 int DebugSignal = -1;
 SBuf service_name(APP_SHORTNAME);
-void releaseServerSockets(void) STUB_NOP
+void
+releaseServerSockets(void) STUB_NOP
 void dumpMallocStats(void) STUB
 void squid_getrusage(struct rusage *) STUB
 double rusage_cputime(struct rusage *) STUB_RETVAL(0)

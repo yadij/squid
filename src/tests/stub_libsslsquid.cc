@@ -34,12 +34,14 @@ Ssl::Config Ssl::TheConfig;
 
 #include "ssl/context_storage.h"
 //Ssl::CertificateStorageAction::CertificateStorageAction(const Mgr::Command::Pointer &) STUB
-Ssl::CertificateStorageAction::Pointer Ssl::CertificateStorageAction::Create(const Mgr::Command::Pointer &) STUB_RETSTATREF(Ssl::CertificateStorageAction::Pointer)
+Ssl::CertificateStorageAction::Pointer
+Ssl::CertificateStorageAction::Create(const Mgr::Command::Pointer &) STUB_RETSTATREF(Ssl::CertificateStorageAction::Pointer)
 void Ssl::CertificateStorageAction::dump(StoreEntry *) STUB
 void Ssl::GlobalContextStorage::addLocalStorage(Ip::Address const &, size_t ) STUB
 Ssl::LocalContextStorage *Ssl::GlobalContextStorage::getLocalStorage(Ip::Address const &)
 { fatal(STUB_API " required"); static LocalContextStorage v(0); return &v; }
-void Ssl::GlobalContextStorage::reconfigureStart() STUB
+void
+Ssl::GlobalContextStorage::reconfigureStart() STUB
 //Ssl::GlobalContextStorage Ssl::TheGlobalContextStorage;
 
 #include "ssl/ErrorDetail.h"
@@ -54,7 +56,8 @@ void ConfigurePeerVerification(Security::ContextPointer &, const Security::Parse
 void DisablePeerVerification(Security::ContextPointer &) STUB
 void MaybeSetupRsaCallback(Security::ContextPointer &) STUB
 } // namespace Ssl
-const char *sslGetUserEmail(SSL *) STUB_RETVAL(nullptr)
+const char *
+sslGetUserEmail(SSL *) STUB_RETVAL(nullptr)
 const char *sslGetUserAttribute(SSL *, const char *) STUB_RETVAL(nullptr)
 const char *sslGetCAAttribute(SSL *, const char *) STUB_RETVAL(nullptr)
 SBuf sslGetUserCertificatePEM(SSL *) STUB_RETVAL(SBuf())

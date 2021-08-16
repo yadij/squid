@@ -20,7 +20,8 @@
 /// This is the full chain built by OpenSSL while verifying the server
 /// certificate or, if this is not available, the chain sent by server.
 /// \return the certificates chain or nil
-static STACK_OF(X509) *
+static
+STACK_OF(X509) *
 PeerValidationCertificatesChain(const Security::SessionPointer &ssl)
 {
     assert(ssl);

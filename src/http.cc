@@ -2626,7 +2626,8 @@ HttpStateData::ReuseDecision::make(const HttpStateData::ReuseDecision::Answers a
     return answer;
 }
 
-std::ostream &operator <<(std::ostream &os, const HttpStateData::ReuseDecision &d)
+std::ostream &
+operator <<(std::ostream &os, const HttpStateData::ReuseDecision &d)
 {
     static const char *ReuseMessages[] = {
         "do not cache and do not share", // reuseNot

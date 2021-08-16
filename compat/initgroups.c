@@ -25,7 +25,8 @@
 #include <limits.h>
 #endif
 
-int initgroups(const char *name, gid_t basegid)
+int
+initgroups(const char *name, gid_t basegid)
 {
 #if HAVE_SETGROUPS
 #ifndef NGROUPS_MAX

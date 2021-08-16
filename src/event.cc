@@ -38,7 +38,8 @@ public:
     virtual void print(std::ostream &os) const;
     virtual bool canDial(AsyncCall &call);
 
-    void dial(AsyncCall &) { theHandler(theArg); }
+    void
+    dial(AsyncCall &) { theHandler(theArg); }
 
 private:
     EVH *theHandler;

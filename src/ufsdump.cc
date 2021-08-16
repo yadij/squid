@@ -31,7 +31,8 @@ eventAdd(const char *name, EVH * func, void *arg, double when, int, bool cbdata)
 
 // required by storeKeyPublicByRequest*
 // XXX: what pulls in storeKeyPublicByRequest?
-const char *urlCanonical(HttpRequest *) { assert(false); return NULL; }
+const char *
+urlCanonical(HttpRequest *) { assert(false); return NULL; }
 
 void
 storeAppendPrintf(StoreEntry * e, const char *fmt,...)
@@ -87,7 +88,8 @@ struct MetaStdLfs {
 struct DumpStoreMeta : public unary_function<StoreMeta, void> {
     DumpStoreMeta() {}
 
-    void operator()(StoreMeta const &x) {
+    void
+    operator()(StoreMeta const &x) {
         switch (x.getType()) {
 
         case STORE_META_KEY:

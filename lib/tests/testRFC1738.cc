@@ -18,7 +18,8 @@
 CPPUNIT_TEST_SUITE_REGISTRATION( testRFC1738 );
 
 /* Regular Format de-coding tests */
-void testRFC1738::testUrlDecode()
+void
+testRFC1738::testUrlDecode()
 {
     char *unescaped_str;
 
@@ -87,7 +88,8 @@ void testRFC1738::testUrlDecode()
  * rfc1738_escape_unescaped == -1
  * rfc1738_escape_part == 1
  */
-void testRFC1738::testUrlEncode()
+void
+testRFC1738::testUrlEncode()
 {
     char *result;
 
@@ -124,7 +126,8 @@ void testRFC1738::testUrlEncode()
 }
 
 /** SECURITY BUG TESTS: avoid null truncation attacks by skipping %00 bytes */
-void testRFC1738::PercentZeroNullDecoding()
+void
+testRFC1738::PercentZeroNullDecoding()
 {
     char *unescaped_str;
 

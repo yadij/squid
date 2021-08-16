@@ -99,7 +99,8 @@ static SslErrorAlias TheSslErrorShortcutsArray[] = {
 typedef std::map<std::string, const Security::ErrorCode *> SslErrorShortcuts;
 SslErrorShortcuts TheSslErrorShortcuts;
 
-static void loadSslErrorShortcutsMap()
+static void
+loadSslErrorShortcutsMap()
 {
     assert(TheSslErrorShortcuts.empty());
     for (int i = 0; TheSslErrorShortcutsArray[i].name; ++i)

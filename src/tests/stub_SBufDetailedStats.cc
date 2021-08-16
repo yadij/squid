@@ -16,8 +16,10 @@
 
 static StatHist s;
 
-void recordSBufSizeAtDestruct(SBuf::size_type) {} // STUB_NOP
-StatHist &collectSBufDestructTimeStats() STUB_RETVAL(s)
+void
+recordSBufSizeAtDestruct(SBuf::size_type) {} // STUB_NOP
+StatHist &
+collectSBufDestructTimeStats() STUB_RETVAL(s)
 void recordMemBlobSizeAtDestruct(SBuf::size_type) {} // STUB_NOP
 StatHist &collectMemBlobDestructTimeStats() STUB_RETVAL(s)
 

@@ -57,7 +57,8 @@ icapLogRotate()
     }
 }
 
-void icapLogLog(AccessLogEntry::Pointer &al)
+void
+icapLogLog(AccessLogEntry::Pointer &al)
 {
     if (IcapLogfileStatus == LOG_ENABLE) {
         ACLFilledChecklist checklist(NULL, al->adapted_request, NULL);

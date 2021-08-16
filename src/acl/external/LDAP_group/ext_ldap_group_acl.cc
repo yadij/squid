@@ -695,7 +695,8 @@ build_searchbase(const char *extension_dn, const char *base_dn)
     return searchBaseStream.str();
 }
 
-static bool ldap_search_ok(const int result)
+static bool
+ldap_search_ok(const int result)
 {
     if (result == LDAP_SUCCESS)
         return true;

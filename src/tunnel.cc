@@ -93,12 +93,14 @@ public:
     HttpRequest::Pointer request;
     AccessLogEntryPointer al;
 
-    const char * getHost() const {
+    const char *
+    getHost() const {
         return (server.conn != NULL && server.conn->getPeer() ? server.conn->getPeer()->host : request->url.host());
     };
 
     /// Whether the client sent a CONNECT request to us.
-    bool clientExpectsConnectResponse() const {
+    bool
+    clientExpectsConnectResponse() const {
         // If we are forcing a tunnel after receiving a client CONNECT, then we
         // have already responded to that CONNECT before tunnel.cc started.
         if (request && request->flags.forceTunnel)
@@ -215,7 +217,8 @@ public:
 
     /// whether we are waiting for HappyConnOpener
     /// same as calls.connector but may differ from connOpener.valid()
-    bool opening() const { return connOpener.set(); }
+    bool
+    opening() const { return connOpener.set(); }
 
     void cancelOpening(const char *reason);
 
@@ -238,14 +241,18 @@ private:
             method_(method), tunnel_(tunnel), answer_() {}
 
         /* CallDialer API */
-        virtual bool canDial(AsyncCall &) { return tunnel_.valid(); }
-        void dial(AsyncCall &) { ((&(*tunnel_))->*method_)(answer_); }
-        virtual void print(std::ostream &os) const {
+        virtual bool
+        canDial(AsyncCall &) { return tunnel_.valid(); }
+        void
+        dial(AsyncCall &) { ((&(*tunnel_))->*method_)(answer_); }
+        virtual void
+        print(std::ostream &os) const {
             os << '(' << tunnel_.get() << ", " << answer_ << ')';
         }
 
         /* Security::PeerConnector::CbDialer API */
-        virtual Security::EncryptorAnswer &answer() { return answer_; }
+        virtual Security::EncryptorAnswer &
+        answer() { return answer_; }
 
     private:
         Method method_;

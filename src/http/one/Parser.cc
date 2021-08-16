@@ -17,7 +17,8 @@
 /// RFC 7230 section 2.6 - 7 magic octets
 const SBuf Http::One::Parser::Http1magic("HTTP/1.");
 
-const SBuf &Http::One::CrLf()
+const SBuf &
+Http::One::CrLf()
 {
     static const SBuf crlf("\r\n");
     return crlf;

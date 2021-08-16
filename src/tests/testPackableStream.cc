@@ -20,7 +20,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION( testPackableStream );
 
 /* init memory pools */
 
-void testPackableStream::setUp()
+void
+testPackableStream::setUp()
 {
     Mem::Init();
 }

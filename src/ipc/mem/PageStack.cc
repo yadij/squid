@@ -59,7 +59,8 @@ public:
     IdSetPosition(size_type aLevel, size_type anOffset);
 
     /// whether we are at the top of the tree
-    bool atRoot() const { return !level && !offset; }
+    bool
+    atRoot() const { return !level && !offset; }
 
     /// which direction is this position from our parent node
     IdSetNavigationDirection ascendDirection() const;
@@ -84,7 +85,8 @@ public:
     IdSetInnerNode(size_type left, size_type right);
 
     /// returns a serializes value suitable for shared memory storage
-    Packed pack() const { return (static_cast<Packed>(left) << 32) | right; }
+    Packed
+    pack() const { return (static_cast<Packed>(left) << 32) | right; }
 
     size_type left = 0; ///< the number of available IDs in the left subtree
     size_type right = 0; ///< the number of available IDs in the right subtree
@@ -305,7 +307,8 @@ Ipc::Mem::IdSet::leafPush(const Position pos, const size_type id)
 // single TZCNT assembly instruction on modern CPUs.
 /// a temporary C++20 countr_zero() replacement
 static inline
-int trailingZeros(uint64_t x)
+int
+trailingZeros(uint64_t x)
 {
     if (!x)
         return 64;

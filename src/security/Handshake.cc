@@ -77,7 +77,8 @@ class Alert
 public:
     explicit Alert(Parser::BinaryTokenizer &tk);
 
-    bool fatal() const { return level == 2; }
+    bool
+    fatal() const { return level == 2; }
 
     uint8_t level; ///< warning or fatal
     uint8_t description; ///< close_notify, unexpected_message, etc.

@@ -18,11 +18,14 @@ class NamedErrorDetail: public ErrorDetail
 public:
     // convert from c-string to SBuf to simplify creation and optimize usage
     /// \param aName must not contain characters that require quoting in access logs or HTML
-    explicit NamedErrorDetail(const char *aName): name(aName) {}
+    explicit
+    NamedErrorDetail(const char *aName): name(aName) {}
 
     /* ErrorDetail API */
-    virtual SBuf brief() const override { return name; }
-    virtual SBuf verbose(const HttpRequestPointer &) const override { return name; }
+    virtual SBuf
+    brief() const override { return name; }
+    virtual SBuf
+    verbose(const HttpRequestPointer &) const override { return name; }
 
 private:
     /// distinguishes us from all other NamedErrorDetail objects

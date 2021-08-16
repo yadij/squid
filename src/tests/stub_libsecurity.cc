@@ -25,7 +25,8 @@ void BlindPeerConnector::noteNegotiationDone(ErrorState *) STUB
 
 #include "security/EncryptorAnswer.h"
 Security::EncryptorAnswer::~EncryptorAnswer() {}
-std::ostream &Security::operator <<(std::ostream &os, const Security::EncryptorAnswer &) STUB_RETVAL(os)
+std::ostream &
+Security::operator <<(std::ostream &os, const Security::EncryptorAnswer &) STUB_RETVAL(os)
 
 #include "security/Handshake.h"
 Security::HandshakeParser::HandshakeParser(MessageSource) STUB
@@ -43,7 +44,8 @@ void KeyData::loadFromFiles(const AnyP::PortCfg &, const char *) STUB
 }
 
 #include "security/KeyLogger.h"
-void Security::KeyLogger::maybeLog(const Connection &, const Acl::ChecklistFiller &) STUB
+void
+Security::KeyLogger::maybeLog(const Connection &, const Acl::ChecklistFiller &) STUB
 
 #include "security/ErrorDetail.h"
 Security::ErrorDetail::ErrorDetail(ErrorCode, const CertPointer &, const CertPointer &, const char *) STUB
@@ -118,7 +120,8 @@ void parse_securePeerOptions(Security::PeerOptions *) STUB
 #include "security/ServerOptions.h"
 //Security::ServerOptions::ServerOptions(const Security::ServerOptions &) STUB
 Security::ServerOptions &Security::ServerOptions::operator=(Security::ServerOptions const&) STUB_RETVAL(*this);
-void Security::ServerOptions::parse(const char *) STUB
+void
+Security::ServerOptions::parse(const char *) STUB
 void Security::ServerOptions::dumpCfg(Packable *, const char *) const STUB
 Security::ContextPointer Security::ServerOptions::createBlankContext() const STUB_RETVAL(Security::ContextPointer())
 void Security::ServerOptions::initServerContexts(AnyP::PortCfg&) STUB

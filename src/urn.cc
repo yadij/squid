@@ -35,7 +35,8 @@ class UrnState : public StoreClient
     CBDATA_CLASS(UrnState);
 
 public:
-    explicit UrnState(const AccessLogEntry::Pointer &anAle): ale(anAle) {}
+    explicit
+    UrnState(const AccessLogEntry::Pointer &anAle): ale(anAle) {}
 
     void start (HttpRequest *, StoreEntry *);
     void setUriResFromRequest(HttpRequest *);
@@ -54,7 +55,8 @@ public:
 
 private:
     /* StoreClient API */
-    virtual LogTags *loggingTags() const { return ale ? &ale->cache.code : nullptr; }
+    virtual LogTags *
+    loggingTags() const { return ale ? &ale->cache.code : nullptr; }
     virtual void fillChecklist(ACLFilledChecklist &) const;
 
     char *urlres = nullptr;

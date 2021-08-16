@@ -27,7 +27,8 @@ Adaptation::Service::finalize()
 {
 }
 
-bool Adaptation::Service::broken() const
+bool
+Adaptation::Service::broken() const
 {
     return probed() && !up();
 }
@@ -75,7 +76,8 @@ Adaptation::FindService(const Service::Id& key)
     return NULL;
 }
 
-void Adaptation::DetachServices()
+void
+Adaptation::DetachServices()
 {
     while (!AllServices().empty()) {
         AllServices().back()->detach();

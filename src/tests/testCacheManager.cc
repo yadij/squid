@@ -22,12 +22,14 @@ CPPUNIT_TEST_SUITE_REGISTRATION( testCacheManager );
 class CacheManagerInternals : public CacheManager
 {
 public:
-    void ParseUrl(const AnyP::Uri &u) { CacheManager::ParseUrl(u); }
+    void
+    ParseUrl(const AnyP::Uri &u) { CacheManager::ParseUrl(u); }
 };
 
 /* init memory pools */
 
-void testCacheManager::setUp()
+void
+testCacheManager::setUp()
 {
     Mem::Init();
     AnyP::UriScheme::Init();

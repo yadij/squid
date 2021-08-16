@@ -105,7 +105,8 @@ MmappedFile::create(int flags, mode_t mode, RefCount<IORequestor> callback)
     open(flags, mode, callback);
 }
 
-void MmappedFile::doClose()
+void
+MmappedFile::doClose()
 {
     if (fd >= 0) {
         file_close(fd);

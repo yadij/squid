@@ -32,7 +32,8 @@
 static unsigned char itoa64[] = /* 0 ... 63 => ascii - 64 */
     "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-static void md5to64(char *s, unsigned long v, int n)
+static void
+md5to64(char *s, unsigned long v, int n)
 {
     while (--n >= 0) {
         *s = itoa64[v & 0x3f];
@@ -51,7 +52,8 @@ static void md5to64(char *s, unsigned long v, int n)
  * If not the normal UNIX magic $1$ is used.
  */
 
-char *crypt_md5(const char *pw, const char *salt)
+char *
+crypt_md5(const char *pw, const char *salt)
 {
     const char *magic = "$1$";
     int magiclen = 3;
@@ -180,7 +182,8 @@ char *crypt_md5(const char *pw, const char *salt)
 /* Created by Ramon de Carvalho <ramondecarvalho@yahoo.com.br>
    Refined by Rodrigo Rubira Branco <rodrigo@kernelhacking.com>
 */
-char *md5sum(const char *s)
+char *
+md5sum(const char *s)
 {
     static unsigned char digest[16];
     SquidMD5_CTX ctx;

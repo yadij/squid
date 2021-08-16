@@ -14,11 +14,13 @@
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testConfigParser);
 
-void testConfigParser::setUp()
+void
+testConfigParser::setUp()
 {
 }
 
-bool testConfigParser::doParseQuotedTest(const char *s, const char *expectInterp)
+bool
+testConfigParser::doParseQuotedTest(const char *s, const char *expectInterp)
 {
     char cfgline[2048];
     char cfgparam[2048];
@@ -52,7 +54,8 @@ bool testConfigParser::doParseQuotedTest(const char *s, const char *expectInterp
     return quotedOk && interpOk ;
 }
 
-void testConfigParser::testParseQuoted()
+void
+testConfigParser::testParseQuoted()
 {
     // SingleToken
     CPPUNIT_ASSERT_EQUAL(true, doParseQuotedTest("SingleToken", "SingleToken"));

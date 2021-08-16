@@ -67,11 +67,13 @@ HeaderLookupTable_t::HeaderLookupTable_t() {STUB_NOP}
 const HeaderTableRecord& HeaderLookupTable_t::lookup(const char *, const std::size_t) const STUB_RETVAL(BadHdr)
 const HeaderLookupTable_t HeaderLookupTable;
 }
-std::ostream &operator<< (std::ostream&os, Http::HdrType) STUB_RETVAL(os)
+std::ostream &
+operator<< (std::ostream&os, Http::HdrType) STUB_RETVAL(os)
 
 #include "http/RequestMethod.h"
 HttpRequestMethod::HttpRequestMethod(const SBuf &) {STUB}
-void HttpRequestMethod::HttpRequestMethodXXX(char const *) STUB
+void
+HttpRequestMethod::HttpRequestMethodXXX(char const *) STUB
 const SBuf &HttpRequestMethod::image() const STUB_RETVAL(theImage)
 bool HttpRequestMethod::isHttpSafe() const STUB_RETVAL(false)
 bool HttpRequestMethod::isIdempotent() const STUB_RETVAL(false)

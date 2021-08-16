@@ -67,7 +67,8 @@ char util_sccsid[] =
 /*
  *  Check for valid IP address in standard dot notation.
  */
-static int good_ipaddr(char *addr)
+static int
+good_ipaddr(char *addr)
 {
     int dot_count;
     int digit_count;
@@ -99,7 +100,8 @@ static int good_ipaddr(char *addr)
  *  Return an IP address in host long notation from
  *  one supplied in standard dot notation.
  */
-static uint32_t ipstr2long(char *ip_str)
+static uint32_t
+ipstr2long(char *ip_str)
 {
     char    buf[6];
     char    *ptr;
@@ -140,7 +142,8 @@ static uint32_t ipstr2long(char *ip_str)
  *  Return an IP address in host long notation from a host
  *  name or address in dot notation.
  */
-uint32_t get_ipaddr(char *host)
+uint32_t
+get_ipaddr(char *host)
 {
     struct hostent  *hp;
 

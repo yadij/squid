@@ -28,7 +28,8 @@ class RecordingEngine : public AsyncEngine
 public:
     RecordingEngine(int aTimeout = 0) : return_timeout(aTimeout) {}
 
-    virtual int checkEvents(int timeout) {
+    virtual int
+    checkEvents(int timeout) {
         ++calls;
         lasttimeout = timeout;
         return return_timeout;
@@ -133,7 +134,8 @@ public:
     StubTime() : calls(0) {}
 
     int calls;
-    void tick() {
+    void
+    tick() {
         ++calls;
     }
 };

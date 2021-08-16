@@ -47,7 +47,8 @@ Adaptation::ServiceFilter::~ServiceFilter()
     HTTPMSGUNLOCK(reply);
 }
 
-Adaptation::ServiceFilter &Adaptation::ServiceFilter::operator =(const ServiceFilter &f)
+Adaptation::ServiceFilter &
+Adaptation::ServiceFilter::operator =(const ServiceFilter &f)
 {
     if (this != &f) {
         method = f.method;

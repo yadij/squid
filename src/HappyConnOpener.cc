@@ -70,7 +70,8 @@ protected:
     virtual bool readyNow(const HappyConnOpener &) const = 0;
     virtual AsyncCall::Pointer notify(const CbcPointer<HappyConnOpener> &) = 0;
 
-    bool waiting() const { return waitEnd_ > 0; }
+    bool
+    waiting() const { return waitEnd_ > 0; }
     bool startedWaiting(const HappyAbsoluteTime lastStart, const int cfgTimeoutMsec) const;
 
 private:
@@ -81,7 +82,8 @@ private:
     mutable HappyAbsoluteTime waitEnd_ = 0; ///< expected NoteWaitOver() call time (or zero)
 };
 
-std::ostream &operator <<(std::ostream &os, const HappyConnOpenerAnswer &answer)
+std::ostream &
+operator <<(std::ostream &os, const HappyConnOpenerAnswer &answer)
 {
     if (answer.error.set())
         os << "bad ";

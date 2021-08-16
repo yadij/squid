@@ -92,7 +92,8 @@ Adaptation::Icap::ServiceRep::finalize()
                                  TheConfig.oldest_service_failure : -1);
 }
 
-void Adaptation::Icap::ServiceRep::noteFailure()
+void
+Adaptation::Icap::ServiceRep::noteFailure()
 {
     const int failures = theSessionFailures.count(1);
     debugs(93,4, HERE << " failure " << failures << " out of " <<
@@ -144,7 +145,8 @@ Adaptation::Icap::ServiceRep::getConnection(bool retriableXact, bool &reused)
 }
 
 // pools connection if it is reusable or closes it
-void Adaptation::Icap::ServiceRep::putConnection(const Comm::ConnectionPointer &conn, bool isReusable, bool sendReset, const char *comment)
+void
+Adaptation::Icap::ServiceRep::putConnection(const Comm::ConnectionPointer &conn, bool isReusable, bool sendReset, const char *comment)
 {
     Must(Comm::IsConnOpen(conn));
     // do not pool an idle connection if we owe connections
@@ -170,19 +172,22 @@ void Adaptation::Icap::ServiceRep::putConnection(const Comm::ConnectionPointer &
 }
 
 // a wrapper to avoid exposing theIdleConns
-void Adaptation::Icap::ServiceRep::noteConnectionUse(const Comm::ConnectionPointer &conn)
+void
+Adaptation::Icap::ServiceRep::noteConnectionUse(const Comm::ConnectionPointer &conn)
 {
     Must(Comm::IsConnOpen(conn));
     fd_table[conn->fd].noteUse(); // pconn re-use, albeit not via PconnPool API
 }
 
-void Adaptation::Icap::ServiceRep::noteConnectionFailed(const char *comment)
+void
+Adaptation::Icap::ServiceRep::noteConnectionFailed(const char *comment)
 {
     debugs(93, 3, HERE << "Connection failed: " << comment);
     --theBusyConns;
 }
 
-void Adaptation::Icap::ServiceRep::setMaxConnections()
+void
+Adaptation::Icap::ServiceRep::setMaxConnections()
 {
     if (cfg().maxConn >= 0)
         theMaxConnections = cfg().maxConn;
@@ -197,7 +202,8 @@ void Adaptation::Icap::ServiceRep::setMaxConnections()
         theMaxConnections /= ::Config.workers;
 }
 
-int Adaptation::Icap::ServiceRep::availableConnections() const
+int
+Adaptation::Icap::ServiceRep::availableConnections() const
 {
     if (theMaxConnections < 0)
         return -1;
@@ -221,7 +227,8 @@ int Adaptation::Icap::ServiceRep::availableConnections() const
 }
 
 // The number of connections which excess the Max-Connections limit
-int Adaptation::Icap::ServiceRep::excessConnections() const
+int
+Adaptation::Icap::ServiceRep::excessConnections() const
 {
     if (theMaxConnections < 0)
         return 0;
@@ -236,7 +243,8 @@ int Adaptation::Icap::ServiceRep::excessConnections() const
         return 0;
 }
 
-void Adaptation::Icap::ServiceRep::noteGoneWaiter()
+void
+Adaptation::Icap::ServiceRep::noteGoneWaiter()
 {
     --theAllWaiters;
 
@@ -245,7 +253,8 @@ void Adaptation::Icap::ServiceRep::noteGoneWaiter()
 }
 
 // called when a connection slot may become available
-void Adaptation::Icap::ServiceRep::busyCheckpoint()
+void
+Adaptation::Icap::ServiceRep::busyCheckpoint()
 {
     if (theNotificationWaiters.empty()) // nobody is waiting for a slot
         return;
@@ -277,7 +286,8 @@ void Adaptation::Icap::ServiceRep::busyCheckpoint()
     }
 }
 
-void Adaptation::Icap::ServiceRep::suspend(const char *reason)
+void
+Adaptation::Icap::ServiceRep::suspend(const char *reason)
 {
     if (isSuspended) {
         debugs(93,4, HERE << "keeping suspended, also for " << reason);
@@ -289,22 +299,26 @@ void Adaptation::Icap::ServiceRep::suspend(const char *reason)
     }
 }
 
-bool Adaptation::Icap::ServiceRep::probed() const
+bool
+Adaptation::Icap::ServiceRep::probed() const
 {
     return theLastUpdate != 0;
 }
 
-bool Adaptation::Icap::ServiceRep::hasOptions() const
+bool
+Adaptation::Icap::ServiceRep::hasOptions() const
 {
     return theOptions && theOptions->valid() && theOptions->fresh();
 }
 
-bool Adaptation::Icap::ServiceRep::up() const
+bool
+Adaptation::Icap::ServiceRep::up() const
 {
     return !isSuspended && hasOptions();
 }
 
-bool Adaptation::Icap::ServiceRep::availableForNew() const
+bool
+Adaptation::Icap::ServiceRep::availableForNew() const
 {
     Must(up());
     int available = availableConnections();
@@ -314,7 +328,8 @@ bool Adaptation::Icap::ServiceRep::availableForNew() const
         return (available - theAllWaiters > 0);
 }
 
-bool Adaptation::Icap::ServiceRep::availableForOld() const
+bool
+Adaptation::Icap::ServiceRep::availableForOld() const
 {
     Must(up());
 
@@ -322,13 +337,15 @@ bool Adaptation::Icap::ServiceRep::availableForOld() const
     return (available != 0); // it is -1 (no limit) or has available slots
 }
 
-bool Adaptation::Icap::ServiceRep::wantsUrl(const SBuf &urlPath) const
+bool
+Adaptation::Icap::ServiceRep::wantsUrl(const SBuf &urlPath) const
 {
     Must(hasOptions());
     return theOptions->transferKind(urlPath) != Adaptation::Icap::Options::xferIgnore;
 }
 
-bool Adaptation::Icap::ServiceRep::wantsPreview(const SBuf &urlPath, size_t &wantedSize) const
+bool
+Adaptation::Icap::ServiceRep::wantsPreview(const SBuf &urlPath, size_t &wantedSize) const
 {
     Must(hasOptions());
 
@@ -343,13 +360,15 @@ bool Adaptation::Icap::ServiceRep::wantsPreview(const SBuf &urlPath, size_t &wan
     return true;
 }
 
-bool Adaptation::Icap::ServiceRep::allows204() const
+bool
+Adaptation::Icap::ServiceRep::allows204() const
 {
     Must(hasOptions());
     return true; // in the future, we may have ACLs to prevent 204s
 }
 
-bool Adaptation::Icap::ServiceRep::allows206() const
+bool
+Adaptation::Icap::ServiceRep::allows206() const
 {
     Must(hasOptions());
     if (theOptions->allow206)
@@ -358,14 +377,16 @@ bool Adaptation::Icap::ServiceRep::allows206() const
 }
 
 static
-void ServiceRep_noteTimeToUpdate(void *data)
+void
+ServiceRep_noteTimeToUpdate(void *data)
 {
     Adaptation::Icap::ServiceRep *service = static_cast<Adaptation::Icap::ServiceRep*>(data);
     Must(service);
     service->noteTimeToUpdate();
 }
 
-void Adaptation::Icap::ServiceRep::noteTimeToUpdate()
+void
+Adaptation::Icap::ServiceRep::noteTimeToUpdate()
 {
     if (!detached())
         updateScheduled = false;
@@ -379,7 +400,8 @@ void Adaptation::Icap::ServiceRep::noteTimeToUpdate()
     startGettingOptions();
 }
 
-void Adaptation::Icap::ServiceRep::noteTimeToNotify()
+void
+Adaptation::Icap::ServiceRep::noteTimeToNotify()
 {
     Must(!notifying);
     notifying = true;
@@ -400,7 +422,8 @@ void Adaptation::Icap::ServiceRep::noteTimeToNotify()
     notifying = false;
 }
 
-void Adaptation::Icap::ServiceRep::callWhenAvailable(AsyncCall::Pointer &cb, bool priority)
+void
+Adaptation::Icap::ServiceRep::callWhenAvailable(AsyncCall::Pointer &cb, bool priority)
 {
     debugs(93,8, "ICAPServiceRep::callWhenAvailable");
     Must(cb!=NULL);
@@ -418,7 +441,8 @@ void Adaptation::Icap::ServiceRep::callWhenAvailable(AsyncCall::Pointer &cb, boo
     busyCheckpoint();
 }
 
-void Adaptation::Icap::ServiceRep::callWhenReady(AsyncCall::Pointer &cb)
+void
+Adaptation::Icap::ServiceRep::callWhenReady(AsyncCall::Pointer &cb)
 {
     Must(cb!=NULL);
 
@@ -441,18 +465,21 @@ void Adaptation::Icap::ServiceRep::callWhenReady(AsyncCall::Pointer &cb)
         scheduleNotification();
 }
 
-void Adaptation::Icap::ServiceRep::scheduleNotification()
+void
+Adaptation::Icap::ServiceRep::scheduleNotification()
 {
     debugs(93,7, HERE << "will notify " << theClients.size() << " clients");
     CallJobHere(93, 5, this, Adaptation::Icap::ServiceRep, noteTimeToNotify);
 }
 
-bool Adaptation::Icap::ServiceRep::needNewOptions() const
+bool
+Adaptation::Icap::ServiceRep::needNewOptions() const
 {
     return !detached() && !up();
 }
 
-void Adaptation::Icap::ServiceRep::changeOptions(Adaptation::Icap::Options *newOptions)
+void
+Adaptation::Icap::ServiceRep::changeOptions(Adaptation::Icap::Options *newOptions)
 {
     debugs(93,8, HERE << "changes options from " << theOptions << " to " <<
            newOptions << ' ' << status());
@@ -467,7 +494,8 @@ void Adaptation::Icap::ServiceRep::changeOptions(Adaptation::Icap::Options *newO
     announceStatusChange("down after an options fetch failure", true);
 }
 
-void Adaptation::Icap::ServiceRep::checkOptions()
+void
+Adaptation::Icap::ServiceRep::checkOptions()
 {
     if (theOptions == NULL)
         return;
@@ -520,7 +548,8 @@ void Adaptation::Icap::ServiceRep::checkOptions()
     }
 }
 
-void Adaptation::Icap::ServiceRep::announceStatusChange(const char *downPhrase, bool important) const
+void
+Adaptation::Icap::ServiceRep::announceStatusChange(const char *downPhrase, bool important) const
 {
     if (wasAnnouncedUp == up()) // no significant changes to announce
         return;
@@ -535,7 +564,8 @@ void Adaptation::Icap::ServiceRep::announceStatusChange(const char *downPhrase, 
 }
 
 // we are receiving ICAP OPTIONS response headers here or NULL on failures
-void Adaptation::Icap::ServiceRep::noteAdaptationAnswer(const Answer &answer)
+void
+Adaptation::Icap::ServiceRep::noteAdaptationAnswer(const Answer &answer)
 {
     Must(initiated(theOptionsFetcher));
     clearAdaptation(theOptionsFetcher);
@@ -565,7 +595,8 @@ void Adaptation::Icap::ServiceRep::noteAdaptationAnswer(const Answer &answer)
 
 // we (a) must keep trying to get OPTIONS and (b) are RefCounted so we
 // must keep our job alive (XXX: until nobody needs us)
-void Adaptation::Icap::ServiceRep::callException(const std::exception &e)
+void
+Adaptation::Icap::ServiceRep::callException(const std::exception &e)
 {
     clearAdaptation(theOptionsFetcher);
     debugs(93,2, "ICAP probably failed to fetch options (" << e.what() <<
@@ -573,7 +604,8 @@ void Adaptation::Icap::ServiceRep::callException(const std::exception &e)
     handleNewOptions(0);
 }
 
-void Adaptation::Icap::ServiceRep::handleNewOptions(Adaptation::Icap::Options *newOptions)
+void
+Adaptation::Icap::ServiceRep::handleNewOptions(Adaptation::Icap::Options *newOptions)
 {
     // new options may be NULL
     changeOptions(newOptions);
@@ -595,7 +627,8 @@ void Adaptation::Icap::ServiceRep::handleNewOptions(Adaptation::Icap::Options *n
     scheduleNotification();
 }
 
-void Adaptation::Icap::ServiceRep::startGettingOptions()
+void
+Adaptation::Icap::ServiceRep::startGettingOptions()
 {
     Must(!theOptionsFetcher);
     debugs(93,6, HERE << "will get new options " << status());
@@ -607,7 +640,8 @@ void Adaptation::Icap::ServiceRep::startGettingOptions()
     // Such a timeout should probably be a generic AsyncStart feature.
 }
 
-void Adaptation::Icap::ServiceRep::scheduleUpdate(time_t when)
+void
+Adaptation::Icap::ServiceRep::scheduleUpdate(time_t when)
 {
     if (updateScheduled) {
         debugs(93,7, HERE << "reschedules update");
@@ -676,7 +710,8 @@ Adaptation::Icap::ServiceRep::makeXactLauncher(Http::Message *virgin,
 }
 
 // returns a temporary string depicting service status, for debugging
-const char *Adaptation::Icap::ServiceRep::status() const
+const char *
+Adaptation::Icap::ServiceRep::status() const
 {
     static MemBuf buf;
 
@@ -716,14 +751,16 @@ const char *Adaptation::Icap::ServiceRep::status() const
     return buf.content();
 }
 
-void Adaptation::Icap::ServiceRep::detach()
+void
+Adaptation::Icap::ServiceRep::detach()
 {
     debugs(93,3, HERE << "detaching ICAP service: " << cfg().uri <<
            ' ' << status());
     isDetached = true;
 }
 
-bool Adaptation::Icap::ServiceRep::detached() const
+bool
+Adaptation::Icap::ServiceRep::detached() const
 {
     return isDetached;
 }

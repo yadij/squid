@@ -52,7 +52,8 @@ public:
 public:
     ClassActionCreator(Handler *aHandler): handler(aHandler) {}
 
-    virtual Mgr::Action::Pointer create(const Mgr::Command::Pointer &cmd) const {
+    virtual Mgr::Action::Pointer
+    create(const Mgr::Command::Pointer &cmd) const {
         return handler(cmd);
     }
 

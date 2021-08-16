@@ -30,7 +30,8 @@ Ssl::CertificateStorageAction::Create(const Mgr::Command::Pointer &aCmd)
     return new CertificateStorageAction(aCmd);
 }
 
-void Ssl::CertificateStorageAction::dump (StoreEntry *sentry)
+void
+Ssl::CertificateStorageAction::dump (StoreEntry *sentry)
 {
     PackableStream stream(*sentry);
     const char delimiter = '\t';
@@ -71,13 +72,15 @@ Ssl::GlobalContextStorage::~GlobalContextStorage()
     }
 }
 
-void Ssl::GlobalContextStorage::addLocalStorage(Ip::Address const & address, size_t size_of_store)
+void
+Ssl::GlobalContextStorage::addLocalStorage(Ip::Address const & address, size_t size_of_store)
 {
     assert(reconfiguring);
     configureStorage.insert(std::pair<Ip::Address, size_t>(address, size_of_store));
 }
 
-Ssl::LocalContextStorage *Ssl::GlobalContextStorage::getLocalStorage(Ip::Address const & address)
+Ssl::LocalContextStorage *
+Ssl::GlobalContextStorage::getLocalStorage(Ip::Address const & address)
 {
     reconfigureFinish();
     std::map<Ip::Address, LocalContextStorage *>::iterator i = storage.find(address);
@@ -88,13 +91,15 @@ Ssl::LocalContextStorage *Ssl::GlobalContextStorage::getLocalStorage(Ip::Address
         return i->second;
 }
 
-void Ssl::GlobalContextStorage::reconfigureStart()
+void
+Ssl::GlobalContextStorage::reconfigureStart()
 {
     configureStorage.clear();
     reconfiguring = true;
 }
 
-void Ssl::GlobalContextStorage::reconfigureFinish()
+void
+Ssl::GlobalContextStorage::reconfigureFinish()
 {
     if (reconfiguring) {
         reconfiguring = false;

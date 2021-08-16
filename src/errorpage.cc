@@ -215,10 +215,12 @@ public:
     ErrorPageFile(const char *name, const err_type code) : TemplateFile(name, code) {}
 
     /// The template text data read from disk
-    const char *text() { return template_.c_str(); }
+    const char *
+    text() { return template_.c_str(); }
 
 protected:
-    virtual void setDefault() override {
+    virtual void
+    setDefault() override {
         template_ = "Internal Error: Missing Template ";
         template_.append(templateName.termedBuf());
     }
@@ -464,7 +466,8 @@ TemplateFile::loadFromFile(const char *path)
     return wasLoaded;
 }
 
-bool strHdrAcptLangGetItem(const String &hdr, char *lang, int langLen, size_t &pos)
+bool
+strHdrAcptLangGetItem(const String &hdr, char *lang, int langLen, size_t &pos)
 {
     while (pos < hdr.size()) {
 

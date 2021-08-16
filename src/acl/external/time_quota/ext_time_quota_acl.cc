@@ -76,7 +76,8 @@ static int pauseLength = 300;
 static FILE *logfile = stderr;
 static int tq_debug_enabled = false;
 
-static void open_log(const char *logfilename)
+static void
+open_log(const char *logfilename)
 {
     logfile = fopen(logfilename, "a");
     if ( logfile == NULL ) {
@@ -85,7 +86,8 @@ static void open_log(const char *logfilename)
     }
 }
 
-static void vlog(const char *level, const char *format, va_list args)
+static void
+vlog(const char *level, const char *format, va_list args)
 {
     time_t now = time(NULL);
 
@@ -95,7 +97,8 @@ static void vlog(const char *level, const char *format, va_list args)
     fflush(logfile);
 }
 
-static void log_debug(const char *format, ...)
+static void
+log_debug(const char *format, ...)
 {
     va_list args;
 
@@ -106,7 +109,8 @@ static void log_debug(const char *format, ...)
     }
 }
 
-static void log_info(const char *format, ...)
+static void
+log_info(const char *format, ...)
 {
     va_list args;
 
@@ -115,7 +119,8 @@ static void log_info(const char *format, ...)
     va_end (args);
 }
 
-static void log_error(const char *format, ...)
+static void
+log_error(const char *format, ...)
 {
     va_list args;
 
@@ -124,7 +129,8 @@ static void log_error(const char *format, ...)
     va_end (args);
 }
 
-static void log_fatal(const char *format, ...)
+static void
+log_fatal(const char *format, ...)
 {
     va_list args;
 
@@ -133,7 +139,8 @@ static void log_fatal(const char *format, ...)
     va_end (args);
 }
 
-static void init_db(void)
+static void
+init_db(void)
 {
     log_info("opening time quota database \"%s\".\n", db_path);
     db = tdb_open(db_path, 0, TDB_CLEAR_IF_FIRST, O_CREAT | O_RDWR, 0666);
@@ -143,12 +150,14 @@ static void init_db(void)
     }
 }
 
-static void shutdown_db(void)
+static void
+shutdown_db(void)
 {
     tdb_close(db);
 }
 
-static char *KeyString(int &len, const char *user_key, const char *sub_key)
+static char *
+KeyString(int &len, const char *user_key, const char *sub_key)
 {
     static char keybuffer[TQ_BUFFERSIZE];
     *keybuffer = 0;
@@ -166,7 +175,8 @@ static char *KeyString(int &len, const char *user_key, const char *sub_key)
     return keybuffer;
 }
 
-static void writeTime(const char *user_key, const char *sub_key, time_t t)
+static void
+writeTime(const char *user_key, const char *sub_key, time_t t)
 {
     int len = 0;
     if (/* const */ char *keybuffer = KeyString(len, user_key, sub_key)) {
@@ -184,7 +194,8 @@ static void writeTime(const char *user_key, const char *sub_key, time_t t)
     }
 }
 
-static time_t readTime(const char *user_key, const char *sub_key)
+static time_t
+readTime(const char *user_key, const char *sub_key)
 {
     int len = 0;
     if (/* const */ char *keybuffer = KeyString(len, user_key, sub_key)) {
@@ -209,7 +220,8 @@ static time_t readTime(const char *user_key, const char *sub_key)
     return 0;
 }
 
-static void parseTime(const char *s, time_t *secs, time_t *start)
+static void
+parseTime(const char *s, time_t *secs, time_t *start)
 {
     double value;
     char unit;
@@ -254,7 +266,8 @@ static void parseTime(const char *s, time_t *secs, time_t *start)
 /** This function parses the time quota file and stores it
  * in memory.
  */
-static void readConfig(const char *filename)
+static void
+readConfig(const char *filename)
 {
     char line[TQ_BUFFERSIZE];        /* the buffer for the lines read
                    from the dict file */
@@ -315,7 +328,8 @@ static void readConfig(const char *filename)
     }
 }
 
-static void processActivity(const char *user_key)
+static void
+processActivity(const char *user_key)
 {
     time_t now = time(NULL);
     time_t lastActivity;
@@ -395,7 +409,8 @@ static void processActivity(const char *user_key)
     }
 }
 
-static void usage(void)
+static void
+usage(void)
 {
     log_error("Wrong usage. Please reconfigure in squid.conf.\n");
 
@@ -409,7 +424,8 @@ static void usage(void)
     fprintf(stderr, "configfile is a file containing time quota definitions.\n");
 }
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
     char request[HELPER_INPUT_BUFFER];
     int opt;

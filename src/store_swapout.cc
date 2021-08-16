@@ -29,7 +29,8 @@ static StoreIOState::STIOCB storeSwapOutFileClosed;
 static StoreIOState::STFNCB storeSwapOutFileNotify;
 
 // wrapper to cross C/C++ ABI boundary. xfree is extern "C" for libraries.
-static void xfree_cppwrapper(void *x)
+static void
+xfree_cppwrapper(void *x)
 {
     xfree(x);
 }

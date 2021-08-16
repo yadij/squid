@@ -1794,7 +1794,8 @@ Ftp::Server::stopWaitingForOrigin(int originStatus)
     }
 }
 
-void Ftp::Server::userDataCompletionCheckpoint(int finalStatusCode)
+void
+Ftp::Server::userDataCompletionCheckpoint(int finalStatusCode)
 {
     Must(!master->userDataDone);
     master->userDataDone = finalStatusCode;
@@ -1819,7 +1820,8 @@ void Ftp::Server::userDataCompletionCheckpoint(int finalStatusCode)
     completeDataDownload();
 }
 
-void Ftp::Server::completeDataDownload()
+void
+Ftp::Server::completeDataDownload()
 {
     writeCustomReply(master->userDataDone, master->userDataDone == 226 ? "Transfer complete" : "Server error; transfer aborted");
     closeDataConnection();

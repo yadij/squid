@@ -65,7 +65,8 @@ BlockingFile::create(int flags, mode_t mode, RefCount<IORequestor> callback)
     open(flags, mode, callback);
 }
 
-void BlockingFile::doClose()
+void
+BlockingFile::doClose()
 {
     if (fd > -1) {
         closed = true;
@@ -99,7 +100,8 @@ BlockingFile::error() const
     return false;
 }
 
-void BlockingFile::error(bool const &aBool)
+void
+BlockingFile::error(bool const &aBool)
 {
     error_ = aBool;
 }

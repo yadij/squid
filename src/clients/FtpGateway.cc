@@ -145,8 +145,10 @@ public:
     virtual void completeForwarding();
     void processHeadResponse();
     void processReplyBody();
-    void setCurrentOffset(int64_t offset) { currentOffset = offset; }
-    int64_t getCurrentOffset() const { return currentOffset; }
+    void
+    setCurrentOffset(int64_t offset) { currentOffset = offset; }
+    int64_t
+    getCurrentOffset() const { return currentOffset; }
 
     virtual void dataChannelConnected(const CommConnectCbParams &io);
     static PF ftpDataWrite;
@@ -1080,7 +1082,7 @@ Ftp::Gateway::checkUrlpath()
         const auto fullPath = request->url.path();
         const auto typecodePos = typeSpecStart + middle.length();
         typecode = (typecodePos < fullPath.length()) ?
-            static_cast<char>(xtoupper(fullPath[typecodePos])) : '\0';
+                   static_cast<char>(xtoupper(fullPath[typecodePos])) : '\0';
         request->url.path(fullPath.substr(0, typeSpecStart));
     }
 
@@ -2001,7 +2003,8 @@ ftpReadStor(Ftp::Gateway * ftpState)
     ftpState->readStor();
 }
 
-void Ftp::Gateway::readStor()
+void
+Ftp::Gateway::readStor()
 {
     int code = ctrl.replycode;
     debugs(9, 3, HERE);

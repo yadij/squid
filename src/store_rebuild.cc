@@ -258,7 +258,8 @@ Progress::print(std::ostream &os) const
 struct InitStoreEntry : public unary_function<StoreMeta, void> {
     InitStoreEntry(StoreEntry *anEntry, cache_key *aKey):what(anEntry),index(aKey) {}
 
-    void operator()(StoreMeta const &x) {
+    void
+    operator()(StoreMeta const &x) {
         switch (x.getType()) {
 
         case STORE_META_KEY:

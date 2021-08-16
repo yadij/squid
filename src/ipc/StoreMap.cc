@@ -774,13 +774,15 @@ class ConservativeTimer
 public:
     typedef std::chrono::high_resolution_clock Clock;
 
-    explicit ConservativeTimer(const Clock::duration max):
+    explicit
+    ConservativeTimer(const Clock::duration max):
         startTime(Clock::now()),
         lastTime(startTime),
         maxTime(startTime + max) {}
 
     /// whether the current time reached the provided maximum time
-    bool expired() {
+    bool
+    expired() {
         const auto currentTime = Clock::now();
         if (currentTime < lastTime) // time went backwards
             return true;

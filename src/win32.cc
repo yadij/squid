@@ -36,7 +36,8 @@ Win32__WSAFDIsSet(int fd, fd_set FAR * set)
     return __WSAFDIsSet(s, set);
 }
 
-LONG CALLBACK WIN32_ExceptionHandler(EXCEPTION_POINTERS* ep)
+LONG CALLBACK
+WIN32_ExceptionHandler(EXCEPTION_POINTERS* ep)
 {
     EXCEPTION_RECORD* er;
 
@@ -63,7 +64,8 @@ LONG CALLBACK WIN32_ExceptionHandler(EXCEPTION_POINTERS* ep)
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
-void WIN32_ExceptionHandlerInit()
+void
+WIN32_ExceptionHandlerInit()
 {
 #if !defined(_DEBUG)
 
@@ -73,7 +75,8 @@ void WIN32_ExceptionHandlerInit()
 #endif
 }
 
-void WIN32_ExceptionHandlerCleanup()
+void
+WIN32_ExceptionHandlerCleanup()
 {
     if (Win32_Old_ExceptionHandler != NULL)
         SetUnhandledExceptionFilter(Win32_Old_ExceptionHandler);

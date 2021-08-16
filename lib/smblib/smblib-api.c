@@ -46,8 +46,9 @@ SMB_Tree_Handle SMBapi_Tree = NULL;
 #define SMB_LMAPI_SLOT "\\PIPE\\LANMAN"
 #define SMB_LMAPI_SUPW_DESC "zb16b16WW"
 
-int SMBapi_NetUserPasswordSet(SMB_Tree_Handle tree, char *user,
-                              char *oldpass, char *newpass, int *apiStatus)
+int
+SMBapi_NetUserPasswordSet(SMB_Tree_Handle tree, char *user,
+                          char *oldpass, char *newpass, int *apiStatus)
 
 {
     struct RFCNB_Pkt *pkt;
@@ -206,8 +207,9 @@ int SMBapi_NetUserPasswordSet(SMB_Tree_Handle tree, char *user,
 
 /* Set user info ... specifically, password */
 
-int SMBapi_NetSetUserInfo(SMB_Tree_Handle tree, char *user,
-                          char *newpass, int *apiStatus)
+int
+SMBapi_NetSetUserInfo(SMB_Tree_Handle tree, char *user,
+                      char *newpass, int *apiStatus)
 
 {
     struct RFCNB_Pkt *pkt;
@@ -382,8 +384,9 @@ int SMBapi_NetSetUserInfo(SMB_Tree_Handle tree, char *user,
 
 /* List all the shares available on a server */
 
-int SMBapi_NetShareEnum(SMB_Tree_Handle tree, char *enum_buf, int bufsiz,
-                        int *shares_returned, int *shares_total)
+int
+SMBapi_NetShareEnum(SMB_Tree_Handle tree, char *enum_buf, int bufsiz,
+                    int *shares_returned, int *shares_total)
 
 {
 

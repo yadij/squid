@@ -20,7 +20,8 @@ static ESIParser::Register *prLibxml = 0;
 static ESIParser::Register *prExpat = 0;
 #endif
 
-void Esi::Init()
+void
+Esi::Init()
 {
     // register in reverse order of preference.
     // The latest registered parser will be used as default.
@@ -35,7 +36,8 @@ void Esi::Init()
 #endif
 }
 
-void Esi::Clean()
+void
+Esi::Clean()
 {
 #if HAVE_LIBEXPAT
     delete prExpat;

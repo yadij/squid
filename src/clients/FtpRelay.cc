@@ -43,7 +43,8 @@ public:
 protected:
     const Ftp::MasterState &master() const;
     Ftp::MasterState &updateMaster();
-    Ftp::ServerState serverState() const { return master().serverState; }
+    Ftp::ServerState
+    serverState() const { return master().serverState; }
     void serverState(const Ftp::ServerState newState);
 
     /* Ftp::Client API */
@@ -72,7 +73,8 @@ protected:
     void startDataUpload();
     bool startDirTracking();
     void stopDirTracking();
-    bool weAreTrackingDir() const {return savedReply.message != NULL;}
+    bool
+    weAreTrackingDir() const {return savedReply.message != NULL;}
 
     typedef void (Relay::*PreliminaryCb)();
     void forwardPreliminaryReply(const PreliminaryCb cb);

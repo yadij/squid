@@ -76,7 +76,8 @@
  data into the BER value
 **********************************************************************/
 
-static int berEncodePasswordData(
+static int
+berEncodePasswordData(
     struct berval **requestBV,
     const char    *objectDN,
     const char    *password,
@@ -146,7 +147,8 @@ static int berEncodePasswordData(
  data into the BER value
 **********************************************************************/
 
-static int berEncodeLoginData(
+static int
+berEncodeLoginData(
     struct berval **requestBV,
     char     *objectDN,
     unsigned int  methodIDLen,
@@ -228,7 +230,8 @@ static int berEncodeLoginData(
  decode the the return data and length
 **********************************************************************/
 
-static int berDecodeLoginData(
+static int
+berDecodeLoginData(
     struct berval *replyBV,
     int      *serverVersion,
     size_t   *retDataLen,
@@ -282,7 +285,8 @@ static int berDecodeLoginData(
  that is tagged with the specified methodID and tag.
 **********************************************************************/
 
-static int getLoginConfig(
+static int
+getLoginConfig(
     LDAP     *ld,
     char     *objectDN,
     unsigned int  methodIDLen,
@@ -352,7 +356,8 @@ static int getLoginConfig(
  Attempts to get the Simple Password
 **********************************************************************/
 
-static int nmasldap_get_simple_pwd(
+static int
+nmasldap_get_simple_pwd(
     LDAP     *ld,
     char     *objectDN,
     size_t   pwdLen,
@@ -410,7 +415,8 @@ static int nmasldap_get_simple_pwd(
  Attempts to get the Universal Password
 **********************************************************************/
 
-static int nmasldap_get_password(
+static int
+nmasldap_get_password(
     LDAP     *ld,
     char     *objectDN,
     size_t   *pwdSize,  /* in bytes */
@@ -494,7 +500,8 @@ static int nmasldap_get_password(
  Get the user's password from NDS.
  *********************************************************************/
 
-int nds_get_password(
+int
+nds_get_password(
     LDAP *ld,
     char *object_dn,
     size_t *pwd_len,

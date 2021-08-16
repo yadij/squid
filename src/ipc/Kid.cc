@@ -31,7 +31,8 @@ Kid::Kid(const char *aRole, const int anId):
 }
 
 /// called when this kid got started, records PID
-void Kid::start(pid_t cpid)
+void
+Kid::start(pid_t cpid)
 {
     assert(!running());
     assert(cpid > 0);
@@ -88,13 +89,15 @@ Kid::reportStopped() const
 }
 
 /// returns true if tracking of kid is stopped
-bool Kid::running() const
+bool
+Kid::running() const
 {
     return isRunning;
 }
 
 /// returns true if master process should restart this kid
-bool Kid::shouldRestart() const
+bool
+Kid::shouldRestart() const
 {
     return !(running() ||
              exitedHappy() ||
@@ -106,62 +109,72 @@ bool Kid::shouldRestart() const
 }
 
 /// returns current pid for a running kid and last pid for a stopped kid
-pid_t Kid::getPid() const
+pid_t
+Kid::getPid() const
 {
     assert(pid > 0);
     return pid;
 }
 
 /// whether the failures are "repeated and frequent"
-bool Kid::hopeless() const
+bool
+Kid::hopeless() const
 {
     return badFailures > badFailureLimit;
 }
 
 /// returns true if the process terminated normally
-bool Kid::calledExit() const
+bool
+Kid::calledExit() const
 {
     return (pid > 0) && !running() && WIFEXITED(status);
 }
 
 /// returns the exit status of the process
-int Kid::exitStatus() const
+int
+Kid::exitStatus() const
 {
     return WEXITSTATUS(status);
 }
 
 /// whether the process exited with a given exit status code
-bool Kid::calledExit(int code) const
+bool
+Kid::calledExit(int code) const
 {
     return calledExit() && (exitStatus() == code);
 }
 
 /// whether the process exited with code 0
-bool Kid::exitedHappy() const
+bool
+Kid::exitedHappy() const
 {
     return calledExit(0);
 }
 
 /// returns true if the kid was terminated by a signal
-bool Kid::signaled() const
+bool
+Kid::signaled() const
 {
     return (pid > 0) && !running() && WIFSIGNALED(status);
 }
 
 /// returns the number of the signal that caused the kid to terminate
-int Kid::termSignal() const
+int
+Kid::termSignal() const
 {
     return WTERMSIG(status);
 }
 
 /// whether the process was terminated by a given signal
-bool Kid::signaled(int sgnl) const
+bool
+Kid::signaled(int sgnl) const
 {
     return signaled() && (termSignal() == sgnl);
 }
 
 /// returns kid name
-SBuf Kid::processName() const
+SBuf
+Kid::processName() const
 {
     SBuf name("(");
     name.append(gist());
@@ -169,7 +182,8 @@ SBuf Kid::processName() const
     return name;
 }
 
-SBuf Kid::gist() const
+SBuf
+Kid::gist() const
 {
     SBuf name(processRole);
     name.appendf("-%d", processId);

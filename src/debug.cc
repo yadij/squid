@@ -58,10 +58,12 @@ public:
     void reset(FILE *newFile, const char *newName);
 
     /// go back to the initial state
-    void clear() { reset(nullptr, nullptr); }
+    void
+    clear() { reset(nullptr, nullptr); }
 
     /// logging stream; the only method that uses stderr as the last resort
-    FILE *file() { return file_ ? file_ : stderr; }
+    FILE *
+    file() { return file_ ? file_ : stderr; }
 
     char *name = nullptr;
 

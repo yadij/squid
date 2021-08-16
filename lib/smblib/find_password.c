@@ -37,7 +37,8 @@ char *SMB_Prots[] = {"PC NETWORK PROGRAM 1.0",
                      NULL
                     };
 
-void usage()
+void
+usage()
 
 {
     fprintf(stderr,"Usage: find_password -u <user> -l <pwd-len-max> server\n");
@@ -47,7 +48,8 @@ void usage()
 
 static int pwinit = FALSE, pwpos = 0;
 
-int next_password(char *pw, int pwlen)
+int
+next_password(char *pw, int pwlen)
 
 {
     int i, carry = FALSE;
@@ -92,7 +94,8 @@ int next_password(char *pw, int pwlen)
 
 static char pwd_str[1024];  /* Where we put passwords as we convert them */
 
-char *print_password(char * password)
+char *
+print_password(char * password)
 
 {
     int i,j;

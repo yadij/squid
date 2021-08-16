@@ -42,12 +42,13 @@
 /* Logon and tree connect to the server. If a tree handle was given to us, */
 /* we use it and return it, otherwise we create one ...                    */
 
-SMB_Tree_Handle SMB_Logon_And_TCon(SMB_Handle_Type Con_Handle,
-                                   SMB_Tree_Handle Tree_Handle,
-                                   char *UserName,
-                                   char *PassWord,
-                                   char *service,
-                                   char *service_type)
+SMB_Tree_Handle
+SMB_Logon_And_TCon(SMB_Handle_Type Con_Handle,
+                   SMB_Tree_Handle Tree_Handle,
+                   char *UserName,
+                   char *PassWord,
+                   char *service,
+                   char *service_type)
 
 {
     struct RFCNB_Pkt *pkt;
@@ -358,15 +359,16 @@ SMB_Tree_Handle SMB_Logon_And_TCon(SMB_Handle_Type Con_Handle,
 /* Logon and TCon and Open to a file on the server, but we need to pass   */
 /* back a file pointer, so we better have one in the parameter list       */
 
-int SMB_Logon_TCon_Open(SMB_Handle_Type Con_Handle, char *UserName,
-                        char *PassWord,
-                        char *service,
-                        char *service_type,
-                        SMB_Tree_Handle *Tree_Handle,
-                        char *filename,
-                        WORD mode,
-                        WORD search,
-                        SMB_File **File_Handle)
+int
+SMB_Logon_TCon_Open(SMB_Handle_Type Con_Handle, char *UserName,
+                    char *PassWord,
+                    char *service,
+                    char *service_type,
+                    SMB_Tree_Handle *Tree_Handle,
+                    char *filename,
+                    WORD mode,
+                    WORD search,
+                    SMB_File **File_Handle)
 
 {
     struct RFCNB_Pkt *pkt;

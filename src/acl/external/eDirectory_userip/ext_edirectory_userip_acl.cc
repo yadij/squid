@@ -1227,7 +1227,8 @@ SearchIPLDAP(edui_ldap_t *l)
  *
  */
 const char
-*ErrLDAP(int e)
+*
+ErrLDAP(int e)
 {
     switch (e) {
     case LDAP_ERR_NULL:

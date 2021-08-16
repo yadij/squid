@@ -27,13 +27,15 @@ Adaptation::History::Entry::Entry():
 {
 }
 
-void Adaptation::History::Entry::stop()
+void
+Adaptation::History::Entry::stop()
 {
     // theRptm may already be set if the access log entry has already been made
     (void)rptm(); // will cache result in theRptm if not set already
 }
 
-int Adaptation::History::Entry::rptm()
+int
+Adaptation::History::Entry::rptm()
 {
     if (theRptm < 0)
         theRptm = tvSubMsec(start, current_time);
@@ -47,7 +49,8 @@ Adaptation::History::History():
 {
 }
 
-int Adaptation::History::recordXactStart(const String &serviceId, const timeval &when, bool retrying)
+int
+Adaptation::History::recordXactStart(const String &serviceId, const timeval &when, bool retrying)
 {
     // the history will be empty on retries if it was enabled after the failure
     if (retrying && !theEntries.empty())
@@ -57,13 +60,15 @@ int Adaptation::History::recordXactStart(const String &serviceId, const timeval 
     return theEntries.size() - 1; // record position becomes history ID
 }
 
-void Adaptation::History::recordXactFinish(int hid)
+void
+Adaptation::History::recordXactFinish(int hid)
 {
     Must(0 <= hid && hid < static_cast<int>(theEntries.size()));
     theEntries[hid].stop();
 }
 
-void Adaptation::History::allLogString(const char *serviceId, SBuf &s)
+void
+Adaptation::History::allLogString(const char *serviceId, SBuf &s)
 {
     s.clear();
     bool prevWasRetried = false;
@@ -79,7 +84,8 @@ void Adaptation::History::allLogString(const char *serviceId, SBuf &s)
     }
 }
 
-void Adaptation::History::sumLogString(const char *serviceId, SBuf &s)
+void
+Adaptation::History::sumLogString(const char *serviceId, SBuf &s)
 {
     s.clear();
     int retriedRptm = 0; // sum of rptm times of retried transactions
@@ -101,13 +107,15 @@ void Adaptation::History::sumLogString(const char *serviceId, SBuf &s)
     Must(!retriedRptm);
 }
 
-void Adaptation::History::updateXxRecord(const char *name, const String &value)
+void
+Adaptation::History::updateXxRecord(const char *name, const String &value)
 {
     theXxName = name;
     theXxValue = value;
 }
 
-bool Adaptation::History::getXxRecord(String &name, String &value) const
+bool
+Adaptation::History::getXxRecord(String &name, String &value) const
 {
     if (theXxName.size() <= 0)
         return false;
@@ -117,7 +125,8 @@ bool Adaptation::History::getXxRecord(String &name, String &value) const
     return true;
 }
 
-void Adaptation::History::updateNextServices(const String &services)
+void
+Adaptation::History::updateNextServices(const String &services)
 {
     if (theNextServices != TheNullServices)
         debugs(93,3, HERE << "old services: " << theNextServices);
@@ -126,7 +135,8 @@ void Adaptation::History::updateNextServices(const String &services)
     theNextServices = services;
 }
 
-bool Adaptation::History::extractNextServices(String &value)
+bool
+Adaptation::History::extractNextServices(String &value)
 {
     if (theNextServices == TheNullServices)
         return false;
@@ -136,7 +146,8 @@ bool Adaptation::History::extractNextServices(String &value)
     return true;
 }
 
-void Adaptation::History::recordMeta(const HttpHeader *lm)
+void
+Adaptation::History::recordMeta(const HttpHeader *lm)
 {
     lastMeta.clean();
     lastMeta.update(lm);
@@ -160,7 +171,8 @@ Adaptation::History::setFutureServices(const DynamicGroupCfg &services)
     theFutureServices = services; // may be empty
 }
 
-bool Adaptation::History::extractFutureServices(DynamicGroupCfg &value)
+bool
+Adaptation::History::extractFutureServices(DynamicGroupCfg &value)
 {
     if (theFutureServices.empty())
         return false;

@@ -64,7 +64,8 @@ const char *SMB_Prots[] = {"PC NETWORK PROGRAM 1.0",
 
 /* Initialize the SMBlib package     */
 
-int SMB_Init()
+int
+SMB_Init()
 
 {
 
@@ -86,7 +87,8 @@ int SMB_Init()
 /* SMB_Create: Create a connection structure and return for later use */
 /* We have other helper routines to set variables                     */
 
-SMB_Handle_Type SMB_Create_Con_Handle()
+SMB_Handle_Type
+SMB_Create_Con_Handle()
 
 {
 
@@ -98,8 +100,9 @@ SMB_Handle_Type SMB_Create_Con_Handle()
 /* SMB_Connect_Server: Connect to a server, but don't negotiate protocol */
 /* or anything else ...                                                  */
 
-SMB_Handle_Type SMB_Connect_Server(SMB_Handle_Type Con_Handle,
-                                   const char *server, const char *NTdomain)
+SMB_Handle_Type
+SMB_Connect_Server(SMB_Handle_Type Con_Handle,
+                   const char *server, const char *NTdomain)
 
 {
     SMB_Handle_Type con;
@@ -194,11 +197,12 @@ const char *SMB_Prots_Restrict[] = {"PC NETWORK PROGRAM 1.0",
                                     NULL
                                    };
 
-SMB_Handle_Type SMB_Connect(SMB_Handle_Type Con_Handle,
-                            SMB_Tree_Handle *tree,
-                            char *service,
-                            char *username,
-                            char *password)
+SMB_Handle_Type
+SMB_Connect(SMB_Handle_Type Con_Handle,
+            SMB_Tree_Handle *tree,
+            char *service,
+            char *username,
+            char *password)
 
 {
     SMB_Handle_Type con;
@@ -329,8 +333,9 @@ SMB_Handle_Type SMB_Connect(SMB_Handle_Type Con_Handle,
 /* Logon to the server. That is, do a session setup if we can. We do not do */
 /* Unicode yet!                                                             */
 
-int SMB_Logon_Server(SMB_Handle_Type Con_Handle, char *UserName,
-                     char *PassWord, const char *NtDomain, int PreCrypted)
+int
+SMB_Logon_Server(SMB_Handle_Type Con_Handle, char *UserName,
+                 char *PassWord, const char *NtDomain, int PreCrypted)
 
 {
     struct RFCNB_Pkt *pkt;
@@ -574,7 +579,8 @@ int SMB_Logon_Server(SMB_Handle_Type Con_Handle, char *UserName,
 
 /* Disconnect from the server, and disconnect all tree connects */
 
-int SMB_Discon(SMB_Handle_Type Con_Handle, BOOL KeepHandle)
+int
+SMB_Discon(SMB_Handle_Type Con_Handle, BOOL KeepHandle)
 
 {
 

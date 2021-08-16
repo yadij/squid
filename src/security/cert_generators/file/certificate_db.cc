@@ -34,7 +34,8 @@ Ssl::Lock::Lock(std::string const &aFilename) :
 {
 }
 
-bool Ssl::Lock::locked() const
+bool
+Ssl::Lock::locked() const
 {
 #if _SQUID_WINDOWS_
     return hFile != INVALID_HANDLE_VALUE;
@@ -43,7 +44,8 @@ bool Ssl::Lock::locked() const
 #endif
 }
 
-void Ssl::Lock::lock()
+void
+Ssl::Lock::lock()
 {
 
 #if _SQUID_WINDOWS_
@@ -65,7 +67,8 @@ void Ssl::Lock::lock()
         throw std::runtime_error("Failed to get a lock of " + filename);
 }
 
-void Ssl::Lock::unlock()
+void
+Ssl::Lock::unlock()
 {
 #if _SQUID_WINDOWS_
     if (hFile != INVALID_HANDLE_VALUE) {
@@ -146,12 +149,14 @@ Ssl::CertificateDb::Row::~Row()
     OPENSSL_free(row);
 }
 
-void Ssl::CertificateDb::Row::reset()
+void
+Ssl::CertificateDb::Row::reset()
 {
     row = NULL;
 }
 
-void Ssl::CertificateDb::Row::setValue(size_t cell, char const * value)
+void
+Ssl::CertificateDb::Row::setValue(size_t cell, char const * value)
 {
     assert(cell < width);
     if (row[cell]) {
@@ -164,12 +169,14 @@ void Ssl::CertificateDb::Row::setValue(size_t cell, char const * value)
         row[cell] = NULL;
 }
 
-char ** Ssl::CertificateDb::Row::getRow()
+char **
+Ssl::CertificateDb::Row::getRow()
 {
     return row;
 }
 
-void Ssl::CertificateDb::sq_TXT_DB_delete(TXT_DB *db, const char **row)
+void
+Ssl::CertificateDb::sq_TXT_DB_delete(TXT_DB *db, const char **row)
 {
     if (!db)
         return;

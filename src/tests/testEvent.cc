@@ -42,7 +42,8 @@ testEvent::testCreate()
 struct CalledEvent {
     CalledEvent() : calls(0) {}
 
-    static void Handler(void *data) {
+    static void
+    Handler(void *data) {
         static_cast<CalledEvent *>(data)->calls++;
     }
 

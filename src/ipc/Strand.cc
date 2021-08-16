@@ -43,13 +43,15 @@ Ipc::Strand::Strand():
 {
 }
 
-void Ipc::Strand::start()
+void
+Ipc::Strand::start()
 {
     Port::start();
     registerSelf();
 }
 
-void Ipc::Strand::registerSelf()
+void
+Ipc::Strand::registerSelf()
 {
     debugs(54, 6, HERE);
     Must(!isRegistered);
@@ -58,7 +60,8 @@ void Ipc::Strand::registerSelf()
     setTimeout(6, "Ipc::Strand::timeoutHandler"); // TODO: make 6 configurable?
 }
 
-void Ipc::Strand::receive(const TypedMsgHdr &message)
+void
+Ipc::Strand::receive(const TypedMsgHdr &message)
 {
     switch (message.rawType()) {
 
@@ -130,33 +133,38 @@ Ipc::Strand::handleRegistrationResponse(const StrandMessage &msg)
     }
 }
 
-void Ipc::Strand::handleCacheMgrRequest(const Mgr::Request& request)
+void
+Ipc::Strand::handleCacheMgrRequest(const Mgr::Request& request)
 {
     Mgr::Action::Pointer action =
         CacheManager::GetInstance()->createRequestedAction(request.params);
     action->respond(request);
 }
 
-void Ipc::Strand::handleCacheMgrResponse(const Mgr::Response& response)
+void
+Ipc::Strand::handleCacheMgrResponse(const Mgr::Response& response)
 {
     Mgr::Forwarder::HandleRemoteAck(response.requestId);
 }
 
 #if SQUID_SNMP
-void Ipc::Strand::handleSnmpRequest(const Snmp::Request& request)
+void
+Ipc::Strand::handleSnmpRequest(const Snmp::Request& request)
 {
     debugs(54, 6, HERE);
     Snmp::SendResponse(request.requestId, request.pdu);
 }
 
-void Ipc::Strand::handleSnmpResponse(const Snmp::Response& response)
+void
+Ipc::Strand::handleSnmpResponse(const Snmp::Response& response)
 {
     debugs(54, 6, HERE);
     Snmp::Forwarder::HandleRemoteAck(response.requestId);
 }
 #endif
 
-void Ipc::Strand::timedout()
+void
+Ipc::Strand::timedout()
 {
     debugs(54, 6, HERE << isRegistered);
     if (!isRegistered)

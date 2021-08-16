@@ -448,7 +448,8 @@ Adaptation::Ecap::MessageRep::tieBody(Adaptation::Ecap::XactionRep *x)
     theBodyRep->tie(theMessage.body_pipe);
 }
 
-const libecap::Body *Adaptation::Ecap::MessageRep::body() const
+const libecap::Body *
+Adaptation::Ecap::MessageRep::body() const
 {
     return theBodyRep;
 }

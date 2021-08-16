@@ -101,7 +101,8 @@ Ssl::Bio::~Bio()
     debugs(83, 7, "Bio destructing, this=" << this << " FD " << fd_);
 }
 
-int Ssl::Bio::write(const char *buf, int size, BIO *table)
+int
+Ssl::Bio::write(const char *buf, int size, BIO *table)
 {
     errno = 0;
 #if _SQUID_WINDOWS_

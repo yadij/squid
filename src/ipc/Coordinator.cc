@@ -36,12 +36,14 @@ Ipc::Coordinator::Coordinator():
 {
 }
 
-void Ipc::Coordinator::start()
+void
+Ipc::Coordinator::start()
 {
     Port::start();
 }
 
-Ipc::StrandCoord* Ipc::Coordinator::findStrand(int kidId)
+Ipc::StrandCoord*
+Ipc::Coordinator::findStrand(int kidId)
 {
     typedef StrandCoords::iterator SI;
     for (SI iter = strands_.begin(); iter != strands_.end(); ++iter) {
@@ -51,7 +53,8 @@ Ipc::StrandCoord* Ipc::Coordinator::findStrand(int kidId)
     return NULL;
 }
 
-void Ipc::Coordinator::registerStrand(const StrandCoord& strand)
+void
+Ipc::Coordinator::registerStrand(const StrandCoord& strand)
 {
     debugs(54, 3, HERE << "registering kid" << strand.kidId <<
            ' ' << strand.tag);
@@ -76,7 +79,8 @@ void Ipc::Coordinator::registerStrand(const StrandCoord& strand)
     }
 }
 
-void Ipc::Coordinator::receive(const TypedMsgHdr& message)
+void
+Ipc::Coordinator::receive(const TypedMsgHdr& message)
 {
     switch (message.rawType()) {
     case mtRegisterStrand:
@@ -133,7 +137,8 @@ void Ipc::Coordinator::receive(const TypedMsgHdr& message)
     }
 }
 
-void Ipc::Coordinator::handleRegistrationRequest(const StrandMessage& msg)
+void
+Ipc::Coordinator::handleRegistrationRequest(const StrandMessage& msg)
 {
     registerStrand(msg.strand);
 
@@ -278,7 +283,8 @@ Ipc::Coordinator::openListenSocket(const SharedListenRequest& request,
     return newConn;
 }
 
-void Ipc::Coordinator::broadcastSignal(int sig) const
+void
+Ipc::Coordinator::broadcastSignal(int sig) const
 {
     typedef StrandCoords::const_iterator SCI;
     for (SCI iter = strands_.begin(); iter != strands_.end(); ++iter) {
@@ -288,7 +294,8 @@ void Ipc::Coordinator::broadcastSignal(int sig) const
     }
 }
 
-Ipc::Coordinator* Ipc::Coordinator::Instance()
+Ipc::Coordinator*
+Ipc::Coordinator::Instance()
 {
     if (!TheInstance)
         TheInstance = new Coordinator;

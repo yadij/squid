@@ -130,8 +130,10 @@ public:
     void checkHit();
     void checkedHit(StoreEntry *);
 
-    void setFrom(Ip::Address &anIp) { from = anIp; }
-    void setDataHeader(htcpDataHeader *aDataHeader) {
+    void
+    setFrom(Ip::Address &anIp) { from = anIp; }
+    void
+    setDataHeader(htcpDataHeader *aDataHeader) {
         dhdr = aDataHeader;
     }
 

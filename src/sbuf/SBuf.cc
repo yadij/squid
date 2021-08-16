@@ -491,7 +491,8 @@ SBuf::consume(size_type n)
 }
 
 const
-SBufStats& SBuf::GetStats()
+SBufStats&
+SBuf::GetStats()
 {
     return stats;
 }

@@ -193,7 +193,8 @@ class StoreRootEngine : public AsyncEngine
 {
 
 public:
-    int checkEvents(int) {
+    int
+    checkEvents(int) {
         Store::Root().callback();
         return EVENT_IDLE;
     };
@@ -212,12 +213,14 @@ public:
     virtual int checkEvents(int timeout);
 
 private:
-    static void StopEventLoop(void *) {
+    static void
+    StopEventLoop(void *) {
         if (EventLoop::Running)
             EventLoop::Running->stop();
     }
 
-    static void FinalShutdownRunners(void *) {
+    static void
+    FinalShutdownRunners(void *) {
         RunRegisteredHere(RegisteredRunner::endingShutdown);
 
         // XXX: this should be a Runner.

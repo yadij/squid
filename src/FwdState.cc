@@ -88,14 +88,18 @@ public:
         method_(method), fwd_(fwd), answer_() {}
 
     /* CallDialer API */
-    virtual bool canDial(AsyncCall &) { return fwd_.valid(); }
-    void dial(AsyncCall &) { ((&(*fwd_))->*method_)(answer_); }
-    virtual void print(std::ostream &os) const {
+    virtual bool
+    canDial(AsyncCall &) { return fwd_.valid(); }
+    void
+    dial(AsyncCall &) { ((&(*fwd_))->*method_)(answer_); }
+    virtual void
+    print(std::ostream &os) const {
         os << '(' << fwd_.get() << ", " << answer_ << ')';
     }
 
     /* Security::PeerConnector::CbDialer API */
-    virtual Security::EncryptorAnswer &answer() { return answer_; }
+    virtual Security::EncryptorAnswer &
+    answer() { return answer_; }
 
 private:
     Method method_;
@@ -163,7 +167,8 @@ FwdState::FwdState(const Comm::ConnectionPointer &client, StoreEntry * e, HttpRe
 }
 
 // Called once, right after object creation, when it is safe to set self
-void FwdState::start(Pointer aSelf)
+void
+FwdState::start(Pointer aSelf)
 {
     // Protect ourselves from being destroyed when the only Server pointing
     // to us is gone (while we expect to talk to more Servers later).

@@ -47,7 +47,8 @@ Adaptation::Iterator::~Iterator()
     HTTPMSGUNLOCK(theCause);
 }
 
-void Adaptation::Iterator::start()
+void
+Adaptation::Iterator::start()
 {
     Adaptation::Initiate::start();
 
@@ -68,7 +69,8 @@ void Adaptation::Iterator::start()
     step();
 }
 
-void Adaptation::Iterator::step()
+void
+Adaptation::Iterator::step()
 {
     ++iterations;
     debugs(93,5, HERE << '#' << iterations << " plan: " << thePlan);
@@ -156,14 +158,16 @@ Adaptation::Iterator::handleAdaptedHeader(Http::Message *aMsg)
     step();
 }
 
-void Adaptation::Iterator::noteInitiatorAborted()
+void
+Adaptation::Iterator::noteInitiatorAborted()
 {
     announceInitiatorAbort(theLauncher); // propagate to the transaction
     clearInitiator();
     mustStop("initiator gone");
 }
 
-void Adaptation::Iterator::handleAdaptationBlock(const Answer &answer)
+void
+Adaptation::Iterator::handleAdaptationBlock(const Answer &answer)
 {
     debugs(93,5, HERE << "blocked by " << answer);
     clearAdaptation(theLauncher);
@@ -172,7 +176,8 @@ void Adaptation::Iterator::handleAdaptationBlock(const Answer &answer)
     mustStop("blocked");
 }
 
-void Adaptation::Iterator::handleAdaptationError(bool final)
+void
+Adaptation::Iterator::handleAdaptationError(bool final)
 {
     debugs(93,5, HERE << "final: " << final << " plan: " << thePlan);
     clearAdaptation(theLauncher);
@@ -207,12 +212,14 @@ void Adaptation::Iterator::handleAdaptationError(bool final)
     mustStop("group failure");
 }
 
-bool Adaptation::Iterator::doneAll() const
+bool
+Adaptation::Iterator::doneAll() const
 {
     return Adaptation::Initiate::doneAll() && thePlan.exhausted();
 }
 
-void Adaptation::Iterator::swanSong()
+void
+Adaptation::Iterator::swanSong()
 {
     if (theInitiator.set())
         tellQueryAborted(true); // abnormal condition that should not happen
@@ -223,7 +230,8 @@ void Adaptation::Iterator::swanSong()
     Adaptation::Initiate::swanSong();
 }
 
-bool Adaptation::Iterator::updatePlan(bool adopt)
+bool
+Adaptation::Iterator::updatePlan(bool adopt)
 {
     HttpRequest *r = theCause ? theCause : dynamic_cast<HttpRequest*>(theMsg);
     Must(r);
@@ -263,7 +271,8 @@ bool Adaptation::Iterator::updatePlan(bool adopt)
     return true;
 }
 
-Adaptation::ServiceFilter Adaptation::Iterator::filter() const
+Adaptation::ServiceFilter
+Adaptation::Iterator::filter() const
 {
     // the method may differ from theGroup->method due to request satisfaction
     Method method = methodNone;

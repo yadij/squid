@@ -22,7 +22,8 @@ RemovalPolicy * createRemovalPolicy(RemovalPolicySettings *) STUB_RETVAL(nullptr
 
 #include "Store.h"
 StoreIoStats store_io_stats;
-bool StoreEntry::checkDeferRead(int) const STUB_RETVAL(false)
+bool
+StoreEntry::checkDeferRead(int) const STUB_RETVAL(false)
 const char *StoreEntry::getMD5Text() const STUB_RETVAL(nullptr)
 StoreEntry::StoreEntry() STUB
 StoreEntry::~StoreEntry() STUB
@@ -76,7 +77,8 @@ void *StoreEntry::operator new(size_t)
     STUB
     return new StoreEntry();
 }
-void StoreEntry::operator delete(void *) STUB
+void
+StoreEntry::operator delete(void *) STUB
 //#if USE_SQUID_ESI
 //ESIElement::Pointer StoreEntry::cachedESITree STUB_RETVAL(nullptr)
 //#endif

@@ -49,9 +49,11 @@ public:
     typedef RefCount<Aggregate> Pointer;
     Aggregate();
     ~Aggregate();
-    virtual DelaySpec *rate() {return &spec;}
+    virtual DelaySpec *
+    rate() {return &spec;}
 
-    virtual DelaySpec const *rate() const {return &spec;}
+    virtual DelaySpec const *
+    rate() const {return &spec;}
 
     virtual void stats(StoreEntry * sentry);
     virtual void dump(StoreEntry *entry) const;
@@ -123,9 +125,11 @@ public:
 
 protected:
     bool keyAllocated (unsigned char const key) const;
-    virtual DelaySpec *rate() {return &spec;}
+    virtual DelaySpec *
+    rate() {return &spec;}
 
-    virtual DelaySpec const *rate() const {return &spec;}
+    virtual DelaySpec const *
+    rate() const {return &spec;}
 
     virtual char const *label() const = 0;
 
@@ -155,7 +159,8 @@ class IndividualPool : public VectorPool
     MEMPROXY_CLASS(IndividualPool);
 
 protected:
-    virtual char const *label() const {return "Individual";}
+    virtual char const *
+    label() const {return "Individual";}
     virtual unsigned int makeKey(Ip::Address &src_addr) const;
 };
 
@@ -165,7 +170,8 @@ class ClassCNetPool : public VectorPool
     MEMPROXY_CLASS(ClassCNetPool);
 
 protected:
-    virtual char const *label() const {return "Network";}
+    virtual char const *
+    label() const {return "Network";}
     virtual unsigned int makeKey (Ip::Address &src_addr) const;
 };
 
@@ -205,11 +211,14 @@ public:
 
 protected:
     bool keyAllocated (unsigned char const key) const;
-    virtual DelaySpec *rate() {return &spec;}
+    virtual DelaySpec *
+    rate() {return &spec;}
 
-    virtual DelaySpec const *rate() const {return &spec;}
+    virtual DelaySpec const *
+    rate() const {return &spec;}
 
-    virtual char const *label() const {return "Individual";}
+    virtual char const *
+    label() const {return "Individual";}
 
     virtual unsigned int makeKey(Ip::Address &src_addr) const;
 

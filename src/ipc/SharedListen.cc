@@ -84,7 +84,8 @@ Ipc::SharedListenRequest::SharedListenRequest(const TypedMsgHdr &hdrMsg)
     hdrMsg.getPod(*this);
 }
 
-void Ipc::SharedListenRequest::pack(TypedMsgHdr &hdrMsg) const
+void
+Ipc::SharedListenRequest::pack(TypedMsgHdr &hdrMsg) const
 {
     hdrMsg.setType(mtSharedListenRequest);
     // XXX: our handlerSubscription is not a POD!
@@ -106,7 +107,8 @@ Ipc::SharedListenResponse::SharedListenResponse(const TypedMsgHdr &hdrMsg):
     // other conn details are passed in OpenListenerParams and filled out by SharedListenJoin()
 }
 
-void Ipc::SharedListenResponse::pack(TypedMsgHdr &hdrMsg) const
+void
+Ipc::SharedListenResponse::pack(TypedMsgHdr &hdrMsg) const
 {
     hdrMsg.setType(mtSharedListenResponse);
     hdrMsg.putPod(*this);
@@ -157,7 +159,8 @@ Ipc::JoinSharedListen(const OpenListenerParams &params, AsyncCall::Pointer &cb)
     }
 }
 
-void Ipc::SharedListenJoined(const SharedListenResponse &response)
+void
+Ipc::SharedListenJoined(const SharedListenResponse &response)
 {
     // Dont debugs c fully since only FD is filled right now.
     debugs(54, 3, "got listening FD " << response.fd << " errNo=" <<

@@ -122,7 +122,8 @@ Rock::SwapDir::anchorEntry(StoreEntry &e, const sfileno filen, const Ipc::StoreM
     EBIT_SET(e.flags, ENTRY_VALIDATED);
 }
 
-void Rock::SwapDir::disconnect(StoreEntry &e)
+void
+Rock::SwapDir::disconnect(StoreEntry &e)
 {
     assert(e.hasDisk(index));
 
@@ -1112,7 +1113,8 @@ namespace Rock
 RunnerRegistrationEntry(SwapDirRr);
 }
 
-void Rock::SwapDirRr::create()
+void
+Rock::SwapDirRr::create()
 {
     Must(mapOwners.empty() && freeSlotsOwners.empty());
     for (int i = 0; i < Config.cacheSwap.n_configured; ++i) {

@@ -194,7 +194,8 @@ check_gss_err(OM_uint32 major_status, OM_uint32 minor_status,
 /*
  * Free a kt_list
  */
-krb5_error_code krb5_free_kt_list(krb5_context context, krb5_kt_list list)
+krb5_error_code
+krb5_free_kt_list(krb5_context context, krb5_kt_list list)
 {
     krb5_kt_list lp = list;
 
@@ -217,7 +218,8 @@ krb5_error_code krb5_free_kt_list(krb5_context context, krb5_kt_list list)
  * Read in a keytab and append it to list.  If list starts as NULL,
  * allocate a new one if necessary.
  */
-krb5_error_code krb5_read_keytab(krb5_context context, char *name, krb5_kt_list *list)
+krb5_error_code
+krb5_read_keytab(krb5_context context, char *name, krb5_kt_list *list)
 {
     krb5_kt_list lp = NULL, tail = NULL, back = NULL;
     krb5_keytab kt;
@@ -300,7 +302,8 @@ close_kt:
 /*
  * Takes a kt_list and writes it to the named keytab.
  */
-krb5_error_code krb5_write_keytab(krb5_context context, krb5_kt_list list, char *name)
+krb5_error_code
+krb5_write_keytab(krb5_context context, krb5_kt_list list, char *name)
 {
     char ktname[MAXPATHLEN+sizeof("MEMORY:")+1];
     krb5_error_code retval = 0;

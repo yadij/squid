@@ -12,11 +12,13 @@
 #define STUB_API "cbdata.cc"
 #include "tests/STUB.h"
 
-void cbdataRegisterWithCacheManager(void) STUB
+void
+cbdataRegisterWithCacheManager(void) STUB
 void *cbdataInternalAlloc(cbdata_type, const char *, int sz) {
     return xcalloc(1, sz);
 }
-void *cbdataInternalFree(void *p, const char *, int) {
+void *
+cbdataInternalFree(void *p, const char *, int) {
     xfree(p);
     return nullptr;
 }

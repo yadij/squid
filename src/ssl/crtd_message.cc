@@ -18,7 +18,8 @@ Ssl::CrtdMessage::CrtdMessage(MessageKind kind)
     :   body_size(0), state(kind == REPLY ? BEFORE_LENGTH: BEFORE_CODE)
 {}
 
-Ssl::CrtdMessage::ParseResult Ssl::CrtdMessage::parse(const char * buffer, size_t len)
+Ssl::CrtdMessage::ParseResult
+Ssl::CrtdMessage::parse(const char * buffer, size_t len)
 {
     char const *current_pos = buffer;
     while (current_pos != buffer + len && state != END) {
@@ -115,15 +116,20 @@ Ssl::CrtdMessage::ParseResult Ssl::CrtdMessage::parse(const char * buffer, size_
     return OK;
 }
 
-std::string const & Ssl::CrtdMessage::getBody() const { return body; }
+std::string const &
+Ssl::CrtdMessage::getBody() const { return body; }
 
-std::string const & Ssl::CrtdMessage::getCode() const { return code; }
+std::string const &
+Ssl::CrtdMessage::getCode() const { return code; }
 
-void Ssl::CrtdMessage::setBody(std::string const & aBody) { body = aBody; }
+void
+Ssl::CrtdMessage::setBody(std::string const & aBody) { body = aBody; }
 
-void Ssl::CrtdMessage::setCode(std::string const & aCode) { code = aCode; }
+void
+Ssl::CrtdMessage::setCode(std::string const & aCode) { code = aCode; }
 
-std::string Ssl::CrtdMessage::compose() const
+std::string
+Ssl::CrtdMessage::compose() const
 {
     if (code.empty()) return std::string();
     char buffer[10];
@@ -131,7 +137,8 @@ std::string Ssl::CrtdMessage::compose() const
     return code + ' ' + buffer + ' ' + body;
 }
 
-void Ssl::CrtdMessage::clear()
+void
+Ssl::CrtdMessage::clear()
 {
     body_size = 0;
     state = BEFORE_CODE;
@@ -140,7 +147,8 @@ void Ssl::CrtdMessage::clear()
     current_block.clear();
 }
 
-void Ssl::CrtdMessage::parseBody(CrtdMessage::BodyParams & map, std::string & other_part) const
+void
+Ssl::CrtdMessage::parseBody(CrtdMessage::BodyParams & map, std::string & other_part) const
 {
     other_part.clear();
     // Copy string for using it as temp buffer.
@@ -163,7 +171,8 @@ void Ssl::CrtdMessage::parseBody(CrtdMessage::BodyParams & map, std::string & ot
     }
 }
 
-void Ssl::CrtdMessage::composeBody(CrtdMessage::BodyParams const & map, std::string const & other_part)
+void
+Ssl::CrtdMessage::composeBody(CrtdMessage::BodyParams const & map, std::string const & other_part)
 {
     body.clear();
     for (BodyParams::const_iterator i = map.begin(); i != map.end(); ++i) {
@@ -175,7 +184,8 @@ void Ssl::CrtdMessage::composeBody(CrtdMessage::BodyParams const & map, std::str
         body += '\n' + other_part;
 }
 
-bool Ssl::CrtdMessage::parseRequest(Ssl::CertificateProperties &certProperties, std::string &error)
+bool
+Ssl::CrtdMessage::parseRequest(Ssl::CertificateProperties &certProperties, std::string &error)
 {
     Ssl::CrtdMessage::BodyParams map;
     std::string certs_part;
@@ -236,7 +246,8 @@ bool Ssl::CrtdMessage::parseRequest(Ssl::CertificateProperties &certProperties, 
     return true;
 }
 
-void Ssl::CrtdMessage::composeRequest(Ssl::CertificateProperties const &certProperties)
+void
+Ssl::CrtdMessage::composeRequest(Ssl::CertificateProperties const &certProperties)
 {
     body.clear();
     body = Ssl::CrtdMessage::param_host + "=" + certProperties.commonName;

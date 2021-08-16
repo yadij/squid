@@ -423,21 +423,25 @@ public:
         callback_data = cbdataReference(cb.callback_data);
     }
 
-    virtual ~StoreIOStateCb() {
+    virtual
+    ~StoreIOStateCb() {
         cbdataReferenceDone(callback_data); // may be nil already
     }
 
-    void dial(AsyncCall &) {
+    void
+    dial(AsyncCall &) {
         void *cbd;
         if (cbdataReferenceValidDone(callback_data, &cbd) && callback)
             callback(cbd, errflag, sio.getRaw());
     }
 
-    bool canDial(AsyncCall &) const {
+    bool
+    canDial(AsyncCall &) const {
         return cbdataReferenceValid(callback_data) && callback;
     }
 
-    virtual void print(std::ostream &os) const {
+    virtual void
+    print(std::ostream &os) const {
         os << '(' << callback_data << ", err=" << errflag << ')';
     }
 

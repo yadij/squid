@@ -20,7 +20,8 @@ ClientDelayPool::~ClientDelayPool()
         aclDestroyAccessList(&access);
 }
 
-void ClientDelayPool::dump(StoreEntry * entry, unsigned int poolNumberMinusOne) const
+void
+ClientDelayPool::dump(StoreEntry * entry, unsigned int poolNumberMinusOne) const
 {
     LOCAL_ARRAY(char, nom, 32);
     snprintf(nom, 32, "client_delay_access %d", poolNumberMinusOne + 1);
@@ -54,7 +55,8 @@ ClientDelayConfig::finalize()
     }
 }
 
-void ClientDelayConfig::dumpPoolCount(StoreEntry * entry, const char *name) const
+void
+ClientDelayConfig::dumpPoolCount(StoreEntry * entry, const char *name) const
 {
     const auto &pools_ = ClientDelayPools::Instance()->pools;
     if (pools_.size()) {
@@ -70,7 +72,8 @@ ClientDelayConfig::freePools()
     pools().clear();
 }
 
-void ClientDelayConfig::parsePoolCount()
+void
+ClientDelayConfig::parsePoolCount()
 {
     if (pools().size()) {
         debugs(3, DBG_CRITICAL, "parse_client_delay_pool_count: multiple client_delay_pools lines, " <<
@@ -83,7 +86,8 @@ void ClientDelayConfig::parsePoolCount()
         pools().push_back(new ClientDelayPool());
 }
 
-void ClientDelayConfig::parsePoolRates()
+void
+ClientDelayConfig::parsePoolRates()
 {
     if (unsigned short poolId = parsePoolId()) {
         --poolId;
@@ -92,7 +96,8 @@ void ClientDelayConfig::parsePoolRates()
     }
 }
 
-void ClientDelayConfig::parsePoolAccess(ConfigParser &parser)
+void
+ClientDelayConfig::parsePoolAccess(ConfigParser &parser)
 {
     if (const unsigned short poolId = parsePoolId())
         aclParseAccessLine("client_delay_access", parser, &(pool(poolId-1).access));

@@ -23,7 +23,8 @@ SBuf AccessLogEntry::getLogMethod() const STUB_RETVAL(SBuf())
 AccessLogEntry::SslDetails::SslDetails() {STUB}
 #endif
 */
-void accessLogLogTo(CustomLog *, AccessLogEntry::Pointer &, ACLChecklist *) STUB
+void
+accessLogLogTo(CustomLog *, AccessLogEntry::Pointer &, ACLChecklist *) STUB
 void accessLogLog(AccessLogEntry::Pointer &, ACLChecklist *) STUB
 void accessLogRotate(void) STUB
 void accessLogClose(void) STUB
@@ -55,7 +56,8 @@ Logfile::Logfile(const char *) {STUB}
 //void Logfile::f_flush(Logfile *) STUB
 //void Logfile::f_rotate(Logfile *, const int16_t) STUB
 //void Logfile::f_close(Logfile *) STUB
-Logfile *logfileOpen(const char *, size_t, int) STUB_RETVAL(nullptr)
+Logfile *
+logfileOpen(const char *, size_t, int) STUB_RETVAL(nullptr)
 void logfileClose(Logfile *) STUB
 void logfileRotate(Logfile *, int16_t) STUB
 void logfileWrite(Logfile *, const char *, size_t) STUB
@@ -80,7 +82,8 @@ void HttpdCombined(const AccessLogEntryPointer &, Logfile *) STUB
 }
 
 #include "log/ModDaemon.h"
-int logfile_mod_daemon_open(Logfile *, const char *, size_t, int) STUB_RETVAL(0)
+int
+logfile_mod_daemon_open(Logfile *, const char *, size_t, int) STUB_RETVAL(0)
 
 #include "log/ModStdio.h"
 int logfile_mod_stdio_open(Logfile *, const char *, size_t, int) STUB_RETVAL(0)

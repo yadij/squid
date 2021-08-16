@@ -68,7 +68,8 @@ int SMB_TreeDisconnect(SMB_Tree_Handle Tree_Handle, BOOL discard);
 #if UNDEFINED
 /* Print out an SMB pkt in all its gory detail ... */
 
-void SMB_Print_Pkt(FILE fd, RFCNB_Pkt *pkt, BOOL command, int Offset, int Len)
+void
+SMB_Print_Pkt(FILE fd, RFCNB_Pkt *pkt, BOOL command, int Offset, int Len)
 
 {
 
@@ -88,7 +89,8 @@ void SMB_Print_Pkt(FILE fd, RFCNB_Pkt *pkt, BOOL command, int Offset, int Len)
 /* Convert a DOS Date_Time to a local host type date time for printing */
 
 #if UNDEFINED
-char *SMB_DOSTimToStr(int DOS_time)
+char *
+SMB_DOSTimToStr(int DOS_time)
 
 {
     static char SMB_Time_Temp[48];
@@ -115,7 +117,8 @@ char *SMB_DOSTimToStr(int DOS_time)
    to a static string which we guarantee is long enough. If verbose is
    true, we print out long form of strings ...                            */
 
-char *SMB_AtrToStr(int attribs, BOOL verbose)
+char *
+SMB_AtrToStr(int attribs, BOOL verbose)
 
 {
     static char SMB_Attrib_Temp[128];
@@ -146,7 +149,8 @@ char *SMB_AtrToStr(int attribs, BOOL verbose)
 
 /* Pick up the Max Buffer Size from the Tree Structure ... */
 
-int SMB_Get_Tree_MBS(SMB_Tree_Handle tree)
+int
+SMB_Get_Tree_MBS(SMB_Tree_Handle tree)
 
 {
     if (tree != NULL) {
@@ -158,7 +162,8 @@ int SMB_Get_Tree_MBS(SMB_Tree_Handle tree)
 
 /* Pick up the Max buffer size */
 
-int SMB_Get_Max_Buf_Siz(SMB_Handle_Type Con_Handle)
+int
+SMB_Get_Max_Buf_Siz(SMB_Handle_Type Con_Handle)
 
 {
     if (Con_Handle != NULL) {
@@ -170,7 +175,8 @@ int SMB_Get_Max_Buf_Siz(SMB_Handle_Type Con_Handle)
 }
 /* Pickup the protocol index from the connection structure                 */
 
-int SMB_Get_Protocol_IDX(SMB_Handle_Type Con_Handle)
+int
+SMB_Get_Protocol_IDX(SMB_Handle_Type Con_Handle)
 
 {
     if (Con_Handle != NULL) {
@@ -184,7 +190,8 @@ int SMB_Get_Protocol_IDX(SMB_Handle_Type Con_Handle)
 
 /* Pick up the protocol from the connection structure                       */
 
-int SMB_Get_Protocol(SMB_Handle_Type Con_Handle)
+int
+SMB_Get_Protocol(SMB_Handle_Type Con_Handle)
 
 {
     if (Con_Handle != NULL) {
@@ -199,7 +206,8 @@ int SMB_Get_Protocol(SMB_Handle_Type Con_Handle)
 /* We offered, and the index back from the server. We allow for a user      */
 /* supplied list, and assume that it is a subset of our list                */
 
-int SMB_Figure_Protocol(const char *dialects[], int prot_index)
+int
+SMB_Figure_Protocol(const char *dialects[], int prot_index)
 
 {
     int i;
@@ -236,7 +244,8 @@ int SMB_Figure_Protocol(const char *dialects[], int prot_index)
 /* we return the index of the accepted protocol in NegProt, -1 indicates  */
 /* none acceptable, and our return value is 0 if ok, <0 if problems       */
 
-int SMB_Negotiate(SMB_Handle_Type Con_Handle, const char *Prots[])
+int
+SMB_Negotiate(SMB_Handle_Type Con_Handle, const char *Prots[])
 
 {
 //    struct SMB_Neg_Prot_Def *prot_pkt;
@@ -449,7 +458,8 @@ int SMB_Negotiate(SMB_Handle_Type Con_Handle, const char *Prots[])
 
 /* Get our hostname */
 
-void SMB_Get_My_Name(char *name, int len)
+void
+SMB_Get_My_Name(char *name, int len)
 
 {
     if (gethostname(name, len) < 0) { /* Error getting name */
@@ -474,11 +484,12 @@ void SMB_Get_My_Name(char *name, int len)
 
 /* Send a TCON to the remote server ...               */
 
-SMB_Tree_Handle SMB_TreeConnect(SMB_Handle_Type Con_Handle,
-                                SMB_Tree_Handle Tree_Handle,
-                                const char *path,
-                                const char *password,
-                                const char *device)
+SMB_Tree_Handle
+SMB_TreeConnect(SMB_Handle_Type Con_Handle,
+                SMB_Tree_Handle Tree_Handle,
+                const char *path,
+                const char *password,
+                const char *device)
 
 {
     struct RFCNB_Pkt *pkt;
@@ -645,7 +656,8 @@ SMB_Tree_Handle SMB_TreeConnect(SMB_Handle_Type Con_Handle,
 
 }
 
-int SMB_TreeDisconnect(SMB_Tree_Handle Tree_Handle, BOOL discard)
+int
+SMB_TreeDisconnect(SMB_Tree_Handle Tree_Handle, BOOL discard)
 
 {
     struct RFCNB_Pkt *pkt;
@@ -752,7 +764,8 @@ int SMB_TreeDisconnect(SMB_Tree_Handle Tree_Handle, BOOL discard)
 
 /* Pick up the last LMBlib error ... */
 
-int SMB_Get_Last_Error()
+int
+SMB_Get_Last_Error()
 
 {
 
@@ -763,7 +776,8 @@ int SMB_Get_Last_Error()
 /* Pick up the last error returned in an SMB packet          */
 /* We will need macros to extract error class and error code */
 
-int SMB_Get_Last_SMB_Err()
+int
+SMB_Get_Last_SMB_Err()
 
 {
 
@@ -795,7 +809,8 @@ static const char *SMBlib_Error_Messages[] = {
     NULL
 };
 
-void SMB_Get_Error_Msg(int msg, char *msgbuf, int len)
+void
+SMB_Get_Error_Msg(int msg, char *msgbuf, int len)
 
 {
 

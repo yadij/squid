@@ -21,7 +21,8 @@ public:
     _ToRefCount () {++Instances;}
     ~_ToRefCount() {--Instances;}
 
-    int someMethod() {
+    int
+    someMethod() {
         if (!Instances)
             return 0;
 
@@ -40,7 +41,8 @@ class AlsoRefCountable : public RefCountable, public _ToRefCount
 public:
     typedef RefCount<AlsoRefCountable> Pointer;
 
-    int doSomething() {
+    int
+    doSomething() {
         if (!Instances)
             return 0;
         return 1;
@@ -130,7 +132,8 @@ testRefCount::testPointerConst()
     CPPUNIT_ASSERT_EQUAL(1, _ToRefCount::Instances);
 }
 
-void testRefCount::testRefCountFromConst()
+void
+testRefCount::testRefCountFromConst()
 {
     /* Can we get a refcounted pointer from a const object */
     CPPUNIT_ASSERT_EQUAL(0, _ToRefCount::Instances);

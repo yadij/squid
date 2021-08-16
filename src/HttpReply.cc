@@ -55,7 +55,8 @@ HttpReply::init()
     do_clean = true;
 }
 
-void HttpReply::reset()
+void
+HttpReply::reset()
 {
 
     // reset should not reset the protocol; could have made protoPrefix a
@@ -596,7 +597,8 @@ HttpReply::inheritProperties(const Http::Message *aMsg)
     return true;
 }
 
-void HttpReply::removeStaleWarnings()
+void
+HttpReply::removeStaleWarnings()
 {
     String warning;
     if (header.getList(Http::HdrType::WARNING, &warning)) {
@@ -616,7 +618,8 @@ void HttpReply::removeStaleWarnings()
  * Remove warning-values with warn-date different from Date value from
  * a single header entry. Returns a string with all valid warning-values.
  */
-String HttpReply::removeStaleWarningValues(const String &value)
+String
+HttpReply::removeStaleWarningValues(const String &value)
 {
     String newValue;
     const char *item = 0;

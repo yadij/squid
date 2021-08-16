@@ -44,8 +44,10 @@ DelayTaggedFree(DelayTaggedBucket::Pointer &)
 
 struct DelayTaggedStatsVisitor {
     StoreEntry *sentry;
-    explicit DelayTaggedStatsVisitor(StoreEntry *se): sentry(se) {}
-    void operator() (DelayTaggedBucket::Pointer const &current) {
+    explicit
+    DelayTaggedStatsVisitor(StoreEntry *se): sentry(se) {}
+    void
+    operator() (DelayTaggedBucket::Pointer const &current) {
         current->stats(sentry);
     }
 };
@@ -85,8 +87,10 @@ struct DelayTaggedUpdater {
 
 struct DelayTaggedUpdateVisitor {
     DelayTaggedUpdater *updater;
-    explicit DelayTaggedUpdateVisitor(DelayTaggedUpdater *u) : updater(u) {}
-    void operator() (DelayTaggedBucket::Pointer const &current) {
+    explicit
+    DelayTaggedUpdateVisitor(DelayTaggedUpdater *u) : updater(u) {}
+    void
+    operator() (DelayTaggedBucket::Pointer const &current) {
         const_cast<DelayTaggedBucket *>(current.getRaw())->theBucket.update(updater->spec, updater->incr);
     }
 };

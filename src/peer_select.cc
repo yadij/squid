@@ -115,7 +115,8 @@ public:
     void forget(PeerSelector *);
 
     /// \returns a (nil) registration of a non-waiting peer selector
-    WaitingPeerSelectorPosition npos() { return selectors.end(); }
+    WaitingPeerSelectorPosition
+    npos() { return selectors.end(); }
 
 private:
     static void NoteWaitOver(void *monitor);

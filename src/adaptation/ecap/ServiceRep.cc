@@ -161,7 +161,8 @@ Adaptation::Ecap::ServiceRep::~ServiceRep()
 {
 }
 
-void Adaptation::Ecap::ServiceRep::noteFailure()
+void
+Adaptation::Ecap::ServiceRep::noteFailure()
 {
     assert(false); // XXX: should this be ICAP-specific?
 }
@@ -229,17 +230,20 @@ Adaptation::Ecap::ServiceRep::handleFinalizeFailure(const char *error)
     return true; // tell the caller to ignore the problem because we handled it
 }
 
-bool Adaptation::Ecap::ServiceRep::probed() const
+bool
+Adaptation::Ecap::ServiceRep::probed() const
 {
     return true; // we "probe" the adapter in finalize().
 }
 
-bool Adaptation::Ecap::ServiceRep::up() const
+bool
+Adaptation::Ecap::ServiceRep::up() const
 {
     return bool(theService);
 }
 
-bool Adaptation::Ecap::ServiceRep::wantsUrl(const SBuf &urlPath) const
+bool
+Adaptation::Ecap::ServiceRep::wantsUrl(const SBuf &urlPath) const
 {
     Must(up());
     SBuf nonConstUrlPath = urlPath;
@@ -269,7 +273,8 @@ Adaptation::Ecap::ServiceRep::makeXactLauncher(Http::Message *virgin,
 }
 
 // returns a temporary string depicting service status, for debugging
-const char *Adaptation::Ecap::ServiceRep::status() const
+const char *
+Adaptation::Ecap::ServiceRep::status() const
 {
     // TODO: move generic stuff from eCAP and ICAP to Adaptation
     static MemBuf buf;
@@ -291,12 +296,14 @@ const char *Adaptation::Ecap::ServiceRep::status() const
     return buf.content();
 }
 
-void Adaptation::Ecap::ServiceRep::detach()
+void
+Adaptation::Ecap::ServiceRep::detach()
 {
     isDetached = true;
 }
 
-bool Adaptation::Ecap::ServiceRep::detached() const
+bool
+Adaptation::Ecap::ServiceRep::detached() const
 {
     return isDetached;
 }

@@ -84,7 +84,8 @@ Comm::SelectLoopInit(void)
     commEPollRegisterWithCacheManager();
 }
 
-static const char* epolltype_atoi(int x)
+static const char*
+epolltype_atoi(int x)
 {
     switch (x) {
 

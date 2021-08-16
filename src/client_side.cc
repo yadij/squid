@@ -157,13 +157,16 @@ public:
     ListeningStartedDialer(Handler aHandler, AnyP::PortCfgPointer &aPortCfg, const Ipc::FdNoteId note, const Subscription::Pointer &aSub):
         handler(aHandler), portCfg(aPortCfg), portTypeNote(note), sub(aSub) {}
 
-    virtual void print(std::ostream &os) const {
+    virtual void
+    print(std::ostream &os) const {
         startPrint(os) <<
                        ", " << FdNote(portTypeNote) << " port=" << (void*)&portCfg << ')';
     }
 
-    virtual bool canDial(AsyncCall &) const { return true; }
-    virtual void dial(AsyncCall &) { (handler)(portCfg, portTypeNote, sub); }
+    virtual bool
+    canDial(AsyncCall &) const { return true; }
+    virtual void
+    dial(AsyncCall &) { (handler)(portCfg, portTypeNote, sub); }
 
 public:
     Handler handler;
@@ -499,7 +502,8 @@ httpRequestFree(void *data)
 }
 
 /* This is a handler normally called by comm_close() */
-void ConnStateData::connStateClosed(const CommCloseCbParams &)
+void
+ConnStateData::connStateClosed(const CommCloseCbParams &)
 {
     deleteThis("ConnStateData::connStateClosed");
 }
@@ -1480,7 +1484,8 @@ ConnStateData::quitAfterError(HttpRequest *request)
 }
 
 #if USE_OPENSSL
-bool ConnStateData::serveDelayedError(Http::Stream *context)
+bool
+ConnStateData::serveDelayedError(Http::Stream *context)
 {
     ClientHttpRequest *http = context->http;
 
@@ -2631,7 +2636,8 @@ ConnStateData::sslCrtdHandleReply(const Helper::Reply &reply)
     getSslContextDone(nil);
 }
 
-void ConnStateData::buildSslCertGenerationParams(Ssl::CertificateProperties &certProperties)
+void
+ConnStateData::buildSslCertGenerationParams(Ssl::CertificateProperties &certProperties)
 {
     certProperties.commonName = sslCommonName_.isEmpty() ? tlsConnectHostOrIp.c_str() : sslCommonName_.c_str();
 

@@ -19,7 +19,8 @@
 #define STUB_API "stub_store_rebuild.cc"
 #include "tests/STUB.h"
 
-void storeRebuildProgress(int, int, int) STUB
+void
+storeRebuildProgress(int, int, int) STUB
 bool storeRebuildParseEntry(MemBuf &, StoreEntry &, cache_key *, StoreRebuildData &, uint64_t) STUB_RETVAL(false)
 
 void StoreRebuildData::updateStartTime(const timeval &dirStartTime)
@@ -27,7 +28,8 @@ void StoreRebuildData::updateStartTime(const timeval &dirStartTime)
     startTime = started() ? std::min(startTime, dirStartTime) : dirStartTime;
 }
 
-void storeRebuildComplete(StoreRebuildData *)
+void
+storeRebuildComplete(StoreRebuildData *)
 {
     --StoreController::store_dirs_rebuilding;
     if (StoreController::store_dirs_rebuilding == 1)

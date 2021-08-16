@@ -22,7 +22,8 @@ FadingCounter::FadingCounter(): horizon(-1), precision(10), delta(-1),
         counters.push_back(0);
 }
 
-void FadingCounter::clear()
+void
+FadingCounter::clear()
 {
     for (int i = 0; i < precision; ++i)
         counters[i] = 0;
@@ -30,7 +31,8 @@ void FadingCounter::clear()
     total = 0;
 }
 
-void FadingCounter::configure(double newHorizon)
+void
+FadingCounter::configure(double newHorizon)
 {
     if (fabs(newHorizon - horizon) >= 1e-3) { // diff exceeds one millisecond
         clear(); // for simplicity
@@ -39,7 +41,8 @@ void FadingCounter::configure(double newHorizon)
     }
 }
 
-int FadingCounter::count(int howMany)
+int
+FadingCounter::count(int howMany)
 {
     Must(howMany >= 0);
 

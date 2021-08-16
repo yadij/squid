@@ -25,11 +25,13 @@ class AnswerCall: public AsyncCallT<AnswerDialer>
 public:
     AnswerCall(const char *aName, const AnswerDialer &aDialer) :
         AsyncCallT<AnswerDialer>(93, 5, aName, aDialer), fired(false) {}
-    virtual void fire() {
+    virtual void
+    fire() {
         fired = true;
         AsyncCallT<AnswerDialer>::fire();
     }
-    virtual ~AnswerCall() {
+    virtual
+    ~AnswerCall() {
         if (!fired && dialer.arg1.message != NULL && dialer.arg1.message->body_pipe != NULL)
             dialer.arg1.message->body_pipe->expectNoConsumption();
     }
@@ -59,7 +61,8 @@ Adaptation::Initiate::initiator(const CbcPointer<Initiator> &i)
 }
 
 // internal cleanup
-void Adaptation::Initiate::swanSong()
+void
+Adaptation::Initiate::swanSong()
 {
     debugs(93, 5, HERE << "swan sings" << status());
 
@@ -71,12 +74,14 @@ void Adaptation::Initiate::swanSong()
     debugs(93, 5, HERE << "swan sang" << status());
 }
 
-void Adaptation::Initiate::clearInitiator()
+void
+Adaptation::Initiate::clearInitiator()
 {
     theInitiator.clear();
 }
 
-void Adaptation::Initiate::sendAnswer(const Answer &answer)
+void
+Adaptation::Initiate::sendAnswer(const Answer &answer)
 {
     AsyncCall::Pointer call = new AnswerCall("Initiator::noteAdaptationAnswer",
             AnswerDialer(theInitiator, &Initiator::noteAdaptationAnswer, answer));
@@ -84,12 +89,14 @@ void Adaptation::Initiate::sendAnswer(const Answer &answer)
     clearInitiator();
 }
 
-void Adaptation::Initiate::tellQueryAborted(bool final)
+void
+Adaptation::Initiate::tellQueryAborted(bool final)
 {
     sendAnswer(Answer::Error(final));
 }
 
-const char *Adaptation::Initiate::status() const
+const char *
+Adaptation::Initiate::status() const
 {
     return AsyncJob::status(); // for now
 }

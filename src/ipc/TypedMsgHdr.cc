@@ -28,7 +28,8 @@ Ipc::TypedMsgHdr::TypedMsgHdr(const TypedMsgHdr &tmh)
     operator =(tmh);
 }
 
-Ipc::TypedMsgHdr &Ipc::TypedMsgHdr::operator =(const TypedMsgHdr &tmh)
+Ipc::TypedMsgHdr &
+Ipc::TypedMsgHdr::operator =(const TypedMsgHdr &tmh)
 {
     if (this != &tmh) { // skip assignment to self
         memcpy(static_cast<msghdr*>(this), static_cast<const msghdr*>(&tmh), sizeof(msghdr));
@@ -55,7 +56,8 @@ Ipc::TypedMsgHdr::clear()
 }
 
 // update msghdr and ios pointers based on msghdr counters
-void Ipc::TypedMsgHdr::sync()
+void
+Ipc::TypedMsgHdr::sync()
 {
     if (msg_name) { // we have a name
         msg_name = &name;

@@ -172,7 +172,8 @@ class nsvc
     CBDATA_CLASS(nsvc);
 
 public:
-    explicit nsvc(size_t nsv) : ns(nsv), msg(new MemBuf()), queue(new MemBuf()) {}
+    explicit
+    nsvc(size_t nsv) : ns(nsv), msg(new MemBuf()), queue(new MemBuf()) {}
     ~nsvc();
 
     size_t ns = 0;

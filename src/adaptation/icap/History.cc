@@ -20,7 +20,8 @@ Adaptation::Icap::History::History():
     memset(&pastTime, 0, sizeof(pastTime));
 }
 
-void Adaptation::Icap::History::start(const char *context)
+void
+Adaptation::Icap::History::start(const char *context)
 {
     if (!concurrencyLevel++)
         currentStart = current_time;
@@ -29,7 +30,8 @@ void Adaptation::Icap::History::start(const char *context)
            << " time=" << tvToMsec(pastTime) << ' ' << this);
 }
 
-void Adaptation::Icap::History::stop(const char *context)
+void
+Adaptation::Icap::History::stop(const char *context)
 {
     if (!concurrencyLevel) {
         debugs(93, DBG_IMPORTANT, HERE << "Internal error: poor history accounting " << this);

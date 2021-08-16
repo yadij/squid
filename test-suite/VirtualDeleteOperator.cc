@@ -24,10 +24,14 @@ private:
 
 CallCounter::CallCounter() : _news(0), _deletes(0) {}
 
-void CallCounter::recordNew() { ++_news;}
-void CallCounter::recordDelete() { ++_deletes;}
-size_t CallCounter::news() const {return _news;}
-size_t CallCounter::deletes() const {return _deletes;}
+void
+CallCounter::recordNew() { ++_news;}
+void
+CallCounter::recordDelete() { ++_deletes;}
+size_t
+CallCounter::news() const {return _news;}
+size_t
+CallCounter::deletes() const {return _deletes;}
 
 class BaseVirtual
 {

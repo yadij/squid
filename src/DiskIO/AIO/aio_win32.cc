@@ -18,8 +18,9 @@
 #include <cerrno>
 
 #if _SQUID_WINDOWS_
-VOID CALLBACK IoCompletionRoutine(DWORD dwErrorCode,
-                                  DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped)
+VOID CALLBACK
+IoCompletionRoutine(DWORD dwErrorCode,
+                    DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped)
 {
 
     struct aiocb *aiocbp = (struct aiocb *) lpOverlapped->hEvent;
@@ -30,7 +31,8 @@ VOID CALLBACK IoCompletionRoutine(DWORD dwErrorCode,
     xfree(lpOverlapped);
 }
 
-int aio_read(struct aiocb *aiocbp)
+int
+aio_read(struct aiocb *aiocbp)
 {
     LPOVERLAPPED Overlapped;
     BOOL IoOperationStatus;
@@ -89,7 +91,8 @@ int aio_read(struct aiocb *aiocbp)
     return 0;
 }
 
-int aio_read64(struct aiocb64 *aiocbp)
+int
+aio_read64(struct aiocb64 *aiocbp)
 {
     LPOVERLAPPED Overlapped;
     BOOL IoOperationStatus;
@@ -140,7 +143,8 @@ int aio_read64(struct aiocb64 *aiocbp)
     return 0;
 }
 
-int aio_write(struct aiocb *aiocbp)
+int
+aio_write(struct aiocb *aiocbp)
 {
     LPOVERLAPPED Overlapped;
     BOOL IoOperationStatus;
@@ -199,7 +203,8 @@ int aio_write(struct aiocb *aiocbp)
     return 0;
 }
 
-int aio_write64(struct aiocb64 *aiocbp)
+int
+aio_write64(struct aiocb64 *aiocbp)
 {
     LPOVERLAPPED Overlapped;
     BOOL IoOperationStatus;
@@ -250,17 +255,20 @@ int aio_write64(struct aiocb64 *aiocbp)
     return 0;
 }
 
-int aio_error(const struct aiocb * aiocbp)
+int
+aio_error(const struct aiocb * aiocbp)
 {
     return aiocbp->aio_sigevent.sigev_notify;
 }
 
-int aio_error64(const struct aiocb64 * aiocbp)
+int
+aio_error64(const struct aiocb64 * aiocbp)
 {
     return aiocbp->aio_sigevent.sigev_notify;
 }
 
-int aio_open(const char *path, int mode)
+int
+aio_open(const char *path, int mode)
 {
     HANDLE hndl;
     DWORD dwCreationDisposition;
@@ -304,19 +312,22 @@ int aio_open(const char *path, int mode)
     return fd;
 }
 
-void aio_close(int fd)
+void
+aio_close(int fd)
 {
     CloseHandle((HANDLE)_get_osfhandle(fd));
     fd_close(fd);
     ++ statCounter.syscalls.disk.closes;
 }
 
-ssize_t aio_return(struct aiocb * aiocbp)
+ssize_t
+aio_return(struct aiocb * aiocbp)
 {
     return aiocbp->aio_sigevent.sigev_signo;
 }
 
-ssize_t aio_return64(struct aiocb64 * aiocbp)
+ssize_t
+aio_return64(struct aiocb64 * aiocbp)
 
 {
     return aiocbp->aio_sigevent.sigev_signo;

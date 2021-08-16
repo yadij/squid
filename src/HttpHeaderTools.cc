@@ -360,15 +360,17 @@ httpHdrMangleList(HttpHeader *l, HttpRequest *request, const AccessLogEntryPoint
 }
 
 static
-void header_mangler_clean(headerMangler &m)
+void
+header_mangler_clean(headerMangler &m)
 {
     aclDestroyAccessList(&m.access_list);
     safe_free(m.replacement);
 }
 
 static
-void header_mangler_dump_access(StoreEntry * entry, const char *option,
-                                const headerMangler &m, const char *name)
+void
+header_mangler_dump_access(StoreEntry * entry, const char *option,
+                           const headerMangler &m, const char *name)
 {
     if (m.access_list != NULL) {
         storeAppendPrintf(entry, "%s ", option);
@@ -377,8 +379,9 @@ void header_mangler_dump_access(StoreEntry * entry, const char *option,
 }
 
 static
-void header_mangler_dump_replacement(StoreEntry * entry, const char *option,
-                                     const headerMangler &m, const char *name)
+void
+header_mangler_dump_replacement(StoreEntry * entry, const char *option,
+                                const headerMangler &m, const char *name)
 {
     if (m.replacement)
         storeAppendPrintf(entry, "%s %s %s\n", option, name, m.replacement);

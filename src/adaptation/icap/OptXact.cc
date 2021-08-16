@@ -30,14 +30,16 @@ Adaptation::Icap::OptXact::OptXact(Adaptation::Icap::ServiceRep::Pointer &aServi
 {
 }
 
-void Adaptation::Icap::OptXact::start()
+void
+Adaptation::Icap::OptXact::start()
 {
     Adaptation::Icap::Xaction::start();
 
     openConnection();
 }
 
-void Adaptation::Icap::OptXact::handleCommConnected()
+void
+Adaptation::Icap::OptXact::handleCommConnected()
 {
     scheduleRead();
 
@@ -50,7 +52,8 @@ void Adaptation::Icap::OptXact::handleCommConnected()
     scheduleWrite(requestBuf);
 }
 
-void Adaptation::Icap::OptXact::makeRequest(MemBuf &buf)
+void
+Adaptation::Icap::OptXact::makeRequest(MemBuf &buf)
 {
     const Adaptation::Service &s = service();
     const String uri = s.cfg().uri;
@@ -73,14 +76,16 @@ void Adaptation::Icap::OptXact::makeRequest(MemBuf &buf)
     Must(icapRequest->parse(buf.content(), buf.contentSize(), true, &reqStatus) > 0);
 }
 
-void Adaptation::Icap::OptXact::handleCommWrote(size_t size)
+void
+Adaptation::Icap::OptXact::handleCommWrote(size_t size)
 {
     debugs(93, 9, HERE << "finished writing " << size <<
            "-byte request " << status());
 }
 
 // comm module read a portion of the ICAP response for us
-void Adaptation::Icap::OptXact::handleCommRead(size_t)
+void
+Adaptation::Icap::OptXact::handleCommRead(size_t)
 {
     if (parseResponse()) {
         Must(icapReply != NULL);
@@ -100,7 +105,8 @@ void Adaptation::Icap::OptXact::handleCommRead(size_t)
     scheduleRead();
 }
 
-bool Adaptation::Icap::OptXact::parseResponse()
+bool
+Adaptation::Icap::OptXact::parseResponse()
 {
     debugs(93, 5, "have " << readBuf.length() << " bytes to parse" << status());
     debugs(93, DBG_DATA, "\n" << readBuf);
@@ -119,12 +125,14 @@ bool Adaptation::Icap::OptXact::parseResponse()
     return true;
 }
 
-void Adaptation::Icap::OptXact::swanSong()
+void
+Adaptation::Icap::OptXact::swanSong()
 {
     Adaptation::Icap::Xaction::swanSong();
 }
 
-void Adaptation::Icap::OptXact::finalizeLogInfo()
+void
+Adaptation::Icap::OptXact::finalizeLogInfo()
 {
     //    al.cache.caddr = 0;
     al.icap.reqMethod = Adaptation::methodOptions;
@@ -143,7 +151,8 @@ Adaptation::Icap::OptXactLauncher::OptXactLauncher(Adaptation::ServicePointer aS
 {
 }
 
-Adaptation::Icap::Xaction *Adaptation::Icap::OptXactLauncher::createXaction()
+Adaptation::Icap::Xaction *
+Adaptation::Icap::OptXactLauncher::createXaction()
 {
     Adaptation::Icap::ServiceRep::Pointer s =
         dynamic_cast<Adaptation::Icap::ServiceRep*>(theService.getRaw());

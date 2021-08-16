@@ -52,7 +52,8 @@ tvSub(struct timeval &res, struct timeval const &t1, struct timeval const &t2)
     }
 }
 
-void tvAdd(struct timeval &res, struct timeval const &t1, struct timeval const &t2)
+void
+tvAdd(struct timeval &res, struct timeval const &t1, struct timeval const &t2)
 {
     res.tv_sec = t1.tv_sec + t2.tv_sec;
     res.tv_usec = t1.tv_usec + t2.tv_usec;
@@ -62,7 +63,8 @@ void tvAdd(struct timeval &res, struct timeval const &t1, struct timeval const &
     }
 }
 
-void tvAssignAdd(struct timeval &t, struct timeval const &add)
+void
+tvAssignAdd(struct timeval &t, struct timeval const &add)
 {
     t.tv_sec += add.tv_sec;
     t.tv_usec += add.tv_usec;

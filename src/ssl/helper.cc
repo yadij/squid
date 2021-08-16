@@ -44,7 +44,8 @@ class GeneratorRequest {
 
 public:
     /// adds a GeneratorRequestor
-    void emplace(HLPCB *callback, void *data) { requestors.emplace_back(callback, data); }
+    void
+    emplace(HLPCB *callback, void *data) { requestors.emplace_back(callback, data); }
 
     SBuf query; ///< Ssl::Helper request message (GeneratorRequests key)
 
@@ -74,7 +75,8 @@ static Ssl::GeneratorRequests TheGeneratorRequests;
 
 helper *Ssl::Helper::ssl_crtd = nullptr;
 
-void Ssl::Helper::Init()
+void
+Ssl::Helper::Init()
 {
     assert(ssl_crtd == NULL);
 
@@ -105,7 +107,8 @@ void Ssl::Helper::Init()
     helperOpenServers(ssl_crtd);
 }
 
-void Ssl::Helper::Shutdown()
+void
+Ssl::Helper::Shutdown()
 {
     if (!ssl_crtd)
         return;
@@ -122,7 +125,8 @@ Ssl::Helper::Reconfigure()
     Init();
 }
 
-void Ssl::Helper::Submit(CrtdMessage const & message, HLPCB * callback, void * data)
+void
+Ssl::Helper::Submit(CrtdMessage const & message, HLPCB * callback, void * data)
 {
     SBuf rawMessage(message.compose().c_str()); // XXX: helpers cannot use SBuf
     rawMessage.append("\n", 1);
@@ -169,7 +173,8 @@ Ssl::HandleGeneratorReply(void *data, const ::Helper::Reply &reply)
 
 helper *Ssl::CertValidationHelper::ssl_crt_validator = nullptr;
 
-void Ssl::CertValidationHelper::Init()
+void
+Ssl::CertValidationHelper::Init()
 {
     if (!Ssl::TheConfig.ssl_crt_validator)
         return;
@@ -230,7 +235,8 @@ void Ssl::CertValidationHelper::Init()
     HelperCache = new CacheType(cache, ttl);
 }
 
-void Ssl::CertValidationHelper::Shutdown()
+void
+Ssl::CertValidationHelper::Shutdown()
 {
     if (!ssl_crt_validator)
         return;
@@ -299,7 +305,8 @@ sslCrtvdHandleReplyWrapper(void *data, const ::Helper::Reply &reply)
     delete crtdvdData;
 }
 
-void Ssl::CertValidationHelper::Submit(Ssl::CertValidationRequest const &request, AsyncCall::Pointer &callback)
+void
+Ssl::CertValidationHelper::Submit(Ssl::CertValidationRequest const &request, AsyncCall::Pointer &callback)
 {
     Ssl::CertValidationMsg message(Ssl::CrtdMessage::REQUEST);
     message.setCode(Ssl::CertValidationMsg::code_cert_validate);

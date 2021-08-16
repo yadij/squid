@@ -173,7 +173,8 @@ private:
 
 RunnerRegistrationEntry(CollapsedForwardingRr);
 
-void CollapsedForwardingRr::create()
+void
+CollapsedForwardingRr::create()
 {
     Must(!owner);
     owner = Ipc::MultiQueue::Init(ShmLabel, Config.workers, 1,
@@ -181,7 +182,8 @@ void CollapsedForwardingRr::create()
                                   QueueCapacity);
 }
 
-void CollapsedForwardingRr::open()
+void
+CollapsedForwardingRr::open()
 {
     CollapsedForwarding::Init();
 }

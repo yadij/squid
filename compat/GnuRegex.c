@@ -1862,7 +1862,8 @@ normal_char:
 
 /* Store OP at LOC followed by two-byte integer parameter ARG.  */
 
-void store_op1(re_opcode_t op, unsigned char *loc, int arg)
+void
+store_op1(re_opcode_t op, unsigned char *loc, int arg)
 {
     *loc = (unsigned char) op;
     STORE_NUMBER(loc + 1, arg);
@@ -2740,7 +2741,8 @@ static boolean group_match_null_string_p(unsigned char **p, unsigned char *end, 
 /* Test if at very beginning or at very end of the virtual concatenation
  * of `string1' and `string2'.  If only one string, it's `string2'.  */
 #define AT_STRINGS_BEG(d) ((d) == (size1 ? string1 : string2) || !size2)
-static int at_strings_end(const char *d, const char *end2)
+static int
+at_strings_end(const char *d, const char *end2)
 {
     return d == end2;
 }

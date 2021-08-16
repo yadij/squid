@@ -28,13 +28,15 @@ Ipc::Port::Port(const String& aListenAddr):
     setOptions(COMM_NONBLOCKING | COMM_DOBIND);
 }
 
-void Ipc::Port::start()
+void
+Ipc::Port::start()
 {
     UdsOp::start();
     doListen();
 }
 
-void Ipc::Port::doListen()
+void
+Ipc::Port::doListen()
 {
     debugs(54, 6, HERE);
     buf.prepForReading();
@@ -44,12 +46,14 @@ void Ipc::Port::doListen()
     comm_read(conn(), buf.raw(), buf.size(), readHandler);
 }
 
-bool Ipc::Port::doneAll() const
+bool
+Ipc::Port::doneAll() const
 {
     return false; // listen forever
 }
 
-String Ipc::Port::MakeAddr(const char* processLabel, int id)
+String
+Ipc::Port::MakeAddr(const char* processLabel, int id)
 {
     assert(id >= 0);
     String addr = channelPathPfx;
@@ -93,7 +97,8 @@ Ipc::Port::receiveOrIgnore(const TypedMsgHdr &message)
     }
 }
 
-void Ipc::Port::noteRead(const CommIoCbParams& params)
+void
+Ipc::Port::noteRead(const CommIoCbParams& params)
 {
     debugs(54, 6, HERE << params.conn << " flag " << params.flag <<
            " [" << this << ']');

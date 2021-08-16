@@ -96,7 +96,8 @@ shutdown_db()
     xfree(db_path);
 }
 
-static void init_db(void)
+static void
+init_db(void)
 {
     struct stat st_buf;
 
@@ -194,7 +195,8 @@ copyValue(void *dst, const DB_ENTRY *src, size_t sz)
 #endif
 }
 
-static int session_active(const char *details, size_t len)
+static int
+session_active(const char *details, size_t len)
 {
 #if USE_BERKLEYDB
     DBT key = {};
@@ -257,7 +259,8 @@ session_logout(/*const*/ char *details, size_t len)
     deleteEntry(key);
 }
 
-static void usage(void)
+static void
+usage(void)
 {
     fprintf(stderr, "Usage: %s [-t|-T session_timeout] [-b dbpath] [-a]\n", program_name);
     fprintf(stderr, "	-t sessiontimeout	Idle timeout after which sessions will be forgotten (user activity will reset)\n");
@@ -265,7 +268,8 @@ static void usage(void)
     fprintf(stderr, "	-b dbpath		Path where persistent session database will be kept\n");
     fprintf(stderr, "	-a			Active mode requiring LOGIN argument to start a session\n");
 }
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
     char request[HELPER_INPUT_BUFFER];
     int opt;

@@ -41,10 +41,11 @@
 
 /* Logon and tree connect to the server                                 */
 
-int SMB_Logon_And_TCon(SMB_Handle_Type Con_Handle, char *UserName,
-                       char *PassWord,
-                       char *service,
-                       char *service_type)
+int
+SMB_Logon_And_TCon(SMB_Handle_Type Con_Handle, char *UserName,
+                   char *PassWord,
+                   char *service,
+                   char *service_type)
 
 {
     struct RFCNB_Pkt *pkt;

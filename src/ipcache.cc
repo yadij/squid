@@ -97,17 +97,20 @@ public:
     void forwardHits(const Dns::CachedIps &ips);
 
     /// initialize lookup timestamps for Dns::LookupDetails delay calculation
-    void lookupsStarting() { firstLookupStart = lastLookupEnd = current_time; }
+    void
+    lookupsStarting() { firstLookupStart = lastLookupEnd = current_time; }
 
     /// inform recipient of a finished lookup
     void forwardLookup(const char *error);
 
     /// \returns milliseconds since the first lookup start
-    int totalResponseTime() const { return tvSubMsec(firstLookupStart, current_time); }
+    int
+    totalResponseTime() const { return tvSubMsec(firstLookupStart, current_time); }
 
 protected:
     /// \returns not yet reported lookup delay in milliseconds
-    int additionalLookupDelay() const { return tvSubMsec(lastLookupEnd, current_time); }
+    int
+    additionalLookupDelay() const { return tvSubMsec(lastLookupEnd, current_time); }
 
 private:
     /* receiverObj and receiverFun are mutually exclusive */
@@ -153,7 +156,8 @@ public:
 
     bool sawCname = false;
 
-    const char *name() const { return static_cast<const char*>(hash.key); }
+    const char *
+    name() const { return static_cast<const char*>(hash.key); }
 
     /// milliseconds since the first lookup start or -1 if there were no lookups
     int totalResponseTime() const;
@@ -289,7 +293,8 @@ IpCacheLookupForwarder::forwardLookup(const char *error)
 }
 
 /// \ingroup IPCacheInternal
-inline int ipcacheCount() { return ip_table ? ip_table->count : 0; }
+inline int
+ipcacheCount() { return ip_table ? ip_table->count : 0; }
 
 /**
  \ingroup IPCacheInternal

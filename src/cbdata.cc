@@ -60,12 +60,14 @@ class cbdata
 {
 #if !WITH_VALGRIND
 public:
-    void *operator new(size_t, void *where) {return where;}
+    void *
+    operator new(size_t, void *where) {return where;}
     /**
      * Only ever invoked when placement new throws
      * an exception. Used to prevent an incorrect free.
      */
-    void operator delete(void *, void *) {}
+    void
+    operator delete(void *, void *) {}
 #else
     MEMPROXY_CLASS(cbdata);
 #endif
@@ -97,7 +99,8 @@ public:
     cbdata_type type;
 #if USE_CBDATA_DEBUG
 
-    void addHistory(char const *label, char const *aFile, int aLine) {
+    void
+    addHistory(char const *label, char const *aFile, int aLine) {
         if (calls.size() > 1000)
             return;
 
@@ -112,11 +115,13 @@ public:
 
     /* cookie used while debugging */
     long cookie;
-    void check(int) const {assert(cookie == ((long)this ^ Cookie));}
+    void
+    check(int) const {assert(cookie == ((long)this ^ Cookie));}
     static const long Cookie;
 
 #if !WITH_VALGRIND
-    size_t dataSize() const { return sizeof(data);}
+    size_t
+    dataSize() const { return sizeof(data);}
 #endif
     /* MUST be the last per-instance member */
     void *data;
@@ -454,7 +459,8 @@ cbdata::dump(StoreEntry *sentry) const
 struct CBDataDumper : public unary_function<cbdata, void> {
     CBDataDumper(StoreEntry *anEntry):where(anEntry) {}
 
-    void operator()(cbdata const &x) {
+    void
+    operator()(cbdata const &x) {
         x.dump(where);
     }
 
@@ -514,7 +520,8 @@ CBDATA_CLASS_INIT(generic_cbdata);
 struct CBDataCallDumper : public unary_function<CBDataCall, void> {
     CBDataCallDumper (StoreEntry *anEntry):where(anEntry) {}
 
-    void operator()(CBDataCall * const &x) {
+    void
+    operator()(CBDataCall * const &x) {
         storeAppendPrintf(where, "%s\t%s\t%d\n", x->label, x->file, x->line);
     }
 
@@ -524,7 +531,8 @@ struct CBDataCallDumper : public unary_function<CBDataCall, void> {
 struct CBDataHistoryDumper : public CBDataDumper {
     CBDataHistoryDumper(StoreEntry *anEntry):CBDataDumper(anEntry),where(anEntry), callDumper(anEntry) {}
 
-    void operator()(cbdata const &x) {
+    void
+    operator()(cbdata const &x) {
         CBDataDumper::operator()(x);
         storeAppendPrintf(where, "\n");
         storeAppendPrintf(where, "Action\tFile\tLine\n");

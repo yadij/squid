@@ -117,12 +117,16 @@ public:
     typedef enum { leEmpty = 0, leLoading, leLoaded, leCorrupted, leIgnored } State;
 
     /* LoadingFlags::state */
-    State state() const { return static_cast<State>(flags.state); }
-    void state(State aState) const { flags.state = aState; }
+    State
+    state() const { return static_cast<State>(flags.state); }
+    void
+    state(State aState) const { flags.state = aState; }
 
     /* LoadingFlags::anchored */
-    bool anchored() const { return flags.anchored; }
-    void anchored(const bool beAnchored) { flags.anchored = beAnchored; }
+    bool
+    anchored() const { return flags.anchored; }
+    void
+    anchored(const bool beAnchored) { flags.anchored = beAnchored; }
 
 private:
     LoadingFlags &flags; ///< entry flags (see the above accessors) are ours
@@ -138,18 +142,25 @@ public:
     Ipc::StoreMapSliceId &more;
 
     /* LoadingFlags::mapped */
-    bool mapped() const { return flags.mapped; }
-    void mapped(const bool beMapped) { flags.mapped = beMapped; }
+    bool
+    mapped() const { return flags.mapped; }
+    void
+    mapped(const bool beMapped) { flags.mapped = beMapped; }
 
     /* LoadingFlags::finalized */
-    bool finalized() const { return flags.finalized; }
-    void finalized(const bool beFinalized) { flags.finalized = beFinalized; }
+    bool
+    finalized() const { return flags.finalized; }
+    void
+    finalized(const bool beFinalized) { flags.finalized = beFinalized; }
 
     /* LoadingFlags::freed */
-    bool freed() const { return flags.freed; }
-    void freed(const bool beFreed) { flags.freed = beFreed; }
+    bool
+    freed() const { return flags.freed; }
+    void
+    freed(const bool beFreed) { flags.freed = beFreed; }
 
-    bool used() const { return freed() || mapped() || more != -1; }
+    bool
+    used() const { return freed() || mapped() || more != -1; }
 
 private:
     LoadingFlags &flags; ///< slot flags (see the above accessors) are ours
@@ -171,10 +182,14 @@ public:
     // lacking copying/moving code and often too huge to copy
     LoadingParts(LoadingParts&&) = delete;
 
-    Sizes &sizes() const { return *sizesOwner->object(); }
-    Versions &versions() const { return *versionsOwner->object(); }
-    Mores &mores() const { return *moresOwner->object(); }
-    Flags &flags() const { return *flagsOwner->object(); }
+    Sizes &
+    sizes() const { return *sizesOwner->object(); }
+    Versions &
+    versions() const { return *versionsOwner->object(); }
+    Mores &
+    mores() const { return *moresOwner->object(); }
+    Flags &
+    flags() const { return *flagsOwner->object(); }
 
 private:
     /* Anti-padding storage. With millions of entries, padding matters! */

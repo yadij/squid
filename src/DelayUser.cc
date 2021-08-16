@@ -50,8 +50,10 @@ DelayUserFree(DelayUserBucket::Pointer &)
 
 struct DelayUserStatsVisitor {
     StoreEntry *se;
-    explicit DelayUserStatsVisitor(StoreEntry *s) : se(s) {}
-    void operator() (DelayUserBucket::Pointer const &current) {
+    explicit
+    DelayUserStatsVisitor(StoreEntry *s) : se(s) {}
+    void
+    operator() (DelayUserBucket::Pointer const &current) {
         current->stats(se);
     }
 };
@@ -92,7 +94,8 @@ struct DelayUserUpdater {
 struct DelayUserUpdateVisitor {
     DelayUserUpdater *t;
     DelayUserUpdateVisitor(DelayUserUpdater *updater) : t(updater) {}
-    void operator() (DelayUserBucket::Pointer const &current) {
+    void
+    operator() (DelayUserBucket::Pointer const &current) {
         const_cast<DelayUserBucket *>(current.getRaw())->theBucket.update(t->spec, t->incr);
     }
 };

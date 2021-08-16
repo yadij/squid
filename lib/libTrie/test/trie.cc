@@ -108,7 +108,8 @@ CaseInsensitiveCheck()
     return 0;
 }
 
-int main (int, char **)
+int
+main (int, char **)
 {
     if (CaseSensitiveCheck()) {
         std::cerr << "Case sensitive check failure." << std::endl;

@@ -77,7 +77,8 @@ static const char *const B_GBYTES_STR = "GB";
 static const char *const B_BYTES_STR = "B";
 
 /// Get current time.
-time_t getCurrentTime(void)
+time_t
+getCurrentTime(void)
 {
     struct timeval currentTime;
 #if GETTIMEOFDAY_NO_TZP
@@ -92,7 +93,8 @@ time_t getCurrentTime(void)
  * Parse bytes unit. It would be one of the next value: MB, GB, KB or B.
  * This function is caseinsensitive.
  */
-static size_t parseBytesUnits(const char * unit)
+static size_t
+parseBytesUnits(const char * unit)
 {
     if (!strncasecmp(unit, B_BYTES_STR, strlen(B_BYTES_STR)) ||
             !strncasecmp(unit, "", strlen(unit)))
@@ -113,7 +115,8 @@ static size_t parseBytesUnits(const char * unit)
 }
 
 /// Parse uninterrapted string of bytes value. It looks like "4MB".
-static bool parseBytesOptionValue(size_t * bptr, char const * value)
+static bool
+parseBytesOptionValue(size_t * bptr, char const * value)
 {
     // Find number from string beginning.
     char const * number_begin = value;
@@ -142,7 +145,8 @@ static bool parseBytesOptionValue(size_t * bptr, char const * value)
 }
 
 /// Print help using response code.
-static void usage()
+static void
+usage()
 {
     std::string example_host_name = "host.dom";
     std::string request_string = Ssl::CrtdMessage::param_host + "=" + example_host_name;
@@ -178,7 +182,8 @@ static void usage()
 }
 
 /// Process new request message.
-static bool processNewRequest(Ssl::CrtdMessage & request_message, std::string const & db_path, size_t max_db_size, size_t fs_block_size)
+static bool
+processNewRequest(Ssl::CrtdMessage & request_message, std::string const & db_path, size_t max_db_size, size_t fs_block_size)
 {
     Ssl::CertificateProperties certProperties;
     std::string error;
@@ -247,7 +252,8 @@ static bool processNewRequest(Ssl::CrtdMessage & request_message, std::string co
 }
 
 /// This is the external security_file_certgen process.
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
     try {
         size_t max_db_size = 0;

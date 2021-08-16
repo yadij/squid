@@ -24,7 +24,8 @@ class PrivateHttpRequest : public HttpRequest
 {
 public:
     PrivateHttpRequest(const MasterXaction::Pointer &mx) : HttpRequest(mx) {}
-    bool doSanityCheckStartLine(const char *b, const size_t h, Http::StatusCode *e) { return sanityCheckStartLine(b,h,e); };
+    bool
+    doSanityCheckStartLine(const char *b, const size_t h, Http::StatusCode *e) { return sanityCheckStartLine(b,h,e); };
 };
 
 /* init memory pools */

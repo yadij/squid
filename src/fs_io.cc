@@ -33,7 +33,8 @@ diskWriteIsComplete(int fd)
 #endif
 
 /* hack needed on SunStudio to avoid linkage convention mismatch */
-static void cxx_xfree(void *ptr)
+static void
+cxx_xfree(void *ptr)
 {
     xfree(ptr);
 }

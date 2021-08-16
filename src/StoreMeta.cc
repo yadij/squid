@@ -170,7 +170,8 @@ StoreMeta::StoreMeta(const StoreMeta &s) :
     next(s.next)
 {}
 
-StoreMeta& StoreMeta::operator=(const StoreMeta &s)
+StoreMeta&
+StoreMeta::operator=(const StoreMeta &s)
 {
     length=s.length;
     value=s.value;

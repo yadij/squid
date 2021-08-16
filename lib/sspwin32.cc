@@ -54,7 +54,8 @@ QUERY_CONTEXT_ATTRIBUTES_FN_W _QueryContextAttributes = NULL;
 QUERY_CONTEXT_ATTRIBUTES_FN_A _QueryContextAttributes = NULL;
 #endif
 
-void UnloadSecurityDll(void)
+void
+UnloadSecurityDll(void)
 {
     if (NTLM_asServer.fHaveCtxtHandle)
         _DeleteSecurityContext(&NTLM_asServer.hctxt);
@@ -81,7 +82,8 @@ void UnloadSecurityDll(void)
     hModule = NULL;
 }
 
-HMODULE LoadSecurityDll(int mode, const char * SSP_Package)
+HMODULE
+LoadSecurityDll(int mode, const char * SSP_Package)
 {
     TCHAR lpszDLL[MAX_PATH];
     OSVERSIONINFO VerInfo;
@@ -207,8 +209,9 @@ HMODULE LoadSecurityDll(int mode, const char * SSP_Package)
     return hModule;
 }
 
-BOOL GenClientContext(PAUTH_SEQ pAS, PSEC_WINNT_AUTH_IDENTITY pAuthIdentity,
-                      PVOID pIn, DWORD cbIn, PVOID pOut, PDWORD pcbOut, PBOOL pfDone)
+BOOL
+GenClientContext(PAUTH_SEQ pAS, PSEC_WINNT_AUTH_IDENTITY pAuthIdentity,
+                 PVOID pIn, DWORD cbIn, PVOID pOut, PDWORD pcbOut, PBOOL pfDone)
 {
     /*
      *  Routine Description:
@@ -275,8 +278,9 @@ BOOL GenClientContext(PAUTH_SEQ pAS, PSEC_WINNT_AUTH_IDENTITY pAuthIdentity,
     return TRUE;
 }
 
-BOOL GenServerContext(PAUTH_SEQ pAS, PVOID pIn, DWORD cbIn, PVOID pOut,
-                      PDWORD pcbOut, PBOOL pfDone, char * credentials)
+BOOL
+GenServerContext(PAUTH_SEQ pAS, PVOID pIn, DWORD cbIn, PVOID pOut,
+                 PDWORD pcbOut, PBOOL pfDone, char * credentials)
 {
     /*
      *   Routine Description:
@@ -380,7 +384,8 @@ BOOL GenServerContext(PAUTH_SEQ pAS, PVOID pIn, DWORD cbIn, PVOID pOut,
     return TRUE;
 }
 
-BOOL WINAPI SSP_LogonUser(PTSTR szUser, PTSTR szPassword, PTSTR szDomain)
+BOOL WINAPI
+SSP_LogonUser(PTSTR szUser, PTSTR szPassword, PTSTR szDomain)
 {
     AUTH_SEQ    asServer   = {0};
     AUTH_SEQ    asClient   = {0};
@@ -455,7 +460,8 @@ BOOL WINAPI SSP_LogonUser(PTSTR szUser, PTSTR szPassword, PTSTR szDomain)
     return fResult;
 }
 
-const char * WINAPI SSP_MakeChallenge(PVOID PNegotiateBuf, int NegotiateLen)
+const char * WINAPI
+SSP_MakeChallenge(PVOID PNegotiateBuf, int NegotiateLen)
 {
     BOOL        fDone      = FALSE;
     uint8_t  * fResult = NULL;
@@ -502,7 +508,8 @@ const char * WINAPI SSP_MakeChallenge(PVOID PNegotiateBuf, int NegotiateLen)
     return NULL;
 }
 
-BOOL WINAPI SSP_ValidateNTLMCredentials(PVOID PAutenticateBuf, int AutenticateLen, char * credentials)
+BOOL WINAPI
+SSP_ValidateNTLMCredentials(PVOID PAutenticateBuf, int AutenticateLen, char * credentials)
 {
     BOOL        fDone      = FALSE;
     BOOL        fResult    = FALSE;
@@ -527,7 +534,8 @@ BOOL WINAPI SSP_ValidateNTLMCredentials(PVOID PAutenticateBuf, int AutenticateLe
     return fResult;
 }
 
-const char * WINAPI SSP_MakeNegotiateBlob(PVOID PNegotiateBuf, int NegotiateLen, PBOOL fDone, int * Status, char * credentials)
+const char * WINAPI
+SSP_MakeNegotiateBlob(PVOID PNegotiateBuf, int NegotiateLen, PBOOL fDone, int * Status, char * credentials)
 {
     DWORD       cbOut      = 0;
     DWORD       cbIn       = 0;
@@ -568,7 +576,8 @@ const char * WINAPI SSP_MakeNegotiateBlob(PVOID PNegotiateBuf, int NegotiateLen,
     return NULL;
 }
 
-const char * WINAPI SSP_ValidateNegotiateCredentials(PVOID PAutenticateBuf, int AutenticateLen, PBOOL fDone, int * Status, char * credentials)
+const char * WINAPI
+SSP_ValidateNegotiateCredentials(PVOID PAutenticateBuf, int AutenticateLen, PBOOL fDone, int * Status, char * credentials)
 {
     DWORD       cbOut      = 0;
     DWORD       cbIn       = 0;

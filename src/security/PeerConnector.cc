@@ -59,7 +59,8 @@ Security::PeerConnector::PeerConnector(const Comm::ConnectionPointer &aServerCon
 
 Security::PeerConnector::~PeerConnector() = default;
 
-bool Security::PeerConnector::doneAll() const
+bool
+Security::PeerConnector::doneAll() const
 {
     return (!callback || callback->canceled()) && AsyncJob::doneAll();
 }
@@ -570,8 +571,10 @@ public:
         peerConnector_(pc) {}
 
     /* CallDialer API */
-    virtual bool canDial(AsyncCall &) { return peerConnector_.valid(); }
-    virtual void dial(AsyncCall &) { ((&(*peerConnector_))->*method_)(object, status); }
+    virtual bool
+    canDial(AsyncCall &) { return peerConnector_.valid(); }
+    virtual void
+    dial(AsyncCall &) { ((&(*peerConnector_))->*method_)(object, status); }
     Method method_; ///< The Security::PeerConnector method to dial
     CbcPointer<Security::PeerConnector> peerConnector_; ///< The Security::PeerConnector object
 };

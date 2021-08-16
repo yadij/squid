@@ -30,7 +30,8 @@ static Fs::Ufs::StoreFSufs<Fs::Ufs::UFSSwapDir> *DiskdInstance;
 static Rock::StoreFileSystem *RockInstance = NULL;
 #endif
 
-void Fs::Init()
+void
+Fs::Init()
 {
 
 #if HAVE_FS_UFS
@@ -51,7 +52,8 @@ void Fs::Init()
 
 }
 
-void Fs::Clean()
+void
+Fs::Clean()
 {
 #if HAVE_FS_UFS
     delete UfsInstance;

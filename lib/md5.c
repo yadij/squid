@@ -51,7 +51,8 @@
 
 #ifdef WORDS_BIGENDIAN
 void
-static byteSwap(uint32_t * buf, unsigned words)
+static
+byteSwap(uint32_t * buf, unsigned words)
 {
     uint8_t *p = (uint8_t *) buf;
 

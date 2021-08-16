@@ -30,7 +30,8 @@ Ipc::StrandSearchRequest::StrandSearchRequest(const TypedMsgHdr &hdrMsg):
     qid.unpack(hdrMsg);
 }
 
-void Ipc::StrandSearchRequest::pack(TypedMsgHdr &hdrMsg) const
+void
+Ipc::StrandSearchRequest::pack(TypedMsgHdr &hdrMsg) const
 {
     hdrMsg.setType(mtFindStrand);
     hdrMsg.putPod(requestorId);

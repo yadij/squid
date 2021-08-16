@@ -194,7 +194,8 @@ Client::serverComplete2()
     completeForwarding();
 }
 
-bool Client::doneAll() const
+bool
+Client::doneAll() const
 {
     return  doneWithServer() &&
 #if USE_ADAPTATION
@@ -216,7 +217,8 @@ Client::completeForwarding()
 }
 
 // Register to receive request body
-bool Client::startRequestBodyFlow()
+bool
+Client::startRequestBodyFlow()
 {
     HttpRequestPointer r(originalRequest());
     assert(r->body_pipe != NULL);
@@ -581,7 +583,8 @@ Client::startAdaptation(const Adaptation::ServiceGroupPointer &group, HttpReques
 
 // properly cleans up ICAP-related state
 // may be called multiple times
-void Client::cleanAdaptation()
+void
+Client::cleanAdaptation()
 {
     debugs(11,5, HERE << "cleaning ICAP; ACL: " << adaptationAccessCheckPending);
 
@@ -810,7 +813,8 @@ Client::endAdaptedBodyConsumption()
 }
 
 // premature end of the adapted response body
-void Client::handleAdaptedBodyProducerAborted()
+void
+Client::handleAdaptedBodyProducerAborted()
 {
     if (abortOnBadEntry("entry went bad while waiting for the now-aborted adapted body"))
         return;

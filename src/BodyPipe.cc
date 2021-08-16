@@ -19,19 +19,24 @@ class BodySink: public BodyConsumer
 
 public:
     BodySink(const BodyPipe::Pointer &bp): AsyncJob("BodySink"), body_pipe(bp) {}
-    virtual ~BodySink() { assert(!body_pipe); }
+    virtual
+    ~BodySink() { assert(!body_pipe); }
 
-    virtual void noteMoreBodyDataAvailable(BodyPipe::Pointer bp) {
+    virtual void
+    noteMoreBodyDataAvailable(BodyPipe::Pointer bp) {
         size_t contentSize = bp->buf().contentSize();
         bp->consume(contentSize);
     }
-    virtual void noteBodyProductionEnded(BodyPipe::Pointer) {
+    virtual void
+    noteBodyProductionEnded(BodyPipe::Pointer) {
         stopConsumingFrom(body_pipe);
     }
-    virtual void noteBodyProducerAborted(BodyPipe::Pointer) {
+    virtual void
+    noteBodyProducerAborted(BodyPipe::Pointer) {
         stopConsumingFrom(body_pipe);
     }
-    bool doneAll() const {return !body_pipe && AsyncJob::doneAll();}
+    bool
+    doneAll() const {return !body_pipe && AsyncJob::doneAll();}
 
 private:
     BodyPipe::Pointer body_pipe; ///< the pipe we are consuming from
@@ -104,7 +109,8 @@ BodyConsumerDialer::canDial(AsyncCall &call)
 /* BodyProducer */
 
 // inform the pipe that we are done and clear the Pointer
-void BodyProducer::stopProducingFor(RefCount<BodyPipe> &p, bool atEof)
+void
+BodyProducer::stopProducingFor(RefCount<BodyPipe> &p, bool atEof)
 {
     debugs(91,7, this << " will not produce for " << p << "; atEof: " << atEof);
     assert(p != NULL); // be strict: the caller state may depend on this
@@ -115,7 +121,8 @@ void BodyProducer::stopProducingFor(RefCount<BodyPipe> &p, bool atEof)
 /* BodyConsumer */
 
 // inform the pipe that we are done and clear the Pointer
-void BodyConsumer::stopConsumingFrom(RefCount<BodyPipe> &p)
+void
+BodyConsumer::stopConsumingFrom(RefCount<BodyPipe> &p)
 {
     debugs(91,7, this << " will not consume from " << p);
     assert(p != NULL); // be strict: the caller state may depend on this
@@ -144,7 +151,8 @@ BodyPipe::~BodyPipe()
     theBuf.clean();
 }
 
-void BodyPipe::setBodySize(uint64_t aBodySize)
+void
+BodyPipe::setBodySize(uint64_t aBodySize)
 {
     assert(!bodySizeKnown());
     assert(thePutSize <= aBodySize);
@@ -158,30 +166,35 @@ void BodyPipe::setBodySize(uint64_t aBodySize)
     debugs(91,7, HERE << "set body size" << status());
 }
 
-uint64_t BodyPipe::bodySize() const
+uint64_t
+BodyPipe::bodySize() const
 {
     assert(bodySizeKnown());
     return static_cast<uint64_t>(theBodySize);
 }
 
-bool BodyPipe::expectMoreAfter(uint64_t offset) const
+bool
+BodyPipe::expectMoreAfter(uint64_t offset) const
 {
     assert(theGetSize <= offset);
     return offset < thePutSize || // buffer has more now or
            (!productionEnded() && mayNeedMoreData()); // buffer will have more
 }
 
-bool BodyPipe::exhausted() const
+bool
+BodyPipe::exhausted() const
 {
     return !expectMoreAfter(theGetSize);
 }
 
-uint64_t BodyPipe::unproducedSize() const
+uint64_t
+BodyPipe::unproducedSize() const
 {
     return bodySize() - thePutSize; // bodySize() asserts that size is known
 }
 
-void BodyPipe::expectProductionEndAfter(uint64_t size)
+void
+BodyPipe::expectProductionEndAfter(uint64_t size)
 {
     const uint64_t expectedSize = thePutSize + size;
     if (bodySizeKnown())
@@ -442,7 +455,8 @@ BodyPipe::scheduleBodyEndNotification()
 }
 
 // a short temporary string describing buffer status for debugging
-const char *BodyPipe::status() const
+const char *
+BodyPipe::status() const
 {
     static MemBuf outputBuffer;
     outputBuffer.reset();

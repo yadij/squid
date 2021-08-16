@@ -118,7 +118,8 @@ clientReplyContext::setReplyToError(
     setReplyToError(method, errstate);
 }
 
-void clientReplyContext::setReplyToError(const HttpRequestMethod& method, ErrorState *errstate)
+void
+clientReplyContext::setReplyToError(const HttpRequestMethod& method, ErrorState *errstate)
 {
     if (errstate->httpStatus == Http::scNotImplemented && http->request)
         /* prevent confusion over whether we default to persistent or not */
@@ -155,7 +156,8 @@ clientReplyContext::setReplyToReply(HttpReply *futureReply)
 
 // Assumes that the entry contains an error response without Content-Range.
 // To use with regular entries, make HTTP Range header removal conditional.
-void clientReplyContext::setReplyToStoreEntry(StoreEntry *entry, const char *reason)
+void
+clientReplyContext::setReplyToStoreEntry(StoreEntry *entry, const char *reason)
 {
     entry->lock("clientReplyContext::setReplyToStoreEntry"); // removeClientStoreReference() unlocks
     sc = storeClientListAdd(entry, this);

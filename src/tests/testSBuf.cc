@@ -251,7 +251,8 @@ testSBuf::testSubscriptOpFail()
     std::cout << c << std::endl;
 }
 
-static int sign(int v)
+static int
+sign(int v)
 {
     if (v < 0)
         return -1;
@@ -511,7 +512,8 @@ class SBufSubstrAutoTest
     SBuf fullString, sb;
     std::string fullReference, str;
 public:
-    void performEqualityTest() {
+    void
+    performEqualityTest() {
         SBuf ref(str);
         CPPUNIT_ASSERT_EQUAL(ref,sb);
     }

@@ -53,7 +53,8 @@ StoreIOState::~StoreIOState()
         cbdataReferenceDone(callback_data);
 }
 
-bool StoreIOState::touchingStoreEntry() const
+bool
+StoreIOState::touchingStoreEntry() const
 {
     return e && e->swap_filen == swap_filen;
 }

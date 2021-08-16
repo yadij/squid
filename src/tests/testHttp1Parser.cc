@@ -70,7 +70,8 @@ Replace(SBuf &where, const SBuf &what, const SBuf &with)
     }
 }
 
-static SBuf Pretty(SBuf raw)
+static SBuf
+Pretty(SBuf raw)
 {
     Replace(raw, SBuf("\r"), SBuf("\\r"));
     Replace(raw, SBuf("\n"), SBuf("\\n"));

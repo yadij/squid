@@ -117,7 +117,8 @@ ClientDbRr::useConfig()
    Returns NULL if no such client (or clientdb turned off)
    (it is assumed that clientdbEstablished will be called before and create client record if needed)
 */
-ClientInfo * clientdbGetInfo(const Ip::Address &addr)
+ClientInfo *
+clientdbGetInfo(const Ip::Address &addr)
 {
     char key[MAX_IPSTRLEN];
     ClientInfo *c;

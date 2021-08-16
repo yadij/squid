@@ -132,7 +132,8 @@ static int check_target_acl(const char *hostname, int port);
 #if _SQUID_WINDOWS_
 static int s_iInitCount = 0;
 
-int Win32SockInit(void)
+int
+Win32SockInit(void)
 {
     int iVersionRequested;
     WSADATA wsaData;
@@ -165,7 +166,8 @@ int Win32SockInit(void)
     return (s_iInitCount);
 }
 
-void Win32SockCleanup(void)
+void
+Win32SockCleanup(void)
 {
     if (--s_iInitCount == 0)
         WSACleanup();

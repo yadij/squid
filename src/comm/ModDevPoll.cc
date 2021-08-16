@@ -149,7 +149,8 @@ comm_update_fd(int fd, int events)
     devpoll_update.pfds[devpoll_update.cur].revents = 0;
 }
 
-static void commIncomingStats(StoreEntry *sentry)
+static void
+commIncomingStats(StoreEntry *sentry)
 {
     storeAppendPrintf(sentry, "Total number of devpoll loops: %ld\n", statCounter.select_loops);
     storeAppendPrintf(sentry, "Histogram of returned filedescriptors\n");

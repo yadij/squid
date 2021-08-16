@@ -155,20 +155,23 @@ MemBuf::isNull() const
     return 0;
 }
 
-mb_size_t MemBuf::spaceSize() const
+mb_size_t
+MemBuf::spaceSize() const
 {
     const mb_size_t terminatedSize = size + 1;
     return (terminatedSize < capacity) ? capacity - terminatedSize : 0;
 }
 
-mb_size_t MemBuf::potentialSpaceSize() const
+mb_size_t
+MemBuf::potentialSpaceSize() const
 {
     const mb_size_t terminatedSize = size + 1;
     return (terminatedSize < max_capacity) ? max_capacity - terminatedSize : 0;
 }
 
 /// removes sz bytes and "packs" by moving content left
-void MemBuf::consume(mb_size_t shiftSize)
+void
+MemBuf::consume(mb_size_t shiftSize)
 {
     const mb_size_t cSize = contentSize();
     assert(0 <= shiftSize && shiftSize <= cSize);
@@ -187,7 +190,8 @@ void MemBuf::consume(mb_size_t shiftSize)
 }
 
 /// removes all whitespace prefix bytes and "packs" by moving content left
-void MemBuf::consumeWhitespacePrefix()
+void
+MemBuf::consumeWhitespacePrefix()
 {
     PROF_start(MemBuf_consumeWhitespace);
     if (contentSize() > 0) {
@@ -201,7 +205,8 @@ void MemBuf::consumeWhitespacePrefix()
 }
 
 // removes last tailSize bytes
-void MemBuf::truncate(mb_size_t tailSize)
+void
+MemBuf::truncate(mb_size_t tailSize)
 {
     const mb_size_t cSize = contentSize();
     assert(0 <= tailSize && tailSize <= cSize);
@@ -213,7 +218,8 @@ void MemBuf::truncate(mb_size_t tailSize)
  * calls memcpy, appends exactly size bytes,
  * extends buffer or creates buffer if needed.
  */
-void MemBuf::append(const char *newContent, int sz)
+void
+MemBuf::append(const char *newContent, int sz)
 {
     assert(sz >= 0);
     assert(buf || (0==capacity && 0==size));
@@ -232,7 +238,8 @@ void MemBuf::append(const char *newContent, int sz)
 }
 
 /// updates content size after external append
-void MemBuf::appended(mb_size_t sz)
+void
+MemBuf::appended(mb_size_t sz)
 {
     assert(size + sz <= capacity);
     size += sz;
@@ -247,7 +254,8 @@ void MemBuf::appended(mb_size_t sz)
  *     This will cause the buffer to grow when spaceSize() == 1 on append,
  *     which will assert() if the buffer cannot grow any more.
  */
-void MemBuf::terminate()
+void
+MemBuf::terminate()
 {
     assert(size < capacity);
     *space() = '\0';

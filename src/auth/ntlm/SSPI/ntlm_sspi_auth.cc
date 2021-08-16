@@ -170,7 +170,8 @@ Valid_Group(char *UserName, char *Group)
     return result;
 }
 
-char * AllocStrFromLSAStr(LSA_UNICODE_STRING LsaStr)
+char *
+AllocStrFromLSAStr(LSA_UNICODE_STRING LsaStr)
 {
     size_t len;
     static char * target;
@@ -191,7 +192,8 @@ char * AllocStrFromLSAStr(LSA_UNICODE_STRING LsaStr)
     return target;
 }
 
-char * GetDomainName(void)
+char *
+GetDomainName(void)
 
 {
     LSA_HANDLE PolicyHandle;

@@ -178,7 +178,8 @@ Ssl::MaybeSetupRsaCallback(Security::ContextPointer &ctx)
 #endif
 }
 
-int Ssl::asn1timeToString(ASN1_TIME *tm, char *buf, int len)
+int
+Ssl::asn1timeToString(ASN1_TIME *tm, char *buf, int len)
 {
     BIO *bio;
     int write = 0;
@@ -192,7 +193,8 @@ int Ssl::asn1timeToString(ASN1_TIME *tm, char *buf, int len)
     return write;
 }
 
-int Ssl::matchX509CommonNames(X509 *peer_cert, void *check_data, int (*check_func)(void *check_data,  ASN1_STRING *cn_data))
+int
+Ssl::matchX509CommonNames(X509 *peer_cert, void *check_data, int (*check_func)(void *check_data,  ASN1_STRING *cn_data))
 {
     assert(peer_cert);
 
@@ -228,7 +230,8 @@ int Ssl::matchX509CommonNames(X509 *peer_cert, void *check_data, int (*check_fun
     return 0;
 }
 
-static int check_domain( void *check_data, ASN1_STRING *cn_data)
+static int
+check_domain( void *check_data, ASN1_STRING *cn_data)
 {
     char cn[1024];
     const char *server = (const char *)check_data;
@@ -251,7 +254,8 @@ static int check_domain( void *check_data, ASN1_STRING *cn_data)
     return matchDomainName(server, (cn[0] == '*' ? cn + 1 : cn), mdnRejectSubsubDomains);
 }
 
-bool Ssl::checkX509ServerValidity(X509 *cert, const char *server)
+bool
+Ssl::checkX509ServerValidity(X509 *cert, const char *server)
 {
     return matchX509CommonNames(cert, (void *)server, check_domain);
 }
@@ -847,7 +851,8 @@ Ssl::GetX509CAAttribute(X509 * cert, const char *attribute_name)
     return ret;
 }
 
-const char *sslGetUserAttribute(SSL *ssl, const char *attribute_name)
+const char *
+sslGetUserAttribute(SSL *ssl, const char *attribute_name)
 {
     if (!ssl)
         return NULL;
@@ -860,7 +865,8 @@ const char *sslGetUserAttribute(SSL *ssl, const char *attribute_name)
     return attr;
 }
 
-const char *sslGetCAAttribute(SSL *ssl, const char *attribute_name)
+const char *
+sslGetCAAttribute(SSL *ssl, const char *attribute_name)
 {
     if (!ssl)
         return NULL;
@@ -1364,7 +1370,8 @@ Ssl::unloadSquidUntrusted()
     }
 }
 
-bool Ssl::generateUntrustedCert(Security::CertPointer &untrustedCert, Security::PrivateKeyPointer &untrustedPkey, Security::CertPointer const  &cert, Security::PrivateKeyPointer const & pkey)
+bool
+Ssl::generateUntrustedCert(Security::CertPointer &untrustedCert, Security::PrivateKeyPointer &untrustedPkey, Security::CertPointer const  &cert, Security::PrivateKeyPointer const & pkey)
 {
     // Generate the self-signed certificate, using a hard-coded subject prefix
     Ssl::CertificateProperties certProperties;
@@ -1387,7 +1394,8 @@ bool Ssl::generateUntrustedCert(Security::CertPointer &untrustedCert, Security::
     return Ssl::generateSslCertificate(untrustedCert, untrustedPkey, certProperties);
 }
 
-void Ssl::InRamCertificateDbKey(const Ssl::CertificateProperties &certProperties, SBuf &key)
+void
+Ssl::InRamCertificateDbKey(const Ssl::CertificateProperties &certProperties, SBuf &key)
 {
     bool origSignatureAsKey = false;
     if (certProperties.mimicCert) {
@@ -1464,7 +1472,8 @@ bio_sbuf_ctrl(BIO *bio, int cmd, long /* num */, void *)
     }
 }
 
-BIO *Ssl::BIO_new_SBuf(SBuf *buf)
+BIO *
+Ssl::BIO_new_SBuf(SBuf *buf)
 {
 #if HAVE_LIBCRYPTO_BIO_METH_NEW
     static BIO_METHOD *BioSBufMethods = nullptr;

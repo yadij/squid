@@ -158,7 +158,8 @@ DiskThreadsDiskFile::openDone(int, const char *, int anFD, int errflag)
     debugs(79, 3, "DiskThreadsDiskFile::openDone: exiting");
 }
 
-void DiskThreadsDiskFile::doClose()
+void
+DiskThreadsDiskFile::doClose()
 {
     if (fd > -1) {
         ++statCounter.syscalls.disk.closes;

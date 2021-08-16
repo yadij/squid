@@ -235,7 +235,8 @@ WIN32_StoreKey(const char *key, DWORD type, unsigned char *value,
 }
 
 /* Build argv, argc from string passed from Windows.  */
-static void WIN32_build_argv(char *cmd)
+static void
+WIN32_build_argv(char *cmd)
 {
     int argvlen = 0;
     char *word;
@@ -456,7 +457,8 @@ WIN32_IpAddrChangeMonitorInit()
     return status;
 }
 
-int WIN32_Subsystem_Init(int * argc, char *** argv)
+int
+WIN32_Subsystem_Init(int * argc, char *** argv)
 {
 #if defined(_MSC_VER) /* Microsoft C Compiler ONLY */
     _invalid_parameter_handler oldHandler, newHandler;
@@ -891,7 +893,8 @@ WIN32_sendSignal(int WIN32_signal)
     CloseServiceHandle(schSCManager);
 }
 
-int WIN32_StartService(int argc, char **argv)
+int
+WIN32_StartService(int argc, char **argv)
 {
     SERVICE_TABLE_ENTRY DispatchTable[] = {
         {NULL, SquidWinSvcMain},
@@ -927,7 +930,8 @@ int WIN32_StartService(int argc, char **argv)
 
 #endif /* USE_WIN32_SERVICE */
 
-static int Win32SockInit(void)
+static int
+Win32SockInit(void)
 {
     int iVersionRequested;
     WSADATA wsaData;
@@ -978,7 +982,8 @@ static int Win32SockInit(void)
     return (s_iInitCount);
 }
 
-static void Win32SockCleanup(void)
+static void
+Win32SockCleanup(void)
 {
     if (--s_iInitCount == 0)
         WSACleanup();
@@ -986,7 +991,8 @@ static void Win32SockCleanup(void)
     return;
 }
 
-void Squid_Win32InvalidParameterHandler(const wchar_t* expression, const wchar_t* function, const wchar_t* file, unsigned int line, uintptr_t pReserved)
+void
+Squid_Win32InvalidParameterHandler(const wchar_t* expression, const wchar_t* function, const wchar_t* file, unsigned int line, uintptr_t pReserved)
 {
     return;
 }

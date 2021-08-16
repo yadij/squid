@@ -41,7 +41,8 @@ public:
         UnaryMemFunT<Adaptation::Icap::Xaction, Security::EncryptorAnswer, Security::EncryptorAnswer&>(aJob, aMethod, Security::EncryptorAnswer()) {}
 
     /* Security::PeerConnector::CbDialer API */
-    virtual Security::EncryptorAnswer &answer() { return arg1; }
+    virtual Security::EncryptorAnswer &
+    answer() { return arg1; }
 };
 
 namespace Ssl
@@ -62,7 +63,8 @@ public:
     /* Security::PeerConnector API */
     virtual bool initialize(Security::SessionPointer &);
     virtual void noteNegotiationDone(ErrorState *error);
-    virtual Security::ContextPointer getTlsContext() {
+    virtual Security::ContextPointer
+    getTlsContext() {
         return icapService->sslContext;
     }
 
@@ -130,21 +132,24 @@ Adaptation::Icap::Xaction::service()
     return *theService;
 }
 
-void Adaptation::Icap::Xaction::disableRetries()
+void
+Adaptation::Icap::Xaction::disableRetries()
 {
     debugs(93,5, typeName << (isRetriable ? " from now on" : " still") <<
            " cannot be retried " << status());
     isRetriable = false;
 }
 
-void Adaptation::Icap::Xaction::disableRepeats(const char *reason)
+void
+Adaptation::Icap::Xaction::disableRepeats(const char *reason)
 {
     debugs(93,5, typeName << (isRepeatable ? " from now on" : " still") <<
            " cannot be repeated because " << reason << status());
     isRepeatable = false;
 }
 
-void Adaptation::Icap::Xaction::start()
+void
+Adaptation::Icap::Xaction::start()
 {
     Adaptation::Initiate::start();
 }
@@ -236,7 +241,8 @@ Adaptation::Icap::Xaction::dnsLookupDone(const ipcache_addrs *ia)
     AsyncJob::Start(cs.get());
 }
 
-void Adaptation::Icap::Xaction::closeConnection()
+void
+Adaptation::Icap::Xaction::closeConnection()
 {
     if (haveConnection()) {
 
@@ -270,7 +276,8 @@ void Adaptation::Icap::Xaction::closeConnection()
 }
 
 // connection with the ICAP service established
-void Adaptation::Icap::Xaction::noteCommConnected(const CommConnectCbParams &io)
+void
+Adaptation::Icap::Xaction::noteCommConnected(const CommConnectCbParams &io)
 {
     cs = NULL;
 
@@ -314,7 +321,8 @@ void Adaptation::Icap::Xaction::noteCommConnected(const CommConnectCbParams &io)
     handleCommConnected();
 }
 
-void Adaptation::Icap::Xaction::dieOnConnectionFailure()
+void
+Adaptation::Icap::Xaction::dieOnConnectionFailure()
 {
     debugs(93, 2, HERE << typeName <<
            " failed to connect to " << service().cfg().uri);
@@ -324,7 +332,8 @@ void Adaptation::Icap::Xaction::dieOnConnectionFailure()
     throw TexcHere("cannot connect to the ICAP service");
 }
 
-void Adaptation::Icap::Xaction::scheduleWrite(MemBuf &buf)
+void
+Adaptation::Icap::Xaction::scheduleWrite(MemBuf &buf)
 {
     Must(haveConnection());
 
@@ -337,7 +346,8 @@ void Adaptation::Icap::Xaction::scheduleWrite(MemBuf &buf)
     updateTimeout();
 }
 
-void Adaptation::Icap::Xaction::noteCommWrote(const CommIoCbParams &io)
+void
+Adaptation::Icap::Xaction::noteCommWrote(const CommIoCbParams &io)
 {
     Must(writer != NULL);
     writer = NULL;
@@ -355,12 +365,14 @@ void Adaptation::Icap::Xaction::noteCommWrote(const CommIoCbParams &io)
 }
 
 // communication timeout with the ICAP service
-void Adaptation::Icap::Xaction::noteCommTimedout(const CommTimeoutCbParams &)
+void
+Adaptation::Icap::Xaction::noteCommTimedout(const CommTimeoutCbParams &)
 {
     handleCommTimedout();
 }
 
-void Adaptation::Icap::Xaction::handleCommTimedout()
+void
+Adaptation::Icap::Xaction::handleCommTimedout()
 {
     debugs(93, 2, HERE << typeName << " failed: timeout with " <<
            theService->cfg().methodStr() << " " <<
@@ -378,7 +390,8 @@ void Adaptation::Icap::Xaction::handleCommTimedout()
 }
 
 // unexpected connection close while talking to the ICAP service
-void Adaptation::Icap::Xaction::noteCommClosed(const CommCloseCbParams &)
+void
+Adaptation::Icap::Xaction::noteCommClosed(const CommCloseCbParams &)
 {
     if (securer != NULL) {
         securer->cancel("Connection closed before SSL negotiation finished");
@@ -388,21 +401,24 @@ void Adaptation::Icap::Xaction::noteCommClosed(const CommCloseCbParams &)
     handleCommClosed();
 }
 
-void Adaptation::Icap::Xaction::handleCommClosed()
+void
+Adaptation::Icap::Xaction::handleCommClosed()
 {
     static const auto d = MakeNamedErrorDetail("ICAP_XACT_CLOSE");
     detailError(d);
     mustStop("ICAP service connection externally closed");
 }
 
-void Adaptation::Icap::Xaction::callException(const std::exception  &e)
+void
+Adaptation::Icap::Xaction::callException(const std::exception  &e)
 {
     setOutcome(xoError);
     service().noteFailure();
     Adaptation::Initiate::callException(e);
 }
 
-void Adaptation::Icap::Xaction::callEnd()
+void
+Adaptation::Icap::Xaction::callEnd()
 {
     if (doneWithIo()) {
         debugs(93, 5, HERE << typeName << " done with I/O" << status());
@@ -411,13 +427,15 @@ void Adaptation::Icap::Xaction::callEnd()
     Adaptation::Initiate::callEnd(); // may destroy us
 }
 
-bool Adaptation::Icap::Xaction::doneAll() const
+bool
+Adaptation::Icap::Xaction::doneAll() const
 {
     return !waitingForDns && !connector && !securer && !reader && !writer &&
            Adaptation::Initiate::doneAll();
 }
 
-void Adaptation::Icap::Xaction::updateTimeout()
+void
+Adaptation::Icap::Xaction::updateTimeout()
 {
     Must(haveConnection());
 
@@ -435,7 +453,8 @@ void Adaptation::Icap::Xaction::updateTimeout()
     }
 }
 
-void Adaptation::Icap::Xaction::scheduleRead()
+void
+Adaptation::Icap::Xaction::scheduleRead()
 {
     Must(haveConnection());
     Must(!reader);
@@ -448,7 +467,8 @@ void Adaptation::Icap::Xaction::scheduleRead()
 }
 
 // comm module read a portion of the ICAP response for us
-void Adaptation::Icap::Xaction::noteCommRead(const CommIoCbParams &io)
+void
+Adaptation::Icap::Xaction::noteCommRead(const CommIoCbParams &io)
 {
     Must(reader != NULL);
     reader = NULL;
@@ -508,7 +528,8 @@ void Adaptation::Icap::Xaction::noteCommRead(const CommIoCbParams &io)
     handleCommRead(io.size);
 }
 
-void Adaptation::Icap::Xaction::cancelRead()
+void
+Adaptation::Icap::Xaction::cancelRead()
 {
     if (reader != NULL) {
         Must(haveConnection());
@@ -538,36 +559,42 @@ Adaptation::Icap::Xaction::parseHttpMsg(Http::Message *msg)
     return true;
 }
 
-bool Adaptation::Icap::Xaction::mayReadMore() const
+bool
+Adaptation::Icap::Xaction::mayReadMore() const
 {
     return !doneReading() && // will read more data
            readBuf.length() < SQUID_TCP_SO_RCVBUF;  // have space for more data
 }
 
-bool Adaptation::Icap::Xaction::doneReading() const
+bool
+Adaptation::Icap::Xaction::doneReading() const
 {
     return commEof;
 }
 
-bool Adaptation::Icap::Xaction::doneWriting() const
+bool
+Adaptation::Icap::Xaction::doneWriting() const
 {
     return !writer;
 }
 
-bool Adaptation::Icap::Xaction::doneWithIo() const
+bool
+Adaptation::Icap::Xaction::doneWithIo() const
 {
     return haveConnection() &&
            !connector && !reader && !writer && // fast checks, some redundant
            doneReading() && doneWriting();
 }
 
-bool Adaptation::Icap::Xaction::haveConnection() const
+bool
+Adaptation::Icap::Xaction::haveConnection() const
 {
     return connection != NULL && connection->isOpen();
 }
 
 // initiator aborted
-void Adaptation::Icap::Xaction::noteInitiatorAborted()
+void
+Adaptation::Icap::Xaction::noteInitiatorAborted()
 {
 
     if (theInitiator.set()) {
@@ -581,7 +608,8 @@ void Adaptation::Icap::Xaction::noteInitiatorAborted()
 
 }
 
-void Adaptation::Icap::Xaction::setOutcome(const Adaptation::Icap::XactOutcome &xo)
+void
+Adaptation::Icap::Xaction::setOutcome(const Adaptation::Icap::XactOutcome &xo)
 {
     if (al.icap.outcome != xoUnknown) {
         debugs(93, 3, "WARNING: resetting outcome: from " << al.icap.outcome << " to " << xo);
@@ -594,7 +622,8 @@ void Adaptation::Icap::Xaction::setOutcome(const Adaptation::Icap::XactOutcome &
 // This 'last chance' method is called before a 'done' transaction is deleted.
 // It is wrong to call virtual methods from a destructor. Besides, this call
 // indicates that the transaction will terminate as planned.
-void Adaptation::Icap::Xaction::swanSong()
+void
+Adaptation::Icap::Xaction::swanSong()
 {
     // kids should sing first and then call the parent method.
     if (cs.valid()) {
@@ -615,7 +644,8 @@ void Adaptation::Icap::Xaction::swanSong()
     Adaptation::Initiate::swanSong();
 }
 
-void Adaptation::Icap::Xaction::tellQueryAborted()
+void
+Adaptation::Icap::Xaction::tellQueryAborted()
 {
     if (theInitiator.set()) {
         Adaptation::Icap::XactAbortInfo abortInfo(icapRequest, icapReply.getRaw(),
@@ -628,7 +658,8 @@ void Adaptation::Icap::Xaction::tellQueryAborted()
     }
 }
 
-void Adaptation::Icap::Xaction::maybeLog()
+void
+Adaptation::Icap::Xaction::maybeLog()
 {
     if (IcapLogfileStatus == LOG_ENABLE) {
         finalizeLogInfo();
@@ -636,7 +667,8 @@ void Adaptation::Icap::Xaction::maybeLog()
     }
 }
 
-void Adaptation::Icap::Xaction::finalizeLogInfo()
+void
+Adaptation::Icap::Xaction::finalizeLogInfo()
 {
     //prepare log data
     al.icp.opcode = ICP_INVALID;
@@ -659,7 +691,8 @@ void Adaptation::Icap::Xaction::finalizeLogInfo()
 }
 
 // returns a temporary string depicting transaction status, for debugging
-const char *Adaptation::Icap::Xaction::status() const
+const char *
+Adaptation::Icap::Xaction::status() const
 {
     static MemBuf buf;
     buf.reset();
@@ -673,7 +706,8 @@ const char *Adaptation::Icap::Xaction::status() const
     return buf.content();
 }
 
-void Adaptation::Icap::Xaction::fillPendingStatus(MemBuf &buf) const
+void
+Adaptation::Icap::Xaction::fillPendingStatus(MemBuf &buf) const
 {
     if (haveConnection()) {
         buf.appendf("FD %d", connection->fd);
@@ -691,7 +725,8 @@ void Adaptation::Icap::Xaction::fillPendingStatus(MemBuf &buf) const
         buf.append("D", 1);
 }
 
-void Adaptation::Icap::Xaction::fillDoneStatus(MemBuf &buf) const
+void
+Adaptation::Icap::Xaction::fillDoneStatus(MemBuf &buf) const
 {
     if (haveConnection() && commEof)
         buf.appendf("Comm(%d)", connection->fd);
@@ -700,7 +735,8 @@ void Adaptation::Icap::Xaction::fillDoneStatus(MemBuf &buf) const
         buf.append("Stopped", 7);
 }
 
-bool Adaptation::Icap::Xaction::fillVirginHttpHeader(MemBuf &) const
+bool
+Adaptation::Icap::Xaction::fillVirginHttpHeader(MemBuf &) const
 {
     return false;
 }

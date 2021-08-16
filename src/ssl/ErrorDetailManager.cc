@@ -13,12 +13,14 @@
 #include "http/ContentLengthInterpreter.h"
 #include "mime_header.h"
 
-void Ssl::errorDetailInitialize()
+void
+Ssl::errorDetailInitialize()
 {
     Ssl::ErrorDetailsManager::GetInstance();
 }
 
-void Ssl::errorDetailClean()
+void
+Ssl::errorDetailClean()
 {
     Ssl::ErrorDetailsManager::Shutdown();
 }
@@ -30,7 +32,8 @@ namespace Ssl
 class ErrorDetailFile : public TemplateFile
 {
 public:
-    explicit ErrorDetailFile(ErrorDetailsList::Pointer const details): TemplateFile("error-details.txt", ERR_NONE) {
+    explicit
+    ErrorDetailFile(ErrorDetailsList::Pointer const details): TemplateFile("error-details.txt", ERR_NONE) {
         theDetails = details;
     }
 
@@ -79,7 +82,8 @@ Ssl::ErrorDetailsList::getErrorDetail(Security::ErrorCode value)
 
 Ssl::ErrorDetailsManager *Ssl::ErrorDetailsManager::TheDetailsManager = NULL;
 
-Ssl::ErrorDetailsManager &Ssl::ErrorDetailsManager::GetInstance()
+Ssl::ErrorDetailsManager &
+Ssl::ErrorDetailsManager::GetInstance()
 {
     if (!TheDetailsManager)
         TheDetailsManager = new Ssl::ErrorDetailsManager;
@@ -88,7 +92,8 @@ Ssl::ErrorDetailsManager &Ssl::ErrorDetailsManager::GetInstance()
     return *TheDetailsManager;
 }
 
-void Ssl::ErrorDetailsManager::Shutdown()
+void
+Ssl::ErrorDetailsManager::Shutdown()
 {
     delete TheDetailsManager;
     TheDetailsManager = NULL;
@@ -101,7 +106,8 @@ Ssl::ErrorDetailsManager::ErrorDetailsManager()
     detailTmpl.loadDefault();
 }
 
-Ssl::ErrorDetailsList::Pointer Ssl::ErrorDetailsManager::getCachedDetails(const char *lang)
+Ssl::ErrorDetailsList::Pointer
+Ssl::ErrorDetailsManager::getCachedDetails(const char *lang)
 {
     Cache::iterator it;
     it = cache.find(lang);
@@ -113,7 +119,8 @@ Ssl::ErrorDetailsList::Pointer Ssl::ErrorDetailsManager::getCachedDetails(const 
     return NULL;
 }
 
-void Ssl::ErrorDetailsManager::cacheDetails(ErrorDetailsList::Pointer &errorDetails)
+void
+Ssl::ErrorDetailsManager::cacheDetails(ErrorDetailsList::Pointer &errorDetails)
 {
     const char *lang = errorDetails->errLanguage.termedBuf();
     assert(lang);
@@ -185,7 +192,8 @@ public:
 
 //The end of an error detrail entry is a double "\n". The headersEnd
 // functions can detect it
-inline size_t detailEntryEnd(const char *s, size_t len) {return headersEnd(s, len);}
+inline size_t
+detailEntryEnd(const char *s, size_t len) {return headersEnd(s, len);}
 
 bool
 Ssl::ErrorDetailFile::parse()

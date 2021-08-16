@@ -124,7 +124,8 @@ Adaptation::ServiceGroup::finalizeMsg(const char *msg, const String &culprit,
            id << "'");
 }
 
-Adaptation::ServicePointer Adaptation::ServiceGroup::at(const Pos pos) const
+Adaptation::ServicePointer
+Adaptation::ServiceGroup::at(const Pos pos) const
 {
     return FindService(services[pos]);
 }

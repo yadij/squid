@@ -94,7 +94,8 @@ addedEntry(Store::Disk *aStore,
     return e;
 }
 
-static void commonInit()
+static void
+commonInit()
 {
     static bool inited = false;
 

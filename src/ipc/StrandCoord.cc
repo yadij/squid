@@ -31,7 +31,8 @@ Ipc::StrandCoord::unpack(const TypedMsgHdr &hdrMsg)
     hdrMsg.getString(tag);
 }
 
-void Ipc::StrandCoord::pack(TypedMsgHdr &hdrMsg) const
+void
+Ipc::StrandCoord::pack(TypedMsgHdr &hdrMsg) const
 {
     hdrMsg.putPod(kidId);
     hdrMsg.putPod(pid);

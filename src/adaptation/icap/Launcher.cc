@@ -32,7 +32,8 @@ Adaptation::Icap::Launcher::~Launcher()
     assert(!theXaction);
 }
 
-void Adaptation::Icap::Launcher::start()
+void
+Adaptation::Icap::Launcher::start()
 {
     Adaptation::Initiate::start();
 
@@ -40,7 +41,8 @@ void Adaptation::Icap::Launcher::start()
     launchXaction("first");
 }
 
-void Adaptation::Icap::Launcher::launchXaction(const char *xkind)
+void
+Adaptation::Icap::Launcher::launchXaction(const char *xkind)
 {
     Must(!theXaction);
     ++theLaunches;
@@ -57,7 +59,8 @@ void Adaptation::Icap::Launcher::launchXaction(const char *xkind)
     Must(initiated(theXaction));
 }
 
-void Adaptation::Icap::Launcher::noteAdaptationAnswer(const Answer &answer)
+void
+Adaptation::Icap::Launcher::noteAdaptationAnswer(const Answer &answer)
 {
     debugs(93,5, HERE << "launches: " << theLaunches << " answer: " << answer);
 
@@ -69,7 +72,8 @@ void Adaptation::Icap::Launcher::noteAdaptationAnswer(const Answer &answer)
     Must(done());
 }
 
-void Adaptation::Icap::Launcher::noteInitiatorAborted()
+void
+Adaptation::Icap::Launcher::noteInitiatorAborted()
 {
 
     announceInitiatorAbort(theXaction); // propagate to the transaction
@@ -78,7 +82,8 @@ void Adaptation::Icap::Launcher::noteInitiatorAborted()
 
 }
 
-void Adaptation::Icap::Launcher::noteXactAbort(XactAbortInfo info)
+void
+Adaptation::Icap::Launcher::noteXactAbort(XactAbortInfo info)
 {
     debugs(93,5, HERE << "theXaction:" << theXaction << " launches: " << theLaunches);
 
@@ -97,12 +102,14 @@ void Adaptation::Icap::Launcher::noteXactAbort(XactAbortInfo info)
     }
 }
 
-bool Adaptation::Icap::Launcher::doneAll() const
+bool
+Adaptation::Icap::Launcher::doneAll() const
 {
     return (!theInitiator || !theXaction) && Adaptation::Initiate::doneAll();
 }
 
-void Adaptation::Icap::Launcher::swanSong()
+void
+Adaptation::Icap::Launcher::swanSong()
 {
     if (theInitiator.set())
         tellQueryAborted(true); // always final here because abnormal
@@ -113,14 +120,16 @@ void Adaptation::Icap::Launcher::swanSong()
     Adaptation::Initiate::swanSong();
 }
 
-bool Adaptation::Icap::Launcher::canRetry(Adaptation::Icap::XactAbortInfo &info) const
+bool
+Adaptation::Icap::Launcher::canRetry(Adaptation::Icap::XactAbortInfo &info) const
 {
     // We do not check and can exceed zero repeat limit when retrying.
     // This is by design as the limit does not apply to pconn retrying.
     return !shutting_down && info.isRetriable;
 }
 
-bool Adaptation::Icap::Launcher::canRepeat(Adaptation::Icap::XactAbortInfo &info) const
+bool
+Adaptation::Icap::Launcher::canRepeat(Adaptation::Icap::XactAbortInfo &info) const
 {
     debugs(93,9, HERE << shutting_down);
     if (theLaunches >= TheConfig.repeat_limit || shutting_down)

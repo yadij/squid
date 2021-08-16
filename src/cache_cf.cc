@@ -4279,7 +4279,8 @@ dump_ecap_service_type(StoreEntry * entry, const char *name, const Adaptation::E
 #endif /* USE_ECAP */
 
 #if ICAP_CLIENT
-static void parse_icap_service_failure_limit(Adaptation::Icap::Config *cfg)
+static void
+parse_icap_service_failure_limit(Adaptation::Icap::Config *cfg)
 {
     char *token;
     cfg->service_failure_limit = GetInteger();
@@ -4296,7 +4297,8 @@ static void parse_icap_service_failure_limit(Adaptation::Icap::Config *cfg)
     parse_time_t(&cfg->oldest_service_failure);
 }
 
-static void dump_icap_service_failure_limit(StoreEntry *entry, const char *name, const Adaptation::Icap::Config &cfg)
+static void
+dump_icap_service_failure_limit(StoreEntry *entry, const char *name, const Adaptation::Icap::Config &cfg)
 {
     storeAppendPrintf(entry, "%s %d", name, cfg.service_failure_limit);
     if (cfg.oldest_service_failure > 0) {
@@ -4305,7 +4307,8 @@ static void dump_icap_service_failure_limit(StoreEntry *entry, const char *name,
     storeAppendPrintf(entry, "\n");
 }
 
-static void free_icap_service_failure_limit(Adaptation::Icap::Config *cfg)
+static void
+free_icap_service_failure_limit(Adaptation::Icap::Config *cfg)
 {
     cfg->oldest_service_failure = 0;
     cfg->service_failure_limit = 0;
@@ -4313,7 +4316,8 @@ static void free_icap_service_failure_limit(Adaptation::Icap::Config *cfg)
 #endif
 
 #if USE_OPENSSL
-static void parse_sslproxy_cert_adapt(sslproxy_cert_adapt **cert_adapt)
+static void
+parse_sslproxy_cert_adapt(sslproxy_cert_adapt **cert_adapt)
 {
     char *al;
     sslproxy_cert_adapt *ca = (sslproxy_cert_adapt *) xcalloc(1, sizeof(sslproxy_cert_adapt));
@@ -4370,7 +4374,8 @@ static void parse_sslproxy_cert_adapt(sslproxy_cert_adapt **cert_adapt)
     *cert_adapt = ca;
 }
 
-static void dump_sslproxy_cert_adapt(StoreEntry *entry, const char *name, sslproxy_cert_adapt *cert_adapt)
+static void
+dump_sslproxy_cert_adapt(StoreEntry *entry, const char *name, sslproxy_cert_adapt *cert_adapt)
 {
     for (sslproxy_cert_adapt *ca = cert_adapt; ca != NULL; ca = ca->next) {
         storeAppendPrintf(entry, "%s ", name);
@@ -4381,7 +4386,8 @@ static void dump_sslproxy_cert_adapt(StoreEntry *entry, const char *name, sslpro
     }
 }
 
-static void free_sslproxy_cert_adapt(sslproxy_cert_adapt **cert_adapt)
+static void
+free_sslproxy_cert_adapt(sslproxy_cert_adapt **cert_adapt)
 {
     while (*cert_adapt) {
         sslproxy_cert_adapt *ca = *cert_adapt;
@@ -4395,7 +4401,8 @@ static void free_sslproxy_cert_adapt(sslproxy_cert_adapt **cert_adapt)
     }
 }
 
-static void parse_sslproxy_cert_sign(sslproxy_cert_sign **cert_sign)
+static void
+parse_sslproxy_cert_sign(sslproxy_cert_sign **cert_sign)
 {
     char *al;
     sslproxy_cert_sign *cs = (sslproxy_cert_sign *) xcalloc(1, sizeof(sslproxy_cert_sign));
@@ -4426,7 +4433,8 @@ static void parse_sslproxy_cert_sign(sslproxy_cert_sign **cert_sign)
     *cert_sign = cs;
 }
 
-static void dump_sslproxy_cert_sign(StoreEntry *entry, const char *name, sslproxy_cert_sign *cert_sign)
+static void
+dump_sslproxy_cert_sign(StoreEntry *entry, const char *name, sslproxy_cert_sign *cert_sign)
 {
     sslproxy_cert_sign *cs;
     for (cs = cert_sign; cs != NULL; cs = cs->next) {
@@ -4438,7 +4446,8 @@ static void dump_sslproxy_cert_sign(StoreEntry *entry, const char *name, sslprox
     }
 }
 
-static void free_sslproxy_cert_sign(sslproxy_cert_sign **cert_sign)
+static void
+free_sslproxy_cert_sign(sslproxy_cert_sign **cert_sign)
 {
     while (*cert_sign) {
         sslproxy_cert_sign *cs = *cert_sign;
@@ -4485,7 +4494,8 @@ sslBumpCfgRr::finalizeConfig()
     }
 }
 
-static void parse_sslproxy_ssl_bump(acl_access **ssl_bump)
+static void
+parse_sslproxy_ssl_bump(acl_access **ssl_bump)
 {
     typedef const char *BumpCfgStyle;
     BumpCfgStyle bcsNone = NULL;
@@ -4565,7 +4575,8 @@ static void parse_sslproxy_ssl_bump(acl_access **ssl_bump)
     ParseAclWithAction(ssl_bump, action, "ssl_bump");
 }
 
-static void dump_sslproxy_ssl_bump(StoreEntry *entry, const char *name, acl_access *ssl_bump)
+static void
+dump_sslproxy_ssl_bump(StoreEntry *entry, const char *name, acl_access *ssl_bump)
 {
     if (ssl_bump)
         dump_SBufList(entry, ssl_bump->treeDump(name, [](const Acl::Answer &action) {
@@ -4573,14 +4584,16 @@ static void dump_sslproxy_ssl_bump(StoreEntry *entry, const char *name, acl_acce
     }));
 }
 
-static void free_sslproxy_ssl_bump(acl_access **ssl_bump)
+static void
+free_sslproxy_ssl_bump(acl_access **ssl_bump)
 {
     free_acl_access(ssl_bump);
 }
 
 #endif
 
-static void dump_HeaderWithAclList(StoreEntry * entry, const char *name, HeaderWithAclList *headers)
+static void
+dump_HeaderWithAclList(StoreEntry * entry, const char *name, HeaderWithAclList *headers)
 {
     if (!headers)
         return;
@@ -4593,7 +4606,8 @@ static void dump_HeaderWithAclList(StoreEntry * entry, const char *name, HeaderW
     }
 }
 
-static void parse_HeaderWithAclList(HeaderWithAclList **headers)
+static void
+parse_HeaderWithAclList(HeaderWithAclList **headers)
 {
     char *fn;
     if (!*headers) {
@@ -4627,7 +4641,8 @@ static void parse_HeaderWithAclList(HeaderWithAclList **headers)
     (*headers)->push_back(hwa);
 }
 
-static void free_HeaderWithAclList(HeaderWithAclList **header)
+static void
+free_HeaderWithAclList(HeaderWithAclList **header)
 {
     if (!(*header))
         return;
@@ -4645,23 +4660,27 @@ static void free_HeaderWithAclList(HeaderWithAclList **header)
     *header = NULL;
 }
 
-static void parse_note(Notes *notes)
+static void
+parse_note(Notes *notes)
 {
     assert(notes);
     notes->parse(LegacyParser);
 }
 
-static void dump_note(StoreEntry *entry, const char *name, Notes &notes)
+static void
+dump_note(StoreEntry *entry, const char *name, Notes &notes)
 {
     notes.dump(entry, name);
 }
 
-static void free_note(Notes *notes)
+static void
+free_note(Notes *notes)
 {
     notes->clean();
 }
 
-static DebugMessageId ParseDebugMessageId(const char *value, const char eov)
+static DebugMessageId
+ParseDebugMessageId(const char *value, const char eov)
 {
     const auto id = xatoui(value, eov);
     if (!(0 < id && id < DebugMessageIdUpperBound))
@@ -4669,7 +4688,8 @@ static DebugMessageId ParseDebugMessageId(const char *value, const char eov)
     return static_cast<DebugMessageId>(id);
 }
 
-static void parse_cache_log_message(DebugMessages **debugMessages)
+static void
+parse_cache_log_message(DebugMessages **debugMessages)
 {
     DebugMessage msg;
     DebugMessageId minId = 0;
@@ -4728,7 +4748,8 @@ static void parse_cache_log_message(DebugMessages **debugMessages)
     }
 }
 
-static void dump_cache_log_message(StoreEntry *entry, const char *name, const DebugMessages *debugMessages)
+static void
+dump_cache_log_message(StoreEntry *entry, const char *name, const DebugMessages *debugMessages)
 {
     if (!debugMessages)
         return;
@@ -4748,7 +4769,8 @@ static void dump_cache_log_message(StoreEntry *entry, const char *name, const De
     entry->append(buf.rawContent(), buf.length()); // may be empty
 }
 
-static void free_cache_log_message(DebugMessages **debugMessages)
+static void
+free_cache_log_message(DebugMessages **debugMessages)
 {
     // clear old messages to avoid cumulative effect across (re)configurations
     assert(debugMessages);
@@ -4757,7 +4779,8 @@ static void free_cache_log_message(DebugMessages **debugMessages)
 }
 
 static bool FtpEspvDeprecated = false;
-static void parse_ftp_epsv(acl_access **ftp_epsv)
+static void
+parse_ftp_epsv(acl_access **ftp_epsv)
 {
     Acl::Answer ftpEpsvDeprecatedAction;
     bool ftpEpsvIsDeprecatedRule = false;
@@ -4808,13 +4831,15 @@ static void parse_ftp_epsv(acl_access **ftp_epsv)
     }
 }
 
-static void dump_ftp_epsv(StoreEntry *entry, const char *name, acl_access *ftp_epsv)
+static void
+dump_ftp_epsv(StoreEntry *entry, const char *name, acl_access *ftp_epsv)
 {
     if (ftp_epsv)
         dump_SBufList(entry, ftp_epsv->treeDump(name, Acl::AllowOrDeny));
 }
 
-static void free_ftp_epsv(acl_access **ftp_epsv)
+static void
+free_ftp_epsv(acl_access **ftp_epsv)
 {
     free_acl_access(ftp_epsv);
     FtpEspvDeprecated = false;

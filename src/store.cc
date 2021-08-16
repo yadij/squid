@@ -2034,7 +2034,8 @@ operator <<(std::ostream &os, const Store::IoStatus &io)
     return os;
 }
 
-std::ostream &operator <<(std::ostream &os, const StoreEntry &e)
+std::ostream &
+operator <<(std::ostream &os, const StoreEntry &e)
 {
     os << "e:";
 

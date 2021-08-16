@@ -247,7 +247,8 @@ ACLFilledChecklist::ACLFilledChecklist(const acl_access *A, HttpRequest *http_re
     setIdent(ident);
 }
 
-void ACLFilledChecklist::setRequest(HttpRequest *httpRequest)
+void
+ACLFilledChecklist::setRequest(HttpRequest *httpRequest)
 {
     assert(!request);
     if (httpRequest) {

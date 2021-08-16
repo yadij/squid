@@ -84,7 +84,8 @@ public:
 class Entry
 {
 public:
-    explicit Entry(const char *str) : name(str) {}
+    explicit
+    Entry(const char *str) : name(str) {}
 
     std::string name;
     EntryAliasList alias;

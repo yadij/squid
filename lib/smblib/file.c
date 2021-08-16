@@ -41,11 +41,12 @@
 /* Open a file with file_name using desired mode and search attr  */
 /* If File_Handle is null, then create and populate a file handle */
 
-SMB_File *SMB_Open(SMB_Tree_Handle Tree_Handle,
-                   SMB_File *File_Handle,
-                   char *file_name,
-                   WORD mode,
-                   WORD search)
+SMB_File *
+SMB_Open(SMB_Tree_Handle Tree_Handle,
+         SMB_File *File_Handle,
+         char *file_name,
+         WORD mode,
+         WORD search)
 
 {
     struct RFCNB_Pkt *pkt;
@@ -189,7 +190,8 @@ SMB_File *SMB_Open(SMB_Tree_Handle Tree_Handle,
 
 /* Close the file referred to in File_Handle */
 
-int SMB_Close(SMB_File *File_Handle)
+int
+SMB_Close(SMB_File *File_Handle)
 
 {
     struct SMB_Close_Prot_Def *prot_pkt;
@@ -294,7 +296,8 @@ int SMB_Close(SMB_File *File_Handle)
 /* Read numbytes into data from the file pointed to by File_Handle from */
 /* the offset in the File_Handle.                                       */
 
-int SMB_Read(SMB_File *File_Handle, char *data, int numbytes)
+int
+SMB_Read(SMB_File *File_Handle, char *data, int numbytes)
 
 {
     int tot_read;
@@ -443,7 +446,8 @@ int SMB_Read(SMB_File *File_Handle, char *data, int numbytes)
 
 /* Lseek seeks just like the UNIX version does ...                     */
 
-off_t SMB_Lseek(SMB_File *File_Handle, off_t offset, int whence)
+off_t
+SMB_Lseek(SMB_File *File_Handle, off_t offset, int whence)
 
 {
 
@@ -478,7 +482,8 @@ off_t SMB_Lseek(SMB_File *File_Handle, off_t offset, int whence)
 /* Write numbytes from data to the file pointed to by the File_Handle at */
 /* the offset in the File_Handle.                                        */
 
-int SMB_Write(SMB_File *File_Handle, char *data, int numbytes)
+int
+SMB_Write(SMB_File *File_Handle, char *data, int numbytes)
 
 {
     int tot_written = 0;
@@ -631,10 +636,11 @@ int SMB_Write(SMB_File *File_Handle, char *data, int numbytes)
 
 /* Create file on the server with name file_name and attributes search */
 
-SMB_File *SMB_Create(SMB_Tree_Handle Tree_Handle,
-                     SMB_File *File_Handle,
-                     char *file_name,
-                     WORD search)
+SMB_File *
+SMB_Create(SMB_Tree_Handle Tree_Handle,
+           SMB_File *File_Handle,
+           char *file_name,
+           WORD search)
 
 {
     struct RFCNB_Pkt *pkt;
@@ -777,7 +783,8 @@ SMB_File *SMB_Create(SMB_Tree_Handle Tree_Handle,
 
 /* Delete the file passed in as file_name.                              */
 
-int SMB_Delete(SMB_Tree_Handle tree, char *file_name, WORD search)
+int
+SMB_Delete(SMB_Tree_Handle tree, char *file_name, WORD search)
 
 {
     struct RFCNB_Pkt *pkt;
@@ -874,7 +881,8 @@ int SMB_Delete(SMB_Tree_Handle tree, char *file_name, WORD search)
 
 /* Create the directory passed in as dir_name                          */
 
-int SMB_Create_Dir(SMB_Tree_Handle tree, char *dir_name)
+int
+SMB_Create_Dir(SMB_Tree_Handle tree, char *dir_name)
 
 {
     struct RFCNB_Pkt *pkt;
@@ -970,7 +978,8 @@ int SMB_Create_Dir(SMB_Tree_Handle tree, char *dir_name)
 
 /* Delete the directory passed as dir_name, as long as it is empty ... */
 
-int SMB_Delete_Dir(SMB_Tree_Handle tree, char *dir_name)
+int
+SMB_Delete_Dir(SMB_Tree_Handle tree, char *dir_name)
 
 {
     struct RFCNB_Pkt *pkt;
@@ -1066,7 +1075,8 @@ int SMB_Delete_Dir(SMB_Tree_Handle tree, char *dir_name)
 
 /* Check for the existence of the directory in dir_name                    */
 
-int SMB_Check_Dir(SMB_Tree_Handle tree, char *dir_name)
+int
+SMB_Check_Dir(SMB_Tree_Handle tree, char *dir_name)
 
 {
     struct RFCNB_Pkt *pkt;
@@ -1163,13 +1173,14 @@ int SMB_Check_Dir(SMB_Tree_Handle tree, char *dir_name)
 /* Search directory for the files listed ... Relative to the TID in the */
 /* Con Handle. Return number of Dir Ents returned as the result.        */
 
-int SMB_Search(SMB_Tree_Handle tree,
-               char *dir_name,
-               WORD search,
-               SMB_CP_dirent *dirents,
-               int direntc,
-               char *resumekey,
-               int resumekey_len)
+int
+SMB_Search(SMB_Tree_Handle tree,
+           char *dir_name,
+           WORD search,
+           SMB_CP_dirent *dirents,
+           int direntc,
+           char *resumekey,
+           int resumekey_len)
 
 {
     struct RFCNB_Pkt *pkt, *recv_pkt;
