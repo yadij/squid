@@ -213,10 +213,13 @@ public:
     /// noteTakeServerConnectionControl() callback parameter
     class ServerConnectionContext {
     public:
-        ServerConnectionContext(const Comm::ConnectionPointer &conn, const SBuf &post101Bytes) : preReadServerBytes(post101Bytes), conn_(conn) { conn_->enterOrphanage(); }
+        ServerConnectionContext(const Comm::ConnectionPointer &conn, const SBuf &post101Bytes) :
+            preReadServerBytes(post101Bytes),
+            conn_(conn)
+        {}
 
         /// gives to-server connection to the new owner
-        Comm::ConnectionPointer connection() { conn_->leaveOrphanage(); return conn_; }
+        Comm::ConnectionPointer connection() { return conn_; }
 
         SBuf preReadServerBytes; ///< post-101 bytes received from the server
 

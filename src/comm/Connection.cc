@@ -75,8 +75,6 @@ Comm::Connection::cloneProfile() const
     c.tos = tos;
     c.nfmark = nfmark;
     c.nfConnmark = nfConnmark;
-    // COMM_ORPHANED is not a part of connection opening instructions
-    c.flags = flags & ~COMM_ORPHANED;
     // rfc931 is excused
 
 #if USE_SQUID_EUI

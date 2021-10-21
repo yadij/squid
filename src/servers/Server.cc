@@ -30,7 +30,6 @@ Server::Server(const MasterXaction::Pointer &xact) :
     port(xact->squidPort),
     receivedFirstByte_(false)
 {
-    clientConnection->leaveOrphanage();
 }
 
 bool
