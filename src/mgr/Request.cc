@@ -34,7 +34,8 @@ Mgr::Request::Request(const Ipc::TypedMsgHdr &msg)
     msg.getPod(requestId);
     params = ActionParams(msg);
 
-    conn = new Comm::Connection;
+    auto t = static_cast<AnyP::ProtocolType>(msg.getInt());
+    conn = new Comm::Connection(t);
     conn->fd = msg.getFd();
     // For now we just have the FD.
     // Address and connectio details wil be pulled/imported by the component later
@@ -48,6 +49,7 @@ Mgr::Request::pack(Ipc::TypedMsgHdr& msg) const
     msg.putPod(requestId);
     params.pack(msg);
 
+    msg.putInt(static_cast<int>(conn->transport));
     msg.putFd(conn->fd);
 }
 

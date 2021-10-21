@@ -1447,7 +1447,7 @@ htcpOpenPorts(void)
         return;
     }
 
-    htcpIncomingConn = new Comm::Connection;
+    htcpIncomingConn = new Comm::Connection(AnyP::PROTO_HTCP);
     htcpIncomingConn->local = Config.Addrs.udp_incoming;
     htcpIncomingConn->local.port(Config.Port.htcp);
 
@@ -1470,7 +1470,7 @@ htcpOpenPorts(void)
                         Ipc::fdnInHtcpSocket, call);
 
     if (!Config.Addrs.udp_outgoing.isNoAddr()) {
-        htcpOutgoingConn = new Comm::Connection;
+        htcpOutgoingConn = new Comm::Connection(AnyP::PROTO_HTCP);
         htcpOutgoingConn->local = Config.Addrs.udp_outgoing;
         htcpOutgoingConn->local.port(Config.Port.htcp);
 

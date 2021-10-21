@@ -29,7 +29,8 @@ Comm::IsConnOpen(const Comm::ConnectionPointer &conn)
     return conn != NULL && conn->isOpen();
 }
 
-Comm::Connection::Connection() :
+Comm::Connection::Connection(const AnyP::ProtocolType t) :
+    transport(t),
     peerType(HIER_NONE),
     fd(-1),
     tos(0),
@@ -44,16 +45,11 @@ Comm::Connection::Connection() :
 
 Comm::Connection::~Connection()
 {
-    if (fd >= 0) {
-        if (flags & COMM_ORPHANED) {
-            debugs(5, 5, "closing orphan: " << *this);
-        } else {
-            static uint64_t losses = 0;
-            ++losses;
-            debugs(5, 4, "BUG #3329: Lost orphan #" << losses << ": " << *this);
-        }
+    const bool closeFd = (transport == AnyP::PROTO_TCP);
+    if (closeFd && fd >= 0)
         close();
-    }
+    else
+        noteClosure();
 
     cbdataReferenceDone(peer_);
 
@@ -63,7 +59,7 @@ Comm::Connection::~Connection()
 Comm::ConnectionPointer
 Comm::Connection::cloneProfile() const
 {
-    const ConnectionPointer clone = new Comm::Connection;
+    const ConnectionPointer clone = new Comm::Connection(transport);
     auto &c = *clone; // optimization
 
     /*
@@ -194,7 +190,7 @@ Comm::Connection::detailCodeContext(std::ostream &os) const
 std::ostream &
 operator << (std::ostream &os, const Comm::Connection &conn)
 {
-    os << conn.id;
+    os << conn.id << ' ' << conn.transport;
     if (!conn.local.isNoAddr() || conn.local.port())
         os << " local=" << conn.local;
     if (!conn.remote.isNoAddr() || conn.remote.port())

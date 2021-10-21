@@ -430,7 +430,7 @@ PeerSelector::resolveSelected()
         // check the client is still around before using any of its details
         if (req->clientConnectionManager.valid()) {
             // construct a "result" adding the ORIGINAL_DST to the set instead of DIRECT
-            Comm::ConnectionPointer p = new Comm::Connection();
+            Comm::ConnectionPointer p = new Comm::Connection(AnyP::PROTO_TCP);
             p->remote = req->clientConnectionManager->clientConnection->local;
             fs->code = ORIGINAL_DST; // fs->code is DIRECT. This fixes the display.
             handlePath(p, *fs);
@@ -529,7 +529,7 @@ PeerSelector::noteIp(const Ip::Address &ip)
             return; // cannot spoof the client address on this link
     }
 
-    Comm::ConnectionPointer p = new Comm::Connection();
+    Comm::ConnectionPointer p = new Comm::Connection(AnyP::PROTO_TCP);
     p->remote = ip;
     p->remote.port(peer ? peer->http_port : request->url.port());
     handlePath(p, *servers);

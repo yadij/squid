@@ -196,7 +196,7 @@ PeerPoolMgr::openNewConnection()
 
     peer->standby.waitingForClose = false;
 
-    Comm::ConnectionPointer conn = new Comm::Connection;
+    Comm::ConnectionPointer conn = new Comm::Connection(AnyP::PROTO_TCP);
     Must(peer->n_addresses); // guaranteed by neighborUp() above
     // cycle through all available IP addresses
     conn->remote = peer->addresses[addrUsed++ % peer->n_addresses];

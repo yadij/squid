@@ -1760,7 +1760,7 @@ ftpOpenListenSocket(Ftp::Gateway * ftpState, int fallback)
      * Set up a listen socket on the same local address as the
      * control connection.
      */
-    Comm::ConnectionPointer temp = new Comm::Connection;
+    Comm::ConnectionPointer temp = new Comm::Connection(AnyP::PROTO_TCP);
     temp->local = ftpState->ctrl.conn->local;
 
     /*

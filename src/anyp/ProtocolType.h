@@ -37,9 +37,11 @@ typedef enum {
     PROTO_URN,
     PROTO_WHOIS,
     PROTO_ICY,
+    PROTO_TCP,
     PROTO_TLS,
     PROTO_SSL,
     PROTO_AUTHORITY_FORM,
+    PROTO_SNMP,
     PROTO_UNKNOWN,
     PROTO_MAX
 } ProtocolType;

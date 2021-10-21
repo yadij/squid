@@ -198,7 +198,7 @@ Adaptation::Icap::Xaction::dnsLookupDone(const ipcache_addrs *ia)
         return;
     }
 
-    const Comm::ConnectionPointer conn = new Comm::Connection();
+    const Comm::ConnectionPointer conn = new Comm::Connection(AnyP::PROTO_TCP);
     conn->remote = ia->current();
     conn->remote.port(s.cfg().port);
     getOutgoingAddress(nullptr, conn);

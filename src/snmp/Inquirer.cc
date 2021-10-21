@@ -25,7 +25,7 @@ Snmp::Inquirer::Inquirer(const Request& aRequest, const Ipc::StrandCoords& coord
     Ipc::Inquirer(aRequest.clone(), coords, 2),
     aggrPdu(aRequest.pdu)
 {
-    conn = new Comm::Connection;
+    conn = new Comm::Connection(AnyP::PROTO_SNMP);
     conn->fd = aRequest.fd;
     ImportFdIntoComm(conn, SOCK_DGRAM, IPPROTO_UDP, Ipc::fdnInSnmpSocket);
 

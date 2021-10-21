@@ -275,9 +275,9 @@ helperOpenServers(helper * hlp)
         srv->pid = pid;
         srv->initStats();
         srv->addr = hlp->addr;
-        srv->readPipe = new Comm::Connection;
+        srv->readPipe = new Comm::Connection(AnyP::PROTO_UNKNOWN);
         srv->readPipe->fd = rfd;
-        srv->writePipe = new Comm::Connection;
+        srv->writePipe = new Comm::Connection(AnyP::PROTO_UNKNOWN);
         srv->writePipe->fd = wfd;
         srv->rbuf = (char *)memAllocBuf(ReadBufSize, &srv->rbuf_sz);
         srv->wqueue = new MemBuf;
@@ -402,9 +402,9 @@ helperStatefulOpenServers(statefulhelper * hlp)
         srv->pid = pid;
         srv->initStats();
         srv->addr = hlp->addr;
-        srv->readPipe = new Comm::Connection;
+        srv->readPipe = new Comm::Connection(AnyP::PROTO_UNKNOWN);
         srv->readPipe->fd = rfd;
-        srv->writePipe = new Comm::Connection;
+        srv->writePipe = new Comm::Connection(AnyP::PROTO_UNKNOWN);
         srv->writePipe->fd = wfd;
         srv->rbuf = (char *)memAllocBuf(ReadBufSize, &srv->rbuf_sz);
         srv->roffset = 0;

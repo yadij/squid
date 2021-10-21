@@ -11,6 +11,7 @@
 #ifndef _SQUIDCONNECTIONDETAIL_H_
 #define _SQUIDCONNECTIONDETAIL_H_
 
+#include "anyp/ProtocolType.h"
 #include "base/CodeContext.h"
 #include "base/InstanceId.h"
 #include "comm/forward.h"
@@ -72,7 +73,7 @@ class Connection: public CodeContext
     MEMPROXY_CLASS(Comm::Connection);
 
 public:
-    Connection();
+    Connection(const AnyP::ProtocolType);
 
     /** Clear the connection properties and close any open socket. */
     virtual ~Connection();
@@ -140,6 +141,9 @@ public:
     virtual std::ostream &detailCodeContext(std::ostream &os) const override;
 
 public:
+    /// transport type used by this connection
+    AnyP::ProtocolType transport;
+
     /** Address/Port for the Squid end of a TCP link. */
     Ip::Address local;
 

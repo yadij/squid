@@ -385,7 +385,8 @@ comm_openex(int sock_type,
     }
 
     // XXX: temporary for the transition. comm_openex will eventually have a conn to play with.
-    Comm::ConnectionPointer conn = new Comm::Connection;
+    // UNKNOWN transport will not close the FD automatically
+    Comm::ConnectionPointer conn = new Comm::Connection(AnyP::PROTO_UNKNOWN);
     conn->local = addr;
     conn->fd = new_socket;
 
@@ -406,8 +407,6 @@ comm_openex(int sock_type,
 
     PROF_stop(comm_open);
 
-    // XXX transition only. prevent conn from closing the new FD on function exit.
-    conn->fd = -1;
     errno = xerrno; // restore for caller
     return new_socket;
 }
@@ -1591,7 +1590,9 @@ commHalfClosedCheck(void *)
     typedef DescriptorSet::const_iterator DSCI;
     const DSCI end = TheHalfClosed->end();
     for (DSCI i = TheHalfClosed->begin(); i != end; ++i) {
-        Comm::ConnectionPointer c = new Comm::Connection; // XXX: temporary. make HalfClosed a list of these.
+        // XXX: temporary new Connection object. make HalfClosed a list of the real ones instead of just FDs.
+        // UNKNOWN transport will not close the FD automatically
+        Comm::ConnectionPointer c = new Comm::Connection(AnyP::PROTO_UNKNOWN);
         c->fd = *i;
         if (!fd_table[c->fd].halfClosedReader) { // not reading already
             CallBack(fd_table[c->fd].codeContext, [&c] {
@@ -1600,8 +1601,7 @@ commHalfClosedCheck(void *)
                 Comm::Read(c, call);
                 fd_table[c->fd].halfClosedReader = call;
             });
-        } else
-            c->fd = -1; // XXX: temporary. prevent c replacement erase closing listed FD
+        }
     }
 
     WillCheckHalfClosed = false; // as far as we know

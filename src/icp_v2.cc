@@ -704,7 +704,7 @@ icpOpenPorts(void)
     if ((port = Config.Port.icp) <= 0)
         return;
 
-    icpIncomingConn = new Comm::Connection;
+    icpIncomingConn = new Comm::Connection(AnyP::PROTO_ICP);
     icpIncomingConn->local = Config.Addrs.udp_incoming;
     icpIncomingConn->local.port(port);
 
@@ -727,7 +727,7 @@ icpOpenPorts(void)
                         Ipc::fdnInIcpSocket, call);
 
     if ( !Config.Addrs.udp_outgoing.isNoAddr() ) {
-        icpOutgoingConn = new Comm::Connection;
+        icpOutgoingConn = new Comm::Connection(AnyP::PROTO_ICP);
         icpOutgoingConn->local = Config.Addrs.udp_outgoing;
         icpOutgoingConn->local.port(port);
 

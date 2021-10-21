@@ -274,7 +274,7 @@ Comm::TcpAcceptor::acceptOne()
      */
 
     /* Accept a new connection */
-    ConnectionPointer newConnDetails = new Connection();
+    ConnectionPointer newConnDetails = new Connection(AnyP::PROTO_TCP);
     const Comm::Flag flag = oldAccept(newConnDetails);
 
     if (flag == Comm::COMM_ERROR) {

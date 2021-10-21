@@ -44,7 +44,7 @@ Ipc::UdsOp::conn()
         if (options & COMM_DOBIND)
             unlink(address.sun_path);
         if (conn_ == NULL)
-            conn_ = new Comm::Connection;
+            conn_ = new Comm::Connection(AnyP::PROTO_UNKNOWN);
         conn_->fd = comm_open_uds(SOCK_DGRAM, 0, &address, options);
         Must(Comm::IsConnOpen(conn_));
     }

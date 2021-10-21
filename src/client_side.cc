@@ -3339,7 +3339,7 @@ clientHttpConnectionsOpen(void)
 
         // Fill out a Comm::Connection which IPC will open as a listener for us
         //  then pass back when active so we can start a TcpAcceptor subscription.
-        s->listenConn = new Comm::Connection;
+        s->listenConn = new Comm::Connection(AnyP::PROTO_TCP);
         s->listenConn->local = s->s;
 
         s->listenConn->flags = COMM_NONBLOCKING | (s->flags.tproxyIntercept ? COMM_TRANSPARENT : 0) |
@@ -3376,7 +3376,7 @@ void
 clientStartListeningOn(AnyP::PortCfgPointer &port, const RefCount< CommCbFunPtrCallT<CommAcceptCbPtrFun> > &subCall, const Ipc::FdNoteId fdNote)
 {
     // Fill out a Comm::Connection which IPC will open as a listener for us
-    port->listenConn = new Comm::Connection;
+    port->listenConn = new Comm::Connection(AnyP::PROTO_TCP);
     port->listenConn->local = port->s;
     port->listenConn->flags =
         COMM_NONBLOCKING |
