@@ -39,7 +39,7 @@ public:
     SourceLocationId id() const { return where.id(); }
 
     /// dumps the exception text into the stream
-    std::ostream &print(std::ostream &) const;
+    virtual std::ostream &print(std::ostream &) const;
 
     /// code location related to the exception; usually the thrower location
     SourceLocation where;
