@@ -413,7 +413,6 @@ squid_SOURCES = \
 	repl_modules.h \
 	sbuf/StringConvert.h \
 	send-announce.cc \
-	send-announce.h \
 	stat.cc \
 	stat.h \
 	stmem.cc \

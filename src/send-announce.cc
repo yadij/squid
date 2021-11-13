@@ -10,6 +10,7 @@
 
 #include "squid.h"
 #include "anyp/PortCfg.h"
+#include "base/RunnersRegistry.h"
 #include "comm/Connection.h"
 #include "event.h"
 #include "fd.h"
@@ -18,25 +19,8 @@
 #include "globals.h"
 #include "ICP.h"
 #include "ipcache.h"
-#include "send-announce.h"
 #include "SquidConfig.h"
 #include "tools.h"
-
-static IPH send_announce;
-
-void
-start_announce(void *)
-{
-    if (0 == Config.onoff.announce)
-        return;
-
-    if (!Comm::IsConnOpen(icpOutgoingConn))
-        return;
-
-    ipcache_nbgethostbyname(Config.Announce.host, send_announce, nullptr);
-
-    eventAdd("send_announce", start_announce, nullptr, (double) Config.Announce.period, 1);
-}
 
 static void
 send_announce(const ipcache_addrs *ia, const Dns::LookupDetails &, void *)
@@ -102,3 +86,36 @@ send_announce(const ipcache_addrs *ia, const Dns::LookupDetails &, void *)
     }
 }
 
+static void
+start_announce(void *)
+{
+    if (!Config.onoff.announce)
+        return;
+
+    if (!Comm::IsConnOpen(icpOutgoingConn))
+        return;
+
+    ipcache_nbgethostbyname(Config.Announce.host, send_announce, nullptr);
+
+    eventAdd("send_announce", start_announce, nullptr, static_cast<double>(Config.Announce.period), 1);
+}
+
+/// launches send-announce event
+class SendAnnounceRr: public RegisteredRunner
+{
+public:
+    /* RegisteredRunner API */
+    virtual void finalizeConfig() {
+        // TODO use AsyncCall pointer when event API accepts one
+        static bool isRunning = false;
+        eventDelete(start_announce, nullptr);
+        if (Config.onoff.announce)
+            eventAdd("send_announce", start_announce, nullptr, Config.Announce.period, 1);
+    }
+
+    virtual void startShutdown() {
+        eventDelete(start_announce, nullptr);
+    }
+};
+
+RunnerRegistrationEntry(SendAnnounceRr);
