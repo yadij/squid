@@ -3718,6 +3718,7 @@ AC_CONFIG_FILES([
 	src/http/url_rewriters/fake/Makefile
 	src/http/url_rewriters/LFS/Makefile
 	src/icmp/Makefile
+	src/icp/Makefile
 	src/ident/Makefile
 	src/ip/Makefile
 	src/ipc/Makefile

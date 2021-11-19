@@ -16,7 +16,7 @@
 #include "fde.h"
 #include "fs_io.h"
 #include "globals.h"
-#include "ICP.h"
+#include "icp/ICP.h"
 #include "ipcache.h"
 #include "send-announce.h"
 #include "SquidConfig.h"

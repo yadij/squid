@@ -17,7 +17,7 @@
 #include "http/ProtocolVersion.h"
 #include "http/RequestMethod.h"
 #include "HttpHeader.h"
-#include "icp_opcode.h"
+#include "icp/icp_opcode.h"
 #include "ip/Address.h"
 #include "LogTags.h"
 #include "MessageSizes.h"

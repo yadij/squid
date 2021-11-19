@@ -41,8 +41,8 @@ AUTH_ACL_LIBS= auth/libacls.la
 endif
 DIST_SUBDIRS += auth
 
-SUBDIRS	+= http ip icmp ident log ipc mgr
-DIST_SUBDIRS += http ip icmp ident log ipc mgr
+SUBDIRS	+= http ip icp icmp ident log ipc mgr
+DIST_SUBDIRS += http ip icp icmp ident log ipc mgr
 
 SSL_LIBS=
 if ENABLE_SSL
@@ -290,7 +290,6 @@ squid_SOURCES = \
 	HttpRequest.h \
 	HttpUpgradeProtocolAccess.cc \
 	HttpUpgradeProtocolAccess.h \
-	ICP.h \
 	Instance.cc \
 	Instance.h \
 	IoStats.h \
@@ -401,9 +400,6 @@ squid_SOURCES = \
 	hier_code.h \
 	http.cc \
 	http.h \
-	icp_opcode.h \
-	icp_v2.cc \
-	icp_v3.cc \
 	int.cc \
 	int.h \
 	internal.cc \
@@ -501,7 +497,6 @@ BUILT_SOURCES = \
 	cf_parser.cci \
 	globals.cc \
 	hier_code.cc \
-	icp_opcode.cc \
 	lookup_t.cc \
 	repl_modules.cc \
 	swap_log_op.cc
@@ -539,6 +534,7 @@ squid_LDADD = \
 	proxyp/libproxyp.la \
 	parser/libparser.la \
 	eui/libeui.la \
+	icp/libicp.la \
 	icmp/libicmp.la \
 	log/liblog.la \
 	format/libformat.la \
@@ -720,9 +716,6 @@ hier_code.cc: hier_code.h mk-string-arrays.awk
 
 lookup_t.cc: lookup_t.h mk-string-arrays.awk
 	$(AWK) -f $(srcdir)/mk-string-arrays.awk < $(srcdir)/lookup_t.h > $@ || ($(RM) -f $@ && exit 1)
-
-icp_opcode.cc: icp_opcode.h mk-string-arrays.awk
-	$(AWK) -f $(srcdir)/mk-string-arrays.awk < $(srcdir)/icp_opcode.h > $@ || ($(RM) -f $@ && exit 1)
 
 swap_log_op.cc: swap_log_op.h mk-string-arrays.awk
 	$(AWK) -f $(srcdir)/mk-string-arrays.awk < $(srcdir)/swap_log_op.h > $@ || ($(RM) -f $@ && exit 1)
@@ -1170,7 +1163,6 @@ tests_testRock_SOURCES = \
 	fs_io.cc \
 	fs_io.h \
 	tests/stub_http.cc \
-	tests/stub_icp.cc \
 	int.cc \
 	int.h \
 	tests/stub_ipc.cc \
@@ -1181,6 +1173,7 @@ tests_testRock_SOURCES = \
 	tests/stub_libeui.cc \
 	tests/stub_libformat.cc \
 	tests/stub_libicmp.cc \
+	tests/stub_libicp.cc \
 	tests/stub_liblog.cc \
 	tests/stub_libmgr.cc \
 	tests/stub_libsecurity.cc \
@@ -1345,7 +1338,6 @@ tests_testUfs_SOURCES = \
 	fs_io.h \
 	tests/stub_helper.cc \
 	tests/stub_http.cc \
-	tests/stub_icp.cc \
 	int.cc \
 	int.h \
 	tests/stub_internal.cc \
@@ -1358,6 +1350,7 @@ tests_testUfs_SOURCES = \
 	tests/stub_libeui.cc \
 	tests/stub_libformat.cc \
 	tests/stub_libicmp.cc \
+	tests/stub_libicp.cc \
 	tests/stub_liblog.cc \
 	tests/stub_libsecurity.cc \
 	log/access_log.h \
@@ -1695,7 +1688,6 @@ tests_testDiskIO_SOURCES = \
 	fs_io.h \
 	tests/stub_helper.cc \
 	tests/stub_http.cc \
-	tests/stub_icp.cc \
 	int.cc \
 	int.h \
 	tests/stub_internal.cc \
@@ -1709,6 +1701,7 @@ tests_testDiskIO_SOURCES = \
 	tests/stub_libeui.cc \
 	tests/stub_libformat.cc \
 	tests/stub_libicmp.cc \
+	tests/stub_libicp.cc \
 	tests/stub_liblog.cc \
 	tests/stub_libsecurity.cc \
 	tests/stub_libstore.cc \
@@ -1953,8 +1946,6 @@ tests_test_http_range_SOURCES = \
 	helper.cc \
 	hier_code.h \
 	http.cc \
-	icp_v2.cc \
-	icp_v3.cc \
 	int.cc \
 	int.h \
 	internal.cc \
@@ -1965,6 +1956,7 @@ tests_test_http_range_SOURCES = \
 	tests/stub_libdiskio.cc \
 	tests/stub_liberror.cc \
 	tests/stub_libeui.cc \
+	tests/stub_libicp.cc \
 	tests/stub_libmem.cc \
 	tests/stub_libsecurity.cc \
 	tests/stub_libstore.cc \
@@ -2346,8 +2338,6 @@ tests_testHttpRequest_SOURCES = \
 	helper.cc \
 	hier_code.h \
 	http.cc \
-	icp_v2.cc \
-	icp_v3.cc \
 	int.cc \
 	int.h \
 	internal.cc \
@@ -2359,6 +2349,7 @@ tests_testHttpRequest_SOURCES = \
 	tests/stub_libdiskio.cc \
 	tests/stub_liberror.cc \
 	tests/stub_libeui.cc \
+	tests/stub_libicp.cc \
 	tests/stub_libmem.cc \
 	tests/stub_libsecurity.cc \
 	tests/stub_libstore.cc \
@@ -2654,8 +2645,6 @@ tests_testCacheManager_SOURCES = \
 	helper.cc \
 	hier_code.h \
 	http.cc \
-	icp_v2.cc \
-	icp_v3.cc \
 	int.cc \
 	int.h \
 	internal.cc \
@@ -2666,6 +2655,7 @@ tests_testCacheManager_SOURCES = \
 	tests/stub_libauth_acls.cc \
 	tests/stub_libdiskio.cc \
 	tests/stub_liberror.cc \
+	tests/stub_libicp.cc \
 	tests/stub_libsecurity.cc \
 	tests/stub_libstore.cc \
 	tests/stub_main_cc.cc \

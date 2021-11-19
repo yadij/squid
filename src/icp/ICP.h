@@ -16,7 +16,7 @@
 
 #include "base/RefCount.h"
 #include "comm/forward.h"
-#include "icp_opcode.h"
+#include "icp/icp_opcode.h"
 #include "ip/Address.h"
 #include "LogTags.h"
 #include "store_key_md5.h"

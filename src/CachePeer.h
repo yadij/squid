@@ -12,7 +12,7 @@
 #include "acl/forward.h"
 #include "base/CbcPointer.h"
 #include "enums.h"
-#include "icp_opcode.h"
+#include "icp/icp_opcode.h"
 #include "ip/Address.h"
 #include "security/PeerOptions.h"
 

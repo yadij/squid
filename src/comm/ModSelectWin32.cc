@@ -15,7 +15,7 @@
 #include "comm/Connection.h"
 #include "comm/Loops.h"
 #include "fde.h"
-#include "ICP.h"
+#include "icp/ICP.h"
 #include "mgr/Registration.h"
 #include "SquidTime.h"
 #include "StatCounters.h"

@@ -25,7 +25,7 @@
 #include "fd.h"
 #include "HttpRequest.h"
 #include "icmp/net_db.h"
-#include "ICP.h"
+#include "icp/ICP.h"
 #include "ip/Address.h"
 #include "ip/tools.h"
 #include "ipcache.h"

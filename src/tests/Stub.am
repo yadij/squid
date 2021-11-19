@@ -39,7 +39,6 @@ STUB_SOURCE = \
     tests/stub_HttpReply.cc \
     tests/stub_HttpRequest.cc \
     tests/stub_HttpUpgradeProtocolAccess.cc \
-    tests/stub_icp.cc \
     tests/stub_internal.cc \
     tests/stub_ipcache.cc \
     tests/stub_ipc.cc \
@@ -56,6 +55,7 @@ STUB_SOURCE = \
     tests/stub_libformat.cc \
     tests/stub_libhttp.cc \
     tests/stub_libicmp.cc \
+    tests/stub_libicp.cc \
     tests/stub_libip.cc \
     tests/stub_liblog.cc \
     tests/stub_libmem.cc \

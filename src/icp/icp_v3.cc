@@ -16,7 +16,7 @@
 #include "squid.h"
 #include "acl/FilledChecklist.h"
 #include "HttpRequest.h"
-#include "ICP.h"
+#include "icp/ICP.h"
 #include "Store.h"
 
 /// \ingroup ServerProtocolICPInternal3

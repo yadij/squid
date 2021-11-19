@@ -17,7 +17,7 @@
 #include "fd.h"
 #include "fde.h"
 #include "globals.h"
-#include "ICP.h"
+#include "icp/ICP.h"
 #include "mgr/Registration.h"
 #include "SquidConfig.h"
 #include "SquidTime.h"

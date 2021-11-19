@@ -49,7 +49,7 @@
 #include "HttpReply.h"
 #include "icmp/IcmpSquid.h"
 #include "icmp/net_db.h"
-#include "ICP.h"
+#include "icp/ICP.h"
 #include "ident/Ident.h"
 #include "Instance.h"
 #include "ip/tools.h"

@@ -18,7 +18,7 @@
 #include "fs_io.h"
 #include "htcp.h"
 #include "http/Stream.h"
-#include "ICP.h"
+#include "icp/ICP.h"
 #include "ip/Intercept.h"
 #include "ip/QosConfig.h"
 #include "ipc/Coordinator.h"

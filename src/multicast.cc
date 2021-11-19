@@ -12,7 +12,7 @@
 #include "comm/Connection.h"
 #include "Debug.h"
 // XXX: for icpIncomingConn - need to pass it as a generic parameter.
-#include "ICP.h"
+#include "icp/ICP.h"
 #include "ipcache.h"
 #include "multicast.h"
 
