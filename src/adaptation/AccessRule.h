@@ -36,9 +36,9 @@ public:
 
 public:
     typedef int Id;
-    const Id id;
+    const Id id = 0;
     String groupId;
-    acl_access *acl;
+    acl_access *acl = nullptr;
 
 private:
     static Id LastId;
