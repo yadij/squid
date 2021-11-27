@@ -45,13 +45,12 @@ Adaptation::AccessCheck::Start(Method method, VectPoint vp,
 
 Adaptation::AccessCheck::AccessCheck(const ServiceFilter &aFilter,
                                      Adaptation::Initiator *initiator):
-    AsyncJob("AccessCheck"), filter(aFilter),
-    theInitiator(initiator),
-    acl_checklist(NULL)
+    AsyncJob("AccessCheck"),
+    filter(aFilter),
+    theInitiator(initiator)
 {
 #if ICAP_CLIENT
-    Adaptation::Icap::History::Pointer h = filter.request->icapHistory();
-    if (h != NULL)
+    if (auto h = filter.request->icapHistory())
         h->start("ACL");
 #endif
 
@@ -62,8 +61,7 @@ Adaptation::AccessCheck::AccessCheck(const ServiceFilter &aFilter,
 Adaptation::AccessCheck::~AccessCheck()
 {
 #if ICAP_CLIENT
-    Adaptation::Icap::History::Pointer h = filter.request->icapHistory();
-    if (h != NULL)
+    if (auto h = filter.request->icapHistory())
         h->stop("ACL");
 #endif
 }

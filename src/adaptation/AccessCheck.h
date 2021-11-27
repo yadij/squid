@@ -46,7 +46,7 @@ protected:
 private:
     const ServiceFilter filter;
     CbcPointer<Adaptation::Initiator> theInitiator; ///< the job which ordered this access check
-    ACLFilledChecklist *acl_checklist;
+    ACLFilledChecklist *acl_checklist = nullptr;
 
     typedef int Candidate;
     typedef std::vector<Candidate> Candidates;
