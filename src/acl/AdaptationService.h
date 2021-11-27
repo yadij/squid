@@ -11,11 +11,10 @@
 
 #include "acl/Strategy.h"
 
-/// \ingroup ACLAPI
 class ACLAdaptationServiceStrategy : public ACLStrategy<const char *>
 {
-
 public:
+    /* ACLStrategy API */
     virtual int match (ACLData<MatchType> * &, ACLFilledChecklist *) override;
 };
 

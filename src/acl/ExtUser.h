@@ -20,10 +20,11 @@ class ACLExtUser : public ACL
     MEMPROXY_CLASS(ACLExtUser);
 
 public:
-    ACLExtUser(ACLData<char const *> *newData, char const *);
-    ACLExtUser (ACLExtUser const &old);
-    ACLExtUser & operator= (ACLExtUser const &rhs);
-    ~ACLExtUser();
+    ACLExtUser(ACLData<char const *> *, char const *);
+    ACLExtUser(ACLExtUser const &);
+    virtual ~ACLExtUser();
+
+    ACLExtUser &operator =(ACLExtUser const &);
 
     /* ACL API */
     virtual char const *typeString() const;
@@ -35,8 +36,8 @@ public:
     virtual ACL *clone()const;
 
 private:
-    ACLData<char const *> *data;
-    char const *type_;
+    ACLData<char const *> *data = nullptr;
+    char const *type_ = nullptr;
 };
 
 #endif /* USE_AUTH */

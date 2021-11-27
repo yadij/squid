@@ -40,7 +40,8 @@ class Option
 {
 public:
     typedef enum { valueNone, valueOptional, valueRequired } ValueExpectation;
-    explicit Option(ValueExpectation vex = valueNone): valueExpectation(vex) {}
+
+    explicit Option(ValueExpectation vex = valueNone) : valueExpectation(vex) {}
     virtual ~Option() {}
 
     /// whether the admin explicitly specified this option
@@ -68,8 +69,8 @@ class OptionValue
 public:
     typedef Value value_type;
 
-    OptionValue(): value {} {}
-    explicit OptionValue(const Value &aValue): value(aValue) {}
+    OptionValue() : value {} {}
+    explicit OptionValue(const Value &aValue) : value(aValue) {}
 
     explicit operator bool() const { return configured; }
 
@@ -84,7 +85,7 @@ class TypedOption: public Option
 {
 public:
     //typedef typename Recipient::value_type value_type;
-    explicit TypedOption(ValueExpectation vex = valueNone): Option(vex) {}
+    explicit TypedOption(ValueExpectation vex = valueNone) : Option(vex) {}
 
     /// who to tell when this option is enabled
     void linkWith(Recipient *recipient) const
@@ -94,7 +95,6 @@ public:
     }
 
     /* Option API */
-
     virtual bool configured() const override { return recipient_ && recipient_->configured; }
     virtual bool valued() const override { return recipient_ && recipient_->valued; }
 

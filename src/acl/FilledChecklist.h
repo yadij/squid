@@ -36,6 +36,8 @@ class ACLFilledChecklist: public ACLChecklist
 public:
     ACLFilledChecklist();
     ACLFilledChecklist(const acl_access *, HttpRequest *, const char *ident = nullptr);
+    ACLFilledChecklist(const ACLFilledChecklist &) = delete;
+    ACLFilledChecklist &operator=(const ACLFilledChecklist &) = delete;
     ~ACLFilledChecklist();
 
     /// configure client request-related fields for the first time
@@ -74,21 +76,21 @@ public:
     Ip::Address dst_addr;
     Ip::Address my_addr;
     SBuf dst_peer_name;
-    char *dst_rdns;
+    char *dst_rdns = nullptr;
 
-    HttpRequest *request;
-    HttpReply *reply;
+    HttpRequest *request = nullptr;
+    HttpReply *reply = nullptr;
 
     char rfc931[USER_IDENT_SZ];
 #if USE_AUTH
     Auth::UserRequest::Pointer auth_user_request;
 #endif
 #if SQUID_SNMP
-    char *snmp_community;
+    char *snmp_community = nullptr;
 #endif
 
     /// SSL [certificate validation] errors, in undefined order
-    const Security::CertErrors *sslErrors;
+    const Security::CertErrors *sslErrors = nullptr;
 
     /// Peer certificate being checked by ssl_verify_cb() and by
     /// Security::PeerConnector class. In other contexts, the peer
@@ -99,17 +101,13 @@ public:
 
     ExternalACLEntryPointer extacl_entry;
 
-    err_type requestErrorType;
+    err_type requestErrorType = ERR_MAX;
 
 private:
-    ConnStateData * conn_;          /**< hack for ident and NTLM */
-    int fd_;                        /**< may be available when conn_ is not */
-    bool destinationDomainChecked_;
-    bool sourceDomainChecked_;
-    /// not implemented; will cause link failures if used
-    ACLFilledChecklist(const ACLFilledChecklist &);
-    /// not implemented; will cause link failures if used
-    ACLFilledChecklist &operator=(const ACLFilledChecklist &);
+    ConnStateData * conn_ = nullptr; ///< hack for ident and NTLM
+    int fd_ = -1; ///< may be available when conn_ is not
+    bool destinationDomainChecked_ = false;
+    bool sourceDomainChecked_ = false;
 };
 
 /// convenience and safety wrapper for dynamic_cast<ACLFilledChecklist*>

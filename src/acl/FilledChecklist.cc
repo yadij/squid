@@ -24,29 +24,39 @@
 
 CBDATA_CLASS_INIT(ACLFilledChecklist);
 
-ACLFilledChecklist::ACLFilledChecklist() :
-    dst_rdns(NULL),
-    request (NULL),
-    reply (NULL),
-#if USE_AUTH
-    auth_user_request (NULL),
-#endif
-#if SQUID_SNMP
-    snmp_community(NULL),
-#endif
-#if USE_OPENSSL
-    sslErrors(NULL),
-#endif
-    requestErrorType(ERR_MAX),
-    conn_(NULL),
-    fd_(-1),
-    destinationDomainChecked_(false),
-    sourceDomainChecked_(false)
+ACLFilledChecklist::ACLFilledChecklist()
 {
     my_addr.setEmpty();
     src_addr.setEmpty();
     dst_addr.setEmpty();
-    rfc931[0] = '\0';
+    *rfc931 = 0;
+
+    debugs(28, 4, "ACLFilledChecklist constructed, this=" << (void*)this);
+}
+
+/*
+ * There are two common ACLFilledChecklist lifecycles paths:
+ *
+ * A) Synchronous: The caller creates an ACLFilledChecklist object
+ *    on stack and calls obj.fastCheck() or obj.fastCheck(acl_list)
+ *
+ * B) Asyncronous: The caller allocates an ACLFilledChecklist object
+ *    using operator new and calls obj->checkNonBlocking(acl_list, callback)
+ *    The callback function must *not* delete the list.  After the callback
+ *    function returns, checkCallback() will cleanup.
+ */
+ACLFilledChecklist::ACLFilledChecklist(const acl_access *A, HttpRequest *http_request, const char *ident)
+{
+    my_addr.setEmpty();
+    src_addr.setEmpty();
+    dst_addr.setEmpty();
+    *rfc931 = 0;
+
+    changeAcl(A);
+    setRequest(http_request);
+    setIdent(ident);
+
+    debugs(28, 4, "ACLFilledChecklist constructed, this=" << (void*)this);
 }
 
 ACLFilledChecklist::~ACLFilledChecklist()
@@ -60,12 +70,9 @@ ACLFilledChecklist::~ACLFilledChecklist()
     HTTPMSGUNLOCK(reply);
 
     cbdataReferenceDone(conn_);
-
-#if USE_OPENSSL
     cbdataReferenceDone(sslErrors);
-#endif
 
-    debugs(28, 4, HERE << "ACLFilledChecklist destroyed " << this);
+    debugs(28, 4, "ACLFilledChecklist destructed, this=" << (void*)this);
 }
 
 static void
@@ -202,49 +209,6 @@ ACLFilledChecklist::markSourceDomainChecked()
 {
     assert (!finished() && !sourceDomainChecked());
     sourceDomainChecked_ = true;
-}
-
-/*
- * There are two common ACLFilledChecklist lifecycles paths:
- *
- * A) Using aclCheckFast(): The caller creates an ACLFilledChecklist object
- *    on stack and calls aclCheckFast().
- *
- * B) Using aclNBCheck() and callbacks: The caller allocates an
- *    ACLFilledChecklist object (via operator new) and passes it to
- *    aclNBCheck(). Control eventually passes to ACLChecklist::checkCallback(),
- *    which will invoke the callback function as requested by the
- *    original caller of aclNBCheck().  This callback function must
- *    *not* delete the list.  After the callback function returns,
- *    checkCallback() will delete the list (i.e., self).
- */
-ACLFilledChecklist::ACLFilledChecklist(const acl_access *A, HttpRequest *http_request, const char *ident):
-    dst_rdns(NULL),
-    request(NULL),
-    reply(NULL),
-#if USE_AUTH
-    auth_user_request(NULL),
-#endif
-#if SQUID_SNMP
-    snmp_community(NULL),
-#endif
-#if USE_OPENSSL
-    sslErrors(NULL),
-#endif
-    requestErrorType(ERR_MAX),
-    conn_(NULL),
-    fd_(-1),
-    destinationDomainChecked_(false),
-    sourceDomainChecked_(false)
-{
-    my_addr.setEmpty();
-    src_addr.setEmpty();
-    dst_addr.setEmpty();
-    rfc931[0] = '\0';
-
-    changeAcl(A);
-    setRequest(http_request);
-    setIdent(ident);
 }
 
 void ACLFilledChecklist::setRequest(HttpRequest *httpRequest)

@@ -16,7 +16,10 @@
 #include "Debug.h"
 #include "wordlist.h"
 
-ACLCertificateData::ACLCertificateData(Ssl::GETX509ATTRIBUTE *sslStrategy, const char *attrs, bool optionalAttr) : validAttributesStr(attrs), attributeIsOptional(optionalAttr), attribute (NULL), values (), sslAttributeCall (sslStrategy)
+ACLCertificateData::ACLCertificateData(Ssl::GETX509ATTRIBUTE *sslStrategy, const char *attrs, bool optionalAttr) :
+    validAttributesStr(attrs),
+    attributeIsOptional(optionalAttr),
+    sslAttributeCall(sslStrategy)
 {
     if (attrs) {
         size_t current = 0;
@@ -30,11 +33,13 @@ ACLCertificateData::ACLCertificateData(Ssl::GETX509ATTRIBUTE *sslStrategy, const
     }
 }
 
-ACLCertificateData::ACLCertificateData(ACLCertificateData const &old) : attribute (NULL), values (old.values), sslAttributeCall (old.sslAttributeCall)
+ACLCertificateData::ACLCertificateData(ACLCertificateData const &old) :
+    validAttributesStr(old.validAttributesStr),
+    attributeIsOptional(old.attributeIsOptional),
+    values(old.values),
+    sslAttributeCall(old.sslAttributeCall)
 {
-    validAttributesStr = old.validAttributesStr;
-    validAttributes.assign (old.validAttributes.begin(), old.validAttributes.end());
-    attributeIsOptional = old.attributeIsOptional;
+    validAttributes.assign(old.validAttributes.begin(), old.validAttributes.end());
     if (old.attribute)
         attribute = xstrdup(old.attribute);
 }

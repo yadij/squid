@@ -81,9 +81,9 @@ public:
     SBufList dumpOptions(); ///< \returns approximate options configuration
 
     char name[ACL_NAME_SZ];
-    char *cfgline;
-    ACL *next; // XXX: remove or at least use refcounting
-    bool registered; ///< added to the global list of ACLs via aclRegister()
+    char *cfgline = nullptr;
+    ACL *next = nullptr; // XXX: remove or at least use refcounting
+    bool registered = false; ///< added to the global list of ACLs via aclRegister()
 
 private:
     /// Matches the actual data in checklist against this ACL.

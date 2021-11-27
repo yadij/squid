@@ -27,7 +27,6 @@ class ACLASN : public ACLData<Ip::Address>
     MEMPROXY_CLASS(ACLASN);
 
 public:
-    ACLASN() : data(nullptr) {}
     virtual ~ACLASN();
 
     virtual bool match(Ip::Address);
@@ -38,7 +37,7 @@ public:
     virtual void prepareForUse();
 
 private:
-    CbDataList<int> *data;
+    CbDataList<int> *data = nullptr;
 };
 
 #endif /* SQUID_ACLASN_H */

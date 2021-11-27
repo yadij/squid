@@ -36,17 +36,17 @@ public:
     /// A "*" item means that any attribute is acceptable.
     /// Assumed to be a const-string and is never duped/freed.
     /// Nil unless ACL form is: acl Name type attribute value1 ...
-    const char *validAttributesStr;
+    const char *validAttributesStr = nullptr;
     /// Parsed list of valid attribute names
     std::list<std::string> validAttributes;
     /// True if the attribute is optional (-xxx options)
-    bool attributeIsOptional;
-    char *attribute;
+    bool attributeIsOptional = false;
+    char *attribute = nullptr;
     ACLStringData values;
 
 private:
     /// The callback used to retrieve the data from X509 cert
-    Ssl::GETX509ATTRIBUTE *sslAttributeCall;
+    Ssl::GETX509ATTRIBUTE *sslAttributeCall = nullptr;
 };
 
 #endif /* SQUID_ACLCERTIFICATEDATA_H */

@@ -13,16 +13,17 @@
 #include "acl/Data.h"
 #include "acl/StringData.h"
 
-/// \ingroup ACLAPI
 class ACLAdaptationServiceData : public ACLStringData
 {
 public:
     ACLAdaptationServiceData() : ACLStringData() {}
-    ACLAdaptationServiceData(ACLAdaptationServiceData const &old) : ACLStringData(old) {};
-    // Not implemented
-    ACLAdaptationServiceData &operator= (ACLAdaptationServiceData const &);
-    virtual void parse();
-    virtual ACLData<char const *> *clone() const;
+    ACLAdaptationServiceData(ACLAdaptationServiceData const &old) : ACLStringData(old) {}
+
+    ACLAdaptationServiceData &operator= (ACLAdaptationServiceData const &) = delete;
+
+    /* ACLStringData API */
+    virtual void parse() override;
+    virtual ACLData<char const *> *clone() const override;
 };
 
 #endif /* SQUID_ADAPTATIONSERVICEDATA_H */

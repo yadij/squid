@@ -16,8 +16,10 @@
 #include "format/Format.h"
 #include "sbuf/Algorithms.h"
 
-ACLAnnotationData::ACLAnnotationData()
-    : notes(new Notes("annotation_data")) {}
+ACLAnnotationData::ACLAnnotationData() :
+    notes(new Notes("annotation_data"))
+{
+}
 
 SBufList
 ACLAnnotationData::dump() const

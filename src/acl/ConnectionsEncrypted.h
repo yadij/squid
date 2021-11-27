@@ -21,10 +21,12 @@ class ConnectionsEncrypted : public ACL
 
 public:
     ConnectionsEncrypted(char const *);
-    ConnectionsEncrypted(ConnectionsEncrypted const &);
-    virtual ~ConnectionsEncrypted();
-    ConnectionsEncrypted &operator =(ConnectionsEncrypted const &);
+    ConnectionsEncrypted(ConnectionsEncrypted const &) = default;
+    virtual ~ConnectionsEncrypted() {}
 
+    ConnectionsEncrypted &operator =(ConnectionsEncrypted const &) = delete;
+
+    /* ACL API */
     virtual ACL *clone()const;
     virtual char const *typeString() const;
     virtual void parse();
@@ -33,7 +35,7 @@ public:
     virtual bool empty () const;
 
 protected:
-    char const *class_;
+    char const *class_ = nullptr;
 };
 
 } // namespace Acl

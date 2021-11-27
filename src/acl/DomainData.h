@@ -18,15 +18,16 @@ class ACLDomainData : public ACLData<char const *>
     MEMPROXY_CLASS(ACLDomainData);
 
 public:
-    ACLDomainData() : domains(nullptr) {}
     virtual ~ACLDomainData();
+
+    /* ACLData API */
     virtual bool match(char const *);
     virtual SBufList dump() const;
     void parse();
     bool empty() const;
     virtual ACLData<char const *> *clone() const;
 
-    Splay<char *> *domains;
+    Splay<char *> *domains = nullptr;
 };
 
 #endif /* SQUID_ACLDOMAINDATA_H */

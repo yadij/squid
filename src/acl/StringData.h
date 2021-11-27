@@ -24,13 +24,16 @@ public:
     ACLStringData(ACLStringData const &);
     ACLStringData &operator= (ACLStringData const &);
     virtual ~ACLStringData() {}
+
+    /* ACLData API */
     /// \deprecated use match(SBuf&) instead.
-    bool match(char const *);
-    bool match(const SBuf &);
-    virtual SBufList dump() const;
-    virtual void parse();
-    bool empty() const;
-    virtual ACLData<char const *> *clone() const;
+    virtual bool match(char const *) override;
+    virtual bool match(const SBuf &);
+    virtual SBufList dump() const override;
+    virtual void parse() override;
+    virtual bool empty() const override;
+    virtual ACLData<char const *> *clone() const override;
+
     /// Insert a string data value
     void insert(const char *);
 

@@ -15,6 +15,22 @@
 
 #include <algorithm>
 
+ACLChecklist::ACLChecklist() :
+    callback(nullptr),
+    state_(NullState::Instance())
+{
+    debugs(28, 4, "ACLChecklist constructed, this=" << (void*)this);
+}
+
+ACLChecklist::~ACLChecklist()
+{
+    assert (!asyncInProgress());
+
+    changeAcl(nullptr);
+
+    debugs(28, 4, "ACLChecklist destructed, this=" << (void*)this);
+}
+
 /// common parts of nonBlockingCheck() and resumeNonBlockingCheck()
 bool
 ACLChecklist::prepNonBlocking()
@@ -171,29 +187,6 @@ ACLChecklist::checkCallback(Acl::Answer answer)
     occupied_ = false;
 
     delete this;
-}
-
-ACLChecklist::ACLChecklist() :
-    accessList (NULL),
-    callback (NULL),
-    callback_data (NULL),
-    asyncCaller_(false),
-    occupied_(false),
-    finished_(false),
-    answer_(ACCESS_DENIED),
-    asyncStage_(asyncNone),
-    state_(NullState::Instance()),
-    asyncLoopDepth_(0)
-{
-}
-
-ACLChecklist::~ACLChecklist()
-{
-    assert (!asyncInProgress());
-
-    changeAcl(nullptr);
-
-    debugs(28, 4, "ACLChecklist::~ACLChecklist: destroyed " << this);
 }
 
 ACLChecklist::NullState *

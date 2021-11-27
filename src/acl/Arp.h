@@ -18,16 +18,12 @@ namespace Eui
 class Eui48;
 };
 
-/// \ingroup ACLAPI
 class ACLARP : public ACL
 {
     MEMPROXY_CLASS(ACLARP);
 
 public:
     ACLARP(char const *);
-    ACLARP(ACLARP const &);
-    ~ACLARP() {}
-    ACLARP&operator=(ACLARP const &);
 
     virtual ACL *clone()const;
     virtual char const *typeString() const;
@@ -37,7 +33,7 @@ public:
     virtual bool empty () const;
 
 protected:
-    char const *class_;
+    char const *class_ = nullptr;
     typedef std::set<Eui::Eui48> AclArpData_t;
     AclArpData_t aclArpData;
 };

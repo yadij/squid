@@ -29,10 +29,6 @@ ACLEui64::clone() const
 ACLEui64::ACLEui64 (char const *theClass) : class_ (theClass)
 {}
 
-ACLEui64::ACLEui64 (ACLEui64 const & old) : eui64Data(old.eui64Data), class_ (old.class_)
-{
-}
-
 char const *
 ACLEui64::typeString() const
 {

@@ -14,7 +14,8 @@
 #include "ConfigParser.h"
 #include "Debug.h"
 
-ACLStringData::ACLStringData(ACLStringData const &old) : stringValues(old.stringValues)
+ACLStringData::ACLStringData(ACLStringData const &old) :
+        stringValues(old.stringValues)
 {
 }
 

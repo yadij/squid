@@ -103,10 +103,7 @@ ACL::FindByName(const char *name)
     return NULL;
 }
 
-ACL::ACL() :
-    cfgline(nullptr),
-    next(nullptr),
-    registered(false)
+ACL::ACL()
 {
     *name = 0;
 }

@@ -38,10 +38,8 @@
 class m_ADDR
 {
 public:
-    uint8_t len;
+    uint8_t len = sizeof(Ip::Address);
     Ip::Address addr;
-
-    m_ADDR() : len(sizeof(Ip::Address)) {};
 };
 
 /* END of definitions for radix tree entries */

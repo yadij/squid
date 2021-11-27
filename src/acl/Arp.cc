@@ -28,10 +28,8 @@ ACLARP::clone() const
     return new ACLARP(*this);
 }
 
-ACLARP::ACLARP (char const *theClass) : class_ (theClass)
-{}
-
-ACLARP::ACLARP (ACLARP const & old) : class_ (old.class_), aclArpData(old.aclArpData)
+ACLARP::ACLARP(char const *theClass) :
+    class_(theClass)
 {
 }
 

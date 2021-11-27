@@ -25,12 +25,6 @@ Acl::ConnectionsEncrypted::clone() const
 Acl::ConnectionsEncrypted::ConnectionsEncrypted (char const *theClass) : class_ (theClass)
 {}
 
-Acl::ConnectionsEncrypted::ConnectionsEncrypted (Acl::ConnectionsEncrypted const & old) :class_ (old.class_)
-{}
-
-Acl::ConnectionsEncrypted::~ConnectionsEncrypted()
-{}
-
 char const *
 Acl::ConnectionsEncrypted::typeString() const
 {
