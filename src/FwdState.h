@@ -54,6 +54,8 @@ class FwdState: public RefCountable, public PeerSelectionInitiator
 {
     CBDATA_CHILD(FwdState);
 
+    // hidden for safer management of self; use static fwdStart
+    FwdState(const Comm::ConnectionPointer &client, StoreEntry *, HttpRequest *, const AccessLogEntryPointer &);
 public:
     typedef RefCount<FwdState> Pointer;
     virtual ~FwdState();
@@ -106,8 +108,6 @@ public:
     Comm::ConnectionPointer const & serverConnection() const { return serverConn; };
 
 private:
-    // hidden for safer management of self; use static fwdStart
-    FwdState(const Comm::ConnectionPointer &client, StoreEntry *, HttpRequest *, const AccessLogEntryPointer &alp);
     void start(Pointer aSelf);
     void stopAndDestroy(const char *reason);
 
@@ -166,8 +166,8 @@ private:
     void updateAleWithFinalError();
 
 public:
-    StoreEntry *entry;
-    HttpRequest *request;
+    StoreEntry *entry = nullptr;
+    HttpRequest *request = nullptr;
     AccessLogEntryPointer al; ///< info for the future access.log entry
 
     /// called by Store if the entry is no longer usable
@@ -175,16 +175,16 @@ public:
 
 private:
     Pointer self;
-    ErrorState *err;
+    ErrorState *err = nullptr;
     Comm::ConnectionPointer clientConn;        ///< a possibly open connection to the client.
-    time_t start_t;
-    int n_tries; ///< the number of forwarding attempts so far
+    time_t start_t = 0;
+    int n_tries = 0; ///< the number of forwarding attempts so far
 
     struct {
-        bool connected_okay; ///< TCP link ever opened properly. This affects retry of POST,PUT,CONNECT,etc
-        bool dont_retry;
-        bool forward_completed;
-        bool destinationsFound; ///< at least one candidate path found
+        bool connected_okay = false; ///< TCP link ever opened properly. This affects retry of POST,PUT,CONNECT,etc
+        bool dont_retry = false;
+        bool forward_completed = false;
+        bool destinationsFound = false; ///< at least one candidate path found
     } flags;
 
     /// waits for a transport connection to the peer to be established/opened
@@ -198,7 +198,7 @@ private:
     JobWait<Http::Tunneler> peerWait;
 
     /// whether we are waiting for the last dispatch()ed activity to end
-    bool waitingForDispatched;
+    bool waitingForDispatched = false;
 
     ResolvedPeersPointer destinations; ///< paths for forwarding the request
     Comm::ConnectionPointer serverConn; ///< a successfully opened connection to a server.
@@ -208,11 +208,11 @@ private:
 
     /// possible pconn race states
     typedef enum { raceImpossible, racePossible, raceHappened } PconnRace;
-    PconnRace pconnRace; ///< current pconn race state
+    PconnRace pconnRace = raceImpossible; ///< current pconn race state
 
     /// Whether the entire reply (including any body) was written to Store.
     /// The string literal value is only used for debugging.
-    const char *storedWholeReply_;
+    const char *storedWholeReply_ = nullptr;
 };
 
 class acl_tos;

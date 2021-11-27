@@ -145,22 +145,13 @@ FwdState::FwdState(const Comm::ConnectionPointer &client, StoreEntry * e, HttpRe
     entry(e),
     request(r),
     al(alp),
-    err(NULL),
     clientConn(client),
     start_t(squid_curtime),
-    n_tries(0),
-    waitingForDispatched(false),
-    destinations(new ResolvedPeers()),
-    pconnRace(raceImpossible),
-    storedWholeReply_(nullptr)
+    destinations(new ResolvedPeers())
 {
     debugs(17, 2, "Forwarding client request " << client << ", url=" << e->url());
     HTTPMSGLOCK(request);
     e->lock("FwdState");
-    flags.connected_okay = false;
-    flags.dont_retry = false;
-    flags.forward_completed = false;
-    flags.destinationsFound = false;
     debugs(17, 3, "FwdState constructed, this=" << this);
 }
 
