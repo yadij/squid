@@ -18,18 +18,18 @@
 class ScopedId
 {
 public:
-    ScopedId(): scope(nullptr), value(0) {}
-    explicit ScopedId(const char *s): scope(s), value(0) {}
+    ScopedId() = default;
+    explicit ScopedId(const char *s): scope(s) {}
     // when the values is zero/unknown, use other constructors
     ScopedId(const char *s, uint64_t v): scope(s), value(v) { /* assert(value) */ }
 
     /// either the prefix() of the InstanceId object that we were detached from
     /// or, for 0 values, some other description (with endless lifetime) or nil
-    const char *scope;
+    const char *scope = nullptr;
 
     /// either the value of the InstanceId object that we were detached from
     /// or, if our creator did not know the exact value, zero
-    uint64_t value;
+    uint64_t value = 0;
 };
 
 std::ostream &operator <<(std::ostream &os, const ScopedId &id);
