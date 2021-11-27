@@ -75,7 +75,7 @@ protected:
     void notify(const Comm::Flag flag, const Comm::ConnectionPointer &details) const;
 
     /// errno code of the last accept() or listen() action if one occurred.
-    int errcode;
+    int errcode = 0;
 
     /// Method to test if there are enough file descriptors to open a new client connection
     /// if not the accept() will be postponed
