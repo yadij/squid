@@ -88,27 +88,11 @@ CBDATA_CLASS_INIT(DigestFetchState);
 
 DigestFetchState::DigestFetchState(PeerDigest *aPd, HttpRequest *req) :
     pd(cbdataReference(aPd)),
-    entry(NULL),
-    old_entry(NULL),
-    sc(NULL),
-    old_sc(NULL),
     request(req),
-    offset(0),
-    mask_offset(0),
     start_time(squid_curtime),
-    resp_time(0),
-    expires(0),
-    bufofs(0),
     state(DIGEST_READ_REPLY)
 {
     HTTPMSGLOCK(request);
-
-    sent.msg = 0;
-    sent.bytes = 0;
-
-    recv.msg = 0;
-    recv.bytes = 0;
-
     *buf = 0;
 }
 

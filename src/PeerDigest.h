@@ -17,8 +17,8 @@
 class Version
 {
 public:
-    short int current;      /* current version */
-    short int required;     /* minimal version that can safely handle current version */
+    short int current = 0; ///< current version
+    short int required = 0; ///< minimal version that can safely handle current version
 };
 
 /* digest control block; used for transmission and storage */
@@ -27,14 +27,14 @@ class StoreDigestCBlock
 {
 public:
     Version ver;
-    int capacity;
-    int count;
-    int del_count;
-    int mask_size;
-    unsigned char bits_per_entry;
-    unsigned char hash_func_count;
-    short int reserved_short;
-    int reserved[32 - 6];
+    int capacity = 0;
+    int count = 0;
+    int del_count = 0;
+    int mask_size = 0;
+    unsigned char bits_per_entry = '\0';
+    unsigned char hash_func_count = '\0';
+    short int reserved_short = 0;
+    int reserved[32 - 6] = {};
 };
 
 class HttpRequest;
@@ -49,25 +49,25 @@ public:
     DigestFetchState(PeerDigest *,HttpRequest *);
     ~DigestFetchState();
 
-    PeerDigest *pd;
-    StoreEntry *entry;
-    StoreEntry *old_entry;
-    store_client *sc;
-    store_client *old_sc;
-    HttpRequest *request;
-    int offset;
-    uint32_t mask_offset;
-    time_t start_time;
-    time_t resp_time;
-    time_t expires;
+    PeerDigest *pd = nullptr;
+    StoreEntry *entry = nullptr;
+    StoreEntry *old_entry = nullptr;
+    store_client *sc = nullptr;
+    store_client *old_sc = nullptr;
+    HttpRequest *request = nullptr;
+    int offset = 0;
+    uint32_t mask_offset = 0;
+    time_t start_time = 0;
+    time_t resp_time = 0;
+    time_t expires = 0;
 
     struct {
-        int msg;
-        int bytes;
+        int msg = 0;
+        int bytes = 0;
     } sent, recv;
 
     char buf[SM_PAGE_SIZE];
-    ssize_t bufofs;
+    ssize_t bufofs = 0;
     digest_read_state_t state;
 };
 
