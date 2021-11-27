@@ -36,23 +36,21 @@ public:
 
     Ip::Address s;
     AnyP::ProtocolVersion transport; ///< transport protocol and version received by this port
-    char *name;                /* visible name */
-    char *defaultsite;         /* default web site */
+    char *name = nullptr; ///< visible name
+    char *defaultsite = nullptr; ///< default web site
 
-    TrafficMode flags;  ///< flags indicating what type of traffic to expect via this port.
+    TrafficMode flags; ///< flags indicating what type of traffic to expect via this port.
 
-    bool allow_direct;       ///< Allow direct forwarding in accelerator mode
-    bool vhost;              ///< uses host header
-    bool actAsOrigin;        ///< update replies to conform with RFC 2616
-    bool ignore_cc;          ///< Ignore request Cache-Control directives
+    bool allow_direct = false; ///< Allow direct forwarding in accelerator mode
+    bool vhost = false; ///< uses host header
+    bool actAsOrigin = false; ///< update replies to conform with RFC 2616
+    bool ignore_cc = false; ///< Ignore request Cache-Control directives
+    bool connection_auth_disabled = false; ///< Don't support connection oriented auth
+    bool ftp_track_dirs = false; ///< whether transactions should track FTP directories
 
-    bool connection_auth_disabled; ///< Don't support connection oriented auth
-
-    bool ftp_track_dirs; ///< whether transactions should track FTP directories
-
-    int vport;               ///< virtual port support. -1 if dynamic, >0 static
-    int disable_pmtu_discovery;
-    bool workerQueues; ///< whether listening queues should be worker-specific
+    int vport = 0; ///< virtual port support. -1 if dynamic, >0 static
+    int disable_pmtu_discovery = 0;
+    bool workerQueues = false; ///< whether listening queues should be worker-specific
 
     Comm::TcpKeepAlive tcp_keepalive;
 

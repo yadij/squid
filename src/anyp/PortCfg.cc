@@ -25,22 +25,7 @@ int NHttpSockets = 0;
 int HttpSockets[MAXTCPLISTENPORTS];
 
 AnyP::PortCfg::PortCfg() :
-    next(),
-    s(),
-    transport(AnyP::PROTO_HTTP,1,1), // "Squid is an HTTP proxy", etc.
-    name(NULL),
-    defaultsite(NULL),
-    flags(),
-    allow_direct(false),
-    vhost(false),
-    actAsOrigin(false),
-    ignore_cc(false),
-    connection_auth_disabled(false),
-    ftp_track_dirs(false),
-    vport(0),
-    disable_pmtu_discovery(0),
-    workerQueues(false),
-    listenConn()
+    transport(AnyP::PROTO_HTTP,1,1)
 {
 }
 
