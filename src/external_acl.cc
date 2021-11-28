@@ -79,7 +79,7 @@ public:
     external_acl();
     ~external_acl();
 
-    external_acl *next;
+    external_acl *next = nullptr;
 
     void add(const ExternalACLEntryPointer &);
 
@@ -87,29 +87,28 @@ public:
 
     bool maybeCacheable(const Acl::Answer &) const;
 
-    int ttl;
+    int ttl = DEFAULT_EXTERNAL_ACL_TTL;
 
-    int negative_ttl;
+    int negative_ttl = -1;
 
-    int grace;
+    int grace = 1;
 
-    char *name;
+    char *name = nullptr;
 
     Format::Format format;
 
-    wordlist *cmdline;
+    wordlist *cmdline = nullptr;
 
     Helper::ChildConfig children;
 
-    helper *theHelper;
+    helper *theHelper = nullptr;
 
-    hash_table *cache;
+    hash_table *cache = nullptr;
 
     dlink_list lru_list;
 
-    int cache_size;
-
-    int cache_entries;
+    int cache_size = 256*1024;
+    int cache_entries = 0;
 
     dlink_list queue;
 
@@ -120,7 +119,7 @@ public:
      * Indicates that all uses of this external_acl_type helper require authentication
      * details to be processed. If none are available its a fail match.
      */
-    bool require_auth;
+    bool require_auth = false;
 #endif
 
     Format::Quoting quote; // default quoting to use, set by protocol= parameter
@@ -131,21 +130,8 @@ public:
 CBDATA_CLASS_INIT(external_acl);
 
 external_acl::external_acl() :
-    next(NULL),
-    ttl(DEFAULT_EXTERNAL_ACL_TTL),
-    negative_ttl(-1),
-    grace(1),
-    name(NULL),
     format("external_acl_type"),
-    cmdline(NULL),
     children(DEFAULT_EXTERNAL_ACL_CHILDREN),
-    theHelper(NULL),
-    cache(NULL),
-    cache_size(256*1024),
-    cache_entries(0),
-#if USE_AUTH
-    require_auth(0),
-#endif
     quote(Format::LOG_QUOTE_URL)
 {
     local_addr.setLocalhost();
@@ -489,22 +475,23 @@ class external_acl_data
     CBDATA_CLASS(external_acl_data);
 
 public:
-    explicit external_acl_data(external_acl *aDef) : def(cbdataReference(aDef)), name(NULL), arguments(NULL) {}
-    ~external_acl_data();
+    explicit external_acl_data(external_acl *aDef) :
+        def(cbdataReference(aDef))
+    {}
+    ~external_acl_data()
+    {
+        xfree(name);
+        wordlistDestroy(&arguments);
+        cbdataReferenceDone(def);
+    }
 
-    external_acl *def;
-    const char *name;
-    wordlist *arguments;
+public:
+    external_acl *def = nullptr;
+    const char *name = nullptr;
+    wordlist *arguments = nullptr;
 };
 
 CBDATA_CLASS_INIT(external_acl_data);
-
-external_acl_data::~external_acl_data()
-{
-    xfree(name);
-    wordlistDestroy(&arguments);
-    cbdataReferenceDone(def);
-}
 
 void
 ACLExternal::parse()
@@ -902,30 +889,28 @@ class externalAclState
 
 public:
     externalAclState(external_acl* aDef, const char *aKey) :
-        callback(NULL),
-        callback_data(NULL),
+        callback(nullptr),
         key(xstrdup(aKey)),
-        def(cbdataReference(aDef)),
-        queue(NULL)
+        def(cbdataReference(aDef))
     {}
-    ~externalAclState();
 
+    ~externalAclState()
+    {
+        xfree(key);
+        cbdataReferenceDone(callback_data);
+        cbdataReferenceDone(def);
+    }
+
+public:
     EAH *callback;
-    void *callback_data;
-    char *key;
-    external_acl *def;
+    void *callback_data = nullptr;
+    char *key = nullptr;
+    external_acl *def = nullptr;
     dlink_node list;
-    externalAclState *queue;
+    externalAclState *queue = nullptr;
 };
 
 CBDATA_CLASS_INIT(externalAclState);
-
-externalAclState::~externalAclState()
-{
-    xfree(key);
-    cbdataReferenceDone(callback_data);
-    cbdataReferenceDone(def);
-}
 
 /*
  * The helper program receives queries on stdin, one
@@ -1172,15 +1157,19 @@ ExternalACLLookup::LookupDone(void *data, const ExternalACLEntryPointer &result)
 ACL *
 ACLExternal::clone() const
 {
+    // XXX: copy constructor is broken
     return new ACLExternal(*this);
 }
 
-ACLExternal::ACLExternal(char const *theClass) : data(NULL), class_(xstrdup(theClass))
-{}
-
-ACLExternal::ACLExternal(ACLExternal const & old) : data(NULL), class_(old.class_ ? xstrdup(old.class_) : NULL)
+ACLExternal::ACLExternal(char const *theClass) :
+    class_(xstrdup(theClass))
 {
-    /* we don't have copy constructors for the data yet */
+}
+
+ACLExternal::ACLExternal(ACLExternal const & old) :
+    class_(old.class_ ? xstrdup(old.class_) : nullptr)
+{
+    // XXX: we don't have copy constructors for the data yet
     assert(!old.data);
 }
 

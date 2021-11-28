@@ -12,24 +12,6 @@
 #include "ExternalACLEntry.h"
 #include "SquidTime.h"
 
-/******************************************************************
- * external_acl cache
- */
-
-ExternalACLEntry::ExternalACLEntry() :
-    notes()
-{
-    lru.next = lru.prev = NULL;
-    result = ACCESS_DENIED;
-    date = 0;
-    def = NULL;
-}
-
-ExternalACLEntry::~ExternalACLEntry()
-{
-    safe_free(key);
-}
-
 void
 ExternalACLEntry::update(ExternalACLEntryData const &someData)
 {

@@ -43,18 +43,19 @@ public:
 
     ACLExternal(char const *);
     ACLExternal(ACLExternal const &);
-    ~ACLExternal();
-    ACLExternal&operator=(ACLExternal const &);
+    virtual ~ACLExternal();
+    ACLExternal &operator =(ACLExternal const &) = delete;
 
+    /* ACL API */
     virtual ACL *clone()const;
     virtual char const *typeString() const;
     virtual void parse();
     virtual int match(ACLChecklist *checklist);
-    /* This really should be dynamic based on the external class defn */
+    // TODO: These really should be dynamic based on the external class defn
     virtual bool requiresAle() const {return true;}
     virtual bool requiresRequest() const {return true;}
 
-    /* when requiresRequest is made dynamic, review this too */
+    /* TODO: when requiresRequest is made dynamic, review this too */
     //    virtual bool requiresReply() const {return true;}
     virtual bool isProxyAuth() const;
     virtual SBufList dump() const;
@@ -62,8 +63,8 @@ public:
     virtual bool empty () const;
 
 protected:
-    external_acl_data *data;
-    char const *class_;
+    external_acl_data *data = nullptr;
+    char const *class_ = nullptr;
 };
 
 void parse_externalAclHelper(external_acl **);
