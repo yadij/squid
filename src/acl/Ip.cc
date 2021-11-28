@@ -18,18 +18,12 @@
 #include "MemBuf.h"
 #include "wordlist.h"
 
-void *
-ACLIP::operator new (size_t)
-{
-    fatal ("ACLIP::operator new: unused");
-    return (void *)1;
-}
-
-void
-ACLIP::operator delete (void *)
-{
-    fatal ("ACLIP::operator delete: unused");
-}
+acl_ip_data::acl_ip_data(Ip::Address const &a1, Ip::Address const &a2, Ip::Address const &m, acl_ip_data *n) :
+    addr1(a1),
+    addr2(a2),
+    mask(m),
+    next(n)
+{}
 
 /**
  * print/format an acl_ip_data structure for debugging output.
@@ -471,6 +465,14 @@ acl_ip_data::FactoryParse(const char *t)
     return q;
 }
 
+ACLIP::~ACLIP()
+{
+    if (data) {
+        data->destroy();
+        delete data;
+    }
+}
+
 void
 ACLIP::parse()
 {
@@ -491,19 +493,13 @@ ACLIP::parse()
     }
 }
 
-ACLIP::~ACLIP()
+struct IpAclDumpVisitor
 {
-    if (data) {
-        data->destroy();
-        delete data;
-    }
-}
-
-struct IpAclDumpVisitor {
-    SBufList contents;
     void operator() (acl_ip_data * const & ip) {
         contents.push_back(ip->toSBuf());
     }
+
+    SBufList contents;
 };
 
 SBufList
@@ -538,8 +534,4 @@ ACLIP::match(const Ip::Address &clientip)
     debugs(28, 3, "aclIpMatchIp: '" << clientip << "' " << (result ? "found" : "NOT found"));
     return (result != NULL);
 }
-
-acl_ip_data::acl_ip_data() :addr1(), addr2(), mask(), next (NULL) {}
-
-acl_ip_data::acl_ip_data(Ip::Address const &anAddress1, Ip::Address const &anAddress2, Ip::Address const &aMask, acl_ip_data *aNext) : addr1(anAddress1), addr2(anAddress2), mask(aMask), next(aNext) {}
 

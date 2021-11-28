@@ -21,16 +21,18 @@ class ACLHTTPHeaderData : public ACLData<HttpHeader*>
 public:
     ACLHTTPHeaderData();
     virtual ~ACLHTTPHeaderData();
-    virtual bool match(HttpHeader* hdr);
+
+    /* ACLData API */
+    virtual bool match(HttpHeader *);
     virtual SBufList dump() const;
     virtual void parse();
     virtual bool empty() const;
     virtual ACLData<HttpHeader*> *clone() const;
 
 private:
-    Http::HdrType hdrId;            /**< set if header is known */
-    SBuf hdrName;                   /**< always set */
-    ACLData<char const *> * regex_rule;
+    Http::HdrType hdrId = Http::HdrType::BAD_HDR; ///< set if header is known
+    SBuf hdrName; ///< always set
+    ACLData<char const *> * regex_rule = nullptr;
 };
 
 #endif /* SQUID_ACLHTTPHEADERDATA_H */

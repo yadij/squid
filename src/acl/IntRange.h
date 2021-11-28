@@ -18,9 +18,9 @@ class ACLIntRange : public ACLData<int>
 {
 
 public:
-    ACLIntRange() {}
-
     virtual ~ACLIntRange();
+
+    /* ACLData API */
     virtual bool match(int);
     virtual SBufList dump() const;
     virtual void parse();

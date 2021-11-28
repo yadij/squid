@@ -16,16 +16,6 @@
 
 int ACLMethodData::ThePurgeCount = 0;
 
-ACLMethodData::ACLMethodData(ACLMethodData const &old)
-{
-    assert(old.values.empty());
-}
-
-ACLMethodData::~ACLMethodData()
-{
-    values.clear();
-}
-
 bool
 ACLMethodData::match(HttpRequestMethod toFind)
 {

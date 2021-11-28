@@ -13,14 +13,18 @@
 #include "acl/Checklist.h"
 #include "splay.h"
 
-/// \ingroup ACLAPI
-struct acl_httpstatus_data {
-    int status1, status2;
+class acl_httpstatus_data
+{
+public:
     acl_httpstatus_data(int);
     acl_httpstatus_data(int, int);
-    SBuf toStr() const; // was toStr
 
-    static int compare(acl_httpstatus_data* const& a, acl_httpstatus_data* const& b);
+    static int compare(acl_httpstatus_data * const &, acl_httpstatus_data * const &);
+
+    SBuf toStr() const;
+
+    int status1 = 0;
+    int status2 = 0;
 };
 
 /// \ingroup ACLAPI
@@ -32,7 +36,7 @@ public:
     ACLHTTPStatus(char const *);
     ACLHTTPStatus(ACLHTTPStatus const &);
     ~ACLHTTPStatus();
-    ACLHTTPStatus&operator=(ACLHTTPStatus const &);
+    ACLHTTPStatus&operator=(ACLHTTPStatus const &) = delete;
 
     virtual ACL *clone()const;
     virtual char const *typeString() const;
@@ -43,8 +47,8 @@ public:
     virtual bool requiresReply() const { return true; }
 
 protected:
-    Splay<acl_httpstatus_data*> *data;
-    char const *class_;
+    Splay<acl_httpstatus_data*> *data = nullptr;
+    char const *class_ = nullptr;
 };
 
 #endif /* SQUID_ACLHTTPSTATUS_H */

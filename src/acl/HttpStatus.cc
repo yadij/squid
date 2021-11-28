@@ -20,9 +20,15 @@ static void aclParseHTTPStatusList(Splay<acl_httpstatus_data *> **curlist);
 static int aclHTTPStatusCompare(acl_httpstatus_data * const &a, acl_httpstatus_data * const &b);
 static int aclMatchHTTPStatus(Splay<acl_httpstatus_data*> **dataptr, Http::StatusCode status);
 
-acl_httpstatus_data::acl_httpstatus_data(int x) : status1(x), status2(x) { ; }
+acl_httpstatus_data::acl_httpstatus_data(int x) :
+    status1(x),
+    status2(x)
+{}
 
-acl_httpstatus_data::acl_httpstatus_data(int x, int y) : status1(x), status2(y) { ; }
+acl_httpstatus_data::acl_httpstatus_data(int x, int y) :
+    status1(x),
+    status2(y)
+{}
 
 SBuf
 acl_httpstatus_data::toStr() const
@@ -62,10 +68,12 @@ ACLHTTPStatus::clone() const
     return new ACLHTTPStatus(*this);
 }
 
-ACLHTTPStatus::ACLHTTPStatus (char const *theClass) : data(NULL), class_ (theClass)
+ACLHTTPStatus::ACLHTTPStatus(char const *theClass) :
+    class_(theClass)
 {}
 
-ACLHTTPStatus::ACLHTTPStatus (ACLHTTPStatus const & old) : data(NULL), class_ (old.class_)
+ACLHTTPStatus::ACLHTTPStatus(ACLHTTPStatus const &old) :
+    class_(old.class_)
 {
     /* we don't have copy constructors for the data yet */
     assert(!old.data);

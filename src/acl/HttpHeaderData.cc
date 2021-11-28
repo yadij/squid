@@ -27,7 +27,8 @@
  * TODO: This can be generalised by making the type of the regex_rule into a
  * template parameter - so that we can use different rules types in future.
  */
-ACLHTTPHeaderData::ACLHTTPHeaderData() : hdrId(Http::HdrType::BAD_HDR), regex_rule(new ACLRegexData)
+ACLHTTPHeaderData::ACLHTTPHeaderData() :
+    regex_rule(new ACLRegexData)
 {}
 
 ACLHTTPHeaderData::~ACLHTTPHeaderData()

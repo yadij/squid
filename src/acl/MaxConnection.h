@@ -18,22 +18,22 @@ class ACLMaxConnection : public ACL
 
 public:
     ACLMaxConnection(char const *);
-    ACLMaxConnection(ACLMaxConnection const &);
-    ~ACLMaxConnection();
-    ACLMaxConnection&operator=(ACLMaxConnection const &);
+    ACLMaxConnection(ACLMaxConnection const &) = default;
+    virtual~ACLMaxConnection() {}
 
-    virtual ACL *clone()const;
-    virtual char const *typeString() const;
+    /* ACl API */
+    virtual ACL *clone() const;
+    virtual char const *typeString() const { return class_; }
     virtual void parse();
-    virtual int match(ACLChecklist *checklist);
+    virtual int match(ACLChecklist *);
     virtual SBufList dump() const;
-    virtual bool empty () const;
-    virtual bool valid () const;
+    virtual bool empty() const { return false; }
+    virtual bool valid() const { return limit > 0; }
     virtual void prepareForUse();
 
 protected:
-    char const *class_;
-    int limit;
+    char const *class_ = nullptr;
+    int limit = -1;
 };
 
 #endif /* SQUID_ACLMAXCONNECTION_H */
