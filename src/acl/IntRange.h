@@ -18,14 +18,14 @@ class ACLIntRange : public ACLData<int>
 {
 
 public:
-    virtual ~ACLIntRange();
+    virtual ~ACLIntRange() {}
 
     /* ACLData API */
-    virtual bool match(int);
-    virtual SBufList dump() const;
-    virtual void parse();
-    virtual bool empty() const;
-    virtual ACLData<int> *clone() const;
+    virtual bool match(int) override;
+    virtual SBufList dump() const override;
+    virtual void parse() override;
+    virtual bool empty() const override { return ranges.empty(); }
+    virtual ACLData<int> *clone() const override;
 
 private:
     typedef Range<int> RangeType;

@@ -16,9 +16,9 @@
 template <class M>
 class ACLData
 {
-
 public:
-
+    ACLData() = default;
+    ACLData(ACLData<M> const &&) = delete; // prohibit all copy and move
     virtual ~ACLData() {}
 
     /// \returns the flags supported by these ACL parameters (e.g., "-i")
@@ -28,8 +28,8 @@ public:
     virtual SBufList dump() const =0;
     virtual void parse() =0;
     virtual ACLData *clone() const =0;
+    virtual bool valid() const { return true; }
     virtual void prepareForUse() {}
-
     virtual bool empty() const =0;
 };
 

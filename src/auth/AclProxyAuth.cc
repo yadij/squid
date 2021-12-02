@@ -31,35 +31,10 @@ ACLProxyAuth::ACLProxyAuth(ACLData<char const *> *newData, char const *theType) 
     type_(theType)
 {}
 
-ACLProxyAuth::ACLProxyAuth(ACLProxyAuth const &old) :
-    data(old.data->clone()),
-    type_(old.type_)
-{}
-
-ACLProxyAuth &
-ACLProxyAuth::operator=(ACLProxyAuth const &rhs)
-{
-    data = rhs.data->clone();
-    type_ = rhs.type_;
-    return *this;
-}
-
-char const *
-ACLProxyAuth::typeString() const
-{
-    return type_;
-}
-
 void
 ACLProxyAuth::parseFlags()
 {
     ParseFlags(Acl::NoOptions(), data->supportedFlags());
-}
-
-void
-ACLProxyAuth::parse()
-{
-    data->parse();
 }
 
 int
@@ -85,18 +60,6 @@ ACLProxyAuth::match(ACLChecklist *checklist)
             checklist->markFinished(answer, "AuthenticateAcl exception");
         return -1; // other
     }
-}
-
-SBufList
-ACLProxyAuth::dump() const
-{
-    return data->dump();
-}
-
-bool
-ACLProxyAuth::empty() const
-{
-    return data->empty();
 }
 
 bool
@@ -153,12 +116,6 @@ ProxyAuthLookup::LookupDone(void *data)
     }
 
     checklist->resumeNonBlockingCheck(ProxyAuthLookup::Instance());
-}
-
-ACL *
-ACLProxyAuth::clone() const
-{
-    return new ACLProxyAuth(*this);
 }
 
 int

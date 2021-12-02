@@ -17,21 +17,20 @@ class ACLTimeData : public ACLData<time_t>
     MEMPROXY_CLASS(ACLTimeData);
 
 public:
-    ACLTimeData();
-    ACLTimeData(ACLTimeData const &);
-    ACLTimeData&operator=(ACLTimeData const &);
     virtual ~ACLTimeData();
+
+    /* ACLData API */
     bool match(time_t);
     virtual SBufList dump() const;
     void parse();
-    bool empty() const;
+    bool empty() const { return false; }
     virtual ACLData<time_t> *clone() const;
 
 private:
-    int weekbits;
-    int start;
-    int stop;
-    ACLTimeData *next;
+    int weekbits = 0;
+    int start = 0;
+    int stop = 0;
+    ACLTimeData *next = nullptr;
 };
 
 #endif /* SQUID_ACLTIMEDATA_H */

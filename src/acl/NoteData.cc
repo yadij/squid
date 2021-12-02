@@ -16,7 +16,8 @@
 #include "sbuf/StringConvert.h"
 #include "wordlist.h"
 
-ACLNoteData::ACLNoteData() : values(new ACLStringData)
+ACLNoteData::ACLNoteData() :
+    values(new ACLStringData)
 {}
 
 ACLNoteData::~ACLNoteData()

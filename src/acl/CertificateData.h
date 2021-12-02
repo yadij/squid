@@ -23,15 +23,16 @@ class ACLCertificateData : public ACLData<X509 *>
 
 public:
     ACLCertificateData(Ssl::GETX509ATTRIBUTE *, const char *attributes, bool optionalAttr = false);
-    ACLCertificateData(ACLCertificateData const &);
-    ACLCertificateData &operator= (ACLCertificateData const &);
     virtual ~ACLCertificateData();
-    bool match(X509 *);
-    virtual SBufList dump() const;
-    void parse();
-    bool empty() const;
-    virtual ACLData<X509 *> *clone() const;
 
+    /* ACLData API */
+    virtual bool match(X509 *);
+    virtual SBufList dump() const override;
+    virtual void parse() override;
+    virtual bool empty() const override { return values.empty(); }
+    virtual ACLData<X509 *> *clone() const override;
+
+public:
     /// A '|'-delimited list of valid ACL attributes.
     /// A "*" item means that any attribute is acceptable.
     /// Assumed to be a const-string and is never duped/freed.

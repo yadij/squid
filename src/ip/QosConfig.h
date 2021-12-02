@@ -30,12 +30,11 @@ class acl_tos
     CBDATA_CLASS(acl_tos);
 
 public:
-    acl_tos() : next(NULL), aclList(NULL), tos(0) {}
     ~acl_tos();
 
-    acl_tos *next;
-    ACLList *aclList;
-    tos_t tos;
+    acl_tos *next = nullptr;
+    ACLList *aclList = nullptr;
+    tos_t tos = 0;
 };
 
 // TODO: move to new ACL framework
@@ -44,11 +43,10 @@ class acl_nfmark
     CBDATA_CLASS(acl_nfmark);
 
 public:
-    acl_nfmark() : next(NULL), aclList(NULL) {}
     ~acl_nfmark();
 
-    acl_nfmark *next;
-    ACLList *aclList;
+    acl_nfmark *next = nullptr;
+    ACLList *aclList = nullptr;
     Ip::NfMarkConfig markConfig;
 };
 
@@ -172,7 +170,6 @@ int setSockNfmark(const int fd, nfmark_t mark);
 class Config
 {
 public:
-
     Config();
     ~Config() {}
 
@@ -211,28 +208,28 @@ public:
     */
     bool isAclTosActive() const;
 
-    tos_t tosLocalHit;                  ///< TOS value to apply to local cache hits
-    tos_t tosSiblingHit;                ///< TOS value to apply to hits from siblings
-    tos_t tosParentHit;                 ///< TOS value to apply to hits from parent
-    tos_t tosMiss;                      ///< TOS value to apply to cache misses
-    tos_t tosMissMask;                  ///< Mask for TOS value to apply to cache misses. Applied to the tosMiss value.
-    bool preserveMissTos;               ///< Whether to preserve the TOS value of the inbound packet for misses
-    tos_t preserveMissTosMask;          ///< The mask to apply when preserving the TOS of misses. Applies to preserved value from upstream.
+public:
+    tos_t tosLocalHit = 0; ///< TOS value to apply to local cache hits
+    tos_t tosSiblingHit = 0; ///< TOS value to apply to hits from siblings
+    tos_t tosParentHit = 0; ///< TOS value to apply to hits from parent
+    tos_t tosMiss = 0; ///< TOS value to apply to cache misses
+    tos_t tosMissMask = 0; ///< Mask for TOS value to apply to cache misses. Applied to the tosMiss value.
+    bool preserveMissTos = 0; ///< Whether to preserve the TOS value of the inbound packet for misses
+    tos_t preserveMissTosMask = 0; ///< The mask to apply when preserving the TOS of misses. Applies to preserved value from upstream.
 
-    nfmark_t markLocalHit;              ///< Netfilter mark value to apply to local cache hits
-    nfmark_t markSiblingHit;            ///< Netfilter mark value to apply to hits from siblings
-    nfmark_t markParentHit;             ///< Netfilter mark value to apply to hits from parent
-    nfmark_t markMiss;                  ///< Netfilter mark value to apply to cache misses
-    nfmark_t markMissMask;              ///< Mask for netfilter mark value to apply to cache misses. Applied to the markMiss value.
-    bool preserveMissMark;              ///< Whether to preserve netfilter mark value of inbound connection
-    nfmark_t preserveMissMarkMask;      ///< The mask to apply when preserving the netfilter mark of misses. Applied to preserved value from upstream.
+    nfmark_t markLocalHit = 0; ///< Netfilter mark value to apply to local cache hits
+    nfmark_t markSiblingHit = 0; ///< Netfilter mark value to apply to hits from siblings
+    nfmark_t markParentHit = 0; ///< Netfilter mark value to apply to hits from parent
+    nfmark_t markMiss = 0; ///< Netfilter mark value to apply to cache misses
+    nfmark_t markMissMask = 0; ///< Mask for netfilter mark value to apply to cache misses. Applied to the markMiss value.
+    bool preserveMissMark = 0; ///< Whether to preserve netfilter mark value of inbound connection
+    nfmark_t preserveMissMarkMask = 0; ///< The mask to apply when preserving the netfilter mark of misses. Applied to preserved value from upstream.
 
-    acl_tos *tosToServer;               ///< The TOS that packets to the web server should be marked with, based on ACL
-    acl_tos *tosToClient;               ///< The TOS that packets to the client should be marked with, based on ACL
-    acl_nfmark *nfmarkToServer;         ///< The MARK that packets to the web server should be marked with, based on ACL
-    acl_nfmark *nfmarkToClient;         ///< The MARK that packets to the client should be marked with, based on ACL
-    acl_nfmark *nfConnmarkToClient = nullptr;    ///< The CONNMARK that the client connection should be marked with, based on ACL
-
+    acl_tos *tosToServer = nullptr; ///< The TOS that packets to the web server should be marked with, based on ACL
+    acl_tos *tosToClient = nullptr; ///< The TOS that packets to the client should be marked with, based on ACL
+    acl_nfmark *nfmarkToServer = nullptr; ///< The MARK that packets to the web server should be marked with, based on ACL
+    acl_nfmark *nfmarkToClient = nullptr; ///< The MARK that packets to the client should be marked with, based on ACL
+    acl_nfmark *nfConnmarkToClient = nullptr; ///< The CONNMARK that the client connection should be marked with, based on ACL
 };
 
 /// Globally available instance of Qos::Config

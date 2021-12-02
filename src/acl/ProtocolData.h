@@ -20,16 +20,16 @@ class ACLProtocolData : public ACLData<AnyP::ProtocolType>
     MEMPROXY_CLASS(ACLProtocolData);
 
 public:
-    ACLProtocolData() {}
-    ACLProtocolData(ACLProtocolData const &);
-    ACLProtocolData &operator= (ACLProtocolData const &);
-    virtual ~ACLProtocolData();
-    bool match(AnyP::ProtocolType);
-    virtual SBufList dump() const;
-    void parse();
-    bool empty() const {return values.empty();}
-    virtual ACLData<AnyP::ProtocolType> *clone() const;
+    virtual ~ACLProtocolData() {}
 
+    /* ACLData API */
+    virtual bool match(AnyP::ProtocolType) override;
+    virtual SBufList dump() const override;
+    virtual void parse() override;
+    virtual bool empty() const override { return values.empty(); }
+    virtual ACLData<AnyP::ProtocolType> *clone() const override;
+
+public:
     std::list<AnyP::ProtocolType> values;
 };
 

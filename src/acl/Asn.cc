@@ -55,13 +55,28 @@ template cbdata_type CbDataList<int>::CBDATA_CbDataList;
 /// \endcond
 
 /**
- * Structure for as number information. it could be simply
+ * ASN number information. it could be simply
  * a list but it's coded as a structure for future
  * enhancements (e.g. expires)
  */
-struct as_info {
-    CbDataList<int> *as_number;
-    time_t expires;     /* NOTUSED */
+class as_info
+{
+    MEMPROXY_CLASS(as_info);
+
+public:
+    as_info(int n) : as_number(new CbDataList<int>(n)) {}
+    ~as_info()
+    {
+        while (auto *data = as_number) {
+            auto *prev = data;
+            data = data->next;
+            delete prev;
+        }
+    }
+
+public:
+    CbDataList<int> *as_number = nullptr;
+    time_t expires = 0;     /* NOTUSED */
 };
 
 class ASState
@@ -95,8 +110,8 @@ CBDATA_CLASS_INIT(ASState);
 
 /** entry into the radix tree */
 struct rtentry_t {
-    struct squid_radix_node e_nodes[2];
-    as_info *e_info;
+    struct squid_radix_node e_nodes[2] = {};
+    as_info *e_info = nullptr;
     m_ADDR e_addr;
     m_ADDR e_mask;
 };
@@ -119,8 +134,6 @@ static int printRadixNode(struct squid_radix_node *rn, void *sentry);
 #endif
 
 void asnAclInitialize(ACL * acls);
-
-static void destroyRadixNodeInfo(as_info *);
 
 static OBJH asnStats;
 
@@ -432,9 +445,7 @@ asnAddNet(char *as_string, int as_number)
             e->e_info = asinfo;
         }
     } else {
-        q = new CbDataList<int> (as_number);
-        asinfo = (as_info *)xmalloc(sizeof(as_info));
-        asinfo->as_number = q;
+        asinfo = new as_info(as_number);
         squid_rn_addroute(&e->e_addr, &e->e_mask, AS_tree_head, e->e_nodes);
         rn = squid_rn_match(&e->e_addr, AS_tree_head);
         assert(rn != NULL);
@@ -442,7 +453,7 @@ asnAddNet(char *as_string, int as_number)
     }
 
     if (rn == 0) {      /* assert might expand to nothing */
-        xfree(asinfo);
+        delete asinfo;
         delete q;
         xfree(e);
         debugs(53, 3, "asnAddNet: Could not add entry.");
@@ -466,25 +477,13 @@ destroyRadixNode(struct squid_radix_node *rn, void *w)
         if (rn == 0)
             debugs(53, 3, "destroyRadixNode: internal screwup");
 
-        destroyRadixNodeInfo(e->e_info);
+        delete e->e_info;
+        e->e_info = nullptr;
 
         xfree(rn);
     }
 
     return 1;
-}
-
-static void
-destroyRadixNodeInfo(as_info * e_info)
-{
-    CbDataList<int> *prev = NULL;
-    CbDataList<int> *data = e_info->as_number;
-
-    while (data) {
-        prev = data;
-        data = data->next;
-        delete prev;
-    }
 }
 
 static int
@@ -518,8 +517,7 @@ printRadixNode(struct squid_radix_node *rn, void *_sentry)
 
 ACLASN::~ACLASN()
 {
-    if (data)
-        delete data;
+    delete data;
 }
 
 bool
@@ -546,12 +544,6 @@ ACLASN::dump() const
     return sl;
 }
 
-bool
-ACLASN::empty () const
-{
-    return data == NULL;
-}
-
 void
 ACLASN::parse()
 {
@@ -574,7 +566,7 @@ ACLASN::clone() const
     if (data)
         fatal ("cloning of ACLASN not implemented");
 
-    return new ACLASN(*this);
+    return new ACLASN();
 }
 
 /* explicit template instantiation required for some systems */

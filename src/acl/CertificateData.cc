@@ -33,17 +33,6 @@ ACLCertificateData::ACLCertificateData(Ssl::GETX509ATTRIBUTE *sslStrategy, const
     }
 }
 
-ACLCertificateData::ACLCertificateData(ACLCertificateData const &old) :
-    validAttributesStr(old.validAttributesStr),
-    attributeIsOptional(old.attributeIsOptional),
-    values(old.values),
-    sslAttributeCall(old.sslAttributeCall)
-{
-    validAttributes.assign(old.validAttributes.begin(), old.validAttributes.end());
-    if (old.attribute)
-        attribute = xstrdup(old.attribute);
-}
-
 template<class T>
 inline void
 xRefFree(T &thing)
@@ -53,7 +42,7 @@ xRefFree(T &thing)
 
 ACLCertificateData::~ACLCertificateData()
 {
-    safe_free (attribute);
+    xfree(attribute);
 }
 
 template<class T>
@@ -158,16 +147,10 @@ ACLCertificateData::parse()
     values.parse();
 }
 
-bool
-ACLCertificateData::empty() const
-{
-    return values.empty();
-}
-
 ACLData<X509 *> *
 ACLCertificateData::clone() const
 {
     /* Splay trees don't clone yet. */
-    return new ACLCertificateData(*this);
+    return new ACLCertificateData(sslAttributeCall, validAttributesStr, attributeIsOptional);
 }
 

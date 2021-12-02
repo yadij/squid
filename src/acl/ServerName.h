@@ -13,17 +13,18 @@
 #include "acl/DomainData.h"
 #include "acl/Strategy.h"
 
-class ACLServerNameData : public ACLDomainData {
+class ACLServerNameData : public ACLDomainData
+{
     MEMPROXY_CLASS(ACLServerNameData);
+
 public:
-    ACLServerNameData() : ACLDomainData() {}
+    /* ACLDomainData API */
     virtual bool match(const char *);
     virtual ACLData<char const *> *clone() const;
 };
 
 class ACLServerNameStrategy : public ACLStrategy<char const *>
 {
-
 public:
     /* ACLStrategy API */
     virtual int match (ACLData<MatchType> * &, ACLFilledChecklist *);

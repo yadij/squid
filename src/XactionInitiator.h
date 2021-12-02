@@ -35,33 +35,25 @@ public:
 
     typedef uint32_t Initiators; ///< Initiator set
 
-    // this class is a just a trivial wrapper so we allow explicit conversions
+    // this class is a just a trivial wrapper so we allow implicit conversions
     XactionInitiator(Initiator i) : initiator(i) {}
 
     /// whether this initiator belongs to the given set
     bool in(Initiators setOfInitiators) const {return (initiator & setOfInitiators) != 0;}
 
     /// whether the transaction was initiated by an internal subsystem
-    bool internalClient() const {
-        return (initiator & InternalInitiators()) != 0;
-    }
+    bool internalClient() const { return (initiator & InternalInitiators()) != 0; }
 
     /// internally generated requests
     static Initiators InternalInitiators() {
         return initPeerPool | initCertFetcher | initEsi | initCacheDigest | initIcp | initIcmp | initIpc | initAdaptation | initIcon | initPeerMcast;
     }
 
-    /// all initiators
-    static Initiators AllInitiators() {
-        return 0xFFFFFFFF;
-    }
-
+    static Initiators AllInitiators() { return 0xFFFFFFFF; }
     static Initiators ParseInitiators(const char *name);
 
 private:
-    XactionInitiator() {}
-
-    Initiator initiator;
+    Initiator initiator = initUnknown;
 };
 
 #endif // SQUID_SRC_XACTION_INITIATOR_H

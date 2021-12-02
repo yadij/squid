@@ -15,16 +15,6 @@
 #include "Debug.h"
 #include "wordlist.h"
 
-ACLProtocolData::ACLProtocolData(ACLProtocolData const &old)
-{
-    assert(old.values.empty());
-}
-
-ACLProtocolData::~ACLProtocolData()
-{
-    values.clear();
-}
-
 bool
 ACLProtocolData::match(AnyP::ProtocolType toFind)
 {
@@ -73,6 +63,6 @@ ACLProtocolData::clone() const
 {
     /* Splay trees don't clone yet. */
     assert(values.empty());
-    return new ACLProtocolData(*this);
+    return new ACLProtocolData();
 }
 

@@ -36,11 +36,11 @@ public:
     bool match(const char *str) const {return regexec(&regex,str,0,NULL,0)==0;}
 
 public:
-    int flags;
-    regex_t regex;
+    int flags = 0;
+    regex_t regex = {};
 
 private:
-    char *pattern;
+    char *pattern = nullptr;
 };
 
 #endif /* SQUID_SRC_BASE_REGEXPATTERN_H */

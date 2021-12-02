@@ -20,23 +20,24 @@ class ACLUserData : public ACLData<char const *>
     MEMPROXY_CLASS(ACLUserData);
 
 public:
-    virtual ~ACLUserData() {}
     ACLUserData();
-    bool match(char const *user);
-    virtual SBufList dump() const;
-    void parse();
-    virtual const Acl::ParameterFlags &supportedFlags() const;
-    bool empty() const;
-    virtual ACLData<char const *> *clone() const;
+    virtual ~ACLUserData() {}
+
+    /* ACLData API */
+    virtual bool match(char const *) override;
+    virtual SBufList dump() const override;
+    virtual void parse() override;
+    virtual const Acl::ParameterFlags &supportedFlags() const override;
+    virtual bool empty() const override;
+    virtual ACLData<char const *> *clone() const override;
 
 private:
-
     typedef std::set<SBuf,bool(*)(const SBuf&, const SBuf&)> UserDataNames_t;
     UserDataNames_t userDataNames;
 
     struct {
-        bool case_insensitive;
-        bool required;
+        bool case_insensitive = false;
+        bool required = false;
     } flags;
 
 };

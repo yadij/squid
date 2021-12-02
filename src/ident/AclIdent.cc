@@ -27,18 +27,10 @@ ACLIdent::~ACLIdent()
     delete data;
 }
 
-ACLIdent::ACLIdent(ACLData<char const *> *newData, char const *newType) : data (newData), type_ (newType) {}
-
-ACLIdent::ACLIdent (ACLIdent const &old) : data (old.data->clone()), type_ (old.type_)
+ACLIdent::ACLIdent(ACLData<char const *> *newData, char const *newType) :
+    data(newData),
+    type_(newType)
 {}
-
-ACLIdent &
-ACLIdent::operator= (ACLIdent const &rhs)
-{
-    data = rhs.data->clone();
-    type_ = rhs.type_;
-    return *this;
-}
 
 char const *
 ACLIdent::typeString() const

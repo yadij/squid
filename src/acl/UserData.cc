@@ -17,6 +17,22 @@
 #include "sbuf/Algorithms.h"
 #include "util.h"
 
+static bool
+CaseSensitiveSBufCompare(const SBuf &lhs, const SBuf &rhs)
+{
+    return (lhs.cmp(rhs) < 0);
+}
+
+static bool
+CaseInsensitveSBufCompare(const SBuf &lhs, const SBuf &rhs)
+{
+    return (lhs.caseCmp(rhs) < 0);
+}
+
+ACLUserData::ACLUserData() :
+    userDataNames(CaseSensitiveSBufCompare)
+{}
+
 const Acl::ParameterFlags &
 ACLUserData::supportedFlags() const
 {
@@ -61,25 +77,6 @@ ACLUserData::dump() const
            JoinContainerToSBuf(userDataNames.begin(), userDataNames.end(),
                                SBuf(" ")));
     return sl;
-}
-
-static bool
-CaseSensitiveSBufCompare(const SBuf &lhs, const SBuf &rhs)
-{
-    return (lhs.cmp(rhs) < 0);
-}
-
-static bool
-CaseInsensitveSBufCompare(const SBuf &lhs, const SBuf &rhs)
-{
-    return (lhs.caseCmp(rhs) < 0);
-}
-
-ACLUserData::ACLUserData() :
-    userDataNames(CaseSensitiveSBufCompare)
-{
-    flags.case_insensitive = false;
-    flags.required = false;
 }
 
 void

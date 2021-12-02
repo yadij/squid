@@ -18,16 +18,17 @@ class ACLSslErrorData : public ACLData<const Security::CertErrors *>
     MEMPROXY_CLASS(ACLSslErrorData);
 
 public:
-    ACLSslErrorData() = default;
-    ACLSslErrorData(ACLSslErrorData const &);
-    ACLSslErrorData &operator= (ACLSslErrorData const &);
     virtual ~ACLSslErrorData() {}
-    bool match(const Security::CertErrors *);
-    virtual SBufList dump() const;
-    void parse();
-    bool empty() const { return values.empty(); }
-    virtual  ACLSslErrorData *clone() const;
 
+    /* ACLData API */
+    virtual SBufList dump() const override;
+    virtual void parse() override;
+    virtual bool empty() const override { return values.empty(); }
+    virtual ACLSslErrorData *clone() const override;
+
+    bool match(const Security::CertErrors *);
+
+public:
     Security::Errors values;
 };
 

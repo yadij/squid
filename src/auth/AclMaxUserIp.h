@@ -20,18 +20,19 @@ class ACLMaxUserIP : public ACL
 
 public:
     explicit ACLMaxUserIP(char const *theClass);
+    virtual ~ACLMaxUserIP() {}
 
-    virtual ACL *clone() const;
-    virtual char const *typeString() const;
-    virtual const Acl::Options &options();
-    virtual void parse();
-    virtual int match(ACLChecklist *cl);
-    virtual SBufList dump() const;
-    virtual bool empty() const;
-    virtual bool valid() const;
-    virtual bool requiresRequest() const {return true;}
+    /* ACL API */
+    virtual const Acl::Options &options() override;
+    virtual void parse() override;
+    virtual char const *typeString() const override { return class_; }
+    virtual SBufList dump() const override;
+    virtual bool empty() const override { return false; }
+    virtual bool valid() const override { return maximum > 0; }
+    virtual int match(ACLChecklist *) override;
+    virtual bool requiresRequest() const override { return true; }
 
-    int getMaximum() const {return maximum;}
+    int getMaximum() const { return maximum; }
 
 private:
     int match(Auth::UserRequest::Pointer auth_user_request, Ip::Address const &src_addr);
@@ -40,8 +41,8 @@ public:
     Acl::BooleanOptionValue beStrict; ///< Enforce "one user, one device" policy?
 
 private:
-    char const *class_;
-    int maximum;
+    char const *class_ = nullptr;
+    int maximum = 0;
 };
 
 #endif /* USE_AUTH */

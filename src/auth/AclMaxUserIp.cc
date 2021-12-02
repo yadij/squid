@@ -19,33 +19,8 @@
 #include "wordlist.h"
 
 ACLMaxUserIP::ACLMaxUserIP(char const *theClass) :
-    class_(theClass),
-    maximum(0)
+    class_(theClass)
 {}
-
-ACL *
-ACLMaxUserIP::clone() const
-{
-    return new ACLMaxUserIP(*this);
-}
-
-char const *
-ACLMaxUserIP::typeString() const
-{
-    return class_;
-}
-
-bool
-ACLMaxUserIP::empty() const
-{
-    return false;
-}
-
-bool
-ACLMaxUserIP::valid() const
-{
-    return maximum > 0;
-}
 
 const Acl::Options &
 ACLMaxUserIP::options()

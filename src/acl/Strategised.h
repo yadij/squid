@@ -24,38 +24,36 @@
 /// Splits the ACL API into two individually configurable components:
 /// * ACLStrategy that usually extracts information from the current transaction
 /// * ACLData that usually matches information against admin-configured values
-template <class M>
+template <class MatchType>
 class ACLStrategised : public ACL
 {
     MEMPROXY_CLASS(ACLStrategised);
 
 public:
-    typedef M MatchType;
-
-    ~ACLStrategised();
     ACLStrategised(ACLData<MatchType> *, ACLStrategy<MatchType> *, char const *);
     ACLStrategised(ACLStrategised const &&) = delete;
+    virtual ~ACLStrategised();
 
-    virtual char const *typeString() const;
-    virtual void parseFlags();
+    virtual int match(MatchType const &toFind) { return data->match(toFind); }
 
-    virtual bool requiresRequest() const {return matcher->requiresRequest();}
-
-    virtual bool requiresReply() const {return matcher->requiresReply();}
-
-    virtual void prepareForUse() { data->prepareForUse();}
-    virtual const Acl::Options &options() { return matcher->options(); }
-    virtual void parse();
-    virtual int match(ACLChecklist *checklist);
-    virtual int match (M const &);
-    virtual SBufList dump() const;
-    virtual bool empty () const;
-    virtual bool valid () const;
+    /* ACL API */
+    virtual const Acl::Options &options() override { return matcher->options(); }
+    virtual void parseFlags() override;
+    virtual void parse() override { data->parse(); }
+    virtual char const *typeString() const override { return type_; }
+    virtual SBufList dump() const override { return data->dump(); }
+    virtual bool empty() const override { return data->empty(); }
+    virtual bool valid() const override { return data->valid(); }
+    virtual void prepareForUse() override { data->prepareForUse(); }
+    virtual int match(ACLChecklist *) override;
+    virtual bool requiresAle() const { return matcher->requiresAle(); }
+    virtual bool requiresRequest() const { return matcher->requiresRequest(); }
+    virtual bool requiresReply() const { return matcher->requiresReply(); }
 
 private:
-    ACLData<MatchType> *data;
-    char const *type_;
-    ACLStrategy<MatchType> *matcher;
+    ACLData<MatchType> *data = nullptr;
+    char const *type_ = nullptr;
+    ACLStrategy<MatchType> *matcher = nullptr;
 };
 
 /* implementation follows */
@@ -68,15 +66,11 @@ ACLStrategised<MatchType>::~ACLStrategised()
 }
 
 template <class MatchType>
-ACLStrategised<MatchType>::ACLStrategised(ACLData<MatchType> *newData, ACLStrategy<MatchType> *theStrategy, char const *theType): data(newData), type_(theType), matcher(theStrategy)
+ACLStrategised<MatchType>::ACLStrategised(ACLData<MatchType> *newData, ACLStrategy<MatchType> *theStrategy, char const *theType) :
+    data(newData),
+    type_(theType),
+    matcher(theStrategy)
 {}
-
-template <class MatchType>
-char const *
-ACLStrategised<MatchType>::typeString() const
-{
-    return type_;
-}
 
 template <class MatchType>
 void
@@ -86,47 +80,12 @@ ACLStrategised<MatchType>::parseFlags()
 }
 
 template <class MatchType>
-void
-ACLStrategised<MatchType>::parse()
-{
-    data->parse();
-}
-
-template <class MatchType>
-bool
-ACLStrategised<MatchType>::empty() const
-{
-    return data->empty();
-}
-
-template <class MatchType>
 int
 ACLStrategised<MatchType>::match(ACLChecklist *cl)
 {
-    ACLFilledChecklist *checklist = dynamic_cast<ACLFilledChecklist*>(cl);
+    auto *checklist = dynamic_cast<ACLFilledChecklist*>(cl);
     assert(checklist);
     return matcher->match(data, checklist);
-}
-
-template <class MatchType>
-int
-ACLStrategised<MatchType>::match(MatchType const &toFind)
-{
-    return data->match(toFind);
-}
-
-template <class MatchType>
-SBufList
-ACLStrategised<MatchType>::dump() const
-{
-    return data->dump();
-}
-
-template <class MatchType>
-bool
-ACLStrategised<MatchType>::valid () const
-{
-    return matcher->valid();
 }
 
 #endif /* SQUID_ACLSTRATEGISED_H */

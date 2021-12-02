@@ -41,7 +41,7 @@ class MasterXaction : public RefCountable
 public:
     typedef RefCount<MasterXaction> Pointer;
 
-    explicit MasterXaction(const XactionInitiator anInitiator) : initiator(anInitiator) {};
+    explicit MasterXaction(const XactionInitiator anInitiator) : initiator(anInitiator) {}
 
     /// transaction ID.
     InstanceId<MasterXaction, uint64_t> id;

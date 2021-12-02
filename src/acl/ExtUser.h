@@ -21,19 +21,15 @@ class ACLExtUser : public ACL
 
 public:
     ACLExtUser(ACLData<char const *> *, char const *);
-    ACLExtUser(ACLExtUser const &);
     virtual ~ACLExtUser();
 
-    ACLExtUser &operator =(ACLExtUser const &);
-
     /* ACL API */
-    virtual char const *typeString() const;
-    virtual void parse();
-    virtual void parseFlags();
-    virtual int match(ACLChecklist *checklist);
-    virtual SBufList dump() const;
-    virtual bool empty () const;
-    virtual ACL *clone()const;
+    virtual char const *typeString() const override { return type_; }
+    virtual void parse() override { data->parse(); }
+    virtual void parseFlags() override;
+    virtual int match(ACLChecklist *) override;
+    virtual SBufList dump() const override { return data->dump(); }
+    virtual bool empty() const override { return data->empty(); }
 
 private:
     ACLData<char const *> *data = nullptr;

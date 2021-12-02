@@ -19,6 +19,7 @@ class ACLHasComponentData : public ACLData<ACLChecklist *>
 
 public:
     ACLHasComponentData();
+    ACLHasComponentData(ACLHasComponentData const &o) : componentMethods(o.componentMethods) {}
 
     /* ACLData<M> API */
     virtual bool match(ACLChecklist *) override;

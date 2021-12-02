@@ -20,19 +20,17 @@ class ACLStringData : public ACLData<char const *>
     MEMPROXY_CLASS(ACLStringData);
 
 public:
-    ACLStringData() {}
-    ACLStringData(ACLStringData const &);
-    ACLStringData &operator= (ACLStringData const &);
     virtual ~ACLStringData() {}
 
     /* ACLData API */
     /// \deprecated use match(SBuf&) instead.
     virtual bool match(char const *) override;
-    virtual bool match(const SBuf &);
     virtual SBufList dump() const override;
     virtual void parse() override;
-    virtual bool empty() const override;
+    virtual bool empty() const override { return stringValues.empty(); }
     virtual ACLData<char const *> *clone() const override;
+
+    virtual bool match(const SBuf &);
 
     /// Insert a string data value
     void insert(const char *);

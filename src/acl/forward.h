@@ -14,7 +14,6 @@
 class ACL;
 class ACLChecklist;
 class ACLFilledChecklist;
-class ACLList;
 
 class AclDenyInfoList;
 class AclSizeLimit;

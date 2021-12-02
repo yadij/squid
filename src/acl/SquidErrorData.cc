@@ -60,18 +60,10 @@ ACLSquidErrorData::parse()
     }
 }
 
-bool
-ACLSquidErrorData::empty() const
-{
-    return errors.empty();
-}
-
 ACLData<err_type> *
 ACLSquidErrorData::clone() const
 {
-    if (!errors.empty())
-        fatal("ACLSquidError::clone: attempt to clone used ACL");
-
-    return new ACLSquidErrorData (*this);
+    assert(errors.empty());
+    return new ACLSquidErrorData();
 }
 

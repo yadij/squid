@@ -46,12 +46,6 @@ ACLIntRange::parse()
 }
 
 bool
-ACLIntRange::empty() const
-{
-    return ranges.empty();
-}
-
-bool
 ACLIntRange::match(int i)
 {
     RangeType const toFind(i, i+1);
@@ -70,11 +64,8 @@ ACLIntRange::clone() const
     if (!ranges.empty())
         fatal("ACLIntRange::clone: attempt to clone used ACL");
 
-    return new ACLIntRange(*this);
+    return new ACLIntRange();
 }
-
-ACLIntRange::~ACLIntRange()
-{}
 
 SBufList
 ACLIntRange::dump() const

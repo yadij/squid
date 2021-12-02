@@ -38,17 +38,13 @@ void RegisterMaker(TypeName typeName, Maker maker);
 /// \ingroup ACLAPI
 class ACL
 {
-
 public:
-    void *operator new(size_t);
-    void operator delete(void *);
+    ACL();
+    virtual ~ACL();
 
     static void ParseAclLine(ConfigParser &parser, ACL ** head);
     static void Initialize();
     static ACL *FindByName(const char *name);
-
-    ACL();
-    virtual ~ACL();
 
     /// sets user-specified ACL name and squid.conf context
     void context(const char *name, const char *configuration);
@@ -67,11 +63,12 @@ public:
 
     /// parses node representation in squid.conf; dies on failures
     virtual void parse() = 0;
+
     virtual char const *typeString() const = 0;
-    virtual bool isProxyAuth() const;
+    virtual bool isProxyAuth() const { return false; }
     virtual SBufList dump() const = 0;
     virtual bool empty() const = 0;
-    virtual bool valid() const;
+    virtual bool valid() const { return true; }
 
     int cacheMatchAcl(dlink_list * cache, ACLChecklist *);
     virtual int matchForCache(ACLChecklist *checklist);
@@ -80,21 +77,22 @@ public:
 
     SBufList dumpOptions(); ///< \returns approximate options configuration
 
+public:
     char name[ACL_NAME_SZ];
     char *cfgline = nullptr;
     ACL *next = nullptr; // XXX: remove or at least use refcounting
     bool registered = false; ///< added to the global list of ACLs via aclRegister()
 
-private:
+protected:
     /// Matches the actual data in checklist against this ACL.
-    virtual int match(ACLChecklist *checklist) = 0; // XXX: missing const
+    virtual int match(ACLChecklist *) = 0; // XXX: missing const
 
     /// whether our (i.e. shallow) match() requires checklist to have a AccessLogEntry
-    virtual bool requiresAle() const;
+    virtual bool requiresAle() const { return false; }
     /// whether our (i.e. shallow) match() requires checklist to have a request
-    virtual bool requiresRequest() const;
+    virtual bool requiresRequest() const { return false; }
     /// whether our (i.e. shallow) match() requires checklist to have a reply
-    virtual bool requiresReply() const;
+    virtual bool requiresReply() const { return false; }
 };
 
 /// \ingroup ACLAPI
@@ -194,8 +192,8 @@ public:
     {}
 
     dlink_node link;
-    int matchrv;
-    void *acl_data;
+    int matchrv = 0;
+    void *acl_data = nullptr;
 };
 
 /// \ingroup ACLAPI

@@ -26,32 +26,9 @@
 #define ACL_ALLWEEK 0x7F
 #define ACL_WEEKDAYS    0x3E
 
-ACLTimeData::ACLTimeData () : weekbits (0), start (0), stop (0), next (NULL) {}
-
-ACLTimeData::ACLTimeData(ACLTimeData const &old) : weekbits(old.weekbits), start (old.start), stop (old.stop), next (NULL)
-{
-    if (old.next)
-        next = (ACLTimeData *)old.next->clone();
-}
-
-ACLTimeData&
-ACLTimeData::operator=(ACLTimeData const &old)
-{
-    weekbits = old.weekbits;
-    start = old.start;
-    stop = old.stop;
-    next = NULL;
-
-    if (old.next)
-        next = (ACLTimeData *)old.next->clone();
-
-    return *this;
-}
-
 ACLTimeData::~ACLTimeData()
 {
-    if (next)
-        delete next;
+    delete next;
 }
 
 bool
@@ -185,7 +162,7 @@ ACLTimeData::parse()
             if ((parsed_weekbits == 0) && (start == 0) && (stop == 0))
                 q = this;
             else
-                q = new ACLTimeData;
+                q = new ACLTimeData();
 
             q->start = h1 * 60 + m1;
 
@@ -230,15 +207,9 @@ ACLTimeData::parse()
     }
 }
 
-bool
-ACLTimeData::empty() const
-{
-    return false;
-}
-
 ACLData<time_t> *
 ACLTimeData::clone() const
 {
-    return new ACLTimeData(*this);
+    return new ACLTimeData();
 }
 

@@ -16,11 +16,6 @@
 class ACLAdaptationServiceData : public ACLStringData
 {
 public:
-    ACLAdaptationServiceData() : ACLStringData() {}
-    ACLAdaptationServiceData(ACLAdaptationServiceData const &old) : ACLStringData(old) {}
-
-    ACLAdaptationServiceData &operator= (ACLAdaptationServiceData const &) = delete;
-
     /* ACLStringData API */
     virtual void parse() override;
     virtual ACLData<char const *> *clone() const override;

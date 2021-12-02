@@ -24,16 +24,15 @@ class ACLStrategy
 public:
     typedef M MatchType;
 
-    /* Replicate ACL API parts relevant to the matching algorithm. */
-    virtual const Acl::Options &options() { return Acl::NoOptions(); }
-    virtual int match (ACLData<M> * &, ACLFilledChecklist *) = 0;
-    virtual bool requiresRequest() const {return false;}
-
-    virtual bool requiresReply() const {return false;}
-
-    virtual bool valid() const {return true;}
-
     virtual ~ACLStrategy() {}
+
+    /* duplicate of ACL API for templates */
+    virtual const Acl::Options &options() { return Acl::NoOptions(); }
+    virtual int match(ACLData<M> * &, ACLFilledChecklist *) = 0;
+    virtual bool requiresRequest() const {return false;}
+    virtual bool requiresReply() const {return false;}
+    virtual bool requiresAle() const {return false;}
+    virtual bool valid() const {return true;}
 };
 
 #endif /* SQUID_ACLSTRATEGY_H */

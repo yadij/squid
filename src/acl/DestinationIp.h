@@ -30,11 +30,10 @@ class ACLDestinationIP : public ACLIP
     MEMPROXY_CLASS(ACLDestinationIP);
 
 public:
-    virtual char const *typeString() const;
-    virtual const Acl::Options &options();
-    virtual int match(ACLChecklist *checklist);
-
-    virtual ACL *clone()const;
+    /* ACL API */
+    virtual char const *typeString() const override;
+    virtual const Acl::Options &options() override;
+    virtual int match(ACLChecklist *checklist) override;
 
 private:
     Acl::BooleanOptionValue lookupBanned; ///< are DNS lookups allowed?

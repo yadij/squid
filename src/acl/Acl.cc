@@ -75,19 +75,6 @@ Acl::RegisterMaker(TypeName typeName, Maker maker)
     TheMakers().emplace(typeName, maker);
 }
 
-void *
-ACL::operator new (size_t)
-{
-    fatal ("unusable ACL::new");
-    return (void *)1;
-}
-
-void
-ACL::operator delete (void *)
-{
-    fatal ("unusable ACL::delete");
-}
-
 ACL *
 ACL::FindByName(const char *name)
 {
@@ -106,11 +93,6 @@ ACL::FindByName(const char *name)
 ACL::ACL()
 {
     *name = 0;
-}
-
-bool ACL::valid () const
-{
-    return true;
 }
 
 bool
@@ -276,12 +258,6 @@ ACL::ParseAclLine(ConfigParser &parser, ACL ** head)
     aclRegister(A);
 }
 
-bool
-ACL::isProxyAuth() const
-{
-    return false;
-}
-
 void
 ACL::parseFlags()
 {
@@ -366,24 +342,6 @@ aclCacheMatchFlush(dlink_list * cache)
         dlinkDelete(tmplink, cache);
         delete auth_match;
     }
-}
-
-bool
-ACL::requiresAle() const
-{
-    return false;
-}
-
-bool
-ACL::requiresReply() const
-{
-    return false;
-}
-
-bool
-ACL::requiresRequest() const
-{
-    return false;
 }
 
 /*********************/

@@ -18,20 +18,22 @@ class ACLRandom : public ACL
 public:
     ACLRandom(char const *);
     ACLRandom(ACLRandom const &);
-    ~ACLRandom();
-    ACLRandom&operator=(ACLRandom const &);
+    virtual ~ACLRandom() {}
 
+    ACLRandom &operator =(ACLRandom const &) = delete;
+
+    /* ACL API */
     virtual ACL *clone()const;
-    virtual char const *typeString() const;
+    virtual char const *typeString() const { return class_; }
     virtual void parse();
-    virtual int match(ACLChecklist *checklist);
+    virtual int match(ACLChecklist *);
     virtual SBufList dump() const;
-    virtual bool empty () const;
-    virtual bool valid() const;
+    virtual bool empty() const { return data != 0.0; }
+    virtual bool valid() const { return !empty(); }
 
 protected:
-    double data;        // value to be exceeded before this ACL will match
-    char pattern[256];  // pattern from config file. Used to generate 'data'
+    double data = 0.0; ///< value to be exceeded before this ACL will match
+    char pattern[256]; ///< pattern from config file. Used to generate 'data'
     char const *class_;
 };
 

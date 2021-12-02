@@ -23,6 +23,8 @@ class ACLNoteData : public ACLData<NotePairs::Entry *>
 public:
     ACLNoteData();
     virtual ~ACLNoteData();
+
+    /* ACLData API */
     virtual bool match(NotePairs::Entry *);
     virtual SBufList dump() const;
     virtual void parse();
@@ -30,8 +32,8 @@ public:
     virtual ACLData<NotePairs::Entry *> *clone() const;
 
 private:
-    SBuf name;                   ///< Note name to check. It is always set
-    ACLStringData *values; ///< if set, at least one value must match
+    SBuf name; ///< Note name to check. It is always set
+    ACLStringData *values = nullptr; ///< if set, at least one value must match
 };
 
 #endif /* SQUID_ACLNOTEDATA_H */

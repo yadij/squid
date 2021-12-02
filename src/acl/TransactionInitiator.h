@@ -24,17 +24,18 @@ class TransactionInitiator : public ACL
 public:
     TransactionInitiator(char const *);
 
-    virtual ACL *clone()const;
-    virtual char const *typeString() const;
+    /* ACL API */
+    virtual ACL *clone() const;
+    virtual char const *typeString() const { return class_; }
     virtual void parse();
-    virtual int match(ACLChecklist *checklist);
+    virtual int match(ACLChecklist *);
     virtual bool requiresRequest() const { return true; }
-    virtual SBufList dump() const;
-    virtual bool empty () const;
+    virtual SBufList dump() const { return cfgWords; }
+    virtual bool empty() const { return false; }
 
 protected:
-    char const *class_;
-    XactionInitiator::Initiators initiators_;
+    char const *class_ = nullptr;
+    XactionInitiator::Initiators initiators_ = {};
     SBufList cfgWords; /// initiator names in the configured order
 };
 

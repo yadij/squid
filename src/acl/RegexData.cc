@@ -25,10 +25,6 @@
 #include "sbuf/Algorithms.h"
 #include "sbuf/List.h"
 
-ACLRegexData::~ACLRegexData()
-{
-}
-
 const Acl::ParameterFlags &
 ACLRegexData::supportedFlags() const
 {
@@ -260,12 +256,6 @@ ACLRegexData::parse()
         debugs(28, DBG_IMPORTANT, "WARNING: optimisation of regular expressions failed; using fallback method without optimisation");
         compileUnoptimisedREs(data, sl);
     }
-}
-
-bool
-ACLRegexData::empty() const
-{
-    return data.empty();
 }
 
 ACLData<char const *> *

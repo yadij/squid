@@ -18,13 +18,13 @@ class ACLSquidErrorData : public ACLData<err_type>
 {
 
 public:
-    ACLSquidErrorData(): ACLData<err_type>() {};
-
     virtual ~ACLSquidErrorData() {}
-    virtual bool match(err_type err);
+
+    /* ACLData API */
+    virtual bool match(err_type);
     virtual SBufList dump() const;
     virtual void parse();
-    virtual bool empty() const;
+    virtual bool empty() const { return errors.empty(); }
     virtual ACLData<err_type> *clone() const;
 
 private:

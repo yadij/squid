@@ -32,28 +32,26 @@ class ACLProxyAuth : public ACL
     MEMPROXY_CLASS(ACLProxyAuth);
 
 public:
-    ~ACLProxyAuth();
     ACLProxyAuth(ACLData<char const *> *, char const *);
-    ACLProxyAuth(ACLProxyAuth const &);
-    ACLProxyAuth &operator =(ACLProxyAuth const &);
+    virtual ~ACLProxyAuth();
 
     /* ACL API */
-    virtual char const *typeString() const;
-    virtual void parse();
-    virtual bool isProxyAuth() const {return true;}
-    virtual void parseFlags();
-    virtual int match(ACLChecklist *checklist);
-    virtual SBufList dump() const;
-    virtual bool valid() const;
-    virtual bool empty() const;
-    virtual bool requiresRequest() const {return true;}
-    virtual ACL *clone() const;
-    virtual int matchForCache(ACLChecklist *checklist);
+    virtual char const *typeString() const override { return type_; }
+    virtual void parse() override { data->parse(); }
+    virtual bool isProxyAuth() const override { return true; }
+    virtual void parseFlags() override;
+    virtual int match(ACLChecklist *) override;
+    virtual SBufList dump() const override { return data->dump(); }
+    virtual bool valid() const override;
+    virtual bool empty() const override { return data->empty(); }
+    virtual bool requiresRequest() const override { return true; }
+    virtual int matchForCache(ACLChecklist *) override;
 
 private:
     int matchProxyAuth(ACLChecklist *);
-    ACLData<char const *> *data;
-    char const *type_;
+
+    ACLData<char const *> *data = nullptr;
+    char const *type_ = nullptr;
 };
 
 #endif /* USE_AUTH */

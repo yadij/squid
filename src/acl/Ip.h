@@ -46,9 +46,10 @@ public:
     virtual ~ACLIP();
 
     /* ACL API */
-    virtual void parse();
-    virtual SBufList dump() const;
-    virtual bool empty() const;
+    virtual void parse() override;
+    virtual SBufList dump() const override;
+    virtual bool empty() const override;
+    virtual int match(ACLChecklist *) override = 0;
 
 protected:
     int match(const Ip::Address &);

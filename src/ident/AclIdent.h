@@ -35,19 +35,17 @@ class ACLIdent : public ACL
     MEMPROXY_CLASS(ACLIdent);
 
 public:
-    ACLIdent(ACLData<char const *> *newData, char const *);
-    ACLIdent (ACLIdent const &old);
-    ACLIdent & operator= (ACLIdent const &rhs);
-    ~ACLIdent();
+    ACLIdent(ACLData<char const *> *, char const *);
+    virtual ~ACLIdent();
 
     /* ACL API */
     virtual char const *typeString() const;
     virtual void parse();
-    virtual bool isProxyAuth() const {return true;}
+    virtual bool isProxyAuth() const { return true; }
     virtual void parseFlags();
-    virtual int match(ACLChecklist *checklist);
+    virtual int match(ACLChecklist *);
     virtual SBufList dump() const;
-    virtual bool empty () const;
+    virtual bool empty() const;
     virtual ACL *clone()const;
 
 private:

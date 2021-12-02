@@ -16,9 +16,9 @@ const SBuf ACLHasComponentData::RequestStr("request");
 const SBuf ACLHasComponentData::ResponseStr("response");
 const SBuf ACLHasComponentData::AleStr("ALE");
 
-ACLHasComponentData::ACLHasComponentData()
-    : componentMethods(coEnd, nullptr)
-{ }
+ACLHasComponentData::ACLHasComponentData() :
+    componentMethods(coEnd, nullptr)
+{}
 
 void
 ACLHasComponentData::parse()

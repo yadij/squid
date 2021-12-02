@@ -17,25 +17,14 @@
 #include "MasterXaction.h"
 #include "SquidConfig.h"
 
+Acl::TransactionInitiator::TransactionInitiator(const char *aClass) :
+    class_(aClass)
+{}
+
 ACL *
 Acl::TransactionInitiator::clone() const
 {
     return new Acl::TransactionInitiator(*this);
-}
-
-Acl::TransactionInitiator::TransactionInitiator (const char *aClass) : class_ (aClass), initiators_(0)
-{}
-
-char const *
-Acl::TransactionInitiator::typeString() const
-{
-    return class_;
-}
-
-bool
-Acl::TransactionInitiator::empty () const
-{
-    return false;
 }
 
 void
@@ -55,11 +44,5 @@ Acl::TransactionInitiator::match(ACLChecklist *checklist)
     assert(filled->request->masterXaction);
     const XactionInitiator requestInitiator = filled->request->masterXaction->initiator;
     return requestInitiator.in(initiators_) ? 1 : 0;
-}
-
-SBufList
-Acl::TransactionInitiator::dump() const
-{
-    return cfgWords;
 }
 
