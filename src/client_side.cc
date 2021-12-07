@@ -73,6 +73,7 @@
 #include "comm/Connection.h"
 #include "comm/Loops.h"
 #include "comm/Read.h"
+#include "comm/SocksAcceptor.h"
 #include "comm/TcpAcceptor.h"
 #include "comm/Write.h"
 #include "CommCalls.h"
@@ -3343,6 +3344,9 @@ clientHttpConnectionsOpen(void)
 
         s->listenConn->flags = COMM_NONBLOCKING | (s->flags.tproxyIntercept ? COMM_TRANSPARENT : 0) |
                                (s->flags.natIntercept ? COMM_INTERCEPTION : 0) |
+#if USE_SOCKS
+                               (s->flags.socksProxy ? COMM_SOCKS : 0) |
+#endif
                                (s->workerQueues ? COMM_REUSEPORT : 0);
 
         typedef CommCbFunPtrCallT<CommAcceptCbPtrFun> AcceptCall;
@@ -3379,6 +3383,9 @@ clientStartListeningOn(AnyP::PortCfgPointer &port, const RefCount< CommCbFunPtrC
     port->listenConn->local = port->s;
     port->listenConn->flags =
         COMM_NONBLOCKING |
+#if USE_SOCKS
+        (port->flags.socksProxy ? COMM_SOCKS : 0) |
+#endif
         (port->flags.tproxyIntercept ? COMM_TRANSPARENT : 0) |
         (port->flags.natIntercept ? COMM_INTERCEPTION : 0);
 
@@ -3408,12 +3415,20 @@ clientListenerConnectionOpened(AnyP::PortCfgPointer &s, const Ipc::FdNoteId port
     Must(Comm::IsConnOpen(s->listenConn));
 
     // TCP: setup a job to handle accept() with subscribed handler
-    AsyncJob::Start(new Comm::TcpAcceptor(s, FdNote(portTypeNote), sub));
+#if USE_SOCKS
+    if (s->flags.socksProxy)
+        AsyncJob::Start(new Comm::SocksAcceptor(s, FdNote(portTypeNote), sub));
+    else
+#endif
+        AsyncJob::Start(new Comm::TcpAcceptor(s, FdNote(portTypeNote), sub));
 
     debugs(1, Important(13), "Accepting " <<
            (s->flags.natIntercept ? "NAT intercepted " : "") <<
            (s->flags.tproxyIntercept ? "TPROXY intercepted " : "") <<
            (s->flags.tunnelSslBumping ? "SSL bumped " : "") <<
+#if USE_SOCKS
+           (s->flags.socksProxy ? "SOCKS " : "") <<
+#endif
            (s->flags.accelSurrogate ? "reverse-proxy " : "")
            << FdNote(portTypeNote) << " connections at "
            << s->listenConn);

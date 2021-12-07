@@ -18,6 +18,10 @@
 #include "globals.h"
 #include "SquidTime.h"
 
+#if HAVE_SOCKS_H
+#include <socks.h>
+#endif
+
 // Solaris and possibly others lack MSG_NOSIGNAL optimization
 // TODO: move this into compat/? Use a dedicated compat file to avoid dragging
 // sys/socket.h into the rest of Squid??
@@ -153,6 +157,22 @@ msghdr_write_method(int fd, const char *buf, int len)
 
 #endif
 
+#if USE_SOCKS
+static int
+socks_read_method(int fd, char *buf, int len)
+{
+    auto i = Rread(fd, buf, len);
+    return i;
+}
+
+static int
+socks_write_method(int fd, const char *buf, int len)
+{
+    auto i = Rwrite(fd, buf, len);
+    return i;
+}
+#endif
+
 void
 fd_open(int fd, unsigned int type, const char *desc)
 {
@@ -198,6 +218,18 @@ fd_open(int fd, unsigned int type, const char *desc)
     case FD_MSGHDR:
         F->setIo(&msghdr_read_method, &msghdr_write_method);
         break;
+
+#if USE_SOCKS
+    case FD_SOCKET:
+        if (socks_isfd(fd)) {
+            debugs(51, 3, "set FD " << fd << " to SOCKS read/write method");
+            F->setIo(&socks_read_method, &socks_write_method);
+        } else {
+            debugs(51, 3, "set FD " << fd << " to default read/write method");
+            F->setIo(&default_read_method, &default_write_method);
+        }
+        break;
+#endif
 
     default:
         F->setIo(&default_read_method, &default_write_method);

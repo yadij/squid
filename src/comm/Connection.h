@@ -50,6 +50,7 @@ namespace Comm
 #define COMM_TRANSPARENT        0x10  // arrived via TPROXY
 #define COMM_INTERCEPTION       0x20  // arrived via NAT
 #define COMM_REUSEPORT          0x40 //< needs SO_REUSEPORT
+#define COMM_SOCKS              0x80 ///< needs SOCKS socket operations
 /// not registered with Comm and not owned by any connection-closing code
 #define COMM_ORPHANED           0x40
 

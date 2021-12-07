@@ -103,6 +103,9 @@
 #if HAVE_GRP_H
 #include <grp.h>
 #endif
+#if HAVE_SOCKS_H
+#include <socks.h>
+#endif
 #if HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
@@ -3571,7 +3574,7 @@ parse_port_option(AnyP::PortCfgPointer &s, char *token)
         s->flags.accelSurrogate = true;
         s->vhost = true;
     } else if (strcmp(token, "transparent") == 0 || strcmp(token, "intercept") == 0) {
-        if (s->flags.accelSurrogate || s->flags.tproxyIntercept) {
+        if (s->flags.accelSurrogate || s->flags.tproxyIntercept || s->flags.socksProxy) {
             debugs(3, DBG_CRITICAL, "FATAL: " << cfg_directive << ": Intercept mode requires its own interception port. It cannot be shared with other modes.");
             self_destruct();
             return;
@@ -3582,7 +3585,7 @@ parse_port_option(AnyP::PortCfgPointer &s, char *token)
         debugs(3, DBG_IMPORTANT, "Starting Authentication on port " << s->s);
         debugs(3, DBG_IMPORTANT, "Disabling Authentication on port " << s->s << " (interception enabled)");
     } else if (strcmp(token, "tproxy") == 0) {
-        if (s->flags.natIntercept || s->flags.accelSurrogate) {
+        if (s->flags.natIntercept || s->flags.accelSurrogate || s->flags.socksProxy) {
             debugs(3,DBG_CRITICAL, "FATAL: " << cfg_directive << ": TPROXY option requires its own interception port. It cannot be shared with other modes.");
             self_destruct();
             return;
@@ -3602,6 +3605,22 @@ parse_port_option(AnyP::PortCfgPointer &s, char *token)
             return;
         }
 
+#if USE_SOCKS
+    } else if (strcmp(token, "socks") == 0) {
+        if (s->flags.isIntercepted()) {
+            debugs(3, DBG_CRITICAL, "FATAL: " << cfg_directive << ": SOCKS mode requires its own port. It cannot be shared with interception modes.");
+            self_destruct();
+            return;
+        }
+        // libsocks only supports IPv4
+        if (!s->s.setIPv4()) {
+            debugs(3, DBG_CRITICAL, "FATAL: " << cfg_directive << ": SOCKS mode is IPv4-only");
+            self_destruct();
+            return;
+        }
+        s->flags.socksProxy = true;
+        SOCKSinit(service_name.c_str());
+#endif
     } else if (strcmp(token, "require-proxy-header") == 0) {
         s->flags.proxySurrogate = true;
         if (s->flags.tproxyIntercept) {

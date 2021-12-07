@@ -79,9 +79,16 @@ Comm::TcpAcceptor::start()
 
     Must(IsConnOpen(conn));
 
-    setListen();
+    if (setListen()) {
+        setPortFilters();
 
-    conn->noteStart();
+        typedef CommCbMemFunT<Comm::TcpAcceptor, CommCloseCbParams> Dialer;
+        closer_ = JobCallback(5, 4, Dialer, this, Comm::TcpAcceptor::handleClosure);
+        comm_add_close_handler(conn->fd, closer_);
+
+        conn->noteStart();
+        fd_open(conn->fd, FD_SOCKET, "TCP Listener");
+    }
 
     // if no error so far start accepting connections.
     if (errcode == 0)
@@ -148,16 +155,22 @@ Comm::TcpAcceptor::status() const
  * The constructor takes a callback to call when an FD has been
  * accept()ed some time later.
  */
-void
+bool
 Comm::TcpAcceptor::setListen()
 {
     errcode = errno = 0;
     if (listen(conn->fd, Squid_MaxFD >> 2) < 0) {
         errcode = errno;
         debugs(50, DBG_CRITICAL, "ERROR: listen(..., " << (Squid_MaxFD >> 2) << ") system call failed: " << xstrerr(errcode));
-        return;
+        return false;
     }
+    return true;
+}
 
+/// initialize accept_filter packet controls on the listening port
+void
+Comm::TcpAcceptor::setPortFilters()
+{
     if (Config.accept_filter && strcmp(Config.accept_filter, "none") != 0) {
 #ifdef SO_ACCEPTFILTER
         struct accept_filter_arg afa;
@@ -180,10 +193,6 @@ Comm::TcpAcceptor::setListen()
         debugs(5, DBG_CRITICAL, "WARNING: accept_filter not supported on your OS");
 #endif
     }
-
-    typedef CommCbMemFunT<Comm::TcpAcceptor, CommCloseCbParams> Dialer;
-    closer_ = JobCallback(5, 4, Dialer, this, Comm::TcpAcceptor::handleClosure);
-    comm_add_close_handler(conn->fd, closer_);
 }
 
 /// called when listening descriptor is closed by an external force
@@ -274,7 +283,12 @@ Comm::TcpAcceptor::acceptOne()
 
     /* Accept a new connection */
     ConnectionPointer newConnDetails = new Connection();
-    const Comm::Flag flag = oldAccept(newConnDetails);
+    newConnDetails->enterOrphanage();
+
+    auto flag = oldAccept(newConnDetails);
+
+    if (flag == Comm::OK)
+        flag = getClientDetails(newConnDetails);
 
     if (flag == Comm::COMM_ERROR) {
         // A non-recoverable error; notify the caller */
@@ -369,13 +383,13 @@ Comm::TcpAcceptor::oldAccept(Comm::ConnectionPointer &details)
 
     Must(sock >= 0);
     ++incoming_sockets_accepted;
+    debugs(50, 2, "TCP ACCEPT: incoming connection: FD " << sock);
 
     // Sync with Comm ASAP so that abandoned details can properly close().
     // XXX : these are not all HTTP requests. use a note about type and ip:port details->
     // so we end up with a uniform "(HTTP|FTP-data|HTTPS|...) remote-ip:remote-port"
     fd_open(sock, FD_SOCKET, "HTTP Request");
     details->fd = sock;
-    details->enterOrphanage();
 
     details->remote = *gai;
 
@@ -390,6 +404,14 @@ Comm::TcpAcceptor::oldAccept(Comm::ConnectionPointer &details)
     }
     details->local = *gai;
     Ip::Address::FreeAddr(gai);
+
+    return Comm::OK;
+}
+
+Comm::Flag
+Comm::TcpAcceptor::getClientDetails(Comm::ConnectionPointer &details)
+{
+    fde *F = &fd_table[details->fd];
 
     // Perform NAT or TPROXY operations to retrieve the real client/dest IP addresses
     if (conn->flags&(COMM_TRANSPARENT|COMM_INTERCEPTION) && !Ip::Interceptor.Lookup(details, conn)) {
@@ -417,16 +439,15 @@ Comm::TcpAcceptor::oldAccept(Comm::ConnectionPointer &details)
         }
     }
 
-    fde *F = &fd_table[sock];
     details->remote.toStr(F->ipaddr,MAX_IPSTRLEN);
     F->remote_port = details->remote.port();
     F->local_addr = details->local;
     F->sock_family = details->local.isIPv6()?AF_INET6:AF_INET;
 
     // set socket flags
-    commSetCloseOnExec(sock);
-    commSetNonBlocking(sock);
-    Comm::ApplyTcpKeepAlive(sock, listenPort_->tcp_keepalive);
+    commSetCloseOnExec(details->fd);
+    commSetNonBlocking(details->fd);
+    Comm::ApplyTcpKeepAlive(details->fd, listenPort_->tcp_keepalive);
 
     /* IFF the socket is (tproxy) transparent, pass the flag down to allow spoofing */
     F->flags.transparent = fd_table[conn->fd].flags.transparent; // XXX: can we remove this line yet?

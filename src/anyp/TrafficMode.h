@@ -73,6 +73,17 @@ public:
      */
     bool tunnelSslBumping = false;
 
+    /** marks SOCKS listening port traffic
+     *
+     * Indicates that socket operations on the FD should use
+     * SOCKS library API instead of TCP/UDP.
+     *
+     * Indicating the following are prohibited:
+     *  - NAT interception
+     *  - TPROXY interception
+     */
+    bool socksProxy = false;
+
     /** true if the traffic is in any way intercepted
      *
      */

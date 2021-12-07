@@ -304,7 +304,7 @@ public:
 /// cbdata-enables a CbdataParent child class (including grandchildren)
 /// sets the class declaration section to "private"
 /// use this at the start of your class declaration for consistency sake
-#define CBDATA_CHILD(type) CBDATA_DECL_(type, override final)
+#define CBDATA_CHILD(type) CBDATA_DECL_(type, noexcept override final)
 
 /**
  * Creates a global instance pointer for the CBDATA memory allocator

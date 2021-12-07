@@ -556,6 +556,7 @@ squid_LDADD = \
 	$(top_builddir)/lib/libmisccontainers.la \
 	$(top_builddir)/lib/libmiscencoding.la \
 	$(top_builddir)/lib/libmiscutil.la \
+	$(SOCKS_LIBS) \
 	$(SSLLIB) \
 	$(EPOLL_LIBS) \
 	$(MINGW_LIBS) \
@@ -1241,6 +1242,7 @@ tests_testRock_LDADD = \
 	$(top_builddir)/lib/libmiscutil.la \
 	$(NETTLELIB) \
 	$(REGEXLIB) \
+	$(SOCKS_LIBS) \
 	$(SSLLIB) \
 	$(LIBCPPUNIT_LIBS) \
 	$(COMPAT_LIB) \
@@ -1424,6 +1426,7 @@ tests_testUfs_LDADD = \
 	$(top_builddir)/lib/libmiscutil.la \
 	$(NETTLELIB) \
 	$(REGEXLIB) \
+	$(SOCKS_LIBS) \
 	$(SSLLIB) \
 	$(LIBCPPUNIT_LIBS) \
 	$(COMPAT_LIB) \
@@ -1774,6 +1777,7 @@ tests_testDiskIO_LDADD = \
 	$(top_builddir)/lib/libmiscutil.la \
 	$(NETTLELIB) \
 	$(REGEXLIB) \
+	$(SOCKS_LIBS) \
 	$(SSLLIB) \
 	$(LIBCPPUNIT_LIBS) \
 	$(COMPAT_LIB) \
@@ -2063,6 +2067,7 @@ tests_test_http_range_LDADD = \
 	$(top_builddir)/lib/libmiscutil.la \
 	$(NETTLELIB) \
 	$(REGEXLIB) \
+	$(SOCKS_LIBS) \
 	$(SSLLIB) \
 	$(KRB5LIBS) \
 	$(LIBCPPUNIT_LIBS) \
@@ -2457,6 +2462,7 @@ tests_testHttpRequest_LDADD = \
 	$(top_builddir)/lib/libmiscutil.la \
 	$(NETTLELIB) \
 	$(REGEXLIB) \
+	$(SOCKS_LIBS) \
 	$(SSLLIB) \
 	$(KRB5LIBS) \
 	$(LIBCPPUNIT_LIBS) \
@@ -2765,6 +2771,7 @@ tests_testCacheManager_LDADD = \
 	$(top_builddir)/lib/libmiscutil.la \
 	$(NETTLELIB) \
 	$(REGEXLIB) \
+	$(SOCKS_LIBS) \
 	$(SSLLIB) \
 	$(KRB5LIBS) \
 	$(LIBCPPUNIT_LIBS) \

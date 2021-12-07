@@ -52,6 +52,9 @@
 #if HAVE_SYS_UN_H
 #include <sys/un.h>
 #endif
+#if HAVE_SOCKS_H
+#include <socks.h>
+#endif
 
 /*
  * New C-like simple comm code. This stuff is a mess and doesn't really buy us anything.
@@ -74,7 +77,7 @@ static bool WillCheckHalfClosed = false; /// true if check is scheduled
 static EVH commHalfClosedCheck;
 static void commPlanHalfClosedCheck();
 
-static Comm::Flag commBind(int s, struct addrinfo &);
+static Comm::Flag commBind(int s, struct addrinfo &, int flags);
 static void commSetReuseAddr(int);
 static void commSetNoLinger(int);
 #ifdef TCP_NODELAY
@@ -202,10 +205,19 @@ comm_local_port(int fd)
 }
 
 static Comm::Flag
-commBind(int s, struct addrinfo &inaddr)
+commBind(int s, struct addrinfo &inaddr, int flags)
 {
     ++ statCounter.syscalls.sock.binds;
 
+#if USE_SOCKS
+    if (flags & COMM_SOCKS) {
+        if (Rbind(s, inaddr.ai_addr, inaddr.ai_addrlen) == 0) {
+            debugs(50, 6, "Rbind socket FD " << s << " to " << fd_table[s].local_addr);
+            return Comm::OK;
+        }
+        assert(socks_isfd(s));
+    } else
+#endif
     if (bind(s, inaddr.ai_addr, inaddr.ai_addrlen) == 0) {
         debugs(50, 6, "bind socket FD " << s << " to " << fd_table[s].local_addr);
         return Comm::OK;
@@ -483,7 +495,7 @@ comm_apply_flags(int new_socket,
             }
         }
 #endif
-        if (commBind(new_socket, *AI) != Comm::OK) {
+        if (commBind(new_socket, *AI, flags) != Comm::OK) {
             comm_close(new_socket);
             return -1;
         }
@@ -1885,7 +1897,7 @@ comm_open_uds(int sock_type,
     }
 
     if (flags & COMM_DOBIND) {
-        if (commBind(new_socket, AI) != Comm::OK) {
+        if (commBind(new_socket, AI, flags) != Comm::OK) {
             comm_close(new_socket);
             return -1;
         }

@@ -2041,6 +2041,29 @@ esac
 AC_SUBST(LDAPLIB)
 AC_SUBST(LBERLIB)
 
+SQUID_AUTO_LIB(socks,[SOCKS library],[SOCKS])
+AH_TEMPLATE(USE_SOCKS,[whether SOCKS support is available])
+AS_IF([test "x$with_socks" != "xno"],[
+  SQUID_STATE_SAVE(squid_socks_state)
+  LIBS="$LIBS $SOCKS_PATH"
+  AC_SEARCH_LIBS([Rbind],[socksd],[SOCKS_LIBS="-lsocksd"])
+  AC_CHECK_HEADERS(socks.h sys/socket.h sys/types.h)
+  SQUID_STATE_ROLLBACK(squid_socks_state)
+
+  AS_IF([test "x$with_socks" = "xyes" -a "x$SOCKS_LIBS" = "x"],[
+    AC_MSG_ERROR([Required SOCKS library not found])
+  ])
+  AS_IF([test "x$SOCKS_LIBS" != "x"],[
+    CXXFLAGS="$SOCKS_CFLAGS $CXXFLAGS"
+    LDFLAGS="$SOCKS_PATH $LDFLAGS"
+    AC_DEFINE(USE_SOCKS,1,[SOCKS support is available])
+  ],[
+    with_socks=no
+  ])
+])
+AC_MSG_NOTICE([SOCKS library support: ${with_socks:=auto} ${SOCKS_PATH} ${SOCKS_LIBS}])
+AC_SUBST(SOCKS_LIBS)
+
 SQUID_AUTO_LIB(systemd,[systemd API for start-up notification],[SYSTEMD])
 AH_TEMPLATE(USE_SYSTEMD,[systemd support is available])
 if test "x$with_systemd" != "xno" -a "x$squid_host_os" = "xlinux"; then

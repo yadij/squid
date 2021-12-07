@@ -112,6 +112,7 @@ DISTCHECK_CONFIGURE_FLAGS=" \
 	--with-pic \
 	--with-pthreads \
 	--enable-build-info=squid\ test\ build \
+	--with-socks \
 	"
 
 # Fix the distclean testing.
