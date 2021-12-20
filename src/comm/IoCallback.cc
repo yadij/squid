@@ -69,7 +69,7 @@ void
 Comm::IoCallback::selectOrQueueWrite()
 {
 #if USE_DELAY_POOLS
-    if (BandwidthBucket *bucket = BandwidthBucket::SelectBucket(&fd_table[conn->fd])) {
+    if (auto *bucket = Shaping::BandwidthBucket::SelectBucket(&fd_table[conn->fd])) {
         bucket->scheduleWrite(this);
         return;
     }

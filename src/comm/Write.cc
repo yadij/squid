@@ -69,7 +69,7 @@ Comm::HandleWrite(int fd, void *data)
     nleft = state->size - state->offset;
 
 #if USE_DELAY_POOLS
-    BandwidthBucket *bucket = BandwidthBucket::SelectBucket(&fd_table[fd]);
+    auto *bucket = Shaping::BandwidthBucket::SelectBucket(&fd_table[fd]);
     if (bucket) {
         assert(bucket->selectWaiting);
         bucket->selectWaiting = false;

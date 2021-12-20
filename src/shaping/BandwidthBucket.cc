@@ -10,15 +10,15 @@
 
 #if USE_DELAY_POOLS
 
-#include "BandwidthBucket.h"
 #include "ClientInfo.h"
 #include "comm/Connection.h"
+#include "comm/IoCallback.h"
 #include "Debug.h"
 #include "fde.h"
+#include "shaping/BandwidthBucket.h"
 
-BandwidthBucket::BandwidthBucket(const int speed, const int initialLevelPercent, const double sizeLimit) :
-    bucketLevel( sizeLimit * (initialLevelPercent / 100.0)),
-    selectWaiting(false),
+Shaping::BandwidthBucket::BandwidthBucket(const int speed, const int initialLevelPercent, const double sizeLimit) :
+    bucketLevel(sizeLimit * (initialLevelPercent / 100.0)),
     writeSpeedLimit(speed),
     bucketSizeLimit(sizeLimit)
 {
@@ -28,10 +28,11 @@ BandwidthBucket::BandwidthBucket(const int speed, const int initialLevelPercent,
 }
 
 void
-BandwidthBucket::refillBucket()
+Shaping::BandwidthBucket::refillBucket()
 {
     if (noLimit())
         return;
+
     // all these times are in seconds, with double precision
     const double currTime = current_dtime;
     const double timePassed = currTime - prevTime;
@@ -63,7 +64,7 @@ BandwidthBucket::refillBucket()
 }
 
 bool
-BandwidthBucket::applyQuota(int &nleft, Comm::IoCallback *state)
+Shaping::BandwidthBucket::applyQuota(int &nleft, Comm::IoCallback *state)
 {
     const int q = quota();
     if (!q)
@@ -80,7 +81,7 @@ BandwidthBucket::applyQuota(int &nleft, Comm::IoCallback *state)
 }
 
 void
-BandwidthBucket::reduceBucket(const int len)
+Shaping::BandwidthBucket::reduceBucket(const int len)
 {
     if (len <= 0 || noLimit())
         return;
@@ -91,12 +92,12 @@ BandwidthBucket::reduceBucket(const int len)
     }
 }
 
-BandwidthBucket *
-BandwidthBucket::SelectBucket(fde *f)
+Shaping::BandwidthBucket *
+Shaping::BandwidthBucket::SelectBucket(fde *f)
 {
     BandwidthBucket *bucket = f->writeQuotaHandler.getRaw();
     if (!bucket) {
-        ClientInfo *clientInfo = f->clientInfo;
+        auto *clientInfo = f->clientInfo;
         if (clientInfo && clientInfo->writeLimitingActive)
             bucket = clientInfo;
     }

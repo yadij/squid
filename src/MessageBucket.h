@@ -11,13 +11,13 @@
 
 #if USE_DELAY_POOLS
 
-#include "BandwidthBucket.h"
 #include "base/RefCount.h"
 #include "comm/forward.h"
 #include "MessageDelayPools.h"
+#include "shaping/BandwidthBucket.h"
 
 /// Limits Squid-to-client bandwidth for each matching response
-class MessageBucket : public RefCountable, public BandwidthBucket
+class MessageBucket : public RefCountable, public Shaping::BandwidthBucket
 {
     MEMPROXY_CLASS(MessageBucket);
 
@@ -26,7 +26,7 @@ public:
 
     MessageBucket(const int speed, const int initialLevelPercent, const double sizeLimit, MessageDelayPool::Pointer pool);
 
-    /* BandwidthBucket API */
+    /* Shaping::BandwidthBucket API */
     virtual int quota() override;
     virtual void scheduleWrite(Comm::IoCallback *state) override;
     virtual void reduceBucket(int len) override;

@@ -11,20 +11,14 @@
 #include "squid.h"
 
 #if USE_DELAY_POOLS
-#include "BandwidthBucket.h"
-#include "DelayId.h"
 
 #define STUB_API "stub_DelayId.cc"
 #include "tests/STUB.h"
 
+#include "DelayId.h"
 DelayId::DelayId(): pool_(0), compositeId(NULL), markedAsNoDelay(false) {}
 DelayId::~DelayId() {}
-
 void DelayId::delayRead(DeferredRead const&) STUB_NOP
-void BandwidthBucket::refillBucket() STUB
-bool BandwidthBucket::applyQuota(int &, Comm::IoCallback *) STUB_RETVAL(false)
-BandwidthBucket *BandwidthBucket::SelectBucket(fde *) STUB_RETVAL(nullptr)
-void BandwidthBucket::reduceBucket(const int) STUB
 
 #endif /* USE_DELAY_POOLS */
 

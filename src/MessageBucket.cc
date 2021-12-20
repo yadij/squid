@@ -16,7 +16,7 @@
 
 MessageBucket::MessageBucket(const int speed, const int initialLevelPercent,
                              const double sizeLimit, MessageDelayPool::Pointer pool) :
-    BandwidthBucket(speed, initialLevelPercent, sizeLimit),
+    Shaping::BandwidthBucket(speed, initialLevelPercent, sizeLimit),
     theAggregate(pool) {}
 
 int
@@ -35,7 +35,7 @@ MessageBucket::quota()
 void
 MessageBucket::reduceBucket(int len)
 {
-    BandwidthBucket::reduceBucket(len);
+    Shaping::BandwidthBucket::reduceBucket(len);
     theAggregate->bytesIn(len);
 }
 

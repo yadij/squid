@@ -867,7 +867,7 @@ _comm_close(int fd, char const *file, int line)
     }
 
 #if USE_DELAY_POOLS
-    if (BandwidthBucket *bucket = BandwidthBucket::SelectBucket(F)) {
+    if (auto *bucket = Shaping::BandwidthBucket::SelectBucket(F)) {
         if (bucket->selectWaiting)
             bucket->onFdClosed();
     }
@@ -1309,7 +1309,7 @@ ClientInfo::applyQuota(int &nleft, Comm::IoCallback *state)
     assert(hasQueue());
     assert(quotaPeekFd() == state->conn->fd);
     quotaDequeue(); // we will write or requeue below
-    if (nleft > 0 && !BandwidthBucket::applyQuota(nleft, state)) {
+    if (nleft > 0 && !Shaping::BandwidthBucket::applyQuota(nleft, state)) {
         state->quotaQueueReserv = quotaEnqueue(state->conn->fd);
         kickQuotaQueue();
         return false;
@@ -1329,7 +1329,7 @@ ClientInfo::scheduleWrite(Comm::IoCallback *state)
 void
 ClientInfo::onFdClosed()
 {
-    BandwidthBucket::onFdClosed();
+    Shaping::BandwidthBucket::onFdClosed();
     // kick queue or it will get stuck as commWriteHandle is not called
     kickQuotaQueue();
 }
@@ -1338,7 +1338,7 @@ void
 ClientInfo::reduceBucket(const int len)
 {
     if (len > 0)
-        BandwidthBucket::reduceBucket(len);
+        Shaping::BandwidthBucket::reduceBucket(len);
     // even if we wrote nothing, we were served; give others a chance
     kickQuotaQueue();
 }

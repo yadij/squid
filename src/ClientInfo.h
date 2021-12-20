@@ -9,9 +9,6 @@
 #ifndef SQUID__SRC_CLIENTINFO_H
 #define SQUID__SRC_CLIENTINFO_H
 
-#if USE_DELAY_POOLS
-#include "BandwidthBucket.h"
-#endif
 #include "base/ByteCounter.h"
 #include "cbdata.h"
 #include "enums.h"
@@ -19,6 +16,7 @@
 #include "ip/Address.h"
 #include "LogTags.h"
 #include "mem/forward.h"
+#include "shaping/BandwidthBucket.h"
 #include "typedefs.h"
 
 #include <deque>
@@ -29,7 +27,7 @@ class CommQuotaQueue;
 
 class ClientInfo : public hash_link
 #if USE_DELAY_POOLS
-    , public BandwidthBucket
+    , public Shaping::BandwidthBucket
 #endif
 {
     MEMPROXY_CLASS(ClientInfo);
@@ -81,7 +79,7 @@ public:
     /// either selects the head descriptor for writing or calls quotaDequeue()
     void writeOrDequeue();
 
-    /* BandwidthBucket API */
+    /* Shaping::BandwidthBucket API */
     virtual int quota() override; ///< allocate quota for a just dequeued client
     virtual bool applyQuota(int &nleft, Comm::IoCallback *state) override;
     virtual void scheduleWrite(Comm::IoCallback *state) override;

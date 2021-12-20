@@ -53,9 +53,6 @@ static int cleanup_removed;
 #endif
 
 ClientInfo::ClientInfo(const Ip::Address &ip) :
-#if USE_DELAY_POOLS
-    BandwidthBucket(0, 0, 0),
-#endif
     addr(ip),
     n_established(0),
     last_seen(0)

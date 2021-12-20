@@ -87,8 +87,6 @@ endif
 DIST_SUBDIRS += esi
 
 DELAY_POOL_ALL_SOURCE = \
-	BandwidthBucket.cc \
-	BandwidthBucket.h \
 	CommonPool.h \
 	CompositePoolNode.h \
 	delay_pools.cc \
@@ -119,10 +117,11 @@ DELAY_POOL_ALL_SOURCE = \
 	ClientDelayConfig.h
 
 if ENABLE_DELAY_POOLS
+SUBDIRS += shaping
 DELAY_POOL_SOURCE = $(DELAY_POOL_ALL_SOURCE)
-else
-DELAY_POOL_SOURCE =
+DELAY_POOL_LIBS = shaping/libshaping.la
 endif
+DIST_SUBDIRS += shaping
 
 if ENABLE_HTCP
 HTCPSOURCE = htcp.cc htcp.h
@@ -512,6 +511,7 @@ nodist_squid_SOURCES = \
 	$(BUILT_SOURCES)
 
 squid_LDADD = \
+	$(DELAY_POOL_LIBS) \
 	$(AUTH_ACL_LIBS) \
 	ident/libident.la \
 	acl/libacls.la \
@@ -1213,7 +1213,8 @@ nodist_tests_testRock_SOURCES = \
 	SquidMath.cc \
 	SquidMath.h \
 	hier_code.cc \
-	swap_log_op.cc
+	swap_log_op.cc \
+	tests/stub_libshaping.cc
 tests_testRock_LDADD = \
 	http/libhttp.la \
 	parser/libparser.la \
@@ -1391,7 +1392,8 @@ nodist_tests_testUfs_SOURCES = \
 	SquidMath.cc \
 	SquidMath.h \
 	hier_code.cc \
-	swap_log_op.cc
+	swap_log_op.cc \
+	tests/stub_libshaping.cc
 tests_testUfs_LDADD = \
 	http/libhttp.la \
 	parser/libparser.la \
@@ -1568,7 +1570,8 @@ nodist_tests_testStore_SOURCES = \
 	$(TESTSOURCES) \
 	SquidMath.cc \
 	SquidMath.h \
-	swap_log_op.cc
+	swap_log_op.cc \
+	tests/stub_libshaping.cc
 tests_testStore_LDADD= \
 	libsquid.la \
 	http/libhttp.la \
@@ -1743,7 +1746,8 @@ nodist_tests_testDiskIO_SOURCES = \
 	SquidMath.cc \
 	SquidMath.h \
 	hier_code.cc \
-	swap_log_op.cc
+	swap_log_op.cc \
+	tests/stub_libshaping.cc
 tests_testDiskIO_LDADD = \
 	libsquid.la \
 	http/libhttp.la \
@@ -2025,7 +2029,8 @@ tests_test_http_range_SOURCES = \
 	wordlist.cc \
 	wordlist.h
 nodist_tests_test_http_range_SOURCES = \
-	$(BUILT_SOURCES)
+	$(BUILT_SOURCES) \
+	tests/stub_libshaping.cc
 tests_test_http_range_LDADD = \
 	libsquid.la \
 	clients/libclients.la \
@@ -2419,7 +2424,8 @@ tests_testHttpRequest_SOURCES = \
 	wordlist.cc \
 	wordlist.h
 nodist_tests_testHttpRequest_SOURCES = \
-	$(BUILT_SOURCES)
+	$(BUILT_SOURCES) \
+	tests/stub_libshaping.cc
 tests_testHttpRequest_LDADD = \
 	libsquid.la \
 	clients/libclients.la \
@@ -2725,7 +2731,8 @@ tests_testCacheManager_SOURCES = \
 	wordlist.cc \
 	wordlist.h
 nodist_tests_testCacheManager_SOURCES = \
-	$(BUILT_SOURCES)
+	$(BUILT_SOURCES) \
+	tests/stub_libshaping.cc
 # comm.cc only requires comm/libcomm.la until fdc_table is dead.
 tests_testCacheManager_LDADD = \
 	libsquid.la \

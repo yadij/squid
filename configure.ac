@@ -3723,6 +3723,7 @@ AC_CONFIG_FILES([
 	src/security/cert_validators/Makefile
 	src/security/cert_validators/fake/Makefile
 	src/servers/Makefile
+	src/shaping/Makefile
 	src/snmp/Makefile
 	src/ssl/Makefile
 	src/store/Makefile
