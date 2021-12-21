@@ -9,18 +9,20 @@
 #include "squid.h"
 
 #if USE_DELAY_POOLS
+
 #include "comm/Connection.h"
 #include "DelayPools.h"
 #include "fde.h"
-#include "MessageBucket.h"
+#include "shaping/MessageBucket.h"
 
-MessageBucket::MessageBucket(const int speed, const int initialLevelPercent,
+Shaping::MessageBucket::MessageBucket(const int speed, const int initialLevelPercent,
                              const double sizeLimit, MessageDelayPool::Pointer pool) :
-    Shaping::BandwidthBucket(speed, initialLevelPercent, sizeLimit),
-    theAggregate(pool) {}
+    BandwidthBucket(speed, initialLevelPercent, sizeLimit),
+    theAggregate(pool)
+{}
 
 int
-MessageBucket::quota()
+Shaping::MessageBucket::quota()
 {
     refillBucket();
     theAggregate->refillBucket();
@@ -33,14 +35,14 @@ MessageBucket::quota()
 }
 
 void
-MessageBucket::reduceBucket(int len)
+Shaping::MessageBucket::reduceBucket(int len)
 {
-    Shaping::BandwidthBucket::reduceBucket(len);
+    BandwidthBucket::reduceBucket(len);
     theAggregate->bytesIn(len);
 }
 
 void
-MessageBucket::scheduleWrite(Comm::IoCallback *state)
+Shaping::MessageBucket::scheduleWrite(Comm::IoCallback *state)
 {
     fde *F = &fd_table[state->conn->fd];
     if (!F->writeQuotaHandler->selectWaiting) {
@@ -51,4 +53,3 @@ MessageBucket::scheduleWrite(Comm::IoCallback *state)
 }
 
 #endif /* USE_DELAY_POOLS */
-

@@ -11,11 +11,16 @@
 
 #if USE_DELAY_POOLS
 
+#include "base/RefCount.h"
+
 /// Traffic Shaping (aka. Delay Pools)
 namespace Shaping
 {
 
 class BandwidthBucket;
+
+class MessageBucket;
+typedef RefCount<MessageBucket> MessageBucketPointer;
 
 } // namespace Shaping
 

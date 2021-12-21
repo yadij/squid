@@ -108,8 +108,6 @@ DELAY_POOL_ALL_SOURCE = \
 	DelayUser.h \
 	DelayVector.cc \
 	DelayVector.h \
-	MessageBucket.cc \
-	MessageBucket.h \
 	MessageDelayPools.h \
 	MessageDelayPools.cc \
 	NullDelayId.h \

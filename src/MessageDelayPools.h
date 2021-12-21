@@ -12,13 +12,10 @@
 #if USE_DELAY_POOLS
 
 #include "acl/Acl.h"
-#include "base/RefCount.h"
 #include "DelayBucket.h"
 #include "DelayPools.h"
 #include "sbuf/SBuf.h"
-
-class MessageBucket;
-typedef RefCount<MessageBucket> MessageBucketPointer;
+#include "shaping/forward.h"
 
 /// \ingroup DelayPoolsAPI
 /// Represents one 'response' delay pool, creates individual response
@@ -41,7 +38,7 @@ public:
     /// current aggregate level
     int level() { return theBucket.level(); }
     /// creates an individual response bucket
-    MessageBucketPointer createBucket();
+    Shaping::MessageBucketPointer createBucket();
     /// whether the aggregate bucket has no limit
     bool noLimit () const { return aggregateRestore < 0; }
 

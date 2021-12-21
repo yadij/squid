@@ -33,9 +33,6 @@
 #include "security/Handshake.h"
 #include "ssl/support.h"
 #endif
-#if USE_DELAY_POOLS
-#include "MessageBucket.h"
-#endif
 
 #include <iosfwd>
 

@@ -14,9 +14,9 @@
 #include "ConfigParser.h"
 #include "DelaySpec.h"
 #include "event.h"
-#include "MessageBucket.h"
 #include "MessageDelayPools.h"
 #include "Parsing.h"
+#include "shaping/MessageBucket.h"
 #include "SquidTime.h"
 #include "Store.h"
 
@@ -107,10 +107,10 @@ MessageDelayPool::dump(StoreEntry *entry) const
     storeAppendPrintf(entry, "\n");
 }
 
-MessageBucket::Pointer
+Shaping::MessageBucketPointer
 MessageDelayPool::createBucket()
 {
-    return new MessageBucket(individualRestore, initialBucketLevel, individualMaximum, this);
+    return new Shaping::MessageBucket(individualRestore, initialBucketLevel, individualMaximum, this);
 }
 
 void

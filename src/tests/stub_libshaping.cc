@@ -22,4 +22,13 @@ void BandwidthBucket::reduceBucket(const int) STUB
 void BandwidthBucket::refillBucket() STUB
 } // namespace Shaping
 
+#include "shaping/MessageBucket.h"
+namespace Shaping
+{
+MessageBucket::MessageBucket(const int, const int, const double, MessageDelayPool::Pointer) {STUB}
+int MessageBucket::quota() STUB_RETVAL(0)
+void MessageBucket::scheduleWrite(Comm::IoCallback *) STUB
+void MessageBucket::reduceBucket(int) STUB
+} // namespace Shaping
+
 #endif /* USE_DELAY_POOLS */

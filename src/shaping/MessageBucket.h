@@ -6,8 +6,8 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef MESSAGEBUCKET_H
-#define MESSAGEBUCKET_H
+#ifndef _SQUID__SRC_SHAPING_MESSAGEBUCKET_H
+#define _SQUID__SRC_SHAPING_MESSAGEBUCKET_H
 
 #if USE_DELAY_POOLS
 
@@ -16,26 +16,27 @@
 #include "MessageDelayPools.h"
 #include "shaping/BandwidthBucket.h"
 
+namespace Shaping
+{
+
 /// Limits Squid-to-client bandwidth for each matching response
-class MessageBucket : public RefCountable, public Shaping::BandwidthBucket
+class MessageBucket : public RefCountable, public BandwidthBucket
 {
     MEMPROXY_CLASS(MessageBucket);
 
 public:
-    typedef RefCount<MessageBucket> Pointer;
-
-    MessageBucket(const int speed, const int initialLevelPercent, const double sizeLimit, MessageDelayPool::Pointer pool);
+    MessageBucket(const int speed, const int initialLevelPercent, const double sizeLimit, MessageDelayPool::Pointer);
 
     /* Shaping::BandwidthBucket API */
     virtual int quota() override;
-    virtual void scheduleWrite(Comm::IoCallback *state) override;
+    virtual void scheduleWrite(Comm::IoCallback *) override;
     virtual void reduceBucket(int len) override;
 
 private:
     MessageDelayPool::Pointer theAggregate;
 };
 
+} // namespace Shaping
+
 #endif /* USE_DELAY_POOLS */
-
-#endif
-
+#endif /* _SQUID__SRC_SHAPING_MESSAGEBUCKET_H */

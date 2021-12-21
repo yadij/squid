@@ -12,4 +12,6 @@ noinst_LTLIBRARIES = libshaping.la
 libshaping_la_SOURCES = \
 	BandwidthBucket.cc \
 	BandwidthBucket.h \
-	forward.h
+	forward.h \
+	MessageBucket.cc \
+	MessageBucket.h
