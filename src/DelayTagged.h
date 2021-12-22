@@ -15,9 +15,9 @@
 
 #include "auth/Gadgets.h"
 #include "CompositePoolNode.h"
-#include "DelayBucket.h"
 #include "DelayIdComposite.h"
 #include "DelaySpec.h"
+#include "shaping/DelayBucket.h"
 #include "splay.h"
 
 /// \ingroup DelayPoolsAPI
@@ -31,7 +31,7 @@ public:
     void stats(StoreEntry *)const;
     DelayTaggedBucket(String &aTag);
     ~DelayTaggedBucket();
-    DelayBucket theBucket;
+    Shaping::DelayBucket theBucket;
     String tag;
 };
 

@@ -61,4 +61,14 @@ void QuotaBucket::onFdClosed() STUB
 void QuotaBucket::reduceBucket(int) STUB
 } // namespace Shaping
 
+#include "shaping/DelayBucket.h"
+namespace Shaping
+{
+void DelayBucket::stats(StoreEntry *) const STUB
+void DelayBucket::update(DelaySpec const &, int) STUB
+int DelayBucket::bytesWanted(int, int) const STUB_RETVAL(0)
+void DelayBucket::bytesIn(int) STUB
+void DelayBucket::init(DelaySpec const &) STUB
+} // namespace Shaping
+
 #endif /* USE_DELAY_POOLS */

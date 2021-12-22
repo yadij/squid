@@ -93,8 +93,6 @@ DELAY_POOL_ALL_SOURCE = \
 	DelayId.cc \
 	DelayId.h \
 	DelayIdComposite.h \
-	DelayBucket.cc \
-	DelayBucket.h \
 	DelayConfig.cc \
 	DelayConfig.h \
 	DelayPool.cc \

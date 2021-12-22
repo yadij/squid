@@ -11,19 +11,19 @@
 #include "squid.h"
 
 #if USE_DELAY_POOLS
-#include "DelayBucket.h"
 #include "DelaySpec.h"
+#include "shaping/DelayBucket.h"
 #include "SquidConfig.h"
 #include "Store.h"
 
 void
-DelayBucket::stats(StoreEntry *entry)const
+Shaping::DelayBucket::stats(StoreEntry *entry) const
 {
     storeAppendPrintf(entry, "%d", level());
 }
 
 void
-DelayBucket::update(DelaySpec const &rate, int incr)
+Shaping::DelayBucket::update(DelaySpec const &rate, int incr)
 {
     if (rate.restore_bps != -1 &&
             (level() += rate.restore_bps * incr) > rate.max_bytes)
@@ -31,20 +31,20 @@ DelayBucket::update(DelaySpec const &rate, int incr)
 }
 
 int
-DelayBucket::bytesWanted(int minimum, int maximum) const
+Shaping::DelayBucket::bytesWanted(int minimum, int maximum) const
 {
     int result = max(minimum, min(maximum, level()));
     return result;
 }
 
 void
-DelayBucket::bytesIn(int qty)
+Shaping::DelayBucket::bytesIn(int qty)
 {
     level() -= qty;
 }
 
 void
-DelayBucket::init(DelaySpec const &rate)
+Shaping::DelayBucket::init(DelaySpec const &rate)
 {
     level() = (int) (((double)rate.max_bytes *
                       Config.Delay.initial) / 100);

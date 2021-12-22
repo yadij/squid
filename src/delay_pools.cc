@@ -21,7 +21,6 @@
 #include "CommonPool.h"
 #include "CompositePoolNode.h"
 #include "ConfigParser.h"
-#include "DelayBucket.h"
 #include "DelayId.h"
 #include "DelayPool.h"
 #include "DelayPools.h"
@@ -35,6 +34,7 @@
 #include "MemObject.h"
 #include "mgr/Registration.h"
 #include "NullDelayId.h"
+#include "shaping/DelayBucket.h"
 #include "SquidString.h"
 #include "SquidTime.h"
 #include "Store.h"
@@ -79,7 +79,7 @@ private:
 
     friend class AggregateId;
 
-    DelayBucket theBucket;
+    Shaping::DelayBucket theBucket;
     DelaySpec spec;
 };
 
@@ -117,7 +117,7 @@ public:
     virtual void stats(StoreEntry * sentry);
 
     virtual DelayIdComposite::Pointer id(CompositeSelectionDetails &);
-    VectorMap<unsigned char, DelayBucket> buckets;
+    VectorMap<unsigned char, Shaping::DelayBucket> buckets;
     VectorPool();
     ~VectorPool();
 
@@ -183,8 +183,8 @@ public:
     void update (DelaySpec const &, int incr);
     void stats(StoreEntry *)const;
 
-    DelayBucket net;
-    VectorMap<unsigned char, DelayBucket> individuals;
+    Shaping::DelayBucket net;
+    VectorMap<unsigned char, Shaping::DelayBucket> individuals;
 };
 
 /// \ingroup DelayPoolsInternal

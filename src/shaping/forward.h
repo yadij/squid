@@ -20,6 +20,8 @@ namespace Shaping
 
 class BandwidthBucket;
 
+class DelayBucket;
+
 class MessageBucket;
 typedef RefCount<MessageBucket> MessageBucketPointer;
 

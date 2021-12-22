@@ -16,9 +16,9 @@
 #include "auth/Gadgets.h"
 #include "auth/User.h"
 #include "CompositePoolNode.h"
-#include "DelayBucket.h"
 #include "DelayIdComposite.h"
 #include "DelaySpec.h"
+#include "shaping/DelayBucket.h"
 #include "splay.h"
 
 /// \ingroup DelayPoolsAPI
@@ -32,7 +32,7 @@ public:
     void stats(StoreEntry *)const;
     DelayUserBucket(Auth::User::Pointer);
     ~DelayUserBucket();
-    DelayBucket theBucket;
+    Shaping::DelayBucket theBucket;
     Auth::User::Pointer authUser;
 };
 

@@ -12,10 +12,10 @@
 #if USE_DELAY_POOLS
 
 #include "acl/Acl.h"
-#include "DelayBucket.h"
 #include "DelayPools.h"
 #include "sbuf/SBuf.h"
 #include "shaping/forward.h"
+#include "shaping/DelayBucket.h"
 
 /// \ingroup DelayPoolsAPI
 /// Represents one 'response' delay pool, creates individual response
@@ -58,7 +58,7 @@ public:
     /// the initial bucket size as a percentage of individualMaximum
     uint16_t initialBucketLevel;
     /// the aggregate bucket
-    DelayBucket theBucket;
+    Shaping::DelayBucket theBucket;
 
 private:
     /// Time the aggregate bucket level was last refilled.
