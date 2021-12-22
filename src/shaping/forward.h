@@ -11,6 +11,7 @@
 
 #if USE_DELAY_POOLS
 
+#include "base/CbcPointer.h"
 #include "base/RefCount.h"
 
 /// Traffic Shaping (aka. Delay Pools)
@@ -23,6 +24,7 @@ class MessageBucket;
 typedef RefCount<MessageBucket> MessageBucketPointer;
 
 class QuotaQueue;
+typedef CbcPointer<QuotaQueue> QuotaQueuePointer;
 
 } // namespace Shaping
 

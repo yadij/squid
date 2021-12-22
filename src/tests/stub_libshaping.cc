@@ -39,6 +39,26 @@ Shaping::QuotaQueue::QuotaQueue(ClientInfo *) {STUB}
 Shaping::QuotaQueue::~QuotaQueue() STUB
 unsigned int Shaping::QuotaQueue::enqueue(int) STUB_RETVAL(0)
 void Shaping::QuotaQueue::dequeue() STUB
-}
+} // namespace Shaping
+
+#include "shaping/QuotaBucket.h"
+namespace Shaping
+{
+QuotaBucket::~QuotaBucket() {STUB}
+bool QuotaBucket::hasQueue() const STUB_RETVAL(false)
+bool QuotaBucket::hasQueue(const Shaping::QuotaQueue *) const STUB_RETVAL(false)
+unsigned int QuotaBucket::quotaEnqueue(int) STUB_RETVAL(0)
+int QuotaBucket::quotaPeekFd() const STUB_RETVAL(-1)
+unsigned int QuotaBucket::quotaPeekReserv() const STUB
+void QuotaBucket::quotaDequeue() STUB
+void QuotaBucket::kickQuotaQueue() STUB
+void QuotaBucket::writeOrDequeue() STUB
+void QuotaBucket::setWriteLimiter(const int, const double, const double) STUB
+int QuotaBucket::quota() STUB_RETVAL(0)
+bool QuotaBucket::applyQuota(int &, Comm::IoCallback *) STUB_RETVAL(false)
+void QuotaBucket::scheduleWrite(Comm::IoCallback *) STUB
+void QuotaBucket::onFdClosed() STUB
+void QuotaBucket::reduceBucket(int) STUB
+} // namespace Shaping
 
 #endif /* USE_DELAY_POOLS */

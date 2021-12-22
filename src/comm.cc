@@ -9,7 +9,6 @@
 /* DEBUG: section 05    Socket Functions */
 
 #include "squid.h"
-#include "ClientInfo.h"
 #include "comm/AcceptLimiter.h"
 #include "comm/comm_internal.h"
 #include "comm/Connection.h"
@@ -32,7 +31,6 @@
 #include "pconn.h"
 #include "sbuf/SBuf.h"
 #include "sbuf/Stream.h"
-#include "shaping/QuotaQueue.h"
 #include "SquidConfig.h"
 #include "StatCounters.h"
 #include "StoreIOBuffer.h"
@@ -43,7 +41,6 @@
 #endif
 
 #include <cerrno>
-#include <cmath>
 #if _SQUID_CYGWIN_
 #include <sys/ioctl.h>
 #endif
@@ -1159,210 +1156,6 @@ comm_exit(void)
 
     Comm::CallbackTableDestruct();
 }
-
-#if USE_DELAY_POOLS
-// called when the queue is done waiting for the client bucket to fill
-static void
-commHandleWriteHelper(void * data)
-{
-    auto *queue = static_cast<Shaping::QuotaQueue*>(data);
-    assert(queue);
-
-    ClientInfo *clientInfo = queue->clientInfo;
-    // ClientInfo invalidates queue if freed, so if we got here through,
-    // evenAdd cbdata protections, everything should be valid and consistent
-    assert(clientInfo);
-    assert(clientInfo->hasQueue());
-    assert(clientInfo->hasQueue(queue));
-    assert(clientInfo->eventWaiting);
-    clientInfo->eventWaiting = false;
-
-    do {
-        clientInfo->writeOrDequeue();
-        if (clientInfo->selectWaiting)
-            return;
-    } while (clientInfo->hasQueue());
-
-    debugs(77, 3, "emptied queue");
-}
-
-void
-ClientInfo::writeOrDequeue()
-{
-    assert(!selectWaiting);
-    const auto head = quotaPeekFd();
-    const auto &headFde = fd_table[head];
-    CallBack(headFde.codeContext, [&] {
-        const auto ccb = COMMIO_FD_WRITECB(head);
-        // check that the head descriptor is still relevant
-        if (headFde.clientInfo == this &&
-                quotaPeekReserv() == ccb->quotaQueueReserv &&
-                !headFde.closing()) {
-
-            // wait for the head descriptor to become ready for writing
-            Comm::SetSelect(head, COMM_SELECT_WRITE, Comm::HandleWrite, ccb, 0);
-            selectWaiting = true;
-        } else {
-            quotaDequeue(); // remove the no longer relevant descriptor
-        }
-    });
-}
-
-bool
-ClientInfo::hasQueue() const
-{
-    assert(quotaQueue);
-    return !quotaQueue->empty();
-}
-
-bool
-ClientInfo::hasQueue(const Shaping::QuotaQueue *q) const
-{
-    assert(quotaQueue);
-    return quotaQueue == q;
-}
-
-/// returns the first descriptor to be dequeued
-int
-ClientInfo::quotaPeekFd() const
-{
-    assert(quotaQueue);
-    return quotaQueue->front();
-}
-
-/// returns the reservation ID of the first descriptor to be dequeued
-unsigned int
-ClientInfo::quotaPeekReserv() const
-{
-    assert(quotaQueue);
-    return quotaQueue->outs + 1;
-}
-
-/// queues a given fd, creating the queue if necessary; returns reservation ID
-unsigned int
-ClientInfo::quotaEnqueue(int fd)
-{
-    assert(quotaQueue);
-    return quotaQueue->enqueue(fd);
-}
-
-/// removes queue head
-void
-ClientInfo::quotaDequeue()
-{
-    assert(quotaQueue);
-    quotaQueue->dequeue();
-}
-
-void
-ClientInfo::kickQuotaQueue()
-{
-    if (!eventWaiting && !selectWaiting && hasQueue()) {
-        // wait at least a second if the bucket is empty
-        const double delay = (bucketLevel < 1.0) ? 1.0 : 0.0;
-        eventAdd("commHandleWriteHelper", &commHandleWriteHelper,
-                 quotaQueue, delay, 0, true);
-        eventWaiting = true;
-    }
-}
-
-/// calculates how much to write for a single dequeued client
-int
-ClientInfo::quota()
-{
-    /* If we have multiple clients and give full bucketSize to each client then
-     * clt1 may often get a lot more because clt1->clt2 time distance in the
-     * select(2) callback order may be a lot smaller than cltN->clt1 distance.
-     * We divide quota evenly to be more fair. */
-
-    if (!rationedCount) {
-        rationedCount = quotaQueue->size() + 1;
-
-        // The delay in ration recalculation _temporary_ deprives clients from
-        // bytes that should have trickled in while rationedCount was positive.
-        refillBucket();
-
-        // Rounding errors do not accumulate here, but we round down to avoid
-        // negative bucket sizes after write with rationedCount=1.
-        rationedQuota = static_cast<int>(floor(bucketLevel/rationedCount));
-        debugs(77,5, HERE << "new rationedQuota: " << rationedQuota <<
-               '*' << rationedCount);
-    }
-
-    --rationedCount;
-    debugs(77,7, HERE << "rationedQuota: " << rationedQuota <<
-           " rations remaining: " << rationedCount);
-
-    // update 'last seen' time to prevent clientdb GC from dropping us
-    last_seen = squid_curtime;
-    return rationedQuota;
-}
-
-bool
-ClientInfo::applyQuota(int &nleft, Comm::IoCallback *state)
-{
-    assert(hasQueue());
-    assert(quotaPeekFd() == state->conn->fd);
-    quotaDequeue(); // we will write or requeue below
-    if (nleft > 0 && !Shaping::BandwidthBucket::applyQuota(nleft, state)) {
-        state->quotaQueueReserv = quotaEnqueue(state->conn->fd);
-        kickQuotaQueue();
-        return false;
-    }
-    return true;
-}
-
-void
-ClientInfo::scheduleWrite(Comm::IoCallback *state)
-{
-    if (writeLimitingActive) {
-        state->quotaQueueReserv = quotaEnqueue(state->conn->fd);
-        kickQuotaQueue();
-    }
-}
-
-void
-ClientInfo::onFdClosed()
-{
-    Shaping::BandwidthBucket::onFdClosed();
-    // kick queue or it will get stuck as commWriteHandle is not called
-    kickQuotaQueue();
-}
-
-void
-ClientInfo::reduceBucket(const int len)
-{
-    if (len > 0)
-        Shaping::BandwidthBucket::reduceBucket(len);
-    // even if we wrote nothing, we were served; give others a chance
-    kickQuotaQueue();
-}
-
-void
-ClientInfo::setWriteLimiter(const int aWriteSpeedLimit, const double anInitialBurst, const double aHighWatermark)
-{
-    debugs(77,5, "Write limits for " << (const char*)key <<
-           " speed=" << aWriteSpeedLimit << " burst=" << anInitialBurst <<
-           " highwatermark=" << aHighWatermark);
-
-    // set or possibly update traffic shaping parameters
-    writeLimitingActive = true;
-    writeSpeedLimit = aWriteSpeedLimit;
-    bucketSizeLimit = aHighWatermark;
-
-    // but some members should only be set once for a newly activated bucket
-    if (firstTimeConnection) {
-        firstTimeConnection = false;
-
-        assert(!selectWaiting);
-        assert(!quotaQueue);
-        quotaQueue = new Shaping::QuotaQueue(this);
-
-        bucketLevel = anInitialBurst;
-        prevTime = current_dtime;
-    }
-}
-#endif /* USE_DELAY_POOLS */
 
 /*
  * hm, this might be too general-purpose for all the places we'd

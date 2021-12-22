@@ -16,13 +16,13 @@
 #include "ip/Address.h"
 #include "LogTags.h"
 #include "mem/forward.h"
-#include "shaping/BandwidthBucket.h"
+#include "shaping/QuotaBucket.h"
 #include "shaping/QuotaQueue.h"
 #include "typedefs.h"
 
 class ClientInfo : public hash_link
 #if USE_DELAY_POOLS
-    , public Shaping::BandwidthBucket
+    , public Shaping::QuotaBucket
 #endif
 {
     MEMPROXY_CLASS(ClientInfo);
@@ -54,47 +54,6 @@ public:
     } cutoff;
     int n_established;          /* number of current established connections */
     time_t last_seen;
-#if USE_DELAY_POOLS
-    bool writeLimitingActive; ///< Is write limiter active
-    bool firstTimeConnection;///< is this first time connection for this client
-
-    Shaping::QuotaQueue *quotaQueue = nullptr; ///< clients waiting for more write quota
-    int rationedQuota; ///< precomputed quota preserving fairness among clients
-    int rationedCount; ///< number of clients that will receive rationedQuota
-    bool eventWaiting; ///< waiting for commHandleWriteHelper event to fire
-
-    // all those functions access Comm fd_table and are defined in comm.cc
-    bool hasQueue() const;  ///< whether any clients are waiting for write quota
-    bool hasQueue(const Shaping::QuotaQueue*) const;  ///< has a given queue
-    unsigned int quotaEnqueue(int fd); ///< client starts waiting in queue; create the queue if necessary
-    int quotaPeekFd() const; ///< returns the next fd reservation
-    unsigned int quotaPeekReserv() const; ///< returns the next reserv. to pop
-    void quotaDequeue(); ///< pops queue head from queue
-    void kickQuotaQueue(); ///< schedule commHandleWriteHelper call
-    /// either selects the head descriptor for writing or calls quotaDequeue()
-    void writeOrDequeue();
-
-    /* Shaping::BandwidthBucket API */
-    virtual int quota() override; ///< allocate quota for a just dequeued client
-    virtual bool applyQuota(int &nleft, Comm::IoCallback *state) override;
-    virtual void scheduleWrite(Comm::IoCallback *state) override;
-    virtual void onFdClosed() override;
-    virtual void reduceBucket(int len) override;
-
-    void quotaDumpQueue(); ///< dumps quota queue for debugging
-
-    /**
-     * Configure client write limiting (note:"client" here means - IP). It is called
-     * by httpAccept in client_side.cc, where the initial bucket size (anInitialBurst)
-     * computed, using the configured maximum bucket value and configured initial
-     * bucket value(50% by default).
-     *
-     * \param  writeSpeedLimit is speed limit configured in config for this pool
-     * \param  initialBurst is initial bucket size to use for this client(i.e. client can burst at first)
-     *  \param highWatermark is maximum bucket value
-     */
-    void setWriteLimiter(const int aWriteSpeedLimit, const double anInitialBurst, const double aHighWatermark);
-#endif /* USE_DELAY_POOLS */
 };
 
 #endif

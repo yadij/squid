@@ -56,13 +56,6 @@ ClientInfo::ClientInfo(const Ip::Address &ip) :
     addr(ip),
     n_established(0),
     last_seen(0)
-#if USE_DELAY_POOLS
-    , writeLimitingActive(false),
-    firstTimeConnection(true),
-    rationedQuota(0),
-    rationedCount(0),
-    eventWaiting(false)
-#endif
 {
     debugs(77, 9, "ClientInfo constructed, this=" << static_cast<void*>(this));
     char *buf = static_cast<char*>(xmalloc(MAX_IPSTRLEN)); // becomes hash.key
@@ -332,13 +325,6 @@ clientdbFreeItem(void *data)
 ClientInfo::~ClientInfo()
 {
     safe_free(key);
-
-#if USE_DELAY_POOLS
-    if (quotaQueue) {
-        quotaQueue->clientInfo = nullptr;
-        delete quotaQueue; // invalidates cbdata, cancelling any pending kicks
-    }
-#endif
 
     debugs(77, 9, "ClientInfo destructed, this=" << static_cast<void*>(this));
 }

@@ -15,5 +15,7 @@ libshaping_la_SOURCES = \
 	forward.h \
 	MessageBucket.cc \
 	MessageBucket.h \
+	QuotaBucket.cc \
+	QuotaBucket.h \
 	QuotaQueue.cc \
 	QuotaQueue.h
