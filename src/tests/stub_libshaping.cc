@@ -31,4 +31,14 @@ void MessageBucket::scheduleWrite(Comm::IoCallback *) STUB
 void MessageBucket::reduceBucket(int) STUB
 } // namespace Shaping
 
+#include "shaping/QuotaQueue.h"
+CBDATA_NAMESPACED_CLASS_INIT(Shaping, QuotaQueue);
+namespace Shaping
+{
+Shaping::QuotaQueue::QuotaQueue(ClientInfo *) {STUB}
+Shaping::QuotaQueue::~QuotaQueue() STUB
+unsigned int Shaping::QuotaQueue::enqueue(int) STUB_RETVAL(0)
+void Shaping::QuotaQueue::dequeue() STUB
+}
+
 #endif /* USE_DELAY_POOLS */

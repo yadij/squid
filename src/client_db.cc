@@ -59,7 +59,6 @@ ClientInfo::ClientInfo(const Ip::Address &ip) :
 #if USE_DELAY_POOLS
     , writeLimitingActive(false),
     firstTimeConnection(true),
-    quotaQueue(nullptr),
     rationedQuota(0),
     rationedCount(0),
     eventWaiting(false)
@@ -335,9 +334,9 @@ ClientInfo::~ClientInfo()
     safe_free(key);
 
 #if USE_DELAY_POOLS
-    if (CommQuotaQueue *q = quotaQueue) {
-        q->clientInfo = NULL;
-        delete q; // invalidates cbdata, cancelling any pending kicks
+    if (quotaQueue) {
+        quotaQueue->clientInfo = nullptr;
+        delete quotaQueue; // invalidates cbdata, cancelling any pending kicks
     }
 #endif
 

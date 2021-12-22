@@ -32,6 +32,7 @@
 #include "pconn.h"
 #include "sbuf/SBuf.h"
 #include "sbuf/Stream.h"
+#include "shaping/QuotaQueue.h"
 #include "SquidConfig.h"
 #include "StatCounters.h"
 #include "StoreIOBuffer.h"
@@ -60,12 +61,6 @@
 static IOCB commHalfClosedReader;
 static void comm_init_opened(const Comm::ConnectionPointer &conn, const char *note, struct addrinfo *AI);
 static int comm_apply_flags(int new_socket, Ip::Address &addr, int flags, struct addrinfo *AI);
-
-#if USE_DELAY_POOLS
-CBDATA_CLASS_INIT(CommQuotaQueue);
-
-static void commHandleWriteHelper(void * data);
-#endif
 
 /* STATIC */
 
@@ -1167,10 +1162,10 @@ comm_exit(void)
 
 #if USE_DELAY_POOLS
 // called when the queue is done waiting for the client bucket to fill
-void
+static void
 commHandleWriteHelper(void * data)
 {
-    CommQuotaQueue *queue = static_cast<CommQuotaQueue*>(data);
+    auto *queue = static_cast<Shaping::QuotaQueue*>(data);
     assert(queue);
 
     ClientInfo *clientInfo = queue->clientInfo;
@@ -1221,7 +1216,7 @@ ClientInfo::hasQueue() const
 }
 
 bool
-ClientInfo::hasQueue(const CommQuotaQueue *q) const
+ClientInfo::hasQueue(const Shaping::QuotaQueue *q) const
 {
     assert(quotaQueue);
     return quotaQueue == q;
@@ -1361,45 +1356,11 @@ ClientInfo::setWriteLimiter(const int aWriteSpeedLimit, const double anInitialBu
 
         assert(!selectWaiting);
         assert(!quotaQueue);
-        quotaQueue = new CommQuotaQueue(this);
+        quotaQueue = new Shaping::QuotaQueue(this);
 
         bucketLevel = anInitialBurst;
         prevTime = current_dtime;
     }
-}
-
-CommQuotaQueue::CommQuotaQueue(ClientInfo *info): clientInfo(info),
-    ins(0), outs(0)
-{
-    assert(clientInfo);
-}
-
-CommQuotaQueue::~CommQuotaQueue()
-{
-    assert(!clientInfo); // ClientInfo should clear this before destroying us
-}
-
-/// places the given fd at the end of the queue; returns reservation ID
-unsigned int
-CommQuotaQueue::enqueue(int fd)
-{
-    debugs(77,5, "clt" << (const char*)clientInfo->key <<
-           ": FD " << fd << " with qqid" << (ins+1) << ' ' << fds.size());
-    fds.push_back(fd);
-    fd_table[fd].codeContext = CodeContext::Current();
-    return ++ins;
-}
-
-/// removes queue head
-void
-CommQuotaQueue::dequeue()
-{
-    assert(!fds.empty());
-    debugs(77,5, "clt" << (const char*)clientInfo->key <<
-           ": FD " << fds.front() << " with qqid" << (outs+1) << ' ' <<
-           fds.size());
-    fds.pop_front();
-    ++outs;
 }
 #endif /* USE_DELAY_POOLS */
 

@@ -14,4 +14,6 @@ libshaping_la_SOURCES = \
 	BandwidthBucket.h \
 	forward.h \
 	MessageBucket.cc \
-	MessageBucket.h
+	MessageBucket.h \
+	QuotaQueue.cc \
+	QuotaQueue.h

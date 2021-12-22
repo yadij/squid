@@ -22,6 +22,8 @@ class BandwidthBucket;
 class MessageBucket;
 typedef RefCount<MessageBucket> MessageBucketPointer;
 
+class QuotaQueue;
+
 } // namespace Shaping
 
 #endif /* USE_DELAY_POOLS */

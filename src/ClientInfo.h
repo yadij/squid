@@ -17,13 +17,8 @@
 #include "LogTags.h"
 #include "mem/forward.h"
 #include "shaping/BandwidthBucket.h"
+#include "shaping/QuotaQueue.h"
 #include "typedefs.h"
-
-#include <deque>
-
-#if USE_DELAY_POOLS
-class CommQuotaQueue;
-#endif
 
 class ClientInfo : public hash_link
 #if USE_DELAY_POOLS
@@ -63,14 +58,14 @@ public:
     bool writeLimitingActive; ///< Is write limiter active
     bool firstTimeConnection;///< is this first time connection for this client
 
-    CommQuotaQueue *quotaQueue; ///< clients waiting for more write quota
+    Shaping::QuotaQueue *quotaQueue = nullptr; ///< clients waiting for more write quota
     int rationedQuota; ///< precomputed quota preserving fairness among clients
     int rationedCount; ///< number of clients that will receive rationedQuota
     bool eventWaiting; ///< waiting for commHandleWriteHelper event to fire
 
     // all those functions access Comm fd_table and are defined in comm.cc
     bool hasQueue() const;  ///< whether any clients are waiting for write quota
-    bool hasQueue(const CommQuotaQueue*) const;  ///< has a given queue
+    bool hasQueue(const Shaping::QuotaQueue*) const;  ///< has a given queue
     unsigned int quotaEnqueue(int fd); ///< client starts waiting in queue; create the queue if necessary
     int quotaPeekFd() const; ///< returns the next fd reservation
     unsigned int quotaPeekReserv() const; ///< returns the next reserv. to pop
@@ -101,35 +96,6 @@ public:
     void setWriteLimiter(const int aWriteSpeedLimit, const double anInitialBurst, const double aHighWatermark);
 #endif /* USE_DELAY_POOLS */
 };
-
-#if USE_DELAY_POOLS
-// a queue of Comm clients waiting for I/O quota controlled by delay pools
-class CommQuotaQueue
-{
-    CBDATA_CLASS(CommQuotaQueue);
-
-public:
-    CommQuotaQueue(ClientInfo *info);
-    ~CommQuotaQueue();
-
-    bool empty() const { return fds.empty(); }
-    size_t size() const { return fds.size(); }
-    int front() const { return fds.front(); }
-    unsigned int enqueue(int fd);
-    void dequeue();
-
-    ClientInfo *clientInfo; ///< bucket responsible for quota maintenance
-
-    // these counters might overflow; that is OK because they are for IDs only
-    int ins; ///< number of enqueue calls, used to generate a "reservation" ID
-    int outs; ///< number of dequeue calls, used to check the "reservation" ID
-
-private:
-    // TODO: optimize using a Ring- or List-based store?
-    typedef std::deque<int> Store;
-    Store fds; ///< descriptor queue
-};
-#endif /* USE_DELAY_POOLS */
 
 #endif
 

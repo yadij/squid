@@ -39,7 +39,7 @@ public:
     Comm::Flag errcode;
     int xerrno;
 #if USE_DELAY_POOLS
-    unsigned int quotaQueueReserv; ///< reservation ID from CommQuotaQueue
+    unsigned int quotaQueueReserv; ///< reservation ID from Shaping::QuotaQueue
 #endif
 
     bool active() const { return callback != NULL; }
