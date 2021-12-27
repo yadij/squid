@@ -15,8 +15,8 @@
 #include "auth/UserRequest.h"
 #include "CommRead.h"
 #include "DelayIdComposite.h"
-#include "DelayPools.h"
 #include "ip/Address.h"
+#include "shaping/DelayPools.h"
 #include "SquidString.h"
 
 class StoreEntry;

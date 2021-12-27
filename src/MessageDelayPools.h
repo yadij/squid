@@ -12,10 +12,10 @@
 #if USE_DELAY_POOLS
 
 #include "acl/Acl.h"
-#include "DelayPools.h"
 #include "sbuf/SBuf.h"
 #include "shaping/forward.h"
 #include "shaping/DelayBucket.h"
+#include "shaping/DelayPools.h"
 
 /// \ingroup DelayPoolsAPI
 /// Represents one 'response' delay pool, creates individual response

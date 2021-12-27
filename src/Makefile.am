@@ -97,7 +97,6 @@ DELAY_POOL_ALL_SOURCE = \
 	DelayConfig.h \
 	DelayPool.cc \
 	DelayPool.h \
-	DelayPools.h \
 	DelaySpec.cc \
 	DelaySpec.h \
 	DelayTagged.cc \

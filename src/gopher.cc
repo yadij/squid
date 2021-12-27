@@ -21,19 +21,16 @@
 #include "HttpReply.h"
 #include "HttpRequest.h"
 #include "MemBuf.h"
+#include "MemObject.h"
 #include "mime.h"
 #include "parser/Tokenizer.h"
 #include "rfc1738.h"
+#include "shaping/DelayPools.h"
 #include "SquidConfig.h"
 #include "SquidTime.h"
 #include "StatCounters.h"
 #include "Store.h"
 #include "tools.h"
-
-#if USE_DELAY_POOLS
-#include "DelayPools.h"
-#include "MemObject.h"
-#endif
 
 // RFC 1436 section 3.8 gopher item-type codes
 #define GOPHER_FILE         '0'

@@ -15,13 +15,10 @@
 #include "HttpReply.h"
 #include "MemBuf.h"
 #include "MemObject.h"
+#include "shaping/DelayPools.h"
 #include "SquidConfig.h"
 #include "Store.h"
 #include "StoreClient.h"
-
-#if USE_DELAY_POOLS
-#include "DelayPools.h"
-#endif
 
 /* TODO: make this global or private */
 #if URL_CHECKSUM_DEBUG

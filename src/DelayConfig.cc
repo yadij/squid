@@ -16,7 +16,7 @@
 #include "ConfigParser.h"
 #include "DelayConfig.h"
 #include "DelayPool.h"
-#include "DelayPools.h"
+#include "shaping/DelayPools.h"
 #include "Store.h"
 
 void

@@ -14,6 +14,8 @@ libshaping_la_SOURCES = \
 	BandwidthBucket.h \
 	DelayBucket.cc \
 	DelayBucket.h \
+	DelayPools.cc \
+	DelayPools.h \
 	forward.h \
 	MessageBucket.cc \
 	MessageBucket.h \

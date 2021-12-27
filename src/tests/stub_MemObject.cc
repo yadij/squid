@@ -10,9 +10,7 @@
 #include "comm/Connection.h"
 #include "HttpReply.h"
 #include "MemObject.h"
-#if USE_DELAY_POOLS
-#include "DelayPools.h"
-#endif
+#include "shaping/DelayPools.h"
 
 #define STUB_API "MemObject.cc"
 #include "tests/STUB.h"

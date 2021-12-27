@@ -51,6 +51,7 @@
 #include "refresh.h"
 #include "RefreshPattern.h"
 #include "rfc1738.h"
+#include "shaping/DelayPools.h"
 #include "SquidConfig.h"
 #include "SquidTime.h"
 #include "StatCounters.h"
@@ -61,9 +62,6 @@
 
 #if USE_AUTH
 #include "auth/UserRequest.h"
-#endif
-#if USE_DELAY_POOLS
-#include "DelayPools.h"
 #endif
 
 CBDATA_CLASS_INIT(HttpStateData);

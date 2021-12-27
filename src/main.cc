@@ -71,6 +71,7 @@
 #include "sbuf/Stream.h"
 #include "SBufStatsAction.h"
 #include "send-announce.h"
+#include "shaping/DelayPools.h"
 #include "SquidConfig.h"
 #include "SquidTime.h"
 #include "stat.h"
@@ -97,9 +98,6 @@
 #endif
 #if USE_DELAY_POOLS
 #include "ClientDelayConfig.h"
-#endif
-#if USE_DELAY_POOLS
-#include "DelayPools.h"
 #endif
 #if USE_LOADABLE_MODULES
 #include "LoadableModules.h"
@@ -2096,10 +2094,6 @@ SquidShutdown()
 
 #if USE_SQUID_ESI
     Esi::Clean();
-#endif
-
-#if USE_DELAY_POOLS
-    DelayPools::FreePools();
 #endif
 #if USE_AUTH
     authenticateReset();

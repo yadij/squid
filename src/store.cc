@@ -35,6 +35,7 @@
 #include "mgr/StoreIoAction.h"
 #include "repl_modules.h"
 #include "RequestFlags.h"
+#include "shaping/DelayPools.h"
 #include "SquidConfig.h"
 #include "SquidTime.h"
 #include "StatCounters.h"
@@ -53,9 +54,6 @@
 #include "StrList.h"
 #include "swap_log_op.h"
 #include "tools.h"
-#if USE_DELAY_POOLS
-#include "DelayPools.h"
-#endif
 
 /** StoreEntry uses explicit new/delete operators, which set pool chunk size to 2MB
  * XXX: convert to MEMPROXY_CLASS() API

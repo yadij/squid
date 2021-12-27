@@ -32,6 +32,7 @@
 #include "neighbors.h"
 #include "refresh.h"
 #include "RequestFlags.h"
+#include "shaping/DelayPools.h"
 #include "SquidConfig.h"
 #include "SquidTime.h"
 #include "Store.h"
@@ -39,9 +40,6 @@
 #include "tools.h"
 #if USE_AUTH
 #include "auth/UserRequest.h"
-#endif
-#if USE_DELAY_POOLS
-#include "DelayPools.h"
 #endif
 #if USE_SQUID_ESI
 #include "esi/Esi.h"

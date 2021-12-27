@@ -30,8 +30,10 @@
 #include "HttpReply.h"
 #include "ip/tools.h"
 #include "MemBuf.h"
+#include "MemObject.h"
 #include "mime.h"
 #include "rfc1738.h"
+#include "shaping/DelayPools.h"
 #include "SquidConfig.h"
 #include "SquidString.h"
 #include "SquidTime.h"
@@ -40,11 +42,6 @@
 #include "tools.h"
 #include "util.h"
 #include "wordlist.h"
-
-#if USE_DELAY_POOLS
-#include "DelayPools.h"
-#include "MemObject.h"
-#endif
 
 #include <cerrno>
 

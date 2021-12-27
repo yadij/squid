@@ -1756,7 +1756,7 @@ free_acl_b_size_t(AclSizeLimit ** head)
 #if USE_DELAY_POOLS
 
 #include "DelayConfig.h"
-#include "DelayPools.h"
+#include "shaping/DelayPools.h"
 /* do nothing - free_delay_pool_count is the magic free function.
  * this is why delay_pool_count isn't just marked TYPE: u_short
  */

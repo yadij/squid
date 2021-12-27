@@ -18,6 +18,7 @@
 #include "MemBuf.h"
 #include "MemObject.h"
 #include "mime_header.h"
+#include "shaping/DelayPools.h"
 #include "SquidConfig.h"
 #include "StatCounters.h"
 #include "Store.h"
@@ -25,9 +26,6 @@
 #include "StoreClient.h"
 #include "StoreMeta.h"
 #include "StoreMetaUnpacker.h"
-#if USE_DELAY_POOLS
-#include "DelayPools.h"
-#endif
 
 /*
  * NOTE: 'Header' refers to the swapfile metadata header.

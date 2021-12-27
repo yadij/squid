@@ -71,4 +71,15 @@ void DelayBucket::bytesIn(int) STUB
 void DelayBucket::init(DelaySpec const &) STUB
 } // namespace Shaping
 
+#include "shaping/DelayPools.h"
+void DelayPools::Init() STUB
+void DelayPools::Update(void *) STUB
+unsigned short DelayPools::pools() STUB_RETVAL(0)
+void DelayPools::pools(unsigned short) STUB
+void DelayPools::FreePools() STUB
+unsigned char *DelayPools::DelayClasses() STUB_RETVAL(nullptr)
+void DelayPools::registerForUpdates(Updateable *) STUB
+void DelayPools::deregisterForUpdates(Updateable *) STUB
+DelayPool *DelayPools::delay_data = nullptr;
+
 #endif /* USE_DELAY_POOLS */
