@@ -24,6 +24,13 @@
 
 CBDATA_NAMESPACED_CLASS_INIT(Http1, Server);
 
+Http::One::Server::Server(const Babble::Pointer &aMatrix, bool beHttpsServer):
+    AsyncJob("Http1::Server"),
+    ConnStateData(aMatrix),
+    isHttpsServer(beHttpsServer)
+{
+}
+
 Http::One::Server::Server(const MasterXaction::Pointer &xact, bool beHttpsServer):
     AsyncJob("Http1::Server"),
     ConnStateData(xact),
@@ -388,9 +395,21 @@ Http::One::Server::noteTakeServerConnectionControl(ServerConnectionContext serve
 }
 
 ConnStateData *
+Http::NewServer(const Babble::Pointer &matrix)
+{
+    return new Http1::Server(matrix, false);
+}
+
+ConnStateData *
 Http::NewServer(const MasterXaction::Pointer &xact)
 {
     return new Http1::Server(xact, false);
+}
+
+ConnStateData *
+Https::NewServer(const Babble::Pointer &matrix)
+{
+    return new Http1::Server(matrix, true);
 }
 
 ConnStateData *

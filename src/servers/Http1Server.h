@@ -23,6 +23,7 @@ class Server: public ConnStateData
 
 public:
     Server(const MasterXaction::Pointer &xact, const bool beHttpsServer);
+    Server(const Babble::Pointer &, const bool beHttpsServer);
     ~Server() override {}
 
     void readSomeHttpData();

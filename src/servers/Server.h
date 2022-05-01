@@ -26,10 +26,11 @@
  * Common base for all Server classes used
  * to manage connections from clients.
  */
-class Server : virtual public AsyncJob, public BodyProducer
+class Server : virtual public AsyncJob, public BodyProducer, protected BabbleMatrix
 {
 public:
     Server(const MasterXactionPointer &xact);
+    Server(const Babble::Pointer &);
     ~Server() override {}
 
     /* AsyncJob API */

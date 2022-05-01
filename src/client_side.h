@@ -85,6 +85,7 @@ class ConnStateData:
 
 public:
     explicit ConnStateData(const MasterXactionPointer &xact);
+    explicit ConnStateData(const Babble::Pointer &);
     ~ConnStateData() override;
 
     /* ::Server API */

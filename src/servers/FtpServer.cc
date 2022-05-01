@@ -50,6 +50,19 @@ static bool SupportedCommand(const SBuf &name);
 static bool CommandHasPathParameter(const SBuf &cmd);
 };
 
+Ftp::Server::Server(const Babble::Pointer &aMatrix):
+    AsyncJob("Ftp::Server"),
+    ConnStateData(aMatrix),
+    master(new MasterState),
+    gotEpsvAll(false),
+    uploadAvailSize(0),
+    waitingForOrigin(false),
+    originDataDownloadAbortedOnError(false)
+{
+    flags.readMore = false; // we need to announce ourselves first
+    *uploadBuf = 0;
+}
+
 Ftp::Server::Server(const MasterXaction::Pointer &xact):
     AsyncJob("Ftp::Server"),
     ConnStateData(xact),
@@ -264,7 +277,7 @@ Ftp::Server::AcceptCtrlConnection(const CommAcceptCbParams &params)
     const auto xact = MasterXaction::MakePortful(params.port);
     xact->tcpClient = params.conn;
 
-    AsyncJob::Start(new Server(xact));
+    AsyncJob::Start(new Server(params.signal));
     // XXX: do not abandon the MasterXaction object
 }
 

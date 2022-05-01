@@ -60,6 +60,7 @@ class Server: public ConnStateData
 
 public:
     explicit Server(const MasterXaction::Pointer &xact);
+    explicit Server(const Babble::Pointer &);
     ~Server() override;
 
     /* AsyncJob API */

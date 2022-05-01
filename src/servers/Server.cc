@@ -23,13 +23,27 @@
 #include "StatCounters.h"
 #include "tools.h"
 
+Server::Server(const Babble::Pointer &aMatrix) :
+    AsyncJob("::Server"), // kids overwrite
+    BabbleMatrix(aMatrix),
+    clientConnection(aMatrix->tcpClient()),
+    transferProtocol(aMatrix->squidPort()->transport),
+    port(aMatrix->squidPort()),
+    receivedFirstByte_(false)
+{
+}
+
 Server::Server(const MasterXaction::Pointer &xact) :
     AsyncJob("::Server"), // kids overwrite
+    BabbleMatrix(),
     clientConnection(xact->tcpClient),
     transferProtocol(xact->squidPort->transport),
     port(xact->squidPort),
     receivedFirstByte_(false)
 {
+    matrix = new Babble();
+    matrix->grok(xact->squidPort, xact->tcpClient);
+
     clientConnection->leaveOrphanage();
 }
 
@@ -53,6 +67,7 @@ Server::swanSong()
     if (Comm::IsConnOpen(clientConnection))
         clientConnection->close();
 
+    matrix->bail("Server::swanSong");
     BodyProducer::swanSong();
 }
 
