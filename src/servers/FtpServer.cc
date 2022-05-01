@@ -243,6 +243,10 @@ Ftp::Server::AcceptCtrlConnection(const CommAcceptCbParams &params)
 {
     Assure(params.port);
 
+    const auto &s = params.signal->squidPort();
+    Assure(s);
+    Assure(s == params.port);
+
     // NP: it is possible the port was reconfigured when the call or accept() was queued.
 
     if (params.flag != Comm::OK) {
@@ -250,6 +254,9 @@ Ftp::Server::AcceptCtrlConnection(const CommAcceptCbParams &params)
         debugs(33, 2, params.port->listenConn << ": FTP accept failure: " << xstrerr(params.xerrno));
         return;
     }
+
+    const auto &tcp = params.signal->tcpClient();
+    Assure(tcp == params.conn);
 
     debugs(33, 4, params.conn << ": accepted");
     fd_note(params.conn->fd, "client ftp connect");

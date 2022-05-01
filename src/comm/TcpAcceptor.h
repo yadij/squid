@@ -10,6 +10,7 @@
 #define SQUID_COMM_TCPACCEPTOR_H
 
 #include "anyp/forward.h"
+#include "anyp/Babble.h"
 #include "base/AsyncJob.h"
 #include "base/CbcPointer.h"
 #include "base/Subscription.h"
@@ -35,7 +36,7 @@ class AcceptLimiter;
  * be looked up. Currently these are the local/remote IP:port details
  * and the listening socket transparent-mode flag.
  */
-class TcpAcceptor : public AsyncJob
+class TcpAcceptor : public AsyncJob, private BabbleMatrix
 {
     CBDATA_CHILD(TcpAcceptor);
 
@@ -53,6 +54,7 @@ private:
 public:
     TcpAcceptor(const Comm::ConnectionPointer &conn, const char *note, const Subscription::Pointer &aSub);
     TcpAcceptor(const AnyP::PortCfgPointer &listenPort, const char *note, const Subscription::Pointer &aSub);
+    TcpAcceptor(const Babble::Pointer &, const Comm::ConnectionPointer &listenConn, const Subscription::Pointer &);
 
 protected:
     /** Subscribe a handler to receive calls back about new connections.

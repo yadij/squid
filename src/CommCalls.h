@@ -9,6 +9,7 @@
 #ifndef SQUID_COMMCALLS_H
 #define SQUID_COMMCALLS_H
 
+#include "anyp/Babble.h"
 #include "base/AsyncCall.h"
 #include "base/AsyncJobCalls.h"
 #include "comm/Flag.h"
@@ -96,8 +97,12 @@ public:
 
     void print(std::ostream &os) const;
 
+    // TODO: deprecated by Babble
     /// the configuration listening port this call relates to (may be nil)
     AnyP::PortCfgPointer port;
+
+    /// a world-view per the Call initiator
+    Babble::Pointer signal;
 };
 
 // connect parameters

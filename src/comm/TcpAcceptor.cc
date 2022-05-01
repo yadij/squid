@@ -42,6 +42,7 @@ CBDATA_NAMESPACED_CLASS_INIT(Comm, TcpAcceptor);
 
 Comm::TcpAcceptor::TcpAcceptor(const Comm::ConnectionPointer &newConn, const char *, const Subscription::Pointer &aSub) :
     AsyncJob("Comm::TcpAcceptor"),
+    BabbleMatrix(),
     errcode(0),
     theCallSub(aSub),
     conn(newConn),
@@ -50,10 +51,23 @@ Comm::TcpAcceptor::TcpAcceptor(const Comm::ConnectionPointer &newConn, const cha
 
 Comm::TcpAcceptor::TcpAcceptor(const AnyP::PortCfgPointer &p, const char *, const Subscription::Pointer &aSub) :
     AsyncJob("Comm::TcpAcceptor"),
+    BabbleMatrix(),
     errcode(0),
     theCallSub(aSub),
     conn(p->listenConn),
     listenPort_(p)
+{
+    matrix = new Babble();
+    matrix->grok(p, conn);
+}
+
+Comm::TcpAcceptor::TcpAcceptor(const Babble::Pointer &p, const Comm::ConnectionPointer &listenConn, const Subscription::Pointer &aSub) :
+    AsyncJob("Comm::TcpAcceptor"),
+    BabbleMatrix(p),
+    errcode(0),
+    theCallSub(aSub),
+    conn(listenConn),
+    listenPort_(p->squidPort())
 {}
 
 void
@@ -334,6 +348,11 @@ Comm::TcpAcceptor::notify(const Comm::Flag flag, const Comm::ConnectionPointer &
         params.conn = newConnDetails;
         params.flag = flag;
         params.xerrno = errcode;
+
+        params.signal = (matrix ? matrix->scoop() : new Babble());
+        params.signal->grok(listenPort_, newConnDetails);
+        newConnDetails->leaveOrphanage();
+
         ScheduleCallHere(call);
     }
 }

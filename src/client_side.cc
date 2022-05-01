@@ -2312,13 +2312,22 @@ httpAccept(const CommAcceptCbParams &params)
 {
     Assure(params.port);
 
+    const auto &s = params.signal->squidPort();
+    Assure(s);
+    Assure(s == params.port);
+
     // NP: it is possible the port was reconfigured when the call or accept() was queued.
 
     if (params.flag != Comm::OK) {
         // Its possible the call was still queued when the client disconnected
         debugs(33, 2, params.port->listenConn << ": accept failure: " << xstrerr(params.xerrno));
+        params.signal->bail(xstrerr(params.xerrno));
         return;
     }
+
+    const auto &tcp = params.signal->tcpClient();
+    Assure(tcp == params.conn);
+    Assure(tcp->fd == params.conn->fd);
 
     debugs(33, 4, params.conn << ": accepted");
     fd_note(params.conn->fd, "client http connect");
@@ -2514,13 +2523,22 @@ httpsAccept(const CommAcceptCbParams &params)
 {
     Assure(params.port);
 
+    const auto &s = params.signal->squidPort();
+    Assure(s);
+    Assure(s == params.port);
+
     // NP: it is possible the port was reconfigured when the call or accept() was queued.
 
     if (params.flag != Comm::OK) {
         // Its possible the call was still queued when the client disconnected
         debugs(33, 2, "httpsAccept: " << params.port->listenConn << ": accept failure: " << xstrerr(params.xerrno));
+        params.signal->bail(xstrerr(params.xerrno));
         return;
     }
+
+    const auto &tcp = params.signal->tcpClient();
+    Assure(tcp);
+    Assure(tcp == params.conn);
 
     const auto xact = MasterXaction::MakePortful(params.port);
     xact->tcpClient = params.conn;
