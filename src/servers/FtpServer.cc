@@ -410,7 +410,7 @@ Ftp::Server::listenForDataConnection()
     Subscription::Pointer sub = new CallSubscription<AcceptCall>(call);
     listener = call.getRaw();
     dataListenConn = conn;
-    AsyncJob::Start(new Comm::TcpAcceptor(conn, note, sub));
+    AsyncJob::Start(new Comm::TcpAcceptor(matrix, conn, sub));
 
     const unsigned int listeningPort = comm_local_port(conn->fd);
     conn->local.port(listeningPort);
@@ -424,6 +424,7 @@ Ftp::Server::acceptDataConnection(const CommAcceptCbParams &params)
         // Its possible the call was still queued when the client disconnected
         debugs(33, 2, dataListenConn << ": accept "
                "failure: " << xstrerr(params.xerrno));
+        params.signal->bail(xstrerr(params.xerrno));
         return;
     }
 
@@ -434,15 +435,17 @@ Ftp::Server::acceptDataConnection(const CommAcceptCbParams &params)
         debugs(33, 5, "late data connection?");
         closeDataConnection(); // in case we are still listening
         params.conn->close();
+        params.signal->bail("late DATA connection");
     } else if (params.conn->remote != clientConnection->remote) {
         debugs(33, 2, "rogue data conn? ctrl: " << clientConnection->remote);
         params.conn->close();
+        params.signal->bail("rogue client");
         // Some FTP servers close control connection here, but it may make
         // things worse from DoS p.o.v. and no better from data stealing p.o.v.
     } else {
         closeDataConnection();
         dataConn = params.conn;
-        dataConn->leaveOrphanage();
+        dataMatrix = params.signal;
         uploadAvailSize = 0;
         debugs(33, 7, "ready for data");
         if (onDataAcceptCall != nullptr) {
@@ -488,6 +491,9 @@ Ftp::Server::closeDataConnection()
         dataConn->close();
     }
     dataConn = nullptr;
+
+    if (dataMatrix)
+        dataMatrix->bail("closed");
 }
 
 /// Writes FTP [error] response before we fully parsed the FTP request and

@@ -181,6 +181,9 @@ private:
     void shovelUploadData();
     void resetLogin(const char *reason);
 
+    /// DATA channel matrix from Babel Fish
+    Babble::Pointer dataMatrix;
+
     SBuf uri; ///< a URI reconstructed from various FTP message details
     SBuf host; ///< intended dest. of a transparently intercepted FTP conn
     bool gotEpsvAll; ///< restrict data conn setup commands to just EPSV
