@@ -15,72 +15,66 @@
 #include "event.h"
 #include "fd.h"
 #include "fde.h"
-#include "fs_io.h"
 #include "globals.h"
 #include "ICP.h"
 #include "ipcache.h"
+#include "sbuf/Stream.h"
 #include "SquidConfig.h"
 #include "tools.h"
+
+#include <cstdio>
+
+static void
+appendFileContent(SBufStream &os, const char *file)
+{
+    if (auto *fd = fopen(file,"r")) {
+        while (!feof(fd)) {
+            static char tbuf[BUFSIZ] = {};
+            const auto n = fread(tbuf, sizeof(tbuf)-1, 1, fd);
+            if (n > 0) {
+                os.write(tbuf, n);
+            } else {
+                int xerrno = errno;
+                debugs(50, DBG_IMPORTANT, "send_announce: " << file << ": " << xstrerr(xerrno));
+                break;
+            }
+        }
+        fclose(fd);
+    } else {
+        int xerrno = errno;
+        debugs(50, DBG_IMPORTANT, "send_announce: " << file << ": " << xstrerr(xerrno));
+    }
+}
 
 static void
 send_announce(const ipcache_addrs *ia, const Dns::LookupDetails &, void *)
 {
-    LOCAL_ARRAY(char, tbuf, 256);
-    LOCAL_ARRAY(char, sndbuf, BUFSIZ);
-
     char *host = Config.Announce.host;
-    char *file = nullptr;
-    unsigned short port = Config.Announce.port;
-    int l;
-    int n;
-    int fd;
 
-    if (ia == nullptr) {
+    if (!ia) {
         debugs(27, DBG_IMPORTANT, "ERROR: send_announce: Unknown host '" << host << "'");
         return;
     }
 
     debugs(27, DBG_IMPORTANT, "Sending Announcement to " << host);
-    sndbuf[0] = '\0';
-    snprintf(tbuf, 256, "cache_version SQUID/%s\n", version_string);
-    strcat(sndbuf, tbuf);
-    assert(HttpPortList != nullptr);
-    snprintf(tbuf, 256, "Running on %s %d %d\n",
-             getMyHostname(),
-             getMyPort(),
-             (int) Config.Port.icp);
-    strcat(sndbuf, tbuf);
 
-    if (Config.adminEmail) {
-        snprintf(tbuf, 256, "cache_admin: %s\n", Config.adminEmail);
-        strcat(sndbuf, tbuf);
-    }
+    SBufStream os;
+    os << "cache_version SQUID/" << version_string << "\n";
+    os << "Running on " << getMyHostname() << " " << getMyPort() << " " << Config.Port.icp << "\n";
+    if (Config.adminEmail)
+        os << "cache_admin: " << Config.adminEmail << "\n";
+    os << "generated " << squid_curtime << " [" << Time::FormatHttpd(squid_curtime) << "]\n";
 
-    snprintf(tbuf, 256, "generated %d [%s]\n",
-             (int) squid_curtime,
-             Time::FormatHttpd(squid_curtime));
-    strcat(sndbuf, tbuf);
-    l = strlen(sndbuf);
-
-    if ((file = Config.Announce.file) != nullptr) {
-        fd = file_open(file, O_RDONLY | O_TEXT);
-
-        if (fd > -1 && (n = FD_READ_METHOD(fd, sndbuf + l, BUFSIZ - l - 1)) > 0) {
-            fd_bytes(fd, n, FD_READ);
-            l += n;
-            sndbuf[l] = '\0';
-            file_close(fd);
-        } else {
-            int xerrno = errno;
-            debugs(50, DBG_IMPORTANT, "send_announce: " << file << ": " << xstrerr(xerrno));
-        }
-    }
+    if (const auto file = Config.Announce.file)
+        appendFileContent(os, file);
 
     Ip::Address S = ia->current();
-    S.port(port);
+    S.port(Config.Announce.port);
     assert(Comm::IsConnOpen(icpOutgoingConn));
 
-    if (comm_udp_sendto(icpOutgoingConn->fd, S, sndbuf, strlen(sndbuf) + 1) < 0) {
+    auto sendBuf = os.buf();
+
+    if (comm_udp_sendto(icpOutgoingConn->fd, S, sendBuf.rawContent(), sendBuf.length()) < 0) {
         int xerrno = errno;
         debugs(27, DBG_IMPORTANT, "ERROR: Failed to announce to " << S << " from " << icpOutgoingConn->local << ": " << xstrerr(xerrno));
     }
