@@ -106,8 +106,6 @@ class SendAnnounceRr: public RegisteredRunner
 public:
     /* RegisteredRunner API */
     virtual void finalizeConfig() {
-        // TODO use AsyncCall pointer when event API accepts one
-        static bool isRunning = false;
         eventDelete(start_announce, nullptr);
         if (Config.onoff.announce)
             eventAdd("send_announce", start_announce, nullptr, Config.Announce.period, 1);
