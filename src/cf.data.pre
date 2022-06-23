@@ -1098,226 +1098,443 @@ DOC_START
 
 	***** ACL TYPES AVAILABLE *****
 
-	acl aclname src ip-address/mask ...	# clients IP address [fast]
-	acl aclname src addr1-addr2/mask ...	# range of addresses [fast]
-	acl aclname dst [-n] ip-address/mask ...	# URL host's IP address [slow]
-	acl aclname localip ip-address/mask ... # IP address the client connected to [fast]
+	Traffic Management checks
+
+	  acl aclname client_connection_mark mark[/mask] ...
+	    # matches CONNMARK of an accepted connection [fast]
+	    #
+	    # mark and mask are unsigned integers (hex, octal, or decimal).
+	    # If multiple marks are given, then the ACL matches if at least
+	    # one mark matches.
+	    #
+	    # Uses netfilter-conntrack library.
+	    # Requires building Squid with --enable-linux-netfilter.
+	    #
+	    # The client, various intermediaries, and Squid itself may set
+	    # CONNMARK at various times. The last CONNMARK set wins. This ACL
+	    # checks the mark present on an accepted connection or set by
+	    # Squid afterwards, depending on the ACL check timing. This ACL
+	    # effectively ignores any mark set by other agents after Squid has
+	    # accepted the connection.
+
+	  acl aclname clientside_mark mark[/mask] ...
+	    # DEPRECATED. Use the 'client_connection_mark' instead.
+
+
+	Internet Protocol (IP) checks
+
+	  acl aclname src ip-address/mask ...
+	    # clients IP address [fast]
+	  acl aclname src addr1-addr2/mask ...
+	    # range of addresses [fast]
+
+	  acl aclname localip ip-address/mask ...
+	    # IP address the client connected to [fast]
+
+	  acl aclname srcdomain   .foo.com ...
+	    # reverse lookup, from client IP [slow]
+	  acl aclname srcdom_regex [-i] \.foo\.com ...
+	    # regex matching client name [slow]
+
+	  acl aclname localport 3128 ...
+	    # port the client connected to [fast]
+	    # for interception mode this is usually '80' or '443'
+
+	  acl aclname maxconn number
+	    # This will be matched when the client's IP address has
+	    # more than <number> TCP connections established. [fast]
+	    # NOTE: This only measures direct TCP links so X-Forwarded-For
+	    # indirect clients are not counted.
+
+
+	Transport Control Protocol (TCP) checks
+
+	  acl aclname annotate_client [-m[=delimiters]] key=value ...
+	  acl aclname annotate_client [-m[=delimiters]] key+=value ...
+	    # Always matches. [fast]
+	    # Used for its side effect: This ACL immediately adds a
+	    # key=value annotation to the current client-to-Squid
+	    # TCP connection. Connection annotations are propagated to
+	    # the current and all future transactions on the annotated
+	    # connection. See the annotate_transaction ACL for details.
+	    #
+	    # For example, the following configuration avoids rewriting URLs
+	    # of transactions bumped by SslBump:
+	    #
+	    #  # First, mark bumped connections:
+	    #  acl markBumped annotate_client bumped=true
+	    #  ssl_bump peek acl1
+	    #  ssl_bump stare acl2
+	    #  ssl_bump bump acl3 markBumped
+	    #  ssl_bump splice all
+	    #
+	    #  # Second, do not send marked transactions to the redirector:
+	    #  acl markedBumped note bumped true
+	    #  url_rewrite_access deny markedBumped
+	    #
+	    #  # Note that the following would not have worked because acl3 alone
+	    #  # does not determine whether the connection is going to be bumped:
+	    #  url_rewrite_access deny acl3 # Wrong!
+
+
+	HTTP Request message checks
+
+	  acl aclname method GET POST ...
+	    # HTTP request method [fast]
+
+	  acl aclname url_regex [-i] ^http:// ...
+	    # regex matching on whole URL [fast]
+	  acl aclname urllogin [-i] [^a-zA-Z0-9] ...
+	    # regex matching on URL login field
+	  acl aclname proto HTTP HTTPS FTP ...
+	    # request protocol from URL (aka. 'scheme') [fast]
+	  acl aclname dstdomain [-n] .foo.com ...
+	    # Destination server from URL [fast]
+	  acl aclname dstdom_regex [-n] [-i] \.foo\.com ...
+	    # regex matching server [fast]
+	    #
+	    # For dstdomain and dstdom_regex a reverse lookup is tried if a IP
+	    # based URL is used and no match is found. The name "none" is used
+	    # if the reverse lookup fails.
+	  acl aclname dst [-n] ip-address/mask ...
+	    # URL host's IP address [slow]
+	  acl aclname port 80 70 21 0-1024 ...
+	    # destination TCP port [fast]
+	    # ranges are allowed
+	  acl aclname urlpath_regex [-i] \.gif$ ...
+	    # regex matching on URL path [fast]
+
+	  acl aclname req_header header-name [-i] any\.regex\.here
+	    # regex match against any of the known request headers.  May be
+	    # thought of as a superset of "browser", "referer" and "mime-type"
+	    # ACL [fast]
+
+	  acl aclname browser [-i] regexp ...
+	    # pattern match on User-Agent header (see also req_header below) [fast]
+
+	  acl aclname referer_regex [-i] regexp ...
+	    # pattern match on Referer header [fast]
+	    # Referer is highly unreliable, so use with care
+
+	  acl aclname req_mime_type [-i] mime-type ...
+	    # regex match against the mime type of the request generated
+	    # by the client. Can be used to detect file upload or some
+	    # types HTTP tunneling requests [fast]
+	    # NOTE: This does NOT match the reply. You cannot use this
+	    # to match the returned file type.
+
+	  acl aclname proxy_auth [-i] username ...
+	  acl aclname proxy_auth_regex [-i] pattern ...
+	    # perform http authentication challenge to the client and match against
+	    # supplied credentials [slow]
+	    #
+	    # takes a list of allowed usernames.
+	    # use REQUIRED to accept any valid username.
+	    #
+	    # Will use proxy authentication in forward-proxy scenarios, and plain
+	    # http authentication in reverse-proxy scenarios
+	    #
+	    # NOTE: when a Proxy-Authentication header is sent but it is not
+	    # needed during ACL checking the username is NOT logged
+	    # in access.log.
+	    #
+	    # NOTE: proxy_auth requires a EXTERNAL authentication program
+	    # to check username/password combinations (see
+	    # auth_param directive).
+	    #
+	    # NOTE: proxy_auth cannot be used in a transparent/intercepting proxy
+	    # as the browser needs to be configured for using a proxy in order
+	    # to respond to proxy authentication.
+
+	  acl aclname max_user_ip [-s] number
+	    # This will be matched when the user attempts to log in from more
+	    # than <number> different ip addresses. The authenticate_ip_ttl
+	    # parameter controls the timeout on the ip entries. [fast]
+	    # If -s is specified the limit is strict, denying browsing
+	    # from any further IP addresses until the ttl has expired. Without
+	    # -s Squid will just annoy the user by "randomly" denying requests.
+	    # (the counter is reset each time the limit is reached and a
+	    # request is denied)
+	    # NOTE: in acceleration mode or where there is mesh of child proxies,
+	    # clients may appear to come from multiple addresses if they are
+	    # going through proxy farms, so a limit of 1 may cause user problems.
+
+	  acl aclname annotate_transaction [-m[=delimiters]] key=value ...
+	  acl aclname annotate_transaction [-m[=delimiters]] key+=value ...
+	    # Always matches. [fast]
+	    # Used for its side effect: This ACL immediately adds a
+	    # key=value annotation to the current transaction.
+	    # The added annotation can then be tested using note ACL and
+	    # logged (or sent to helpers) using %note format code.
+	    #
+	    # Annotations can be specified using replacement and addition
+	    # formats. The key=value form replaces old same-key annotation
+	    # value(s). The key+=value form appends a new value to the old
+	    # same-key annotation. Both forms create a new key=value
+	    # annotation if no same-key annotation exists already. If
+	    # -m flag is used, then the value is interpreted as a list
+	    # and the annotation will contain key=token pair(s) instead of the
+	    # whole key=value pair.
+	    #
+	    # This ACL is especially useful for recording complex multi-step
+	    # ACL-driven decisions. For example, the following configuration
+	    # avoids logging transactions accepted after aclX matched:
+	    #
+	    #  # First, mark transactions accepted after aclX matched
+	    #  acl markSpecial annotate_transaction special=true
+	    #  http_access allow acl001
+	    #  ...
+	    #  http_access deny acl100
+	    #  http_access allow aclX markSpecial
+	    #
+	    #  # Second, do not log marked transactions:
+	    #  acl markedSpecial note special true
+	    #  access_log ... deny markedSpecial
+	    #
+	    #  # Note that the following would not have worked because aclX
+	    #  # alone does not determine whether the transaction was allowed:
+	    #  access_log ... deny aclX # Wrong!
+	    #
+	    # Warning: This ACL annotates the transaction even when negated
+	    # and even if subsequent ACLs fail to match. For example, the
+	    # following three rules will have exactly the same effect as far
+	    # as annotations set by the "mark" ACL are concerned:
+	    #
+	    #  some_directive acl1 ... mark # rule matches if mark is reached
+	    #  some_directive acl1 ... !mark     # rule never matches
+	    #  some_directive acl1 ... mark !all # rule never matches
+
+
+	HTTP Response message checks
+
+	  These checks have no effect in http_access rules. They only
+	  have effect in rules that affect the reply data stream such
+	  as http_reply_access.
+
+	  acl aclname http_status 200 301 500- 400-403 ...
+	    # status code in reply [fast]
+
+	  acl aclname rep_header header-name [-i] any\.regex\.here
+	    # regex match against any of the known reply headers. [fast]
+
+	  acl aclname rep_mime_type [-i] mime-type ...
+	    # regex match against the Content-Type header received by
+	    # squid. Can be used to detect file download or some
+	    # types HTTP tunneling requests. [fast]
+
+
+	TLS/SSL checks
+
+	  acl aclname user_cert attribute values...
+	    # match against attributes in a user SSL certificate
+	    # attribute is one of DN/C/O/CN/L/ST or a numerical OID [fast]
+	  acl aclname ca_cert attribute values...
+	    # match against attributes a users issuing CA SSL certificate
+	    # attribute is one of DN/C/O/CN/L/ST or a numerical OID  [fast]
+
+	  acl aclname at_step step
+	    # match against the current request processing step [fast]
+	    # Valid steps are:
+	    #   GeneratingCONNECT: Generating HTTP CONNECT request headers
+IF USE_OPENSSL
+	    # The following ssl_bump processing steps are recognized:
+	    #   SslBump1: After getting TCP-level and HTTP CONNECT info.
+	    #   SslBump2: After getting TLS Client Hello info.
+	    #   SslBump3: After getting TLS Server Hello info.
+ENDIF
+
+IF USE_OPENSSL
+	  acl aclname ssl_error errorname
+	    # match against SSL certificate validation error [fast]
+	    #
+	    # When used with sslproxy_cert_error, this ACL tests a single
+	    # certificate validation error currently being evaluated by that
+	    # directive. When used with slproxy_cert_sign or sslproxy_cert_adapt,
+	    # the ACL tests all past certificate validation errors associated with
+	    # the current Squid-to-server connection (attempt). This ACL is not yet
+	    # supported for use with other directives.
+	    #
+	    # For valid error names see in @DEFAULT_ERROR_DIR@/templates/error-details.txt
+	    # template file.
+	    #
+	    # The following can be used as shortcuts for certificate properties:
+	    #  [ssl::]certHasExpired: the "not after" field is in the past
+	    #  [ssl::]certNotYetValid: the "not before" field is in the future
+	    #  [ssl::]certUntrusted: The certificate issuer is not to be trusted.
+	    #  [ssl::]certSelfSigned: The certificate is self signed.
+	    #  [ssl::]certDomainMismatch: The certificate CN domain does not
+	    #         match the name the name of the host we are connecting to.
+	    #
+	    # The ssl::certHasExpired, ssl::certNotYetValid, ssl::certDomainMismatch,
+	    # ssl::certUntrusted, and ssl::certSelfSigned can also be used as
+	    # predefined ACLs, just like the 'all' ACL.
+
+	  acl aclname server_cert_fingerprint [-sha1] fingerprint
+	    # match against server SSL certificate fingerprint [fast]
+	    #
+	    # The fingerprint is the digest of the DER encoded version
+	    # of the whole certificate. The user should use the form: XX:XX:...
+	    # Optional argument specifies the digest algorithm to use.
+	    # The SHA1 digest algorithm is the default and is currently
+	    # the only algorithm supported (-sha1).
+
+	  acl aclname ssl::server_name [option] .foo.com ...
+	    # matches server name obtained from various sources [fast]
+	    #
+	    # The ACL computes server name(s) using such information sources as
+	    # CONNECT request URI, TLS client SNI, and TLS server certificate
+	    # subject (CN and SubjectAltName). The computed server name(s) usually
+	    # change with each SslBump step, as more info becomes available:
+	    # * SNI is used as the server name instead of the request URI,
+	    # * subject name(s) from the server certificate (CN and
+	    #   SubjectAltName) are used as the server names instead of SNI.
+	    #
+	    # When the ACL computes multiple server names, matching any single
+	    # computed name is sufficient for the ACL to match.
+	    #
+	    # The "none" name can be used to match transactions where the ACL
+	    # could not compute the server name using any information source
+	    # that was both available and allowed to be used by the ACL options at
+	    # the ACL evaluation time.
+	    #
+	    # Unlike dstdomain, this ACL does not perform DNS lookups.
+	    #
+	    # An ACL option below may be used to restrict what information
+	    # sources are used to extract the server names from:
+	    #
+	    # --client-requested
+	    #   The server name is SNI regardless of what the server says.
+	    # --server-provided
+	    #   The server name(s) are the certificate subject name(s), regardless
+	    #   of what the client has requested. If the server certificate is
+	    #   unavailable, then the name is "none".
+	    # --consensus
+	    #   The server name is either SNI (if SNI matches at least one of the
+	    #   certificate subject names) or "none" (otherwise). When the server
+	    #   certificate is unavailable, the consensus server name is SNI.
+	    #
+	    # Combining multiple options in one ACL is a fatal configuration
+	    # error.
+	    #
+	    # For all options: If no SNI is available, then the CONNECT request
+	    # target (a.k.a. URI) is used instead of SNI (for an intercepted
+	    # connection, this target is the destination IP address).
+
+	  acl aclname ssl::server_name_regex [-i] \.foo\.com ...
+	    # regex matches server name obtained from various sources [fast]
+
+	  acl aclname connections_encrypted
+	    # matches transactions with all HTTP messages received over TLS
+	    # transport connections. [fast]
+	    #
+	    # The following rules define whether a given message source
+	    # taints the entire transaction, resulting in ACL mismatches:
+	    #
+	    #  * The HTTP client transport connection is not TLS.
+	    #  * An adaptation service connection-encryption flag is off.
+	    #  * The peer or origin server transport connection is not TLS.
+	    #
+	    # Caching currently does not affect these rules. This cache ignorance
+	    # implies that only the current HTTP client transport and REQMOD
+	    # services status determine whether this ACL matches a from-cache
+	    # transaction. The source of the cached response does not have any
+	    # effect on future transaction that use the cached response without
+	    # revalidation. This may change.
+	    #
+	    # DNS, ICP, and HTCP exchanges during the transaction do not
+	    # affect these rules.
+ENDIF
+
+
+	SNMP checks
+
+	  acl aclname snmp_community string ...
+	    # A community string to limit access to your SNMP Agent [fast]
+	    # Example:
+	    #	acl snmppublic snmp_community public
+
+
+	IDENT Protocol checks
+
+	  acl aclname ident [-i] username ...
+	  acl aclname ident_regex [-i] pattern ...
+	    # string match on ident output [slow]
+	    # use REQUIRED to accept any non-null ident.
+
+
+	Other access checks
 
 if USE_SQUID_EUI
-	acl aclname arp      mac-address ...
-	acl aclname eui64    eui64-address ...
-	  # [fast]
-	  # MAC (EUI-48) and EUI-64 addresses use xx:xx:xx:xx:xx:xx notation.
-	  #
-	  # The 'arp' ACL code is not portable to all operating systems.
-	  # It works on Linux, Solaris, Windows, FreeBSD, and some other
-	  # BSD variants.
-	  #
-	  # The eui_lookup directive is required to be 'on' (the default)
-	  # and Squid built with --enable-eui for MAC/EUI addresses to be
-	  # available for this ACL.
-	  #
-	  # Squid can only determine the MAC/EUI address for IPv4
-	  # clients that are on the same subnet. If the client is on a
-	  # different subnet, then Squid cannot find out its address.
-	  #
-	  # IPv6 protocol does not contain ARP. MAC/EUI is either
-	  # encoded directly in the IPv6 address or not available.
+	  acl aclname arp      mac-address ...
+	  acl aclname eui64    eui64-address ...
+	    # [fast]
+	    # MAC (EUI-48) and EUI-64 addresses use xx:xx:xx:xx:xx:xx notation.
+	    #
+	    # The 'arp' ACL code is not portable to all operating systems.
+	    # It works on Linux, Solaris, Windows, FreeBSD, and some other
+	    # BSD variants.
+	    #
+	    # The eui_lookup directive is required to be 'on' (the default)
+	    # and Squid built with --enable-eui for MAC/EUI addresses to be
+	    # available for this ACL.
+	    #
+	    # Squid can only determine the MAC/EUI address for IPv4
+	    # clients that are on the same subnet. If the client is on a
+	    # different subnet, then Squid cannot find out its address.
+	    #
+	    # IPv6 protocol does not contain ARP. MAC/EUI is either
+	    # encoded directly in the IPv6 address or not available.
 endif
-	acl aclname clientside_mark mark[/mask] ...
-	  # matches CONNMARK of an accepted connection [fast]
-	  # DEPRECATED. Use the 'client_connection_mark' instead.
 
-	acl aclname client_connection_mark mark[/mask] ...
-	  # matches CONNMARK of an accepted connection [fast]
-	  #
-	  # mark and mask are unsigned integers (hex, octal, or decimal).
-	  # If multiple marks are given, then the ACL matches if at least
-	  # one mark matches.
-	  #
-	  # Uses netfilter-conntrack library.
-	  # Requires building Squid with --enable-linux-netfilter.
-	  #
-	  # The client, various intermediaries, and Squid itself may set
-	  # CONNMARK at various times. The last CONNMARK set wins. This ACL
-	  # checks the mark present on an accepted connection or set by
-	  # Squid afterwards, depending on the ACL check timing. This ACL
-	  # effectively ignores any mark set by other agents after Squid has
-	  # accepted the connection.
+	  acl aclname src_as number ...
+	  acl aclname dst_as number ...
+	    # [fast]
+	    # Except for access control, AS numbers can be used for
+	    # routing of requests to specific caches. Here's an
+	    # example for routing all requests for AS#1241 and only
+	    # those to mycache.mydomain.net:
+	    # acl asexample dst_as 1241
+	    # cache_peer_access mycache.mydomain.net allow asexample
+	    # cache_peer_access mycache_mydomain.net deny all
 
-	acl aclname srcdomain   .foo.com ...
-	  # reverse lookup, from client IP [slow]
-	acl aclname dstdomain [-n] .foo.com ...
-	  # Destination server from URL [fast]
-	acl aclname srcdom_regex [-i] \.foo\.com ...
-	  # regex matching client name [slow]
-	acl aclname dstdom_regex [-n] [-i] \.foo\.com ...
-	  # regex matching server [fast]
-	  #
-	  # For dstdomain and dstdom_regex a reverse lookup is tried if a IP
-	  # based URL is used and no match is found. The name "none" is used
-	  # if the reverse lookup fails.
+	  acl aclname peername myPeer ...
+	  acl aclname peername_regex [-i] regex-pattern ...
+	    # [fast]
+	    # match against a named cache_peer entry
+	    # set unique name= on cache_peer lines for reliable use.
 
-	acl aclname src_as number ...
-	acl aclname dst_as number ...
-	  # [fast]
-	  # Except for access control, AS numbers can be used for
-	  # routing of requests to specific caches. Here's an
-	  # example for routing all requests for AS#1241 and only
-	  # those to mycache.mydomain.net:
-	  # acl asexample dst_as 1241
-	  # cache_peer_access mycache.mydomain.net allow asexample
-	  # cache_peer_access mycache_mydomain.net deny all
+	  acl aclname time [day-abbrevs] [h1:m1-h2:m2]
+	    # [fast]
+	    #  day-abbrevs:
+	    #	S - Sunday
+	    #	M - Monday
+	    #	T - Tuesday
+	    #	W - Wednesday
+	    #	H - Thursday
+	    #	F - Friday
+	    #	A - Saturday
+	    #  h1:m1 must be less than h2:m2
 
-	acl aclname peername myPeer ...
-	acl aclname peername_regex [-i] regex-pattern ...
-	  # [fast]
-	  # match against a named cache_peer entry
-	  # set unique name= on cache_peer lines for reliable use.
+	  acl aclname myportname 3128 ...
+	    # *_port directive name [fast]
 
-	acl aclname time [day-abbrevs] [h1:m1-h2:m2]
-	  # [fast]
-	  #  day-abbrevs:
-	  #	S - Sunday
-	  #	M - Monday
-	  #	T - Tuesday
-	  #	W - Wednesday
-	  #	H - Thursday
-	  #	F - Friday
-	  #	A - Saturday
-	  #  h1:m1 must be less than h2:m2
+	  acl aclname random probability
+	    # Pseudo-randomly match requests. Based on the probability given.
+	    # Probability may be written as a decimal (0.333), fraction (1/3)
+	    # or ratio of matches:non-matches (3:5).
 
-	acl aclname url_regex [-i] ^http:// ...
-	  # regex matching on whole URL [fast]
-	acl aclname urllogin [-i] [^a-zA-Z0-9] ...
-	  # regex matching on URL login field
-	acl aclname urlpath_regex [-i] \.gif$ ...
-	  # regex matching on URL path [fast]
+	  acl aclname external class_name [arguments...]
+	    # external ACL lookup via a helper class defined by the
+	    # external_acl_type directive [slow]
 
-	acl aclname port 80 70 21 0-1024...   # destination TCP port [fast]
-	                                      # ranges are allowed
-	acl aclname localport 3128 ...	      # TCP port the client connected to [fast]
-	                                      # NP: for interception mode this is usually '80'
+	  acl aclname ext_user [-i] username ...
+	  acl aclname ext_user_regex [-i] pattern ...
+	    # string match on username returned by external acl helper [slow]
+	    # use REQUIRED to accept any non-null user name.
 
-	acl aclname myportname 3128 ...       # *_port name [fast]
-
-	acl aclname proto HTTP FTP ...        # request protocol [fast]
-
-	acl aclname method GET POST ...       # HTTP request method [fast]
-
-	acl aclname http_status 200 301 500- 400-403 ...
-	  # status code in reply [fast]
-
-	acl aclname browser [-i] regexp ...
-	  # pattern match on User-Agent header (see also req_header below) [fast]
-
-	acl aclname referer_regex [-i] regexp ...
-	  # pattern match on Referer header [fast]
-	  # Referer is highly unreliable, so use with care
-
-	acl aclname ident [-i] username ...
-	acl aclname ident_regex [-i] pattern ...
-	  # string match on ident output [slow]
-	  # use REQUIRED to accept any non-null ident.
-
-	acl aclname proxy_auth [-i] username ...
-	acl aclname proxy_auth_regex [-i] pattern ...
-	  # perform http authentication challenge to the client and match against
-	  # supplied credentials [slow]
-	  #
-	  # takes a list of allowed usernames.
-	  # use REQUIRED to accept any valid username.
-	  #
-	  # Will use proxy authentication in forward-proxy scenarios, and plain
-	  # http authentication in reverse-proxy scenarios
-	  #
-	  # NOTE: when a Proxy-Authentication header is sent but it is not
-	  # needed during ACL checking the username is NOT logged
-	  # in access.log.
-	  #
-	  # NOTE: proxy_auth requires a EXTERNAL authentication program
-	  # to check username/password combinations (see
-	  # auth_param directive).
-	  #
-	  # NOTE: proxy_auth can't be used in a transparent/intercepting proxy
-	  # as the browser needs to be configured for using a proxy in order
-	  # to respond to proxy authentication.
-
-	acl aclname snmp_community string ...
-	  # A community string to limit access to your SNMP Agent [fast]
-	  # Example:
-	  #
-	  #	acl snmppublic snmp_community public
-
-	acl aclname maxconn number
-	  # This will be matched when the client's IP address has
-	  # more than <number> TCP connections established. [fast]
-	  # NOTE: This only measures direct TCP links so X-Forwarded-For
-	  # indirect clients are not counted.
-
-	acl aclname max_user_ip [-s] number
-	  # This will be matched when the user attempts to log in from more
-	  # than <number> different ip addresses. The authenticate_ip_ttl
-	  # parameter controls the timeout on the ip entries. [fast]
-	  # If -s is specified the limit is strict, denying browsing
-	  # from any further IP addresses until the ttl has expired. Without
-	  # -s Squid will just annoy the user by "randomly" denying requests.
-	  # (the counter is reset each time the limit is reached and a
-	  # request is denied)
-	  # NOTE: in acceleration mode or where there is mesh of child proxies,
-	  # clients may appear to come from multiple addresses if they are
-	  # going through proxy farms, so a limit of 1 may cause user problems.
-
-	acl aclname random probability
-	  # Pseudo-randomly match requests. Based on the probability given.
-	  # Probability may be written as a decimal (0.333), fraction (1/3)
-	  # or ratio of matches:non-matches (3:5).
-
-	acl aclname req_mime_type [-i] mime-type ...
-	  # regex match against the mime type of the request generated
-	  # by the client. Can be used to detect file upload or some
-	  # types HTTP tunneling requests [fast]
-	  # NOTE: This does NOT match the reply. You cannot use this
-	  # to match the returned file type.
-
-	acl aclname req_header header-name [-i] any\.regex\.here
-	  # regex match against any of the known request headers.  May be
-	  # thought of as a superset of "browser", "referer" and "mime-type"
-	  # ACL [fast]
-
-	acl aclname rep_mime_type [-i] mime-type ...
-	  # regex match against the mime type of the reply received by
-	  # squid. Can be used to detect file download or some
-	  # types HTTP tunneling requests. [fast]
-	  # NOTE: This has no effect in http_access rules. It only has
-	  # effect in rules that affect the reply data stream such as
-	  # http_reply_access.
-
-	acl aclname rep_header header-name [-i] any\.regex\.here
-	  # regex match against any of the known reply headers. May be
-	  # thought of as a superset of "browser", "referer" and "mime-type"
-	  # ACLs [fast]
-
-	acl aclname external class_name [arguments...]
-	  # external ACL lookup via a helper class defined by the
-	  # external_acl_type directive [slow]
-
-	acl aclname user_cert attribute values...
-	  # match against attributes in a user SSL certificate
-	  # attribute is one of DN/C/O/CN/L/ST or a numerical OID [fast]
-
-	acl aclname ca_cert attribute values...
-	  # match against attributes a users issuing CA SSL certificate
-	  # attribute is one of DN/C/O/CN/L/ST or a numerical OID  [fast]
-
-	acl aclname ext_user [-i] username ...
-	acl aclname ext_user_regex [-i] pattern ...
-	  # string match on username returned by external acl helper [slow]
-	  # use REQUIRED to accept any non-null user name.
-
-	acl aclname tag tagvalue ...
-	  # string match on tag returned by external acl helper [fast]
-	  # DEPRECATED. Only the first tag will match with this ACL.
+	  acl aclname tag tagvalue ...
+	    # string match on tag returned by external acl helper [fast]
+	    # DEPRECATED. Only the first tag will match with this ACL.
 	  # Use the 'note' ACL instead for handling multiple tag values.
 
 	acl aclname hier_code codename ...
@@ -1339,79 +1556,6 @@ endif
 	  # name=value pairs. See "ACL Options" above for more info.
 	  # Annotation sources include note and adaptation_meta directives
 	  # as well as helper and eCAP responses.
-
-	acl aclname annotate_transaction [-m[=delimiters]] key=value ...
-	acl aclname annotate_transaction [-m[=delimiters]] key+=value ...
-	  # Always matches. [fast]
-	  # Used for its side effect: This ACL immediately adds a
-	  # key=value annotation to the current master transaction.
-	  # The added annotation can then be tested using note ACL and
-	  # logged (or sent to helpers) using %note format code.
-	  #
-	  # Annotations can be specified using replacement and addition
-	  # formats. The key=value form replaces old same-key annotation
-	  # value(s). The key+=value form appends a new value to the old
-	  # same-key annotation. Both forms create a new key=value
-	  # annotation if no same-key annotation exists already. If
-	  # -m flag is used, then the value is interpreted as a list
-	  # and the annotation will contain key=token pair(s) instead of the
-	  # whole key=value pair.
-	  #
-	  # This ACL is especially useful for recording complex multi-step
-	  # ACL-driven decisions. For example, the following configuration
-	  # avoids logging transactions accepted after aclX matched:
-	  #
-	  #  # First, mark transactions accepted after aclX matched
-	  #  acl markSpecial annotate_transaction special=true
-	  #  http_access allow acl001
-	  #  ...
-	  #  http_access deny acl100
-	  #  http_access allow aclX markSpecial
-	  #
-	  #  # Second, do not log marked transactions:
-	  #  acl markedSpecial note special true
-	  #  access_log ... deny markedSpecial
-	  #
-	  #  # Note that the following would not have worked because aclX
-	  #  # alone does not determine whether the transaction was allowed:
-	  #  access_log ... deny aclX # Wrong!
-	  #
-	  # Warning: This ACL annotates the transaction even when negated
-	  # and even if subsequent ACLs fail to match. For example, the
-	  # following three rules will have exactly the same effect as far
-	  # as annotations set by the "mark" ACL are concerned:
-	  #
-	  #  some_directive acl1 ... mark # rule matches if mark is reached
-	  #  some_directive acl1 ... !mark     # rule never matches
-	  #  some_directive acl1 ... mark !all # rule never matches
-
-	acl aclname annotate_client [-m[=delimiters]] key=value ...
-	acl aclname annotate_client [-m[=delimiters]] key+=value ...
-	  #
-	  # Always matches. [fast]
-	  # Used for its side effect: This ACL immediately adds a
-	  # key=value annotation to the current client-to-Squid
-	  # connection. Connection annotations are propagated to the current
-	  # and all future master transactions on the annotated connection.
-	  # See the annotate_transaction ACL for details.
-	  #
-	  # For example, the following configuration avoids rewriting URLs
-	  # of transactions bumped by SslBump:
-	  #
-	  #  # First, mark bumped connections:
-	  #  acl markBumped annotate_client bumped=true
-	  #  ssl_bump peek acl1
-	  #  ssl_bump stare acl2
-	  #  ssl_bump bump acl3 markBumped
-	  #  ssl_bump splice all
-	  #
-	  #  # Second, do not send marked transactions to the redirector:
-	  #  acl markedBumped note bumped true
-	  #  url_rewrite_access deny markedBumped
-	  #
-	  #  # Note that the following would not have worked because acl3 alone
-	  #  # does not determine whether the connection is going to be bumped:
-	  #  url_rewrite_access deny acl3 # Wrong!
 
 	acl aclname adaptation_service service ...
 	  # Matches the name of any icap_service, ecap_service,
@@ -1471,121 +1615,6 @@ endif
 	  #  acl hasWhatMyLoggingDaemonNeeds has request
 	  #  acl hasWhatMyLoggingDaemonNeeds has response
 
-acl aclname at_step step
-	  # match against the current request processing step [fast]
-	  # Valid steps are:
-	  #   GeneratingCONNECT: Generating HTTP CONNECT request headers
-IF USE_OPENSSL
-	  # The following ssl_bump processing steps are recognized:
-	  #   SslBump1: After getting TCP-level and HTTP CONNECT info.
-	  #   SslBump2: After getting SSL Client Hello info.
-	  #   SslBump3: After getting SSL Server Hello info.
-ENDIF
-
-IF USE_OPENSSL
-	acl aclname ssl_error errorname
-	  # match against SSL certificate validation error [fast]
-	  #
-	  # When used with sslproxy_cert_error, this ACL tests a single
-	  # certificate validation error currently being evaluated by that
-	  # directive. When used with slproxy_cert_sign or sslproxy_cert_adapt,
-	  # the ACL tests all past certificate validation errors associated with
-	  # the current Squid-to-server connection (attempt). This ACL is not yet
-	  # supported for use with other directives.
-	  #
-	  # For valid error names see in @DEFAULT_ERROR_DIR@/templates/error-details.txt
-	  # template file.
-	  #
-	  # The following can be used as shortcuts for certificate properties:
-	  #  [ssl::]certHasExpired: the "not after" field is in the past
-	  #  [ssl::]certNotYetValid: the "not before" field is in the future
-	  #  [ssl::]certUntrusted: The certificate issuer is not to be trusted.
-	  #  [ssl::]certSelfSigned: The certificate is self signed.
-	  #  [ssl::]certDomainMismatch: The certificate CN domain does not
-	  #         match the name the name of the host we are connecting to.
-	  #
-	  # The ssl::certHasExpired, ssl::certNotYetValid, ssl::certDomainMismatch,
-	  # ssl::certUntrusted, and ssl::certSelfSigned can also be used as
-	  # predefined ACLs, just like the 'all' ACL.
-
-	acl aclname server_cert_fingerprint [-sha1] fingerprint
-	  # match against server SSL certificate fingerprint [fast]
-	  #
-	  # The fingerprint is the digest of the DER encoded version
-	  # of the whole certificate. The user should use the form: XX:XX:...
-	  # Optional argument specifies the digest algorithm to use.
-	  # The SHA1 digest algorithm is the default and is currently
-	  # the only algorithm supported (-sha1).
-
-	acl aclname ssl::server_name [option] .foo.com ...
-	  # matches server name obtained from various sources [fast]
-	  #
-	  # The ACL computes server name(s) using such information sources as
-	  # CONNECT request URI, TLS client SNI, and TLS server certificate
-	  # subject (CN and SubjectAltName). The computed server name(s) usually
-	  # change with each SslBump step, as more info becomes available:
-	  # * SNI is used as the server name instead of the request URI,
-	  # * subject name(s) from the server certificate (CN and
-	  #   SubjectAltName) are used as the server names instead of SNI.
-	  #
-	  # When the ACL computes multiple server names, matching any single
-	  # computed name is sufficient for the ACL to match.
-	  #
-	  # The "none" name can be used to match transactions where the ACL
-	  # could not compute the server name using any information source
-	  # that was both available and allowed to be used by the ACL options at
-	  # the ACL evaluation time.
-	  #
-	  # Unlike dstdomain, this ACL does not perform DNS lookups.
-	  #
-	  # An ACL option below may be used to restrict what information
-	  # sources are used to extract the server names from:
-	  #
-	  # --client-requested
-	  #   The server name is SNI regardless of what the server says.
-	  # --server-provided
-	  #   The server name(s) are the certificate subject name(s), regardless
-	  #   of what the client has requested. If the server certificate is
-	  #   unavailable, then the name is "none".
-	  # --consensus
-	  #   The server name is either SNI (if SNI matches at least one of the
-	  #   certificate subject names) or "none" (otherwise). When the server
-	  #   certificate is unavailable, the consensus server name is SNI.
-	  #
-	  # Combining multiple options in one ACL is a fatal configuration
-	  # error.
-	  #
-	  # For all options: If no SNI is available, then the CONNECT request
-	  # target (a.k.a. URI) is used instead of SNI (for an intercepted
-	  # connection, this target is the destination IP address).
-
-	acl aclname ssl::server_name_regex [-i] \.foo\.com ...
-	  # regex matches server name obtained from various sources [fast]
-
-	acl aclname connections_encrypted
-	  # matches transactions with all HTTP messages received over TLS
-	  # transport connections. [fast]
-	  #
-	  # The master transaction deals with HTTP messages received from
-	  # various sources. All sources used by the master transaction in the
-	  # past are considered by the ACL. The following rules define whether
-	  # a given message source taints the entire master transaction,
-	  # resulting in ACL mismatches:
-	  #
-	  #  * The HTTP client transport connection is not TLS.
-	  #  * An adaptation service connection-encryption flag is off.
-	  #  * The peer or origin server transport connection is not TLS.
-	  #
-	  # Caching currently does not affect these rules. This cache ignorance
-	  # implies that only the current HTTP client transport and REQMOD
-	  # services status determine whether this ACL matches a from-cache
-	  # transaction. The source of the cached response does not have any
-	  # effect on future transaction that use the cached response without
-	  # revalidation. This may change.
-	  #
-	  # DNS, ICP, and HTCP exchanges during the master transaction do not
-	  # affect these rules.
-ENDIF
 	acl aclname any-of acl1 acl2 ...
 	  # match any one of the acls [fast or slow]
 	  # The first matching ACL stops further ACL evaluation.
