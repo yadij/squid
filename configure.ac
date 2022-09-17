@@ -393,11 +393,8 @@ AS_IF([test "x$squid_opt_aufs_threads" != "x"],[
 ])
 
 ## TODO check if this is necessary, LT_INIT does these checks
-SQUID_AUTO_LIB(dl,[dynamic linking],[LIBDL])
-AS_IF([test "x$with_dl" != "xno"],[
-  CXXFLAGS="$LIBDL_CFLAGS $CXXFLAGS"
-  LDFLAGS="$LIBDL_PATH $LDFLAGS"
-  AC_CHECK_LIB(dl, dlopen)
+SQUID_AUTO_LIB(dl,[dynamic linking],[LIBDL],[
+  AC_CHECK_LIB(dl, dlopen,[LIBDL_LIBS="-ldl"])
 ])
 
 AC_DEFUN([LIBATOMIC_CHECKER],[
@@ -807,78 +804,41 @@ AC_ARG_ENABLE(delay-pools,
 dnl disable generic/common adaptation support by default
 squid_opt_use_adaptation=no
 
-squid_opt_use_esi=auto
 AH_TEMPLATE([USE_SQUID_ESI],[Define to enable the ESI processor])
 AC_ARG_ENABLE(esi,
   AS_HELP_STRING([--disable-esi],
                  [Disable ESI for accelerators. ESI requires expat or xml2 library.
                   Enabling ESI will cause squid reverse proxies to be capable
-                  of the Edge Acceleration Specification (www.esi.org).]),
-                 [squid_opt_use_esi=$enableval],[])
-
-# ESI support libraries: expat
-AH_TEMPLATE(HAVE_LIBEXPAT,[Define to 1 if you have the expat library])
-SQUID_AUTO_LIB(expat,[ESI expat library],[LIBEXPAT])
-AS_IF([test "x$squid_opt_use_esi" != "xno" -a "x$with_expat" != "xno"],[
-  SQUID_STATE_SAVE(squid_expat_state)
-  PKG_CHECK_MODULES([LIBEXPAT],[expat],[],[
-    AC_CHECK_LIB([expat],[main],[LIBEXPAT_LIBS="-lexpat"])
+                  of the Edge Acceleration Specification (www.esi.org).]),[
+  SQUID_YESNO([$enableval],[--enable-esi])
+])
+AS_IF([test "x$enable_esi" != "xno"],[
+  SQUID_AUTO_LIB(expat,[ESI expat library],[LIBEXPAT],[
+    PKG_CHECK_MODULES([LIBEXPAT],[expat],[],[
+      AC_CHECK_LIB(expat,[main],[LIBEXPAT_LIBS="-lexpat"])
+    ])
+    CXXFLAGS="$LIBEXPAT_CFLAGS $CXXFLAGS"
+    AC_CHECK_HEADERS(expat.h)
   ])
-  CPPFLAGS="$LIBEXPAT_CFLAGS $CPPFLAGS"
-  AC_CHECK_HEADERS(expat.h)
-  SQUID_STATE_ROLLBACK(squid_expat_state)
-  AS_IF([test "x$LIBEXPAT_LIBS" != "x"],[
-      squid_opt_use_esi=yes
-      LIBEXPAT_LIBS="$LIBEXPAT_PATH $LIBEXPAT_LIBS"
-      AC_DEFINE(HAVE_LIBEXPAT,1,[Define to 1 if you have the expat library])
-    ],
-    [test "x$with_expat" = "xyes"],[AC_MSG_ERROR([Required library expat not found.])],
-    [AC_MSG_NOTICE([Library expat not found.])]
-  )
+
+  SQUID_AUTO_LIB(xml2,[ESI xml2 library],[LIBXML2],[
+    PKG_CHECK_MODULES([LIBXML2],[libxml-2.0],[],[
+      AC_CHECK_LIB([xml2],[main],[LIBXML2_LIBS="-lxml2"])
+    ])
+    CXXFLAGS="$LIBXML2_CFLAGS $CXXFLAGS"
+    AC_CHECK_HEADERS(libxml/parser.h libxml/HTMLparser.h libxml/HTMLtree.h)
+  ])
+  AS_IF([test "x$enable_esi" = "xyes" -a "x$LIBEXPAT_LIBS" = "x" -a "x$LIBXML2_LIBS" = "x"],[
+    AC_MSG_ERROR([ESI processor requires libxml2 or libexpat])
+  ],[test "x$LIBEXPAT_LIBS" = "x" -a "x$LIBXML2_LIBS" = "x"],[
+    enable_esi=no
+  ])
+  AC_MSG_NOTICE([Enabling ESI processor: $enable_esi $LIBEXPAT_LIBS $LIBXML2_LIBS])
+  AC_DEFINE(USE_SQUID_ESI,[(HAVE_LIBEXPAT || HAVE_LIBXML2)],[Define to enable the ESI processor])
 ])
 AM_CONDITIONAL(ENABLE_LIBEXPAT,[test "x$LIBEXPAT_LIBS" != "x"])
-AC_SUBST(LIBEXPAT_LIBS)
-
-# ESI support libraries: xml2
-AH_TEMPLATE(HAVE_LIBXML2,[Define to 1 if you have the xml2 library])
-SQUID_AUTO_LIB(xml2,[ESI xml2 library],[LIBXML2])
-AS_IF([test "x$squid_opt_use_esi" != "xno" -a "x$with_xml2" != "xno"],[
-  SQUID_STATE_SAVE([squid_libxml2_save])
-  PKG_CHECK_MODULES([LIBXML2],[libxml-2.0],[],[
-    AC_CHECK_LIB([xml2],[main],[LIBXML2_LIBS="$LIBXML2_PATH -lxml2"])
-  ])
-  CXXFLAGS="$LIBXML2_CFLAGS $CXXFLAGS"
-  AC_CHECK_HEADERS(libxml/parser.h libxml/HTMLparser.h libxml/HTMLtree.h)
-  SQUID_STATE_ROLLBACK([squid_libxml2_save])
-
-  AS_IF([test "x$LIBXML2_LIBS" != "x"],[
-    squid_opt_use_esi=yes
-    CXXFLAGS="$LIBXML2_CFLAGS $CXXFLAGS"
-    LIBXML2_LIBS="$LIBXML2_PATH $LIBXML2_LIBS"
-    AC_DEFINE(HAVE_LIBXML2,1,[Define to 1 if you have the xml2 library])
-  ],[test "x$with_xml2" = "xyes"],[
-    AC_MSG_ERROR([Required library xml2 not found])
-  ],[
-    AC_MSG_NOTICE([Library xml2 not found.])
-  ])
-])
 AM_CONDITIONAL(ENABLE_LIBXML2,[test "x$LIBXML2_LIBS" != "x"])
-AC_SUBST(LIBXML2_LIBS)
-
-AS_IF([test "x$squid_opt_use_esi" = "xyes"],[
-  AS_IF([test "x$LIBXML2_LIBS" = "x" -a "x$LIBEXPAT_LIBS" = "x"],[
-    AC_MSG_ERROR([ESI processor requires libxml2 or libexpat])
-  ])
-  AC_MSG_NOTICE([Enabling ESI processor: $LIBEXPAT_LIBS $LIBXML2_LIBS])
-  AC_DEFINE(USE_SQUID_ESI,1,[Compile the ESI processor])
-],[
-  AS_IF(test "x$squid_opt_use_esi" = "xno",[
-    AC_MSG_NOTICE([Disabling ESI processor.])
-  ],[
-    AC_MSG_NOTICE([Disabling ESI processor. libxml2 and libexpat not found.])
-  ])
-])
-AM_CONDITIONAL(ENABLE_ESI, test "x$squid_opt_use_esi" = "xyes")
+AM_CONDITIONAL(ENABLE_ESI,[test "x$enable_esi" != "xno"])
 
 AC_ARG_ENABLE(icap-client,
   AS_HELP_STRING([--disable-icap-client],[Disable the ICAP client.]),[
@@ -1061,27 +1021,15 @@ AM_CONDITIONAL(ENABLE_HTCP, [test "x$enable_htcp" = "xyes"])
 AC_MSG_NOTICE([HTCP support enabled: $enable_htcp])
 
 # Cryptograhic libraries
-SQUID_AUTO_LIB(nettle,[Nettle crypto],[LIBNETTLE])
-AS_IF(test "x$with_nettle" != "xno"],[
-  SQUID_STATE_SAVE(squid_nettle_state)
+SQUID_AUTO_LIB(nettle,[Nettle crypto],[LIBNETTLE],[
   PKG_CHECK_MODULES([LIBNETTLE],[nettle >= 3.4],[],[
     CPPFLAGS="$LIBNETTLE_CFLAGS $CPPFLAGS"
     AC_CHECK_LIB(nettle,[nettle_md5_init],[LIBNETTLE_LIBS="-lnettle"])
   ])
+  CXXFLAGS="$LIBNETTLE_CFLAGS $CXXFLAGS"
   AC_CHECK_HEADERS(nettle/base64.h nettle/md5.h)
   SQUID_CHECK_NETTLE_BASE64
-  SQUID_STATE_ROLLBACK(squid_nettle_state)
-  AS_IF([test "x$LIBNETTLE_LIBS" != "x"],[
-    CXXFLAGS="$LIBNETTLE_CFLAGS $CXXFLAGS"
-    LIBNETTLE_LIBS="$LIBNETTLE_PATH $LIBNETTLE_LIBS"
-  ],[test "x$with_nettle" = "xyes"],[
-    AC_MSG_ERROR([Required library nettle not found])
-  ],[
-    AC_MSG_NOTICE([Library nettle not found.])
-  ])
 ])
-AC_MSG_NOTICE([Using Nettle cryptographic library: ${with_nettle:=yes}])
-AC_SUBST(LIBNETTLE_LIBS)
 
 dnl Check for libcrypt
 CRYPTLIB=
@@ -1094,47 +1042,45 @@ AC_SUBST(CRYPTLIB)
 
 SSLLIB=""
 
-SQUID_AUTO_LIB(gnutls,[GnuTLS crypto],[LIBGNUTLS])
 AH_TEMPLATE(USE_GNUTLS,[GnuTLS support is available])
-AS_IF([test "x$with_gnutls" != "xno"],[
-  SQUID_STATE_SAVE(squid_gnutls_state)
-
-  # User may have provided a custom location for GnuTLS. Otherwise...
-  CPPFLAGS="$LIBGNUTLS_CFLAGS $CPPFLAGS"
-  LIBS="$LIBS $LIBGNUTLS_PATH"
-
-  # auto-detect using pkg-config
-  PKG_CHECK_MODULES([LIBGNUTLS],[gnutls >= 3.4.0],[
-    CPPFLAGS="$CPPFLAGS $LIBGNUTLS_CFLAGS"
-    ],[
-    ## find the package without pkg-config
+SQUID_AUTO_LIB(gnutls,[GnuTLS crypto],[LIBGNUTLS],[
+  PKG_CHECK_MODULES([LIBGNUTLS],[gnutls >= 3.4.0],[],[
     ## check that the library is actually new enough.
     ## by testing for a 3.4.0+ function which we use
     AC_CHECK_LIB(gnutls,gnutls_pcert_export_x509,[LIBGNUTLS_LIBS="-lgnutls"])
   ])
+  CXXFLAGS="$LIBGNUTLS_CFLAGS $CXXFLAGS"
   AC_CHECK_HEADERS(gnutls/gnutls.h gnutls/x509.h gnutls/abstract.h)
-
-  SQUID_STATE_ROLLBACK(squid_gnutls_state) #de-pollute LIBS
-
-  AS_IF([test "x$with_gnutls" = "xyes" -a "x$LIBGNUTLS_LIBS" = "x"],[
-    AC_MSG_ERROR([Required GnuTLS library not found])
-  ])
   AS_IF([test "x$LIBGNUTLS_LIBS" != "x"],[
-    CXXFLAGS="$LIBGNUTLS_CFLAGS $CXXFLAGS"
     SSLLIB="$LIBGNUTLS_PATH $LIBGNUTLS_LIBS $SSLLIB"
-    AC_DEFINE(USE_GNUTLS,1,[GnuTLS support is available])
-  ],[
-    with_gnutls=no
   ])
 ])
-AC_MSG_NOTICE([GnuTLS library support: ${with_gnutls:=auto} ${LIBGNUTLS_PATH} ${LIBGNUTLS_LIBS}])
 
-dnl User may specify OpenSSL is needed from a non-standard location
-SQUID_OPTIONAL_LIB(openssl,[OpenSSL],[LIBOPENSSL])
-AH_TEMPLATE(USE_OPENSSL,[OpenSSL support is available])
 ## OpenSSL is default disable due to licensing issues on some OS
-AS_IF([test "x$with_openssl" = "xyes"],[
-  CPPFLAGS="$LIBOPENSSL_CFLAGS $CPPFLAGS"
+AH_TEMPLATE(USE_OPENSSL,[OpenSSL support is available])
+SQUID_OPTIONAL_LIB(openssl,[OpenSSL],[LIBOPENSSL],[
+  PKG_CHECK_MODULES([LIBOPENSSL],[openssl],,[
+    # Windows MinGW has some special libraries ...
+    AS_IF([test "x$squid_host_os" = "xmingw"],[
+      LIBOPENSSL_LIBS='-lssleay32 -leay32 -lgdi32 $LIBOPENSSL_LIBS'
+      AC_MSG_NOTICE([Windows OpenSSL library support: yes -lssleay32 -leay32 -lgdi32])
+    ])
+
+    AC_CHECK_LIB(crypto,[CRYPTO_new_ex_data],[LIBOPENSSL_LIBS="-lcrypto $LIBOPENSSL_LIBS"],[
+      AC_MSG_ERROR([library 'crypto' is required for OpenSSL])
+    ],$LIBOPENSSL_LIBS)
+    AC_CHECK_LIB(ssl,[SSL_CTX_new],[LIBOPENSSL_LIBS="-lssl $LIBOPENSSL_LIBS"],[
+      AC_MSG_ERROR([library 'ssl' is required for OpenSSL])
+    ],$LIBOPENSSL_LIBS)
+  ])
+
+  # This is a workaround for RedHat 9 brain damage..
+  AS_IF([test -d /usr/kerberos/include -a -f /usr/include/openssl/kssl.h],[
+    AC_MSG_NOTICE([OpenSSL depends on Kerberos])
+    LIBOPENSSL_LIBS="-L/usr/kerberos/lib $LIBOPENSSL_LIBS"
+  ])
+
+  CXXFLAGS="$LIBOPENSSL_CFLAGS $CXXFLAGS"
   AC_CHECK_HEADERS( \
     openssl/asn1.h \
     openssl/bio.h \
@@ -1154,40 +1100,7 @@ AS_IF([test "x$with_openssl" = "xyes"],[
     openssl/engine.h \
     openssl/txt_db.h \
   )
-
-  # User may have provided a custom location for OpenSSL. Otherwise...
-  SQUID_STATE_SAVE(squid_openssl_state)
-  LIBS="$LIBS $LIBOPENSSL_PATH"
-
-  # auto-detect using pkg-config
-  PKG_CHECK_MODULES([LIBOPENSSL],[openssl],,[
-    ## For some OS pkg-config is broken or unavailable.
-    ## Detect libraries the hard way.
-
-    # Windows MinGW has some special libraries ...
-    AS_IF([test "x$squid_host_os" = "xmingw"],[
-      LIBOPENSSL_LIBS='-lssleay32 -leay32 -lgdi32 $LIBOPENSSL_LIBS'
-      AC_MSG_NOTICE([Windows OpenSSL library support: yes -lssleay32 -leay32 -lgdi32])
-    ])
-
-    AC_CHECK_LIB(crypto,[CRYPTO_new_ex_data],[LIBOPENSSL_LIBS="-lcrypto $LIBOPENSSL_LIBS"],[
-      AC_MSG_ERROR([library 'crypto' is required for OpenSSL])
-    ],$LIBOPENSSL_LIBS)
-    AC_CHECK_LIB(ssl,[SSL_CTX_new],[LIBOPENSSL_LIBS="-lssl $LIBOPENSSL_LIBS"],[
-      AC_MSG_ERROR([library 'ssl' is required for OpenSSL])
-    ],$LIBOPENSSL_LIBS)
-  ])
-
-  # This is a workaround for RedHat 9 brain damage..
-  AS_IF([test -d /usr/kerberos/include -a -f /usr/include/openssl/kssl.h],[
-    AC_MSG_NOTICE([OpenSSL depends on Kerberos])
-    LIBOPENSSL_LIBS="-L/usr/kerberos/lib $LIBOPENSSL_LIBS"
-    CPPFLAGS="$CPPFLAGS -I/usr/kerberos/include"
-  ])
-  SQUID_STATE_ROLLBACK(squid_openssl_state) #de-pollute LIBS
-
   AS_IF([test "x$LIBOPENSSL_LIBS" != "x"],[
-    CXXFLAGS="$LIBOPENSSL_CFLAGS $CXXFLAGS"
     SSLLIB="$LIBOPENSSL_PATH $LIBOPENSSL_LIBS $SSLLIB"
     AC_DEFINE(USE_OPENSSL,1,[OpenSSL support is available])
 
@@ -1196,7 +1109,7 @@ AS_IF([test "x$with_openssl" = "xyes"],[
     SQUID_CHECK_LIBSSL_API
     SQUID_CHECK_OPENSSL_TLS_METHODS
     SQUID_STATE_SAVE(check_SSL_CTX_get0_certificate)
-    LIBS="$LIBS $SSLLIB"
+    LIBS="$LIBS $LIBOPENSSL_PATH $LIBOPENSSL_LIBS"
     AC_CHECK_LIB(ssl, SSL_CTX_get0_certificate, [
       AC_DEFINE(HAVE_SSL_CTX_GET0_CERTIFICATE, 1, [SSL_CTX_get0_certificate is available])
       ], [
@@ -1212,27 +1125,24 @@ AS_IF([test "x$with_openssl" = "xyes"],[
     SQUID_CHECK_OPENSSL_CONST_X509_GET0_SIGNATURE_ARGS
     SQUID_CHECK_OPENSSL_TXTDB
   ])
-  AS_IF([test "x$SSLLIB" = "x"],[AC_MSG_ERROR([Required OpenSSL library not found])])
 ])
-AC_MSG_NOTICE([OpenSSL library support: ${with_openssl:=no} ${LIBOPENSSL_PATH} ${LIBOPENSSL_LIBS}])
-AM_CONDITIONAL(ENABLE_SSL,[ test "x$with_openssl" = "xyes" ])
+AM_CONDITIONAL(ENABLE_SSL,[test "x$with_openssl" = "xyes" ])
 AC_SUBST(SSLLIB)
 
 dnl User may specify MIT Kerberos is needed from a non-standard location
-SQUID_AUTO_LIB(mit-krb5,[MIT Kerberos],[LIB_KRB5])
 AH_TEMPLATE(USE_APPLE_KRB5,[Apple Kerberos support is available])
 AH_TEMPLATE(USE_MIT_KRB5,[MIT Kerberos support is available])
 AH_TEMPLATE(USE_SOLARIS_KRB5,[Solaris Kerberos support is available])
+SQUID_AUTO_LIB(mit-krb5,[MIT Kerberos],[LIB_KRB5],[
 
-## find out if pkg-config or krb5-config will work
-AS_IF([test "x$with_mit_krb5" != "xno"],[
-  CXXFLAGS="$LIB_KRB5_CFLAGS $CXXFLAGS"
+  ## find out if pkg-config or krb5-config will work
   krb5confpath="$with_mit_krb5/bin"
   # find installed libs via pkg-config or krb5-config
   squid_pc_krb5_name=
   PKG_CHECK_EXISTS(mit-krb5-gssapi mit-krb5, [squid_pc_krb5_name="mit-krb5-gssapi mit-krb5"],[
     PKG_CHECK_EXISTS(gssapi-krb5 krb5, [squid_pc_krb5_name="gssapi-krb5 krb5"])
   ])
+
   AS_IF([test "x$squid_pc_krb5_name" = "x" -a "$cross_compiling" = "no"],[
     # Look for krb5-config (unless cross-compiling)
     AC_PATH_PROG(krb5_config,krb5-config,no,$krb5confpath)
@@ -1253,7 +1163,6 @@ AS_IF([test "x$with_mit_krb5" != "xno"],[
       ])
     ])
   ])
-])
 
 # detect MIT Kerberos dependencies (except on Solaris)
 AS_IF([test "x$with_mit_krb5" != "xno" -a "x$with_solaris_krb5" != "xyes"],[
@@ -1422,6 +1331,9 @@ AS_IF([test "x$with_solaris_krb5" = "xyes" -a "x$KRB5LIBS" = "x"],[
   ])
   SQUID_STATE_ROLLBACK([squid_krb5_save])
 ])
+
+])
+
 
 dnl User may specify Heimdal Kerberos is needed from a non-standard location
 SQUID_AUTO_LIB(heimdal-krb5,[Heimdal Kerberos],[LIB_KRB5])
@@ -1842,36 +1754,18 @@ AS_IF([test "$squid_host_os" = "mingw"],[
 AC_SUBST(LDAPLIB)
 AC_SUBST(LBERLIB)
 
-SQUID_AUTO_LIB(systemd,[systemd API for start-up notification],[SYSTEMD])
 AH_TEMPLATE(USE_SYSTEMD,[systemd support is available])
-AS_IF([test "x$with_systemd" != "xno" -a "x$squid_host_os" = "xlinux"],[
-  SQUID_STATE_SAVE(squid_systemd_state)
-
-  # User may have provided a custom location for systemd. Otherwise...
-  LIBS="$LIBS $SYSTEMD_PATH"
-
-  # auto-detect using pkg-config
+SQUID_AUTO_LIB(systemd,[systemd API for start-up notification],[SYSTEMD],[
   PKG_CHECK_MODULES(SYSTEMD,[libsystemd],,[
     # systemd < 209
     PKG_CHECK_MODULES(SYSTEMD,[libsystemd-daemon],,[:])
   ])
-
+  CXXFLAGS="$SYSTEMD_CFLAGS $CXXFLAGS"
   AC_CHECK_HEADERS(systemd/sd-daemon.h)
-
-  SQUID_STATE_ROLLBACK(squid_systemd_state) #de-pollute LIBS
-
-  AS_IF([test "x$with_systemd" = "xyes" -a "x$SYSTEMD_LIBS" = "x"],[
-    AC_MSG_ERROR([Required systemd library not found])
-  ])
   AS_IF([test "x$SYSTEMD_LIBS" != "x"],[
-    CXXFLAGS="$SYSTEMD_CFLAGS $CXXFLAGS"
-    LDFLAGS="$SYSTEMD_PATH $SYSTEMD_LIBS $LDFLAGS"
     AC_DEFINE(USE_SYSTEMD,1,[systemd support is available])
-  ],[
-    with_systemd=no
   ])
 ])
-AC_MSG_NOTICE([systemd library support: ${with_systemd:=auto} ${SYSTEMD_PATH} ${SYSTEMD_LIBS}])
 
 AC_ARG_ENABLE(forw-via-db,
   AS_HELP_STRING([--enable-forw-via-db],[Enable Forw/Via database]), [
@@ -2061,27 +1955,14 @@ AC_MSG_NOTICE([Linux Netfilter support requested: ${enable_linux_netfilter:=auto
 
 
 dnl Look for libnetfilter_conntrack options (needed for QOS netfilter marking)
-SQUID_AUTO_LIB(netfilter-conntrack,[Netfilter conntrack],[LIBNETFILTER_CONNTRACK])
-AC_MSG_NOTICE([Linux Netfilter Conntrack support requested: ${with_netfilter_conntrack:=auto}])
-AS_IF([test "x$with_netfilter_conntrack" != "xno"],[
+SQUID_AUTO_LIB(netfilter-conntrack,[Netfilter conntrack],[LIBNETFILTER_CONNTRACK],[
   LDFLAGS="$LIBNETFILTER_CONNTRACK_PATH $LDFLAGS"
-  CPPFLAGS="$LIBNETFILTER_CONNTRACK_CFLAGS $CPPFLAGS"
-  AC_SEARCH_LIBS([nfct_query], [netfilter_conntrack],,[
-    AS_IF([test "x$with_netfilter_conntrack" = "xyes"],[
-      AC_MSG_ERROR([--with-netfilter-conntrack specified but libnetfilter-conntrack library not found])
-    ])
-    with_netfilter_conntrack=no
-  ])
-  AC_CHECK_HEADERS([ \
+  AC_CHECK_LIB(netfilter_conntrack,[nfct_query],[LIBNETFILTER_CONNTRACK_LIBS="-netfilter-conntrack"])
+  CXXFLAGS="$LIBNETFILTER_CONNTRACK_CFLAGS $CXXFLAGS"
+  AC_CHECK_HEADERS( \
     libnetfilter_conntrack/libnetfilter_conntrack.h \
     libnetfilter_conntrack/libnetfilter_conntrack_tcp.h
-  ],,[
-    AS_IF([test "x$with_netfilter_conntrack" = "xyes"],[
-      AC_MSG_ERROR([--with-netfilter-conntrack specified but libnetfilter-conntrack headers not found])
-    ])
-    with_netfilter_conntrack=no
-  ])
-  AS_IF([test "x$with_netfilter_conntrack" != "xno"],[with_netfilter_conntrack=yes])
+  )
 ])
 
 dnl Enable Large file support
@@ -2408,19 +2289,14 @@ SQUID_DEFINE_BOOL(X_ACCELERATOR_VARY,${enable_x_accelerator_vary:=no},
                       [Enable support for the X-Accelerator-Vary HTTP header])
 AC_MSG_NOTICE([X-Accelerator-Vary support enabled: $enable_x_accelerator_vary])
 
-SQUID_AUTO_LIB(cppunit,[cppunit test framework],[LIBCPPUNIT])
-AS_IF([test "x$with_cppunit" != "xno"],[
-  LIBCPPUNIT_LIBS="$LIBCPPUNIT_PATH -lcppunit"
+SQUID_AUTO_LIB(cppunit,[cppunit test framework],[LIBCPPUNIT],[
   PKG_CHECK_MODULES([LIBCPPUNIT],[cppunit],[
     squid_cv_cppunit_version="`pkg-config --modversion cppunit`"
     AC_MSG_NOTICE([using system installed cppunit version $squid_cv_cppunit_version])
     AS_UNSET(squid_cv_cppunit_version)
 
-    SQUID_STATE_SAVE(squid_cppunit_state)
     CXXFLAGS="${CXXFLAGS} ${LIBCPPUNIT_CFLAGS}"
-    LIBS="${LIBS} ${LIBCPPUNIT_LIBS}"
     AC_CHECK_HEADERS(cppunit/extensions/HelperMacros.h)
-    SQUID_STATE_ROLLBACK(squid_cppunit_state)
   ],[
     AC_MSG_WARN([cppunit does not appear to be installed. Squid does not require this, but code testing with 'make check' will fail.])
   ])
@@ -2661,37 +2537,21 @@ dnl Check for special functions
 AC_FUNC_ALLOCA
 
 
-# TODO: remove this 'lib' prefix to match coding standard
-SQUID_AUTO_LIB(libcap,[Linux capabilities],[LIBCAP])
-AS_IF([test "x$with_libcap" != "xno"],[
-  CXXFLAGS="$LIBCAP_CFLAGS $CXXFLAGS"
-  LDFLAGS="$LIBCAP_PATH $LDFLAGS"
-  # cap_clear_flag is the most recent libcap function we require
-  AC_CHECK_HEADERS(sys/capability.h)
-  AC_CHECK_LIB(cap, cap_clear_flag)
-  SQUID_CHECK_FUNCTIONAL_LIBCAP2
-
-  # if it can't be supported..
-  AS_IF([test "x$ac_cv_header_sys_capability_h" = "xno" -o \
-     "x$ac_cv_lib_cap_cap_clear_flag" = "xno"],[
-    # and it was forced on: error
-    AS_IF([test "x$with_libcap" = "xyes"],[
-      AC_MSG_ERROR([libcap forced enabled but not available or not usable, requires libcap-2.09 or later])
-    ],[
-      # or it can't be supported: disable
-      with_libcap=no
-    ])
-  ],[
-    with_libcap=yes
+SQUID_AUTO_LIB(cap,[Linux capabilities],[LIBCAP],[
+  PKG_CHECK_MODULES([LIBCAP],[cap],[],[
+    # cap_clear_flag is the most recent libcap function we require
+    AC_CHECK_LIB(cap,[cap_clear_flag],[LIBCAP_LIBS="-lcap"])
   ])
-])
+  CXXFLAGS="$LIBCAP_CFLAGS $CXXFLAGS"
+  AC_CHECK_HEADERS(sys/capability.h)
 
+  SQUID_CHECK_FUNCTIONAL_LIBCAP2
+  SQUID_DEFINE_BOOL(LIBCAP_BROKEN,[${squid_cv_sys_capability_works:=no}],
+     [libcap2 headers are broken and clashing with glibc])
+  AC_MSG_NOTICE([libcap2 headers are ok: $squid_cv_sys_capability_works])
+])
 SQUID_DEFINE_BOOL(USE_LIBCAP,$with_libcap,
    [use libcap to set capabilities required for TPROXY])
-AC_MSG_NOTICE([libcap support enabled: $with_libcap])
-SQUID_DEFINE_BOOL(LIBCAP_BROKEN,${squid_cv_sys_capability_works:=no},
-   [libcap2 headers are broken and clashing with glibc])
-AC_MSG_NOTICE([libcap2 headers are ok: $squid_cv_sys_capability_works])
 
 
 dnl Check for needed libraries
