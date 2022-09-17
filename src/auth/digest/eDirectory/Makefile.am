@@ -20,10 +20,11 @@ digest_edirectory_auth_SOURCES = \
 digest_edirectory_auth_LDADD = \
 	$(top_builddir)/lib/libmiscencoding.la \
 	$(COMPAT_LIB) \
+	$(LIBGNUTLS_LIBS) \
 	$(LIBLDAP_LIBS) \
 	$(LIBNETTLE_LIBS) \
 	$(CRYPTLIB) \
-	$(SSLLIB) \
+	$(LIBOPENSSL_LIBS) \
 	$(XTRA_LIBS)
 
 EXTRA_DIST= required.m4

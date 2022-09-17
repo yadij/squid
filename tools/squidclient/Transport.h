@@ -76,7 +76,7 @@ public:
     // client trusted x509 certificate authorities file
     std::list<std::string> caFiles;
 
-#if USE_GNUTLS
+#if HAVE_LIBGNUTLS
     /// anonymous client credentials
     gnutls_anon_client_credentials_t anonCredentials;
 

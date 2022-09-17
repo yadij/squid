@@ -14,18 +14,15 @@
 #include "security/forward.h"
 #include "security/LockingPointer.h"
 
+#if HAVE_GNUTLS_GNUTLS_H
+#include <gnutls/gnutls.h>
+#endif
 #include <memory>
 
 #if USE_OPENSSL
 #include "compat/openssl.h"
 #if HAVE_OPENSSL_SSL_H
 #include <openssl/ssl.h>
-#endif
-#endif
-
-#if USE_GNUTLS
-#if HAVE_GNUTLS_GNUTLS_H
-#include <gnutls/gnutls.h>
 #endif
 #endif
 
@@ -50,7 +47,7 @@ typedef std::shared_ptr<SSL> SessionPointer;
 
 typedef std::unique_ptr<SSL_SESSION, HardFun<void, SSL_SESSION*, &SSL_SESSION_free>> SessionStatePointer;
 
-#elif USE_GNUTLS
+#elif HAVE_LIBGNUTLS
 // to be finalized when it is actually needed/used
 struct Connection {};
 

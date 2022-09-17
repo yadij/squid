@@ -33,7 +33,7 @@ Transport::TheConfig::usage()
               << "  -l | --local host    Specify a local IP address to bind to.  Default is none." << std::endl
               << "  -p | --port port     Port number on server to contact. Default is " << CACHE_HTTP_PORT << "." << std::endl
               << "  -T timeout           Timeout in seconds for read/write operations" << std::endl
-#if USE_GNUTLS
+#if HAVE_LIBGNUTLS
               << "  --https              Use TLS/SSL on the HTTP connection" << std::endl
               << std::endl
               << "  TLS options:" << std::endl
@@ -241,7 +241,7 @@ Transport::Write(const void *buf, size_t len)
         return -1;
 
     if (Config.tlsEnabled) {
-#if USE_GNUTLS
+#if HAVE_LIBGNUTLS
         gnutls_record_send(Config.session, buf, len);
         return len;
 #else
@@ -265,7 +265,7 @@ Transport::Read(void *buf, size_t len)
         return -1;
 
     if (Config.tlsEnabled) {
-#if USE_GNUTLS
+#if HAVE_LIBGNUTLS
         return gnutls_record_recv(Config.session, buf, len);
 #else
         return 0;
@@ -288,7 +288,7 @@ Transport::CloseConnection()
     conn = -1;
 }
 
-#if USE_GNUTLS
+#if HAVE_LIBGNUTLS
 /* This function will verify the peer's certificate, and check
  * if the hostname matches, as well as the activation, expiration dates.
  */
@@ -341,7 +341,7 @@ verifyTlsCertificate(gnutls_session_t session)
 }
 #endif
 
-#if USE_GNUTLS
+#if HAVE_LIBGNUTLS
 static void
 gnutlsDebugHandler(int level, const char *msg)
 {
@@ -352,7 +352,7 @@ gnutlsDebugHandler(int level, const char *msg)
 void
 Transport::InitTls()
 {
-#if USE_GNUTLS
+#if HAVE_LIBGNUTLS
     debugVerbose(3, "Initializing TLS library...");
     // NP: gnutls init is re-entrant and lock-counted with deinit but not thread safe.
     if (gnutls_global_init() != GNUTLS_E_SUCCESS) {
@@ -363,7 +363,7 @@ Transport::InitTls()
 
     Config.tlsEnabled = true;
 
-#if USE_GNUTLS
+#if HAVE_LIBGNUTLS
     gnutls_global_set_log_function(&gnutlsDebugHandler);
     gnutls_global_set_log_level(scParams.verbosityLevel);
 #endif
@@ -396,7 +396,7 @@ Transport::InitTls()
 #endif
 }
 
-#if USE_GNUTLS
+#if HAVE_LIBGNUTLS
 
 // perform the actual handshake exchange with remote server
 static bool
@@ -487,7 +487,7 @@ tryTlsCertificate(const char *hostname)
 bool
 Transport::MaybeStartTls(const char *hostname)
 {
-#if USE_GNUTLS
+#if HAVE_LIBGNUTLS
     if (Config.tlsEnabled) {
 
         // Initialize TLS session
@@ -512,7 +512,7 @@ Transport::MaybeStartTls(const char *hostname)
 void
 Transport::ShutdownTls()
 {
-#if USE_GNUTLS
+#if HAVE_LIBGNUTLS
     if (!Config.tlsEnabled)
         return;
 

@@ -16,11 +16,10 @@
 #if HAVE_OPENSSL_SSL_H
 #include <openssl/ssl.h>
 #endif
+#endif
 
-#elif USE_GNUTLS
 #if HAVE_GNUTLS_GNUTLS_H
 #include <gnutls/gnutls.h>
-#endif
 #endif
 
 namespace Security {
@@ -28,7 +27,7 @@ namespace Security {
 #if USE_OPENSSL
 typedef std::shared_ptr<SSL_CTX> ContextPointer;
 
-#elif USE_GNUTLS
+#elif HAVE_LIBGNUTLS
 typedef std::shared_ptr<struct gnutls_certificate_credentials_st> ContextPointer;
 
 #else

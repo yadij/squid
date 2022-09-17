@@ -21,6 +21,7 @@ basic_radius_auth_LDADD= \
 	$(top_builddir)/lib/libmiscencoding.la \
 	$(top_builddir)/src/base/libbase.la \
 	$(COMPAT_LIB) \
+	$(LIBGNUTLS_LIBS) \
 	$(LIBNETTLE_LIBS) \
-	$(SSLLIB) \
+	$(LIBOPENSSL_LIBS) \
 	$(XTRA_LIBS)

@@ -62,9 +62,10 @@ pinger_LDADD=\
 	$(top_builddir)/src/time/libtime.la \
 	$(top_builddir)/src/base/libbase.la \
 	$(top_builddir)/src/mem/libminimal.la \
-	$(LIBCAP_LIBS) \
 	$(COMPAT_LIB) \
-	$(SSLLIB) \
+	$(LIBCAP_LIBS) \
+	$(LIBGNUTLS_LIBS) \
+	$(LIOPENSSL_LIBS) \
 	$(XTRA_LIBS)
 
 CLEANFILES += $(COPIED_SOURCE)

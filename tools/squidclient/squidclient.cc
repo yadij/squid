@@ -611,7 +611,7 @@ main(int argc, char *argv[])
             }
         }
 
-#if USE_GNUTLS
+#if HAVE_LIBGNUTLS
         if (Transport::Config.tlsEnabled) {
             if (len == 0) {
                 std::cerr << "- Peer has closed the TLS connection" << std::endl;

@@ -2066,6 +2066,9 @@ INCLUDE_FILE_PATTERNS  =
 PREDEFINED             = __cplusplus \
                          FOLLOW_X_FORWARDED_FOR \
                          FORW_VIA_DB \
+                         HAVE_LIBCAP \
+                         HAVE_LIBGNUTLS \
+                         HAVE_LIBSYSTEMD \
                          ICAP_CLIENT \
                          LINUX_NETFILTER \
                          MULTICAST_MISS_STREAM \
@@ -2084,7 +2087,6 @@ PREDEFINED             = __cplusplus \
                          USE_EPOLL \
                          USE_GNUGSS \
                          USE_GNUREGEX \
-                         USE_GNUTLS \
                          USE_HEIMDAL_KRB5 \
                          USE_HEXDUMP \
                          USE_HTCP \
@@ -2093,7 +2095,6 @@ PREDEFINED             = __cplusplus \
                          USE_IDENT \
                          USE_IPV6 \
                          USE_KQUEUE \
-                         USE_LIBCAP \
                          USE_LOADABLE_MODULES \
                          USE_MIT_KRB5 \
                          USE_OPENSSL \

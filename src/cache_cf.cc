@@ -1664,7 +1664,7 @@ free_acl_tos(acl_tos ** head)
     *head = nullptr;
 }
 
-#if SO_MARK && USE_LIBCAP
+#if SO_MARK && HAVE_LIBCAP
 
 static void
 dump_acl_nfmark(StoreEntry * entry, const char *name, acl_nfmark * head)

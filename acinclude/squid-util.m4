@@ -214,11 +214,51 @@ AC_DEFUN([SQUID_YESNO],[
   AS_IF([test "$1" != "yes" -a "$1" != "no"],[AC_MSG_ERROR([Bad argument for $2: "$1". Expecting "yes", "no", or no argument.])])
 ])
 
+dnl Check that a library is actually available, useable,
+dnl and where its pieces are (eg headers and hack macros)
+AC_DEFUN([SQUID_CHECK_LIB_WORKS],[
+  AH_TEMPLATE(HAVE_$3,[Define to 1 if you have lib$1 for $2])
+  AS_IF([test "x$withval" != "xno"],[
+    SQUID_STATE_SAVE([squid_check_lib_search])
+    CPPFLAGS="$3_CFLAGS $CPPFLAGS"
+    LIBS="$3_PATH $3_LIBS $LIBS"
+    $4
+    AS_IF([test "x$5" != "x"],[
+      LIBS="$3_PATH $3_LIBS $LIBS"
+      AC_CHECK_HEADERS($5)
+    ])
+    SQUID_STATE_ROLLBACK([squid_check_lib_search])
+    AS_IF([test "x$3_LIBS" != "x" -a "x$6" != "x"] ,[
+      SQUID_STATE_SAVE([squid_check_lib_works])
+      CPPFLAGS="$3_CFLAGS $CPPFLAGS"
+      LIBS="$3_PATH $3_LIBS $LIBS"
+      $6
+      SQUID_STATE_ROLLBACK([squid_check_lib_works])
+    ])
+    AS_IF([test "x$$3_LIBS" != "x"],[
+        CPPFLAGS="$$3_CFLAGS $CPPFLAGS"
+        $3_LIBS="$$3_PATH $$3_LIBS"
+        AC_DEFINE(HAVE_$3,1,[Define to 1 if you have the $1 library])
+      ],
+      [test "x$withval" = "xyes"],[AC_MSG_ERROR([Required library $1 not found])],
+      [
+        AC_MSG_NOTICE([Library $1 not found.])
+        m4_translit([with_$1], [-+.], [___])=no
+      ]
+    )
+  ])
+  AC_MSG_NOTICE([Using $2 support: $withval $$3_CFLAGS $$3_LIBS])
+  AC_SUBST($3_LIBS)
+])
+
 dnl check the build parameters for a library to auto-enable
 dnl Parameters for this macro are:
 dnl 1) binary library name (without 'lib' prefix)
 dnl 2) name of the library for human reading
 dnl 3) prefix used for pkg-check macros
+dnl 4) pkg-check calls to find library
+dnl 5) headers to check for
+dnl 6) extra logic to check for hacks and working library
 AC_DEFUN([SQUID_AUTO_LIB],[
   AC_ARG_WITH([$1],AS_HELP_STRING([--without-$1],[Compile without the $2 library.]),[
     AS_CASE(["$withval"],[yes|no],,[
@@ -229,6 +269,7 @@ AC_DEFUN([SQUID_AUTO_LIB],[
       AS_IF([test -d "$withval/include"],[$3_CFLAGS+="-I$withval/include"])
     ])
   ])
+  SQUID_CHECK_LIB_WORKS([$1],[$2],[$3],[$4],[$5],[6])
 ])
 dnl same as SQUID_AUTO_LIB but for default-disabled libraries
 AC_DEFUN([SQUID_OPTIONAL_LIB],[
@@ -241,7 +282,8 @@ AC_DEFUN([SQUID_OPTIONAL_LIB],[
       AS_IF([test -d "$withval/include"],[$3_CFLAGS+="-I$withval/include"])
     ])
   ])
-  AS_IF([test "x$withval" = "x"],[m4_translit([with_$1], [-+.], [___])=no])
+  AS_IF([test "x${withval:=no}" = "x"],[m4_translit([with_$1], [-+.], [___])=no])
+  SQUID_CHECK_LIB_WORKS([$1],[$2],[$3],[$4],[$5],[$6])
 ])
 
 AC_DEFUN([SQUID_EMBED_BUILD_INFO],[
