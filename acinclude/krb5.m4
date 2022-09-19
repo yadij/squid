@@ -5,6 +5,21 @@
 ## Please see the COPYING and CONTRIBUTORS files for details.
 ##
 
+dnl Look for krb5-config (unless cross-compiling)
+AC_DEFUN([SQUID_CHECK_KRB5_CONFIG],[
+  AS_IF([test "x$cross_compiling" = "xno"],[
+    AS_IF([test "x$LIB_KRB5_PATH" != "x"],[
+      AC_PATH_PROG(krb5_config,[krb5-config],[no],[$LIB_KRB5_PATH/bin])
+      AC_MSG_ERROR([Could not find krb5-config in $LIB_KRB5_PATH/bin])
+    ],[
+      AC_PATH_PROG(krb5_config,[krb5-config],[no])
+    ])
+    AS_IF([test "x$ac_cv_path_krb5_config" != "xno"],[krb5_config="$ac_cv_path_krb5_config"],
+      [test "x$LIB_KRB5_PATH" != "x"],[krb5_config="$LIB_KRB5_PATH/bin/krb5-config"]
+    )
+  ])
+])
+
 dnl these checks must be performed in the same order as here defined,
 dnl and have mostly been lifted out of an inlined configure.ac.
 
