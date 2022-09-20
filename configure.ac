@@ -1239,26 +1239,20 @@ AH_TEMPLATE(USE_SOLARIS_KRB5,[Solaris Kerberos support is available])
 ## find out if pkg-config or krb5-config will work
 AS_IF([test "x$with_mit_krb5" != "xno"],[
   CXXFLAGS="$LIB_KRB5_CFLAGS $CXXFLAGS"
-  # find installed libs via pkg-config or krb5-config
-  squid_pc_krb5_name=
   PKG_CHECK_EXISTS(mit-krb5-gssapi mit-krb5, [squid_pc_krb5_name="mit-krb5-gssapi mit-krb5"],[
-    PKG_CHECK_EXISTS(gssapi-krb5 krb5, [squid_pc_krb5_name="gssapi-krb5 krb5"])
-  ])
-  AS_IF([test "x$squid_pc_krb5_name" = "x" -a "$cross_compiling" = "no"],[
-    SQUID_CHECK_KRB5_CONFIG
-    AS_IF([test "x$ac_cv_path_krb5_config" != "xno"],[
-      ac_heimdal="`$ac_cv_path_krb5_config --version 2>/dev/null | grep -c -i heimdal`"
-      ac_solaris="`$ac_cv_path_krb5_config --version 2>/dev/null | grep -c -i solaris`"
-      ac_apple="`$ac_cv_path_krb5_config --vendor 2>/dev/null | grep -c -i apple`"
-      AS_IF([test $ac_solaris -gt 0],[with_solaris_krb5=yes],
-        [test $ac_apple -gt 0],[with_apple_krb5=yes],
-        [test $ac_heimdal -gt 0],[with_mit_krb5=no]
+    PKG_CHECK_EXISTS(gssapi-krb5 krb5, [squid_pc_krb5_name="gssapi-krb5 krb5"],[
+      SQUID_CHECK_KRB5_VENDOR
+      AS_CASE([$squid_krb5_vendor],
+        [solaris],[with_solaris_krb5=yes],
+        [apple],[with_apple_krb5=yes]
       )
-    ],[
-      AS_IF([test "x$with_mit_krb5" = "xyes"],[
-        AC_MSG_ERROR([Could not find krb5-config in path])
-      ],[
-        with_mit_krb5=no
+      AS_IF([test "x$krb5_config" = "xno" -o "x$squid_krb5_vendor" = "xheimdal"],[
+        AS_IF([test "x$with_mit_krb5" = "xyes"],[
+          AC_MSG_ERROR([Could not find pkg-config or krb5-config for MIT Kerberos])
+        ],[
+          AC_MSG_WARN([Could not find pkg-config or krb5-config for MIT Kerberos])
+          with_mit_krb5=no
+        ])
       ])
     ])
   ])
@@ -1271,18 +1265,7 @@ AS_IF([test "x$with_mit_krb5" != "xno" -a "x$with_solaris_krb5" != "xyes"],[
 
   # auto-detect using pkg-config
   PKG_CHECK_MODULES([LIB_KRB5], $squid_pc_krb5_name,,[
-    SQUID_CHECK_KRB5_CONFIG
-    AS_IF([test "x$krb5_config" != "x" -a -x "$krb5_config"],[
-      # Get libs, etc
-      AC_MSG_NOTICE([Use krb5-config to get CXXFLAGS and LIBS])
-      LIB_KRB5_CFLAGS="`$krb5_config --cflags krb5 2>/dev/null`"
-      LIB_KRB5_LIBS="`$krb5_config --libs krb5 2>/dev/null`"
-      LIB_KRB5_CFLAGS="`$krb5_config --cflags gssapi 2>/dev/null` $LIB_KRB5_CFLAGS"
-      LIB_KRB5_LIBS="`$krb5_config --libs gssapi 2>/dev/null` $LIB_KRB5_LIBS"
-    ],[
-      ## For some OS pkg-config is broken or unavailable.
-      ## Detect libraries the hard way.
-
+    SQUID_KRB5_CHECK_MODULES([LIB_KRB5],[krb5 gssapi],,[
       SQUID_STATE_SAVE([squid_mit_save])
       missing_required=
       AC_MSG_NOTICE([Try to find Kerberos libraries in given path])
@@ -1347,23 +1330,8 @@ AS_IF([test "x$with_solaris_krb5" = "xyes" -a "x$KRB5LIBS" = "x"],[
   SQUID_STATE_SAVE([squid_krb5_save])
   LIBS="$LIBS $LIB_KRB5_PATH"
 
-  # no pkg-config for solaris native Kerberos
-  SQUID_CHECK_KRB5_CONFIG
-  AS_IF([test "x$krb5_config" != "x" -a -x "$krb5_config"],[
-    # Get libs, etc
-    AC_MSG_NOTICE([Use krb5-config to get CXXFLAGS and LIBS])
-    LIB_KRB5_CFLAGS="`$krb5_config --cflags krb5 2>/dev/null`"
-    LIB_KRB5_LIBS="`$krb5_config --libs krb5 2>/dev/null`"
-    # Solaris 10 Update 11 patches the krb5-config tool to produce stderr messages on stdout.
-    SOLARIS_BROKEN_KRB5CONFIG_GSSAPI="`$krb5_config --libs gssapi 2>/dev/null | grep "krb5-config"`"
-    AS_IF([test "x$SOLARIS_BROKEN_KRB5CONFIG_GSSAPI" = "x"],[
-      LIB_KRB5_CFLAGS="`$krb5_config --cflags gssapi 2>/dev/null` $LIB_KRB5_CFLAGS"
-      LIB_KRB5_LIBS="`$krb5_config --libs gssapi 2>/dev/null` $LIB_KRB5_LIBS"
-    ])
-  ],[
-    ## For some OS pkg-config is broken or unavailable.
-    ## Detect libraries the hard way.
-
+  dnl no pkg-config for solaris native Kerberos
+  SQUID_KRB5_CHECK_MODULES([LIB_KRB5],[krb5 gssapi],,[
     CXXFLAGS="-I/usr/include/kerberosv5 $CXXFLAGS"
 
     SQUID_STATE_SAVE([squid_solaris_save])
@@ -1421,24 +1389,16 @@ SQUID_AUTO_LIB(heimdal-krb5,[Heimdal Kerberos],[LIB_KRB5])
 AH_TEMPLATE(USE_HEIMDAL_KRB5,[Heimdal Kerberos support is available])
 AS_IF([test "x$with_heimdal_krb5" != "xno" -a "x$KRB5LIBS" = "x"],[
   CXXFLAGS="$LIB_KRB5_CFLAGS $CXXFLAGS"
-  # find installed libs via pkg-config or krb5-config
-  PKG_CHECK_EXISTS(heimdal-krb5, [squid_pc_krb5_name="heimdal-krb5"])
-  AS_IF([test "x$squid_pc_krb5_name" = "x"],[
-    PKG_CHECK_EXISTS(heimdal-gssapi, [squid_pc_krb5_name="heimdal-gssapi"])
-  ])
-  AS_IF([test "x$squid_pc_krb5_name" = "x" -a "$cross_compiling" = "no"],[
-    SQUID_CHECK_KRB5_CONFIG
-    AS_IF([test "x$ac_cv_path_krb5_config" != "xno"],[
-      ac_heimdal="`$ac_cv_path_krb5_config --version 2>/dev/null | grep -c -i heimdal`"
-      AS_IF([test "x$with_heimdal_krb5" = "xyes" -a $ac_heimdal = 0],[
-        AC_MSG_ERROR([Could not find pkg-config or krb5-config for Heimdal Kerberos])
-      ])
-    ],[
-      AS_IF([test "x$with_heimdal_krb5" = "xyes"],[
-        AC_MSG_ERROR([Could not find krb5-config in path])
-      ],[
-        AC_MSG_WARN([Could not find krb5-config in path])
-        with_heimdal_krb5=no
+  PKG_CHECK_EXISTS(heimdal-krb5, [squid_pc_krb5_name="heimdal-krb5"],[
+    PKG_CHECK_EXISTS(heimdal-gssapi, [squid_pc_krb5_name="heimdal-gssapi"],[
+      SQUID_CHECK_KRB5_VENDOR
+      AS_IF([test "x$krb5_config" = "xno" -o "x$squid_krb5_vendor" != "xheimdal"],[
+        AS_IF([test "x$with_heimdal_krb5" = "xyes"],[
+          AC_MSG_ERROR([Could not find pkg-config or krb5-config for Heimdal Kerberos])
+        ],[
+          AC_MSG_WARN([Could not find pkg-config or krb5-config for Heimdal Kerberos])
+          with_heimdal_krb5=no
+        ])
       ])
     ])
   ])
@@ -1449,17 +1409,7 @@ AS_IF([test "x$with_heimdal_krb5" != "xno" -a "x$KRB5LIBS" = "x"],[
 
   # auto-detect using pkg-config
   PKG_CHECK_MODULES([LIB_KRB5], $squid_pc_krb5_name,,[
-    SQUID_CHECK_KRB5_CONFIG
-    AS_IF([test "x$krb5_config" != "x" -a -x "$krb5_config"],[
-      # Get libs, etc
-      AC_MSG_NOTICE([Use krb5-config to get CXXFLAGS and LIBS])
-      LIB_KRB5_CFLAGS="`$krb5_config --cflags krb5 2>/dev/null`"
-      LIB_KRB5_LIBS="`$krb5_config --libs krb5 2>/dev/null`"
-      LIB_KRB5_CFLAGS="`$krb5_config --cflags gssapi 2>/dev/null` $LIB_KRB5_CFLAGS"
-      LIB_KRB5_LIBS="`$krb5_config --libs gssapi 2>/dev/null` $LIB_KRB5_LIBS"
-    ],[
-      ## For some OS pkg-config is broken or unavailable.
-      ## Detect libraries the hard way.
+    SQUID_KRB5_CHECK_MODULES([LIB_KRB5],[krb5 gssapi],,[
       SQUID_STATE_SAVE([squid_heimdal_save])
       missing_required=
       AC_MSG_NOTICE([Try to find Kerberos libraries in given path])

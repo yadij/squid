@@ -9,15 +9,63 @@ dnl Look for krb5-config (unless cross-compiling)
 AC_DEFUN([SQUID_CHECK_KRB5_CONFIG],[
   AS_IF([test "x$cross_compiling" = "xno"],[
     AS_IF([test "x$LIB_KRB5_PATH" != "x"],[
-      AC_PATH_PROG(krb5_config,[krb5-config],[no],[$LIB_KRB5_PATH/bin])
-      AC_MSG_ERROR([Could not find krb5-config in $LIB_KRB5_PATH/bin])
+      AC_PATH_PROG(krb5_config,krb5-config,no,[$LIB_KRB5_PATH/bin])
+      AS_IF([test "x$krb5_config" != "x" -a -x "$krb5_config"],,
+        AC_MSG_ERROR([Could not find krb5-config in $LIB_KRB5_PATH/bin])
+      )
     ],[
-      AC_PATH_PROG(krb5_config,[krb5-config],[no])
+      AC_PATH_PROG(krb5_config,krb5-config,no)
     ])
     AS_IF([test "x$ac_cv_path_krb5_config" != "xno"],[krb5_config="$ac_cv_path_krb5_config"],
       [test "x$LIB_KRB5_PATH" != "x"],[krb5_config="$LIB_KRB5_PATH/bin/krb5-config"]
     )
   ])
+])
+
+dnl Fetch the Vendor type from krb5-config
+AC_DEFUN([SQUID_CHECK_KRB5_VENDOR],[
+  SQUID_CHECK_KRB5_CONFIG
+  AS_IF([test "x$krb5_config" != "xno"],[
+    squid_krb5_vendor=`$krb5_config --version 2>/dev/null | grep -c -i "solaris|heimdal"`
+    AS_IF([test "x$squid_krb5_vendor" = "x"],[
+      squid_krb5_vendor=`$krb5_config --vendor 2>/dev/null | grep -c -i "apple"`
+    ])
+  ])
+])
+
+dnl Similar to PKG_CHECK_MODULES but uses krb5-config
+dnl and limited to only the functionality needed by Squid
+dnl SQUID_KRB5_CHECK_MODULES(variable,modules,[action-if-found],[action-if-not-found])
+AC_DEFUN([SQUID_KRB5_CHECK_MODULES],[
+  SQUID_CHECK_KRB5_CONFIG
+  squid_krb5_module_missing=""
+  AS_IF([test "x$krb5_config" != "x" -a -x "$krb5_config"],[
+    AC_MSG_NOTICE([Use krb5-config to get $1_CFLAGS and $1_LIBS])
+    for module in $2; do
+      # Solaris 10 Update 11 patches the krb5-config tool to produce stderr messages on stdout.
+      # other OS has the same behaviour, so always verify the tool outputs
+      krb5_error="`$krb5_config --libs $module 2>/dev/null | grep 'krb5-config'`"
+      AS_IF([test "x$krb5_error" = "x"],[
+        $1_CFLAGS="`$krb5_config --cflags $module 2>/dev/null` $$1_CFLAGS"
+        $1_LIBS="`$krb5_config --libs $module 2>/dev/null` $$1_LIBS"
+      ],[
+        AC_MSG_WARN([$krb5_error])
+        AS_IF([test "x$squid_krb5_module_missing" = "x"],[
+          squid_krb5_module_missing="krb5 missing $module"
+        ],[
+          squid_krb5_module_missing="$squid_krb5_module_missing $module"
+        ])
+      ])
+    done
+    unset krb5_error
+  ],[
+    squid_krb5_module_missing="krb5-config not present or executable"
+  ])
+  AS_IF([test "x$squid_krb5_module_missing" = "x"],[$3],[
+    AC_MSG_WARN([krb5 issue: $squid_krb5_module_missing])
+    $4
+  ])
+  unset squid_krb5_module_missing
 ])
 
 dnl these checks must be performed in the same order as here defined,
