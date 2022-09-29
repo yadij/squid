@@ -407,6 +407,11 @@ AS_IF([test "x$squid_opt_aufs_threads" != "x"],[
     [Defines how many threads aufs uses for I/O])
 ])
 
+## TODO check if this is necessary, LT_INIT does these checks
+SQUID_AUTO_LIB(dl,[dynamic linking],[LIBDL],[
+  AC_CHECK_LIB(dl,[dlopen],[LIBDL_LIBS="-ldl"])
+])
+
 AC_DEFUN([LIBATOMIC_CHECKER],[
   AC_MSG_CHECKING(whether linking $1 -latomic works)
   AC_LINK_IFELSE([

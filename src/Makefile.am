@@ -10,12 +10,6 @@ include $(top_srcdir)/src/Common.am
 DNSSOURCE = \
 	dns_internal.cc
 
-LOADABLE_MODULES_SOURCES = \
-	LoadableModule.cc \
-	LoadableModule.h \
-	LoadableModules.cc \
-	LoadableModules.h
-
 # subdir Y that requires a file built in subdir X must appear after X
 SUBDIRS = \
 	mem \
@@ -467,7 +461,6 @@ squid_SOURCES = \
 
 EXTRA_squid_SOURCES = \
 	$(DELAY_POOL_ALL_SOURCE) \
-	$(LOADABLE_MODULES_SOURCES) \
 	$(SNMP_ALL_SOURCE) \
 	$(UNLINKDSOURCE) \
 	$(WIN32_ALL_SOURCE) \
@@ -557,15 +550,23 @@ squid_LDADD = \
 	$(LIBPSAPI_LIBS) \
 	$(XTRA_LIBS)
 
+LOADABLE_MODULES_SOURCES = \
+	LoadableModule.cc \
+	LoadableModule.h \
+	LoadableModules.cc \
+	LoadableModules.h
+
 if ENABLE_LOADABLE_MODULES
 squid_SOURCES += $(LOADABLE_MODULES_SOURCES)
-squid_LDADD += -L$(top_builddir) $(LIBLTDL)
+squid_LDADD += -L$(top_builddir) $(LIBLTDL) $(LIBDL_LIBS)
 squid_LDFLAGS = -export-dynamic -dlopen force
 ## when static module linking is supported and enabled:
 ## squid_LDFLAGS = -all-static -dlopen self
 ##
 ## LTDL headers require their local include path...
 AM_CPPFLAGS += $(INCLTDL)
+else
+EXTRA_squid_SOURCES += $(LOADABLE_MODULES_SOURCES)
 endif
 
 unlinkd_SOURCES = unlinkd_daemon.cc
