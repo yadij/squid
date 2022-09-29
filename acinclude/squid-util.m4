@@ -247,11 +247,25 @@ AM_CONDITIONAL(m4_toupper(m4_translit([ENABLE_LIB$1],[-+.],[___])),m4_translit([
 AC_SUBST(m4_toupper(m4_translit([LIB$1_LIBS], [-+.], [___])))
 ])
 
+dnl Safely run pkg-check or other logic to define a variable libfoo_LIBS
+dnl and set it with values for future $LIBS and automake LDADD
+AC_DEFUN([SQUID_FIND_LIB],[
+  AS_IF([test "x$withval" != "xno"],[
+    SQUID_STATE_SAVE(squid_check_lib_search)
+    CPPFLAGS="$$1_CFLAGS $CPPFLAGS"
+    LIBS="$$1_PATH $$1_LIBS $LIBS"
+    $2
+    SQUID_STATE_SAVE(squid_check_lib_search)
+  ])
+  AC_SUBST($1_LIBS)
+])
+
 dnl check the build parameters for a library to auto-enable
 dnl Parameters for this macro are:
 dnl 1) binary library name (without 'lib' prefix)
 dnl 2) name of the library for human reading
 dnl 3) prefix used for pkg-check macros
+dnl 4) pkg-check logic to find library LIBS value(s)
 AC_DEFUN([SQUID_AUTO_LIB],[
   AC_ARG_WITH([$1],AS_HELP_STRING([--without-$1],[Compile without the $2 library.]),[
     AS_CASE(["$withval"],[yes|no],,[
@@ -262,6 +276,9 @@ AC_DEFUN([SQUID_AUTO_LIB],[
       AS_IF([test -d "$withval/include"],[$3_CFLAGS+="-I$withval/include"])
     ])
   ])
+  SQUID_FIND_LIB([$3],[$4])
+  AC_SUBST($3_CFLAGS)
+  AC_SUBST($3_LIBS)
 ])
 dnl same as SQUID_AUTO_LIB but for default-disabled libraries
 AC_DEFUN([SQUID_OPTIONAL_LIB],[
@@ -274,7 +291,13 @@ AC_DEFUN([SQUID_OPTIONAL_LIB],[
       AS_IF([test -d "$withval/include"],[$3_CFLAGS+="-I$withval/include"])
     ])
   ])
-  AS_IF([test "x$withval" = "x"],[m4_translit([with_$1], [-+.], [___])=no])
+  AS_IF([test "x$withval" = "x"],[
+    m4_translit([with_$1], [-+.], [___])=no
+    withval=no
+  ])
+  SQUID_FIND_LIB([$3],[$4])
+  AC_SUBST($3_CFLAGS)
+  AC_SUBST($3_LIBS)
 ])
 
 AC_DEFUN([SQUID_EMBED_BUILD_INFO],[
