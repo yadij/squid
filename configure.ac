@@ -838,7 +838,7 @@ AC_ARG_ENABLE(icap-client,
   SQUID_YESNO([$enableval],[--enable-icap-client])
 ])
 SQUID_DEFINE_BOOL(ICAP_CLIENT,${enable_icap_client:=yes}, [Enable ICAP client features in Squid])
-AS_IF(test "x$enable_icap_client" != "xno", squid_opt_use_adaptation="yes")
+AS_IF([test "x$enable_icap_client" != "xno"],[squid_opt_use_adaptation="yes"])
 AM_CONDITIONAL(ENABLE_ICAP_CLIENT, test "x$enable_icap_client" != "xno")
 
 AC_ARG_ENABLE(ecap,
