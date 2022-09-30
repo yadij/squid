@@ -247,6 +247,16 @@ AM_CONDITIONAL(m4_toupper(m4_translit([ENABLE_LIB$1],[-+.],[___])),m4_translit([
 AC_SUBST(m4_toupper(m4_translit([LIB$1_LIBS], [-+.], [___])))
 ])
 
+AC_DEFUN([SQUID_FIND_LIB_HEADERS],[
+  AS_IF([test -n "$$1_LIBS" -a -n "$2"],[
+    SQUID_STATE_SAVE(squid_check_lib_headers)
+    CPPFLAGS="$$1_CFLAGS $CPPFLAGS"
+    LIBS="$$1_PATH $$1_LIBS $LIBS"
+    AC_CHECK_HEADERS([$2])
+    SQUID_STATE_SAVE(squid_check_lib_headers)
+  ])
+])
+
 dnl Safely run pkg-check or other logic to define a variable libfoo_LIBS
 dnl and set it with values for future $LIBS and automake LDADD
 AC_DEFUN([SQUID_FIND_LIB],[
@@ -257,6 +267,7 @@ AC_DEFUN([SQUID_FIND_LIB],[
     $2
     SQUID_STATE_SAVE(squid_check_lib_search)
   ])
+  SQUID_FIND_LIB_HEADERS([$1],[$3])
   AC_SUBST($1_LIBS)
 ])
 
@@ -276,7 +287,7 @@ AC_DEFUN([SQUID_AUTO_LIB],[
       AS_IF([test -d "$withval/include"],[$3_CFLAGS+="-I$withval/include"])
     ])
   ])
-  SQUID_FIND_LIB([$3],[$4])
+  SQUID_FIND_LIB([$3],[$4],[$5])
   AC_SUBST($3_CFLAGS)
   AC_SUBST($3_LIBS)
 ])
@@ -295,7 +306,7 @@ AC_DEFUN([SQUID_OPTIONAL_LIB],[
     m4_translit([with_$1], [-+.], [___])=no
     withval=no
   ])
-  SQUID_FIND_LIB([$3],[$4])
+  SQUID_FIND_LIB([$3],[$4],[$5])
   AC_SUBST($3_CFLAGS)
   AC_SUBST($3_LIBS)
 ])
