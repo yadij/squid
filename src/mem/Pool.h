@@ -146,7 +146,6 @@ public:
     virtual PoolMeter const &getMeter() const;
     virtual void *alloc();
     virtual void freeOne(void *);
-    virtual size_t objectSize() const;
     virtual int getInUseCount() = 0;
 
 protected:
@@ -157,7 +156,6 @@ public:
     size_t alloc_calls;
     size_t free_calls;
     size_t saved_calls;
-    size_t obj_size;
 };
 
 /// Creates a named MemPool of elements with the given size
