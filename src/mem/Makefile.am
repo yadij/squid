@@ -24,6 +24,8 @@ libmem_la_SOURCES = \
 	Meter.h \
 	Pool.cc \
 	Pool.h \
+	PoolBuffers.cc \
+	PoolBuffers.h \
 	PoolChunked.cc \
 	PoolChunked.h \
 	PoolMalloc.cc \
