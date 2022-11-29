@@ -74,12 +74,6 @@ memFreeString(size_t, void *memory)
     xfree(memory);
 }
 
-void *
-memAllocRigid(const size_t netSize)
-{
-    return xmalloc(netSize);
-}
-
 void
 memFreeBuf(size_t, void * const buf)
 {

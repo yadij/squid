@@ -9,7 +9,7 @@
 #ifndef SQUID_MEM_POOLINGALLOCATOR_H
 #define SQUID_MEM_POOLINGALLOCATOR_H
 
-#include "mem/forward.h"
+#include "mem/PoolBuffers.h"
 
 /// STL Allocator that uses Squid memory pools for memory management
 template <class Value>
@@ -20,8 +20,12 @@ public:
     using value_type = Value;
     PoolingAllocator() noexcept {}
     template <class Other> PoolingAllocator(const PoolingAllocator<Other> &) noexcept {}
-    value_type *allocate(std::size_t n) { return static_cast<value_type*>(memAllocRigid(n*sizeof(value_type))); }
-    void deallocate(value_type *vp, std::size_t n) noexcept { memFreeRigid(vp, n*sizeof(value_type)); }
+    value_type *allocate(std::size_t n) {
+        return static_cast<value_type*>(Mem::PoolBuffers::Instance().allocate(n*sizeof(value_type)));
+    }
+    void deallocate(value_type *vp, std::size_t n) noexcept {
+        Mem::PoolBuffers::Instance().deallocate(vp, n*sizeof(value_type));
+    }
 
     // The following declarations are only necessary for compilers that do not
     // fully support C++11 Allocator-related APIs, such as GCC v4.8.
