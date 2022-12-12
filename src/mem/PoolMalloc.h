@@ -41,7 +41,6 @@ public:
 
     /* Mem::Allocator API */
     virtual size_t getStats(Mem::PoolStats &);
-    virtual int getInUseCount();
     virtual bool idleTrigger(int) const;
     virtual void clean(time_t);
 

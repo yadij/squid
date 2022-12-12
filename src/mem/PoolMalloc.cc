@@ -73,13 +73,7 @@ MemPoolMalloc::getStats(Mem::PoolStats &stats)
 
     stats.overhead += sizeof(MemPoolMalloc) + strlen(objectType()) + 1;
 
-    return getMeter().inuse.currentLevel();
-}
-
-int
-MemPoolMalloc::getInUseCount()
-{
-    return getMeter().inuse.currentLevel();
+    return getInUseCount();
 }
 
 MemPoolMalloc::MemPoolMalloc(char const *aLabel, size_t aSize) :
@@ -89,7 +83,7 @@ MemPoolMalloc::MemPoolMalloc(char const *aLabel, size_t aSize) :
 
 MemPoolMalloc::~MemPoolMalloc()
 {
-    assert(getMeter().inuse.currentLevel() == 0);
+    assert(getInUseCount() == 0);
     clean(0);
 }
 

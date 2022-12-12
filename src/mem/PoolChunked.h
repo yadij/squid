@@ -31,7 +31,6 @@ public:
 
     /* Mem::Allocator API */
     virtual size_t getStats(Mem::PoolStats &);
-    virtual int getInUseCount();
     virtual void setChunkSize(size_t);
     virtual bool idleTrigger(int) const;
     virtual void clean(time_t);

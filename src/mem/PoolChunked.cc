@@ -301,8 +301,8 @@ MemPoolChunked::~MemPoolChunked()
     MemChunk *chunk, *fchunk;
 
     flushCounters();
+    assert(getInUseCount() == 0);
     clean(0);
-    assert(getMeter().inuse.currentLevel() == 0);
 
     chunk = Chunks;
     while ( (fchunk = chunk) != nullptr) {
@@ -311,12 +311,6 @@ MemPoolChunked::~MemPoolChunked()
     }
     /* TODO we should be doing something about the original Chunks pointer here. */
 
-}
-
-int
-MemPoolChunked::getInUseCount()
-{
-    return getMeter().inuse.currentLevel();
 }
 
 void *
@@ -470,6 +464,6 @@ MemPoolChunked::getStats(Mem::PoolStats &stats)
 
     stats.overhead += sizeof(MemPoolChunked) + chunkCount * sizeof(MemChunk) + strlen(objectType()) + 1;
 
-    return getMeter().inuse.currentLevel();
+    return getInUseCount();
 }
 

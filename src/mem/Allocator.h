@@ -62,7 +62,7 @@ public:
     size_t objectSize() const { return objectSize_; }
 
     /// the difference between the number of alloc() and freeOne() calls
-    virtual int getInUseCount() = 0;
+    virtual int getInUseCount() const { return getMeter().inuse.currentLevel(); }
 
     /// \see doZero
     void zeroBlocks(const bool doIt) { doZero = doIt; }
