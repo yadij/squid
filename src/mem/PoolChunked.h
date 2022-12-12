@@ -37,7 +37,7 @@ public:
 
 protected:
     virtual void *allocate();
-    virtual void deallocate(void *, bool aggressive);
+    virtual void deallocate(void *);
 public:
     virtual bool idleTrigger(int shift) const;
 

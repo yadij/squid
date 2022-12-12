@@ -47,7 +47,7 @@ public:
 
 protected:
     virtual void *allocate();
-    virtual void deallocate(void *, bool aggressive);
+    virtual void deallocate(void *);
 private:
     std::stack<void *> freelist;
 };
