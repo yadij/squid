@@ -9,7 +9,7 @@
 #ifndef _MEM_POOL_CHUNKED_H_
 #define _MEM_POOL_CHUNKED_H_
 
-#include "mem/Pool.h"
+#include "mem/Allocator.h"
 #include "splay.h"
 
 #define MEM_CHUNK_SIZE        4 * 4096  /* 16KB ... 4 * VM_PAGE_SZ */
@@ -18,14 +18,13 @@
 class MemChunk;
 
 /// \ingroup MemPoolsAPI
-class MemPoolChunked : public MemImplementingAllocator
+class MemPoolChunked : public Mem::Allocator
 {
 public:
     friend class MemChunk;
     MemPoolChunked(const char *label, size_t obj_size);
     ~MemPoolChunked();
     void convertFreeCacheToChunkFreeCache();
-    virtual void clean(time_t maxage);
     void createChunk();
     void *get();
     void push(void *obj);
@@ -34,13 +33,15 @@ public:
     virtual size_t getStats(Mem::PoolStats &);
     virtual int getInUseCount();
     virtual void setChunkSize(size_t);
+    virtual bool idleTrigger(int) const;
+    virtual void clean(time_t);
 
 protected:
+    /* Mem::Allocator API */
     virtual void *allocate();
     virtual void deallocate(void *);
-public:
-    virtual bool idleTrigger(int shift) const;
 
+public:
     size_t chunk_size;
     int chunk_capacity;
     int chunkCount;
