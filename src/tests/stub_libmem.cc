@@ -18,7 +18,7 @@
 
 void *Mem::AllocatorProxy::alloc() {return xmalloc(64*1024);}
 void Mem::AllocatorProxy::freeOne(void *address) {xfree(address);}
-int Mem::AllocatorProxy::inUseCount() const {return 0;}
+int Mem::AllocatorProxy::getInUseCount() const {return 0;}
 size_t Mem::AllocatorProxy::getStats(PoolStats &) STUB_RETVAL(0)
 
 #include "mem/forward.h"
@@ -72,7 +72,6 @@ void memFreeRigid(void *buf, size_t) {xfree(buf);}
 void memFreeBuf(size_t, void *buf) {xfree(buf);}
 static void cxx_xfree(void * ptr) {xfree(ptr);}
 FREE *memFreeBufFunc(size_t) {return cxx_xfree;}
-int memInUse(mem_type) STUB_RETVAL(0)
 void memDataInit(mem_type, const char *, size_t, int, bool) STUB_NOP
 void memCheckInit(void) STUB_NOP
 

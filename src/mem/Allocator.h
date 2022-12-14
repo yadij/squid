@@ -67,8 +67,6 @@ public:
     /// \see doZero
     void zeroBlocks(const bool doIt) { doZero = doIt; }
 
-    int inUseCount() { return getInUseCount(); } // XXX: drop redundant?
-
     /// XXX: Misplaced -- not all allocators have a notion of a "chunk". See MemPoolChunked.
     virtual void setChunkSize(size_t) {}
 

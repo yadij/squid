@@ -41,7 +41,7 @@ class PoolStats;
         if (address) \
             Pool().freeOne(address); \
     } \
-    static int UseCount() { return Pool().inUseCount(); } \
+    static int UseCount() { return Pool().getInUseCount(); } \
     private:
 
 namespace Mem
@@ -68,7 +68,7 @@ public:
     /// Free a element allocated by Mem::AllocatorProxy::alloc()
     void freeOne(void *);
 
-    int inUseCount() const;
+    int getInUseCount() const;
     size_t objectSize() const {return size;}
     char const * objectType() const {return label;}
 
