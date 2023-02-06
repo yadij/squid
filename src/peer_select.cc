@@ -528,6 +528,13 @@ PeerSelector::noteIp(const Ip::Address &ip)
             return; // cannot spoof the client address on this link
     }
 
+    // Bug 3735: when IPv6 is disabled we cannot use it
+    if (!Ip::EnableIpv6 && ip.isIPv6()) {
+        const char *host = (peer ? peer->host : request->url.host());
+        ipcacheMarkBadAddr(host, ip);
+        return;
+    }
+
     Comm::ConnectionPointer p = new Comm::Connection();
     p->remote = ip;
     p->remote.port(peer ? peer->http_port : request->url.port());
