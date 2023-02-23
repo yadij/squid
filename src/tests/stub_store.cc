@@ -81,7 +81,7 @@ void StoreEntry::operator delete(void *) STUB
 //#endif
 void StoreEntry::buffer() STUB
 void StoreEntry::flush() STUB
-int StoreEntry::unlock(const char *) STUB_RETVAL(0)
+uint32_t StoreEntry::unlock(const char *) STUB_RETVAL(0)
 void StoreEntry::lock(const char *) STUB
 void StoreEntry::touch() STUB
 void StoreEntry::release(const bool) STUB

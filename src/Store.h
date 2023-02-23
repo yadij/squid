@@ -38,7 +38,7 @@ class RequestFlags;
 
 extern StoreIoStats store_io_stats;
 
-class StoreEntry : public hash_link, public Packable
+class StoreEntry : public hash_link, public Packable, public Lock
 {
 
 public:
@@ -143,7 +143,6 @@ public:
     /// TODO: Rename and make private so only those two methods can call this.
     bool checkCachable();
     int checkNegativeHit() const;
-    int locked() const { return lock_count; }
     int validToSend() const;
     bool memoryCachable(); ///< checkCachable() and can be cached in memory
 
@@ -257,16 +256,16 @@ public:
     int64_t objectLen() const { return mem().object_sz; }
     int64_t contentLen() const { return objectLen() - mem().baseReply().hdr_sz; }
 
-    /// claim shared ownership of this entry (for use in a given context)
-    /// matching lock() and unlock() contexts eases leak triage but is optional
+    /// \copydoc Lock::lock()
     void lock(const char *context);
 
     /// disclaim shared ownership; may remove entry from store and delete it
-    /// returns remaining lock level (zero for unlocked and possibly gone entry)
-    int unlock(const char *context);
+    // \copydoc Lock::unlock()
+    // \copydoc abandon(const char *)
+    uint32_t unlock(const char *context);
 
-    /// returns a local concurrent use counter, for debugging
-    int locks() const { return static_cast<int>(lock_count); }
+    /// \deprecated use LockCount() instead
+    bool locked() const { return LockCount() != 0; }
 
     /// update last reference timestamp and related Store metadata
     void touch();
@@ -281,7 +280,7 @@ public:
     /// May destroy this object if it is unlocked; does nothing otherwise.
     /// Unlike release(), may not trigger eviction of underlying store entries,
     /// but, unlike destroyStoreEntry(), does honor an earlier release request.
-    void abandon(const char *context) { if (!locked()) doAbandon(context); }
+    void abandon(const char *context) { if (LockCount() == 0) doAbandon(context); }
 
     /// May the caller commit to treating this [previously locked]
     /// entry as a cache hit?
@@ -321,8 +320,6 @@ private:
 
     static Mem::Allocator *pool;
 
-    unsigned short lock_count;      /* Assume < 65536! */
-
     /// Nobody can find/lock KEY_PRIVATE entries, but some transactions
     /// (e.g., collapsed requests) find/lock a public entry before it becomes
     /// private. May such transactions start using the now-private entry
@@ -356,7 +353,7 @@ public:
     /// \param context default unlock() message
     EntryGuard(Entry *entry, const char *context):
         entry_(entry), context_(context) {
-        assert(!entry_ || entry_->locked());
+        assert(!entry_ || entry_->LockCount() != 0);
     }
 
     ~EntryGuard() {

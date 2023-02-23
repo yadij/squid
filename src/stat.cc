@@ -309,7 +309,7 @@ statStoreEntry(MemBuf * mb, StoreEntry * e)
     mb->appendf("\t%s\n", describeStatuses(e));
     mb->appendf("\t%s\n", storeEntryFlags(e));
     mb->appendf("\t%s\n", e->describeTimestamps());
-    mb->appendf("\t%d locks, %d clients, %d refs\n", (int) e->locks(), storePendingNClients(e), (int) e->refcount);
+    mb->appendf("\t%u locks, %d clients, %d refs\n", e->LockCount(), storePendingNClients(e), (int) e->refcount);
     mb->appendf("\tSwap Dir %d, File %#08X\n", e->swap_dirn, e->swap_filen);
 
     if (mem != nullptr)

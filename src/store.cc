@@ -324,7 +324,6 @@ StoreEntry::StoreEntry() :
     ping_status(PING_NONE),
     store_status(STORE_PENDING),
     swap_status(SWAPOUT_NONE),
-    lock_count(0),
     shareableWhenPrivate(false)
 {
     debugs(20, 5, "StoreEntry constructed, this=" << this);
@@ -418,7 +417,7 @@ StoreEntry::hashDelete()
 void
 StoreEntry::lock(const char *context)
 {
-    ++lock_count;
+    Lock::lock();
     debugs(20, 3, context << " locked key " << getMD5Text() << ' ' << *this);
 }
 
@@ -439,18 +438,17 @@ StoreEntry::releaseRequest(const bool shareable)
     setPrivateKey(shareable, true);
 }
 
-int
+uint32_t
 StoreEntry::unlock(const char *context)
 {
     debugs(20, 3, (context ? context : "somebody") <<
            " unlocking key " << getMD5Text() << ' ' << *this);
-    assert(lock_count > 0);
-    --lock_count;
+    Lock::unlock();
 
-    if (lock_count)
-        return (int) lock_count;
+    if (LockCount() != 0)
+        return LockCount();
 
-    abandon(context);
+    doAbandon(context);
     return 0;
 }
 
@@ -460,7 +458,7 @@ void
 StoreEntry::doAbandon(const char *context)
 {
     debugs(20, 5, *this << " via " << (context ? context : "somebody"));
-    assert(!locked());
+    assert(LockCount() == 0);
     assert(storePendingNClients(this) == 0);
 
     // Both aborted local writers and aborted local readers (of remote writers)
@@ -1123,7 +1121,7 @@ StoreEntry::release(const bool shareable)
     /* If, for any reason we can't discard this object because of an
      * outstanding request, mark it for pending release */
 
-    if (locked()) {
+    if (LockCount() != 0) {
         releaseRequest(shareable);
         return;
     }
@@ -1478,7 +1476,7 @@ StoreEntry::dump(int l) const
     debugs(20, l, "StoreEntry->flags: " << storeEntryFlags(this));
     debugs(20, l, "StoreEntry->swap_dirn: " << swap_dirn);
     debugs(20, l, "StoreEntry->swap_filen: " << swap_filen);
-    debugs(20, l, "StoreEntry->lock_count: " << lock_count);
+    debugs(20, l, "StoreEntry->lock_count: " << LockCount());
     debugs(20, l, "StoreEntry->mem_status: " << mem_status);
     debugs(20, l, "StoreEntry->ping_status: " << ping_status);
     debugs(20, l, "StoreEntry->store_status: " << store_status);
@@ -2062,7 +2060,7 @@ std::ostream &operator <<(std::ostream &os, const StoreEntry &e)
         if (EBIT_TEST(e.flags, ENTRY_REQUIRES_COLLAPSING)) os << 'C';
     }
 
-    return os << '/' << &e << '*' << e.locks();
+    return os << '/' << &e << '*' << e.LockCount();
 }
 
 void
