@@ -13,7 +13,7 @@
 
 #include "esi/Parser.h"
 
-#if HAVE_EXPAT_H
+#if __has_include(<expat.h>)
 #include <expat.h>
 #endif
 

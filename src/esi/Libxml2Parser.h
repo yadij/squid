@@ -33,13 +33,13 @@
 #define LIBXML_ATTR_ALLOC_SIZE(x)
 #endif /* __clang__ */
 
-#if HAVE_LIBXML_PARSER_H
+#if __has_include(<libxml/parser.h>)
 #include <libxml/parser.h>
 #endif
-#if HAVE_LIBXML_HTMLPARSER_H
+#if __has_include(<libxml/HTMLparser.h>)
 #include <libxml/HTMLparser.h>
 #endif
-#if HAVE_LIBXML_HTMLTREE_H
+#if __has_include(<libxml/HTMLtree.h>)
 #include <libxml/HTMLtree.h>
 #endif
 

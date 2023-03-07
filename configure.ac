@@ -815,8 +815,6 @@ AS_IF([test "x$squid_opt_use_esi" != "xno" -a "x$with_expat" != "xno"],[
   PKG_CHECK_MODULES([LIBEXPAT],[expat],[],[
     AC_CHECK_LIB([expat],[main],[LIBEXPAT_LIBS="-lexpat"])
   ])
-  CPPFLAGS="$LIBEXPAT_CFLAGS $CPPFLAGS"
-  AC_CHECK_HEADERS(expat.h)
   SQUID_STATE_ROLLBACK(squid_expat_state)
   AS_IF([test "x$LIBEXPAT_LIBS" != "x"],[
       squid_opt_use_esi=yes
@@ -838,8 +836,6 @@ AS_IF([test "x$squid_opt_use_esi" != "xno" -a "x$with_xml2" != "xno"],[
   PKG_CHECK_MODULES([LIBXML2],[libxml-2.0],[],[
     AC_CHECK_LIB([xml2],[main],[LIBXML2_LIBS="$LIBXML2_PATH -lxml2"])
   ])
-  CPPFLAGS="$LIBXML2_CFLAGS $CPPFLAGS"
-  AC_CHECK_HEADERS(libxml/parser.h libxml/HTMLparser.h libxml/HTMLtree.h)
   SQUID_STATE_ROLLBACK([squid_libxml2_save])
 
   AS_IF([test "x$LIBXML2_LIBS" != "x"],[
