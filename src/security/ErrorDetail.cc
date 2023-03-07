@@ -505,15 +505,18 @@ Security::ErrorDetail::setPeerCertificate(const CertPointer &cert)
 SBuf
 Security::ErrorDetail::brief() const
 {
-    SBuf buf = err_code();
+    SBufStream out;
+    out << err_code();
 
     if (lib_error_no) {
 #if USE_OPENSSL
         // TODO: Log ERR_error_string_n() instead, despite length, whitespace?
         // Example: `error:1408F09C:SSL routines:ssl3_get_record:http request`.
-        buf.append(ToSBuf("+TLS_LIB_ERR=", std::hex, std::uppercase, lib_error_no));
+        auto flagSaved = out.flags();
+        out << "+TLS_LIB_ERR=" << std::hex << std::uppercase << lib_error_no;
+        out.flags(flagSaved);
 #elif USE_GNUTLS
-        buf.append(ToSBuf("+", gnutls_strerror_name(lib_error_no)));
+        out << "+" << gnutls_strerror_name(lib_error_no);
 #endif
     }
 
@@ -521,18 +524,16 @@ Security::ErrorDetail::brief() const
     // TODO: Consider logging long but human-friendly names (e.g.,
     // SSL_ERROR_SYSCALL).
     if (ioErrorNo)
-        buf.append(ToSBuf("+TLS_IO_ERR=", ioErrorNo));
+        out << "+TLS_IO_ERR=" << ioErrorNo;
 #endif
 
-    if (sysErrorNo) {
-        buf.append('+');
-        buf.append(SysErrorDetail::Brief(sysErrorNo));
-    }
+    if (sysErrorNo)
+        out << '+' << SysErrorDetail::Brief(sysErrorNo);
 
     if (broken_cert)
-        buf.append("+broken_cert");
+        out << "+broken_cert";
 
-    return buf;
+    return out.buf();
 }
 
 SBuf
