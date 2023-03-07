@@ -12,6 +12,7 @@
 #include "html_quote.h"
 #include "sbuf/SBuf.h"
 #include "sbuf/Stream.h"
+#include "sbuf/StringConvert.h"
 #include "security/Certificate.h"
 #include "security/ErrorDetail.h"
 #include "security/forward.h"
@@ -405,6 +406,12 @@ static const ErrorCodeNames TheErrorCodeNames = {
 
 } // namespace Security
 
+/// message to display when there is no error ID available
+static const SBuf NoError("[No Error]");
+
+/// message to display when details cannot be found
+static const SBuf NotAvailable("[Not available]");
+
 Security::ErrorCode
 Security::ErrorCodeFromName(const char *name)
 {
@@ -498,7 +505,7 @@ Security::ErrorDetail::setPeerCertificate(const CertPointer &cert)
 SBuf
 Security::ErrorDetail::brief() const
 {
-    SBuf buf(err_code()); // TODO: Upgrade err_code()/etc. to return SBuf.
+    SBuf buf = err_code();
 
     if (lib_error_no) {
 #if USE_OPENSSL
@@ -546,7 +553,7 @@ Security::ErrorDetail::verbose(const HttpRequestPointer &request) const
     auto remainder = format;
     while (auto p = strchr(remainder, '%')) {
         errDetailStr.append(remainder, p - remainder);
-        char const *converted = nullptr;
+        SBuf converted;
         const auto formattingCodeLen = convert(++p, &converted);
         if (formattingCodeLen)
             errDetailStr.append(converted);
@@ -559,7 +566,7 @@ Security::ErrorDetail::verbose(const HttpRequestPointer &request) const
 }
 
 /// textual representation of the subject of the broken certificate
-const char *
+const SBuf
 Security::ErrorDetail::subject() const
 {
     if (broken_cert) {
@@ -567,10 +574,10 @@ Security::ErrorDetail::subject() const
         if (!buf.isEmpty()) {
             // quote to avoid possible html code injection through
             // certificate subject
-            return html_quote(buf.c_str());
+            return SBuf(html_quote(buf.c_str()));
         }
     }
-    return "[Not available]";
+    return NotAvailable;
 }
 
 #if USE_OPENSSL
@@ -591,7 +598,7 @@ copy_cn(void *check_data,  ASN1_STRING *cn_data)
 #endif // USE_OPENSSL
 
 /// a list of the broken certificates CN and alternate names
-const char *
+const SBuf
 Security::ErrorDetail::cn() const
 {
 #if USE_OPENSSL
@@ -602,15 +609,15 @@ Security::ErrorDetail::cn() const
         if (tmpStr.size()) {
             // quote to avoid possible HTML code injection through
             // certificate subject
-            return html_quote(tmpStr.termedBuf());
+            return SBuf(html_quote(tmpStr.termedBuf()));
         }
     }
 #endif // USE_OPENSSL
-    return "[Not available]";
+    return NotAvailable;
 }
 
 /// the issuer of the broken certificate
-const char *
+const SBuf
 Security::ErrorDetail::ca_name() const
 {
     if (broken_cert) {
@@ -618,14 +625,14 @@ Security::ErrorDetail::ca_name() const
         if (!buf.isEmpty()) {
             // quote to avoid possible html code injection through
             // certificate issuer subject
-            return html_quote(buf.c_str());
+            return SBuf(html_quote(buf.c_str()));
         }
     }
-    return "[Not available]";
+    return NotAvailable;
 }
 
 /// textual representation of the "not before" field of the broken certificate
-const char *
+const SBuf
 Security::ErrorDetail::notbefore() const
 {
 #if USE_OPENSSL
@@ -633,15 +640,15 @@ Security::ErrorDetail::notbefore() const
         if (const auto tm = X509_getm_notBefore(broken_cert.get())) {
             static char tmpBuffer[256]; // A temporary buffer
             Ssl::asn1timeToString(tm, tmpBuffer, sizeof(tmpBuffer));
-            return tmpBuffer;
+            return SBuf(tmpBuffer);
         }
     }
 #endif // USE_OPENSSL
-    return "[Not available]";
+    return NotAvailable;
 }
 
 /// textual representation of the "not after" field of the broken certificate
-const char *
+const SBuf
 Security::ErrorDetail::notafter() const
 {
 #if USE_OPENSSL
@@ -649,50 +656,50 @@ Security::ErrorDetail::notafter() const
         if (const auto tm = X509_getm_notAfter(broken_cert.get())) {
             static char tmpBuffer[256]; // A temporary buffer
             Ssl::asn1timeToString(tm, tmpBuffer, sizeof(tmpBuffer));
-            return tmpBuffer;
+            return SBuf(tmpBuffer);
         }
     }
 #endif // USE_OPENSSL
-    return "[Not available]";
+    return NotAvailable;
 }
 
 /// textual representation of error_no
-const char *
+const SBuf
 Security::ErrorDetail::err_code() const
 {
 #if USE_OPENSSL
     // try detailEntry first because it is faster
-    if (const char *err = detailEntry.name.termedBuf())
-        return err;
+    if (detailEntry.name.size())
+        return StringToSBuf(detailEntry.name);
 #endif
 
-    return ErrorNameFromCode(error_no);
+    return SBuf(ErrorNameFromCode(error_no));
 }
 
 /// short description of error_no
-const char *
+const SBuf
 Security::ErrorDetail::err_descr() const
 {
     if (!error_no)
-        return "[No Error]";
+        return NoError;
 #if USE_OPENSSL
-    if (const char *err = detailEntry.descr.termedBuf())
-        return err;
+    if (detailEntry.descr.size())
+        return StringToSBuf(detailEntry.descr);
 #endif
-    return "[Not available]";
+    return NotAvailable;
 }
 
 /// textual representation of lib_error_no
-const char *
+const SBuf
 Security::ErrorDetail::err_lib_error() const
 {
     if (errReason.size() > 0)
-        return errReason.termedBuf();
+        return StringToSBuf(errReason);
     else if (lib_error_no)
-        return ErrorString(lib_error_no);
+        return SBuf(ErrorString(lib_error_no));
     else
-        return "[No Error]";
-    return "[Not available]";
+        return NoError;
+    return NotAvailable;
 }
 
 /**
@@ -714,9 +721,9 @@ Security::ErrorDetail::err_lib_error() const
  \retval 0 for unsupported codes
 */
 size_t
-Security::ErrorDetail::convert(const char *code, const char **value) const
+Security::ErrorDetail::convert(const char *code, SBuf *value) const
 {
-    typedef const char *(ErrorDetail::*PartDescriber)() const;
+    typedef const SBuf (ErrorDetail::*PartDescriber)() const;
     static const std::map<const char*, PartDescriber> PartDescriberByCode = {
         {"ssl_subject", &ErrorDetail::subject},
         {"ssl_ca_name", &ErrorDetail::ca_name},
@@ -737,8 +744,9 @@ Security::ErrorDetail::convert(const char *code, const char **value) const
         }
     }
 
+    static const SBuf nil;
     // TODO: Support logformat %codes.
-    *value = ""; // unused with zero return
+    *value = nil; // unused with zero return
     return 0;
 }
 

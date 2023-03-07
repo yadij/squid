@@ -81,15 +81,15 @@ private:
     ErrorDetail(ErrorCode err, int aSysErrorNo);
 
     /* methods for formatting error details using admin-configurable %codes */
-    const char *subject() const;
-    const char *ca_name() const;
-    const char *cn() const;
-    const char *notbefore() const;
-    const char *notafter() const;
-    const char *err_code() const;
-    const char *err_descr() const;
-    const char *err_lib_error() const;
-    size_t convert(const char *code, const char **value) const;
+    const SBuf subject() const;
+    const SBuf ca_name() const;
+    const SBuf cn() const;
+    const SBuf notbefore() const;
+    const SBuf notafter() const;
+    const SBuf err_code() const;
+    const SBuf err_descr() const;
+    const SBuf err_lib_error() const;
+    size_t convert(const char *code, SBuf *value) const;
 
     CertPointer peer_cert; ///< A pointer to the peer certificate
     CertPointer broken_cert; ///< A pointer to the broken certificate (peer or intermediate)
