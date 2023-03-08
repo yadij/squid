@@ -30,14 +30,6 @@ GetErrorCode(const char *name)
     return Security::ErrorCodeFromName(name);
 }
 
-/// \return string representation of a known TLS error (or a raw error code)
-/// \param prefixRawCode whether to prefix raw codes with "SSL_ERR="
-inline const char *
-GetErrorName(const Security::ErrorCode code, const bool prefixRawCode = false)
-{
-    return Security::ErrorNameFromCode(code, prefixRawCode);
-}
-
 /// A short description of the TLS error "value"
 const char *GetErrorDescr(Security::ErrorCode value);
 

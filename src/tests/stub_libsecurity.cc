@@ -62,7 +62,7 @@ void Security::ErrorDetail::setPeerCertificate(const CertPointer &) STUB
 SBuf Security::ErrorDetail::verbose(const HttpRequestPointer &) const STUB_RETVAL(SBuf())
 SBuf Security::ErrorDetail::brief() const STUB_RETVAL(SBuf())
 Security::ErrorCode Security::ErrorCodeFromName(const char *) STUB_RETVAL(0)
-const char *Security::ErrorNameFromCode(ErrorCode, bool) STUB_RETVAL("")
+const SBuf Security::ErrorNameFromCode(ErrorCode, bool) STUB_RETVAL(SBuf())
 
 #include "security/NegotiationHistory.h"
 Security::NegotiationHistory::NegotiationHistory() STUB

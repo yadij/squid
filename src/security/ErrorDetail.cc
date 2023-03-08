@@ -432,17 +432,16 @@ Security::ErrorCodeFromName(const char *name)
     return 0;
 }
 
-const char *
+const SBuf
 Security::ErrorNameFromCode(const ErrorCode err, const bool prefixRawCode)
 {
+    SBufStream out;
     const auto it = TheErrorCodeNames.find(err);
     if (it != TheErrorCodeNames.end())
-        return it->second;
-
-    static char tmpBuffer[128];
-    snprintf(tmpBuffer, sizeof(tmpBuffer), "%s%d",
-             (prefixRawCode ? "SSL_ERR=" : ""), static_cast<int>(err));
-    return tmpBuffer;
+        out << it->second;
+    else
+        out << (prefixRawCode ? "SSL_ERR=" : "") << int(err);
+    return out.buf();
 }
 
 /* Security::ErrorDetail */
@@ -674,7 +673,7 @@ Security::ErrorDetail::err_code() const
         return StringToSBuf(detailEntry.name);
 #endif
 
-    return SBuf(ErrorNameFromCode(error_no));
+    return ErrorNameFromCode(error_no);
 }
 
 /// short description of error_no

@@ -158,7 +158,7 @@ Ssl::ErrorDetailsManager::getErrorDetail(Security::ErrorCode value, const HttpRe
 
     // else try the default
     if (theDefaultErrorDetails->getRecord(value, entry)) {
-        debugs(83, 8, "Found default details record for error: " << GetErrorName(value));
+        debugs(83, 8, "Found default details record for error: " << Security::ErrorNameFromCode(value));
         return true;
     }
 

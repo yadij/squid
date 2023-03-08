@@ -124,7 +124,7 @@ ErrorCode ErrorCodeFromName(const char *name);
 
 /// \returns string representation of ErrorCode, including raw X.509 error codes
 /// \param prefixRawCode whether to prefix raw codes with "SSL_ERR="
-const char *ErrorNameFromCode(ErrorCode err, bool prefixRawCode = false);
+const SBuf ErrorNameFromCode(ErrorCode err, bool prefixRawCode = false);
 
 /// Dump the given Security::ErrorDetail via a possibly nil pointer (for
 /// debugging). Unfortunately, without this, compilers pick generic RefCount<T>
