@@ -637,11 +637,8 @@ Security::ErrorDetail::notbefore() const
 {
 #if USE_OPENSSL
     if (broken_cert.get()) {
-        if (const auto tm = X509_getm_notBefore(broken_cert.get())) {
-            static char tmpBuffer[256]; // A temporary buffer
-            Ssl::asn1timeToString(tm, tmpBuffer, sizeof(tmpBuffer));
-            return SBuf(tmpBuffer);
-        }
+        if (const auto tm = X509_getm_notBefore(broken_cert.get()))
+            return Ssl::asn1timeToString(tm);
     }
 #endif // USE_OPENSSL
     return NotAvailable;
@@ -653,11 +650,8 @@ Security::ErrorDetail::notafter() const
 {
 #if USE_OPENSSL
     if (broken_cert.get()) {
-        if (const auto tm = X509_getm_notAfter(broken_cert.get())) {
-            static char tmpBuffer[256]; // A temporary buffer
-            Ssl::asn1timeToString(tm, tmpBuffer, sizeof(tmpBuffer));
-            return SBuf(tmpBuffer);
-        }
+        if (const auto tm = X509_getm_notAfter(broken_cert.get()))
+            return Ssl::asn1timeToString(tm);
     }
 #endif // USE_OPENSSL
     return NotAvailable;

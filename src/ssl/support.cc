@@ -178,18 +178,20 @@ Ssl::MaybeSetupRsaCallback(Security::ContextPointer &ctx)
 #endif
 }
 
-int Ssl::asn1timeToString(ASN1_TIME *tm, char *buf, int len)
+SBuf
+Ssl::asn1timeToString(ASN1_TIME *tm)
 {
-    BIO *bio;
-    int write = 0;
-    bio = BIO_new(BIO_s_mem());
-    if (bio) {
-        if (ASN1_TIME_print(bio, tm))
-            write = BIO_read(bio, buf, len-1);
+    SBuf buf;
+    if (auto bio = BIO_new(BIO_s_mem())) {
+        // TODO write directly to buf to avoid multiple re-allocations
+        if (ASN1_TIME_print(bio, tm)) {
+            auto tmp = buf.rawAppendStart(256);
+            auto wrote = BIO_read(bio, tmp, 256);
+            buf.rawAppendFinish(tmp, wrote);
+        }
         BIO_free(bio);
     }
-    buf[write]='\0';
-    return write;
+    return buf;
 }
 
 int Ssl::matchX509CommonNames(X509 *peer_cert, void *check_data, int (*check_func)(void *check_data,  ASN1_STRING *cn_data))

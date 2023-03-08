@@ -294,14 +294,11 @@ int matchX509CommonNames(X509 *peer_cert, void *check_data, int (*check_func)(vo
 bool checkX509ServerValidity(X509 *cert, const char *server);
 
 /**
-   \ingroup ServerProtocolSSLAPI
-   * Convert a given ASN1_TIME to a string form.
-   \param tm the time in ASN1_TIME form
-   \param buf the buffer to write the output
-   \param len write at most len bytes
-   \return The number of bytes written
+ * \ingroup ServerProtocolSSLAPI
+ * Convert a given ASN1_TIME to a string form.
+ * \return The string representation of the given time
  */
-int asn1timeToString(ASN1_TIME *tm, char *buf, int len);
+SBuf asn1timeToString(ASN1_TIME *);
 
 /**
    \ingroup ServerProtocolSSLAPI
