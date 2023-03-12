@@ -20,7 +20,7 @@
 #include "fde.h"
 #include "format/Format.h"
 #include "fs_io.h"
-#include "html/forward.h"
+#include "html/TemplateFile.h"
 #include "HttpHeaderTools.h"
 #include "HttpReply.h"
 #include "HttpRequest.h"
@@ -51,13 +51,6 @@
  *   the various message formats. (formats are stored in the
  *   Config.errorDirectory)
  */
-
-#if !defined(DEFAULT_SQUID_ERROR_DIR)
-/** Where to look for errors if config path fails.
- \note Please use ./configure --datadir=/path instead of patching
- */
-#define DEFAULT_SQUID_ERROR_DIR   DEFAULT_SQUID_DATA_DIR"/errors"
-#endif
 
 /// \ingroup ErrorPageInternal
 CBDATA_CLASS_INIT(ErrorState);
@@ -209,10 +202,10 @@ static IOCB errorSendComplete;
 
 /// \ingroup ErrorPageInternal
 /// manages an error page template
-class ErrorPageFile: public TemplateFile
+class ErrorPageFile: public Html::TemplateFile
 {
 public:
-    ErrorPageFile(const char *name, const err_type code) : TemplateFile(name, code) {}
+    ErrorPageFile(const char *name, const err_type code) : Html::TemplateFile(name, code) {}
 
     /// The template text data read from disk
     const char *text() { return template_.c_str(); }
@@ -347,121 +340,6 @@ errorFindHardText(err_type type)
     return nullptr;
 }
 
-TemplateFile::TemplateFile(const char *name, const err_type code): silent(false), wasLoaded(false), templateName(name), templateCode(code)
-{
-    assert(name);
-}
-
-void
-TemplateFile::loadDefault()
-{
-    if (loaded()) // already loaded?
-        return;
-
-    /** test error_directory configured location */
-    if (Config.errorDirectory) {
-        char path[MAXPATHLEN];
-        snprintf(path, sizeof(path), "%s/%s", Config.errorDirectory, templateName.termedBuf());
-        loadFromFile(path);
-    }
-
-#if USE_ERR_LOCALES
-    /** test error_default_language location */
-    if (!loaded() && Config.errorDefaultLanguage) {
-        if (!tryLoadTemplate(Config.errorDefaultLanguage)) {
-            debugs(1, (templateCode < TCP_RESET ? DBG_CRITICAL : 3), "ERROR: Unable to load default error language files. Reset to backups.");
-        }
-    }
-#endif
-
-    /* test default location if failed (templates == English translation base templates) */
-    if (!loaded()) {
-        tryLoadTemplate("templates");
-    }
-
-    /* giving up if failed */
-    if (!loaded()) {
-        debugs(1, (templateCode < TCP_RESET ? DBG_CRITICAL : 3), "WARNING: failed to find or read error text file " << templateName);
-        template_.clear();
-        setDefault();
-        wasLoaded = true;
-    }
-}
-
-bool
-TemplateFile::tryLoadTemplate(const char *lang)
-{
-    assert(lang);
-
-    char path[MAXPATHLEN];
-    /* TODO: prep the directory path string to prevent snprintf ... */
-    snprintf(path, sizeof(path), "%s/%s/%s",
-             DEFAULT_SQUID_ERROR_DIR, lang, templateName.termedBuf());
-    path[MAXPATHLEN-1] = '\0';
-
-    if (loadFromFile(path))
-        return true;
-
-#if HAVE_GLOB
-    if ( strlen(lang) == 2) {
-        /* TODO glob the error directory for sub-dirs matching: <tag> '-*'   */
-        /* use first result. */
-        debugs(4,2, "wildcard fallback errors not coded yet.");
-    }
-#endif
-
-    return false;
-}
-
-bool
-TemplateFile::loadFromFile(const char *path)
-{
-    int fd;
-    char buf[4096];
-    ssize_t len;
-
-    if (loaded()) // already loaded?
-        return true;
-
-    fd = file_open(path, O_RDONLY | O_TEXT);
-
-    if (fd < 0) {
-        /* with dynamic locale negotiation we may see some failures before a success. */
-        if (!silent && templateCode < TCP_RESET) {
-            int xerrno = errno;
-            debugs(4, DBG_CRITICAL, "ERROR: loading file '" << path << "': " << xstrerr(xerrno));
-        }
-        wasLoaded = false;
-        return wasLoaded;
-    }
-
-    template_.clear();
-    while ((len = FD_READ_METHOD(fd, buf, sizeof(buf))) > 0) {
-        template_.append(buf, len);
-    }
-
-    if (len < 0) {
-        int xerrno = errno;
-        file_close(fd);
-        debugs(4, DBG_CRITICAL, MYNAME << "ERROR: failed to fully read: '" << path << "': " << xstrerr(xerrno));
-        wasLoaded = false;
-        return false;
-    }
-
-    file_close(fd);
-
-    filename = SBuf(path);
-
-    if (!parse()) {
-        debugs(4, DBG_CRITICAL, "ERROR: parsing error in template file: " << path);
-        wasLoaded = false;
-        return false;
-    }
-
-    wasLoaded = true;
-    return wasLoaded;
-}
-
 bool strHdrAcptLangGetItem(const String &hdr, char *lang, int langLen, size_t &pos)
 {
     while (pos < hdr.size()) {
@@ -513,48 +391,6 @@ bool strHdrAcptLangGetItem(const String &hdr, char *lang, int langLen, size_t &p
             return true;
     }
     return false;
-}
-
-bool
-TemplateFile::loadFor(const HttpRequest *request)
-{
-    String hdr;
-
-#if USE_ERR_LOCALES
-    if (loaded()) // already loaded?
-        return true;
-
-    if (!request || !request->header.getList(Http::HdrType::ACCEPT_LANGUAGE, &hdr))
-        return false;
-
-    char lang[256];
-    size_t pos = 0; // current parsing position in header string
-
-    debugs(4, 6, "Testing Header: '" << hdr << "'");
-
-    while ( strHdrAcptLangGetItem(hdr, lang, 256, pos) ) {
-
-        /* wildcard uses the configured default language */
-        if (lang[0] == '*' && lang[1] == '\0') {
-            debugs(4, 6, "Found language '" << lang << "'. Using configured default.");
-            return false;
-        }
-
-        debugs(4, 6, "Found language '" << lang << "', testing for available template");
-
-        if (tryLoadTemplate(lang)) {
-            /* store the language we found for the Content-Language reply header */
-            errLanguage = lang;
-            break;
-        } else if (Config.errorLogMissingLanguages) {
-            debugs(4, DBG_IMPORTANT, "WARNING: Error Pages Missing Language: " << lang);
-        }
-    }
-#else
-    (void)request;
-#endif
-
-    return loaded();
 }
 
 ErrorDynamicPageInfo::ErrorDynamicPageInfo(const int anId, const char *aName, const SBuf &aCfgLocation):

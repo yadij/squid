@@ -12,4 +12,6 @@ noinst_LTLIBRARIES = libhtml.la
 
 libhtml_la_SOURCES = \
 	Quoting.cc \
+	TemplateFile.cc \
+	TemplateFile.h \
 	forward.h

@@ -11,6 +11,7 @@
 #include "ErrorDetail.h"
 #include "ErrorDetailManager.h"
 #include "errorpage.h"
+#include "html/TemplateFile.h"
 #include "http/ContentLengthInterpreter.h"
 #include "mime_header.h"
 
@@ -28,10 +29,12 @@ namespace Ssl
 {
 
 /// manages error detail templates
-class ErrorDetailFile : public TemplateFile
+class ErrorDetailFile : public Html::TemplateFile
 {
 public:
-    explicit ErrorDetailFile(ErrorDetailsList::Pointer const details): TemplateFile("error-details.txt", ERR_NONE) {
+    explicit ErrorDetailFile(ErrorDetailsList::Pointer const details):
+        Html::TemplateFile("error-details.txt", ERR_NONE)
+    {
         theDetails = details;
     }
 

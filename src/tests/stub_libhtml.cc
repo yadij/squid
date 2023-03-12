@@ -6,18 +6,13 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef SQUID__SRC_HTML_FORWARD_H
-#define SQUID__SRC_HTML_FORWARD_H
+#include "squid.h"
 
-/// HTML Document tools
-namespace Html
-{
+#define STUB_API "html/libhtml.la"
+#include "tests/STUB.h"
 
-class TemplateFile;
+#include "html/forward.h"
 
-} // namespace Html
-
-char *html_quote(const char *);
-
-#endif /* SQUID__SRC_HTML_FORWARD_H */
-
+#include "html/TemplateFile.h"
+void Html::TemplateFile::loadDefault() STUB
+bool Html::TemplateFile::loadFor(const HttpRequest *) STUB_RETVAL(false)

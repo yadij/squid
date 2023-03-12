@@ -15,9 +15,6 @@
 err_type errorReservePageId(const char *, const SBuf &) STUB_RETVAL(err_type(0))
 void errorAppendEntry(StoreEntry *, ErrorState * ) STUB
 bool strHdrAcptLangGetItem(const String &, char *, int, size_t &) STUB_RETVAL(false)
-void TemplateFile::loadDefault() STUB
-TemplateFile::TemplateFile(char const*, err_type) STUB
-bool TemplateFile::loadFor(const HttpRequest *) STUB_RETVAL(false)
 
 std::ostream &operator <<(std::ostream &os, const ErrorState *) STUB_RETVAL(os)
 

@@ -63,6 +63,7 @@ STUB_SOURCE = \
 	tests/stub_liberror.cc \
 	tests/stub_libeui.cc \
 	tests/stub_libformat.cc \
+	tests/stub_libhtml.cc \
 	tests/stub_libhttp.cc \
 	tests/stub_libicmp.cc \
 	tests/stub_libip.cc \
