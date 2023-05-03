@@ -21,5 +21,8 @@
 #include <windows.h>
 #endif
 
+// XXX: caddr_t is outdated, remove all uses from Squid
+typedef char * caddr_t;
+
 #endif /* _SQUID_MINGW_*/
 #endif /* SQUID_OS_WINDOWS_MINGW_H */
