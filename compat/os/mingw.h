@@ -6,8 +6,8 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef SQUID_OS_WINDOWS_MINGW_H
-#define SQUID_OS_WINDOWS_MINGW_H
+#ifndef SQUID_OS_MINGW_H
+#define SQUID_OS_MINGW_H
 
 #if _SQUID_MINGW_
 
@@ -25,4 +25,4 @@
 typedef char * caddr_t;
 
 #endif /* _SQUID_MINGW_*/
-#endif /* SQUID_OS_WINDOWS_MINGW_H */
+#endif /* SQUID_OS_MINGW_H */
