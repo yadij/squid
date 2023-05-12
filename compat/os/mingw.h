@@ -17,6 +17,11 @@
  *--------------------------------------------------------------------------*
  ****************************************************************************/
 
+// error: #warning Please include winsock2.h before windows.h [-Werror=cpp]
+#if HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
+
 // all windows native code requires windows.h
 #if HAVE_WINDOWS_H
 #include <windows.h>
