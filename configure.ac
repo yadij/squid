@@ -186,6 +186,8 @@ AM_CONDITIONAL(ENABLE_WIN32_IPC,[test "x$squid_host_os" = "xmingw"])
 
 AS_CASE(["$squid_host_os"],
   [mingw],[
+    dnl Windows SDK needs to be told the oldest Windows Version supported
+    AC_DEFINE_UNQUOTED(NTDDI_VERSION, NTDDI_WIN10, [Supported Windows Version. see Windows header file sdkddkver.h])
     AC_PATH_PROG(WIN32_PSAPI, psapi.dll, none)
     CFLAGS="$CFLAGS -mthreads"
     CXXFLAGS="$CXXFLAGS -mthreads -static-libgcc -static-libstdc++"
