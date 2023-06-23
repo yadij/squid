@@ -24,7 +24,7 @@ class NotNode: public InnerNode
     MEMPROXY_CLASS(NotNode);
 
 public:
-    explicit NotNode(ACL *acl);
+    explicit NotNode(Acl::ACL *);
 
 private:
     /* ACL API */

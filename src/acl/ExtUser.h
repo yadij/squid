@@ -15,7 +15,7 @@
 #include "acl/Checklist.h"
 #include "acl/Data.h"
 
-class ACLExtUser : public ACL
+class ACLExtUser : public Acl::ACL
 {
     MEMPROXY_CLASS(ACLExtUser);
 

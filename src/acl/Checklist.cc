@@ -78,7 +78,7 @@ ACLChecklist::preCheck(const char *what)
 }
 
 bool
-ACLChecklist::matchChild(const Acl::InnerNode *current, Acl::Nodes::const_iterator pos, const ACL *child)
+ACLChecklist::matchChild(const Acl::InnerNode *current, Acl::Nodes::const_iterator pos, const Acl::ACL *child)
 {
     assert(current && child);
 

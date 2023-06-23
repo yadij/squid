@@ -18,7 +18,7 @@ namespace Eui
 class Eui64;
 };
 
-class ACLEui64 : public ACL
+class ACLEui64 : public Acl::ACL
 {
     MEMPROXY_CLASS(ACLEui64);
 

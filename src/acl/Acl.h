@@ -26,7 +26,7 @@ namespace Acl {
 /// the ACL type name known to admins
 typedef const char *TypeName;
 /// a "factory" function for making ACL objects (of some ACL child type)
-typedef ACL *(*Maker)(TypeName typeName);
+typedef Acl::ACL *(*Maker)(TypeName typeName);
 /// use the given ACL Maker for all ACLs of the named type
 void RegisterMaker(TypeName typeName, Maker maker);
 
@@ -36,12 +36,9 @@ void RegisterMaker(TypeName typeName, Maker maker);
 /// Key comparison is case-insensitive.
 void SetKey(SBuf &keyStorage, const char *keyParameterName, const char *newKey);
 
-} // namespace Acl
-
 /// A configurable condition. A node in the ACL expression tree.
 /// Can evaluate itself in FilledChecklist context.
 /// Does not change during evaluation.
-/// \ingroup ACLAPI
 class ACL
 {
 
@@ -108,6 +105,8 @@ private:
     /// \see ACL::options()
     virtual const Acl::Options &lineOptions() { return Acl::NoOptions(); }
 };
+
+} // namespace Acl
 
 /// \ingroup ACLAPI
 typedef enum {

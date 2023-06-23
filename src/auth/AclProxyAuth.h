@@ -27,7 +27,7 @@ private:
     static void LookupDone(void *data);
 };
 
-class ACLProxyAuth : public ACL
+class ACLProxyAuth : public Acl::ACL
 {
     MEMPROXY_CLASS(ACLProxyAuth);
 

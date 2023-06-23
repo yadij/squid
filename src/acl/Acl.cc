@@ -102,20 +102,20 @@ Acl::SetKey(SBuf &keyStorage, const char *keyParameterName, const char *newKey)
 }
 
 void *
-ACL::operator new (size_t)
+Acl::ACL::operator new(size_t)
 {
     fatal ("unusable ACL::new");
     return (void *)1;
 }
 
 void
-ACL::operator delete (void *)
+Acl::ACL::operator delete(void *)
 {
     fatal ("unusable ACL::delete");
 }
 
-ACL *
-ACL::FindByName(const char *name)
+Acl::ACL *
+Acl::ACL::FindByName(const char *name)
 {
     ACL *a;
     debugs(28, 9, "ACL::FindByName '" << name << "'");
@@ -129,7 +129,7 @@ ACL::FindByName(const char *name)
     return nullptr;
 }
 
-ACL::ACL() :
+Acl::ACL::ACL() :
     cfgline(nullptr),
     next(nullptr),
     registered(false)
@@ -137,13 +137,14 @@ ACL::ACL() :
     *name = 0;
 }
 
-bool ACL::valid () const
+bool
+Acl::ACL::valid() const
 {
     return true;
 }
 
 bool
-ACL::matches(ACLChecklist *checklist) const
+Acl::ACL::matches(ACLChecklist *checklist) const
 {
     debugs(28, 5, "checking " << name);
 
@@ -177,7 +178,7 @@ ACL::matches(ACLChecklist *checklist) const
 }
 
 void
-ACL::context(const char *aName, const char *aCfgLine)
+Acl::ACL::context(const char *aName, const char *aCfgLine)
 {
     name[0] = '\0';
     if (aName)
@@ -188,7 +189,7 @@ ACL::context(const char *aName, const char *aCfgLine)
 }
 
 void
-ACL::ParseAclLine(ConfigParser &parser, ACL ** head)
+Acl::ACL::ParseAclLine(ConfigParser &parser, ACL ** head)
 {
     /* we're already using strtok() to grok the line */
     char *t = nullptr;
@@ -306,13 +307,13 @@ ACL::ParseAclLine(ConfigParser &parser, ACL ** head)
 }
 
 bool
-ACL::isProxyAuth() const
+Acl::ACL::isProxyAuth() const
 {
     return false;
 }
 
 void
-ACL::parseFlags()
+Acl::ACL::parseFlags()
 {
     Acl::Options allOptions = options();
     for (const auto lineOption: lineOptions()) {
@@ -323,7 +324,7 @@ ACL::parseFlags()
 }
 
 SBufList
-ACL::dumpOptions()
+Acl::ACL::dumpOptions()
 {
     SBufList result;
 
@@ -346,7 +347,7 @@ ACL::dumpOptions()
 /* ACL result caching routines */
 
 int
-ACL::matchForCache(ACLChecklist *)
+Acl::ACL::matchForCache(ACLChecklist *)
 {
     /* This is a fatal to ensure that cacheMatchAcl calls are _only_
      * made for supported acl types */
@@ -364,7 +365,7 @@ ACL::matchForCache(ACLChecklist *)
  * TODO: does a dlink_list perform well enough? Kinkie
  */
 int
-ACL::cacheMatchAcl(dlink_list * cache, ACLChecklist *checklist)
+Acl::ACL::cacheMatchAcl(dlink_list * cache, ACLChecklist *checklist)
 {
     acl_proxy_auth_match_cache *auth_match;
     dlink_node *link;
@@ -406,19 +407,19 @@ aclCacheMatchFlush(dlink_list * cache)
 }
 
 bool
-ACL::requiresAle() const
+Acl::ACL::requiresAle() const
 {
     return false;
 }
 
 bool
-ACL::requiresReply() const
+Acl::ACL::requiresReply() const
 {
     return false;
 }
 
 bool
-ACL::requiresRequest() const
+Acl::ACL::requiresRequest() const
 {
     return false;
 }
@@ -427,7 +428,7 @@ ACL::requiresRequest() const
 /* Destroy functions */
 /*********************/
 
-ACL::~ACL()
+Acl::ACL::~ACL()
 {
     debugs(28, 3, "freeing ACL " << name);
     safe_free(cfgline);
@@ -435,7 +436,7 @@ ACL::~ACL()
 }
 
 void
-ACL::Initialize()
+Acl::ACL::Initialize()
 {
     ACL *a = Config.aclList;
     debugs(53, 3, "ACL::Initialize");

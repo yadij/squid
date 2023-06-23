@@ -32,9 +32,7 @@ private:
     static void LookupDone(void *data, const ExternalACLEntryPointer &result);
 };
 
-#include "acl/Acl.h"
-
-class ACLExternal : public ACL
+class ACLExternal : public Acl::ACL
 {
     MEMPROXY_CLASS(ACLExternal);
 

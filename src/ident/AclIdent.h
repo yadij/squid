@@ -30,7 +30,7 @@ private:
 #include "acl/Data.h"
 
 /// \ingroup ACLAPI
-class ACLIdent : public ACL
+class ACLIdent : public Acl::ACL
 {
     MEMPROXY_CLASS(ACLIdent);
 

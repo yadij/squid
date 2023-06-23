@@ -18,7 +18,7 @@
 
 namespace Acl {
 
-class ConnMark : public ACL
+class ConnMark : public Acl::ACL
 {
     MEMPROXY_CLASS(ConnMark);
 

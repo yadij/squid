@@ -25,7 +25,7 @@
 /// * ACLStrategy that usually extracts information from the current transaction
 /// * ACLData that usually matches information against admin-configured values
 template <class M>
-class ACLStrategised : public ACL
+class ACLStrategised : public Acl::ACL
 {
     MEMPROXY_CLASS(ACLStrategised);
 

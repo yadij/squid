@@ -19,7 +19,7 @@ class Eui48;
 };
 
 /// \ingroup ACLAPI
-class ACLARP : public ACL
+class ACLARP : public Acl::ACL
 {
     MEMPROXY_CLASS(ACLARP);
 

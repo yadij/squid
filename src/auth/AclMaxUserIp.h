@@ -14,7 +14,7 @@
 #include "acl/Acl.h"
 #include "auth/UserRequest.h"
 
-class ACLMaxUserIP : public ACL
+class ACLMaxUserIP : public Acl::ACL
 {
     MEMPROXY_CLASS(ACLMaxUserIP);
 
