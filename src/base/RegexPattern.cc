@@ -8,34 +8,34 @@
 
 #include "squid.h"
 #include "base/RegexPattern.h"
-#include "base/TextException.h"
 #include "debug/Stream.h"
 #include "sbuf/Stream.h"
 
 #include <iostream>
-#include <utility>
 
-RegexPattern::RegexPattern(const SBuf &aPattern, const int aFlags):
-    pattern(aPattern),
-    flags(aFlags)
+RegexPattern::RegexPattern(const SBuf &aPattern, const std::regex::flag_type aFlags):
+    pattern(aPattern)
 {
-    memset(&regex, 0, sizeof(regex)); // paranoid; POSIX does not require this
-    if (const auto errCode = regcomp(&regex, pattern.c_str(), flags)) {
-        char errBuf[256];
-        // for simplicity, ignore any error message truncation
-        (void)regerror(errCode, &regex, errBuf, sizeof(errBuf));
-        // POSIX examples show no regfree(&regex) after a regcomp() error;
-        // presumably, regcom() frees any allocated memory on failures
-        throw TextException(ToSBuf("POSIX regcomp(3) failure: (", errCode, ") ", errBuf,
-                                   Debug::Extra, "regular expression: ", pattern), Here());
+    try {
+        regex = std::regex(pattern.rawContent(), pattern.length(), aFlags|std::regex::nosubs|std::regex::optimize);
+    } catch (const std::regex_error &e) {
+        throw TextException(ToSBuf("bad regular expression",
+                                   Debug::Extra, "message: ", e.what(),
+                                   Debug::Extra, "pattern: ", pattern),
+                            Here());
     }
 
+    // this class supports other syntax variations, but its current users must
+    // support one of these two for backward compatibility reasons, and we check
+    // that they have not forgotten to do so
+    assert((aFlags & (std::regex::basic|std::regex::extended)) != 0);
     debugs(28, 2, *this);
 }
 
-RegexPattern::~RegexPattern()
+bool
+RegexPattern::match(const char *str) const
 {
-    regfree(&regex);
+    return std::regex_search(str, regex);
 }
 
 void
@@ -50,7 +50,7 @@ RegexPattern::print(std::ostream &os, const RegexPattern * const previous) const
         os << ' '; // separate us from the previous value
 
         // do not report same-as-previous (i.e. inherited) settings
-        if (previous->flags != flags)
+        if (previous->regex.flags() != regex.flags())
             os << (caseSensitive() ? "+i " : "-i ");
     }
 
