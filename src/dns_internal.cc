@@ -896,7 +896,7 @@ idnsInitVC(size_t nsv)
     assert(vc->conn == nullptr); // MUST be NULL from the construction process!
     nameservers[nsv].vc = vc;
 
-    Comm::ConnectionPointer conn = new Comm::Connection();
+    const auto conn = Comm::ConnectionPointer::Make();
 
     if (!Config.Addrs.udp_outgoing.isNoAddr())
         conn->setAddrs(Config.Addrs.udp_outgoing, nameservers[nsv].S);

@@ -40,7 +40,7 @@ IdleConnList::IdleConnList(const char *aKey, PconnPool *thePool) :
     key = xstrdup(aKey);
     next = nullptr;
 
-    theList_ = new Comm::ConnectionPointer[capacity_];
+    theList_ = new Comm::ConnectionPointer[capacity_]; // XXX: convert to new Make() API
 
     registerRunner();
 
@@ -171,7 +171,7 @@ IdleConnList::push(const Comm::ConnectionPointer &conn)
         debugs(48, 3, "growing idle Connection array");
         capacity_ <<= 1;
         const Comm::ConnectionPointer *oldList = theList_;
-        theList_ = new Comm::ConnectionPointer[capacity_];
+        theList_ = new Comm::ConnectionPointer[capacity_]; // XXX: convert to Make()
         for (int index = 0; index < size_; ++index)
             theList_[index] = oldList[index];
 

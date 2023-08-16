@@ -255,7 +255,7 @@ comm_open(int sock_type,
 void
 comm_open_listener(int sock_type,
                    int proto,
-                   Comm::ConnectionPointer &conn,
+                   const Comm::ConnectionPointer &conn,
                    const char *note)
 {
     /* all listener sockets require bind() */
@@ -409,7 +409,7 @@ comm_openex(int sock_type,
     }
 
     // XXX: temporary for the transition. comm_openex will eventually have a conn to play with.
-    Comm::ConnectionPointer conn = new Comm::Connection;
+    const auto conn = Comm::ConnectionPointer::Make();
     conn->local = addr;
     conn->fd = new_socket;
 
@@ -1607,7 +1607,7 @@ commHalfClosedCheck(void *)
     typedef DescriptorSet::const_iterator DSCI;
     const DSCI end = TheHalfClosed->end();
     for (DSCI i = TheHalfClosed->begin(); i != end; ++i) {
-        Comm::ConnectionPointer c = new Comm::Connection; // XXX: temporary. make HalfClosed a list of these.
+        const auto c = Comm::ConnectionPointer::Make(); // XXX: temporary. make HalfClosed a list of these.
         c->fd = *i;
         if (!fd_table[c->fd].halfClosedReader) { // not reading already
             CallBack(fd_table[c->fd].codeContext, [&c] {
@@ -1653,7 +1653,7 @@ commHalfClosedReader(const Comm::ConnectionPointer &conn, char *, size_t size, C
 {
     // there cannot be more data coming in on half-closed connections
     assert(size == 0);
-    assert(conn != nullptr);
+    assert(conn);
     assert(commHasHalfClosedMonitor(conn->fd)); // or we would have canceled the read
 
     fd_table[conn->fd].halfClosedReader = nullptr; // done reading, for now

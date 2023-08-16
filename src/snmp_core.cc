@@ -261,7 +261,7 @@ snmpOpenPorts(void)
     if (Config.Port.snmp <= 0)
         return;
 
-    snmpIncomingConn = new Comm::Connection;
+    snmpIncomingConn = Comm::ConnectionPointer::Make();
     snmpIncomingConn->local = Config.Addrs.snmp_incoming;
     snmpIncomingConn->local.port(Config.Port.snmp);
 
@@ -278,7 +278,7 @@ snmpOpenPorts(void)
     Ipc::StartListening(SOCK_DGRAM, IPPROTO_UDP, snmpIncomingConn, Ipc::fdnInSnmpSocket, call);
 
     if (!Config.Addrs.snmp_outgoing.isNoAddr()) {
-        snmpOutgoingConn = new Comm::Connection;
+        snmpOutgoingConn = Comm::ConnectionPointer::Make();
         snmpOutgoingConn->local = Config.Addrs.snmp_outgoing;
         snmpOutgoingConn->local.port(Config.Port.snmp);
 

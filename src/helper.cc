@@ -273,9 +273,9 @@ helperOpenServers(const helper::Pointer &hlp)
         srv->pid = pid;
         srv->initStats();
         srv->addr = hlp->addr;
-        srv->readPipe = new Comm::Connection;
+        srv->readPipe = Comm::ConnectionPointer::Make();
         srv->readPipe->fd = rfd;
-        srv->writePipe = new Comm::Connection;
+        srv->writePipe = Comm::ConnectionPointer::Make();
         srv->writePipe->fd = wfd;
         srv->rbuf = (char *)memAllocBuf(ReadBufSize, &srv->rbuf_sz);
         srv->wqueue = new MemBuf;
@@ -410,9 +410,9 @@ helperStatefulOpenServers(const statefulhelper::Pointer &hlp)
         srv->pid = pid;
         srv->initStats();
         srv->addr = hlp->addr;
-        srv->readPipe = new Comm::Connection;
+        srv->readPipe = Comm::ConnectionPointer::Make();
         srv->readPipe->fd = rfd;
-        srv->writePipe = new Comm::Connection;
+        srv->writePipe = Comm::ConnectionPointer::Make();
         srv->writePipe->fd = wfd;
         srv->rbuf = (char *)memAllocBuf(ReadBufSize, &srv->rbuf_sz);
         srv->roffset = 0;

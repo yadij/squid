@@ -204,7 +204,7 @@ Adaptation::Icap::Xaction::dnsLookupDone(std::optional<Ip::Address> addr)
         return;
     }
 
-    const Comm::ConnectionPointer conn = new Comm::Connection();
+    const auto conn = Comm::ConnectionPointer::Make();
     conn->remote = addr.value();
     conn->remote.port(s.cfg().port);
     getOutgoingAddress(nullptr, conn);

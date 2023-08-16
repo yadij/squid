@@ -63,7 +63,7 @@ Comm::Connection::~Connection()
 Comm::ConnectionPointer
 Comm::Connection::cloneProfile() const
 {
-    const ConnectionPointer clone = new Comm::Connection;
+    const auto clone = Comm::ConnectionPointer::Make();
     auto &c = *clone; // optimization
 
     /*

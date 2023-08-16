@@ -34,7 +34,7 @@ Mgr::Request::Request(const Ipc::TypedMsgHdr &msg)
     msg.getPod(requestId);
     params = ActionParams(msg);
 
-    conn = new Comm::Connection;
+    conn = Comm::ConnectionPointer::Make();
     conn->fd = msg.getFd();
     // For now we just have the FD.
     // Address and connectio details wil be pulled/imported by the component later

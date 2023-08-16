@@ -198,7 +198,7 @@ std::ostream &operator <<(std::ostream &, const Connection &);
 inline std::ostream &
 operator <<(std::ostream &os, const ConnectionPointer &conn)
 {
-    if (conn != nullptr)
+    if (conn)
         os << *conn;
     return os;
 }

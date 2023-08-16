@@ -429,7 +429,7 @@ PeerSelector::resolveSelected()
         // check the client is still around before using any of its details
         if (req->clientConnectionManager.valid()) {
             // construct a "result" adding the ORIGINAL_DST to the set instead of DIRECT
-            Comm::ConnectionPointer p = new Comm::Connection();
+            const auto p = Comm::ConnectionPointer::Make();
             p->remote = req->clientConnectionManager->clientConnection->local;
             fs->code = ORIGINAL_DST; // fs->code is DIRECT. This fixes the display.
             handlePath(p, *fs);
@@ -528,7 +528,7 @@ PeerSelector::noteIp(const Ip::Address &ip)
             return; // cannot spoof the client address on this link
     }
 
-    Comm::ConnectionPointer p = new Comm::Connection();
+    const auto p = Comm::ConnectionPointer::Make();
     p->remote = ip;
     // XXX: We return a (non-peer) destination with a zero port if the selection
     // initiator supplied a request target without a port. If there are no valid

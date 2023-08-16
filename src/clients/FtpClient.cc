@@ -773,7 +773,7 @@ Ftp::Client::connectDataChannel()
     ctrl.last_command = xstrdup("Connect to server data port");
 
     // Generate a new data channel descriptor to be opened.
-    Comm::ConnectionPointer conn = new Comm::Connection;
+    const auto conn = Comm::ConnectionPointer::Make();
     conn->setAddrs(ctrl.conn->local, data.host);
     conn->local.port(0);
     conn->remote.port(data.port);

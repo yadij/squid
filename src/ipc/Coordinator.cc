@@ -259,7 +259,7 @@ Ipc::Coordinator::openListenSocket(const SharedListenRequest& request,
     debugs(54, 6, "opening listen FD at " << p.addr << " for kid" <<
            request.requestorId);
 
-    Comm::ConnectionPointer newConn = new Comm::Connection;
+    const auto newConn = Comm::ConnectionPointer::Make();
     newConn->local = p.addr; // comm_open_listener may modify it
     newConn->flags = p.flags;
 

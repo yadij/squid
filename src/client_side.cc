@@ -3361,7 +3361,7 @@ void
 clientStartListeningOn(AnyP::PortCfgPointer &port, const RefCount< CommCbFunPtrCallT<CommAcceptCbPtrFun> > &subCall, const Ipc::FdNoteId fdNote)
 {
     // Fill out a Comm::Connection which IPC will open as a listener for us
-    port->listenConn = new Comm::Connection;
+    port->listenConn = Comm::ConnectionPointer::Make();
     port->listenConn->local = port->s;
     port->listenConn->flags =
         COMM_NONBLOCKING |

@@ -371,7 +371,7 @@ Ftp::Server::listenForDataConnection()
 {
     closeDataConnection();
 
-    Comm::ConnectionPointer conn = new Comm::Connection;
+    const auto conn = Comm::ConnectionPointer::Make();
     conn->flags = COMM_NONBLOCKING;
     conn->local = transparent() ? port->s : clientConnection->local;
     conn->local.port(0);
@@ -1445,7 +1445,7 @@ Ftp::Server::createDataConnection(Ip::Address cltAddr)
 
     closeDataConnection();
 
-    Comm::ConnectionPointer conn = new Comm::Connection();
+    const auto conn = Comm::ConnectionPointer::Make();
     conn->flags |= COMM_DOBIND;
 
     if (clientConnection->flags & COMM_INTERCEPTION) {

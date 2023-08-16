@@ -33,7 +33,7 @@ CommCommonCbParams::~CommCommonCbParams()
 void
 CommCommonCbParams::print(std::ostream &os) const
 {
-    if (conn != nullptr)
+    if (conn)
         os << conn;
     else
         os << "FD " << fd;

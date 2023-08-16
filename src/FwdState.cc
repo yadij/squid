@@ -220,7 +220,7 @@ FwdState::selectPeerForIntercepted()
     }
 
     // use client original destination as second preferred choice
-    const auto p = new Comm::Connection();
+    const auto p = Comm::ConnectionPointer::Make();
     p->peerType = ORIGINAL_DST;
     p->remote = clientConn->local;
     getOutgoingAddress(request, p);

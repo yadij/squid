@@ -246,7 +246,7 @@ Log::TcpLogger::doConnect()
     debugs(MY_DEBUG_SECTION, 3, "connecting");
     Must(!conn);
 
-    Comm::ConnectionPointer futureConn = new Comm::Connection;
+    const auto futureConn = Comm::ConnectionPointer::Make();
     futureConn->remote = remote;
     futureConn->local.setAnyAddr();
     if (futureConn->remote.isIPv4())
