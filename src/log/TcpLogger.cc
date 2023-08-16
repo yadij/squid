@@ -147,7 +147,7 @@ void Log::TcpLogger::writeIfPossible()
 
         typedef CommCbMemFunT<TcpLogger, CommIoCbParams> WriteDialer;
         AsyncCall::Pointer callback = JobCallback(MY_DEBUG_SECTION, 5, WriteDialer, this, Log::TcpLogger::writeDone);
-        const MemBlob::Pointer &buffer = buffers.front();
+        const auto &buffer = buffers.front();
         Comm::Write(conn, buffer->mem, buffer->size, callback, nullptr);
         writeScheduled = true;
     }
@@ -227,7 +227,7 @@ Log::TcpLogger::appendChunk(const char *chunk, const size_t len)
     addBuffer = addBuffer || (writeScheduled && buffers.size() == 1);
 
     if (addBuffer) {
-        buffers.push_back(new MemBlob(IoBufSize));
+        buffers.push_back(MemBlobPointer::Make(IoBufSize));
         debugs(MY_DEBUG_SECTION, 7, "added buffer #" << buffers.size());
     }
 
@@ -343,7 +343,7 @@ Log::TcpLogger::writeDone(const CommIoCbParams &io)
         debugs(MY_DEBUG_SECTION, 5, "write successful");
 
         Must(!buffers.empty()); // we had a buffer to write
-        const MemBlob::Pointer &written = buffers.front();
+        const auto &written = buffers.front();
         const size_t writtenSize = static_cast<size_t>(written->size);
         // and we wrote the whole buffer
         Must(io.size == writtenSize);

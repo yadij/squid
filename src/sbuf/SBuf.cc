@@ -72,10 +72,10 @@ SBuf::~SBuf()
     SBufStats::RecordSBufSizeAtDestruct(len_);
 }
 
-MemBlob::Pointer
+const MemBlobPointer
 SBuf::GetStorePrototype()
 {
-    static MemBlob::Pointer InitialStore = new MemBlob(0);
+    static const auto InitialStore = MemBlobPointer::Make(0);
     return InitialStore;
 }
 
@@ -847,7 +847,7 @@ SBuf::reAlloc(size_type newsize)
     debugs(24, 8, id << " new size: " << newsize);
     Must(newsize <= maxSize);
     // TODO: Consider realloc(3)ing in some cases instead.
-    MemBlob::Pointer newbuf = new MemBlob(newsize);
+    const auto newbuf = MemBlobPointer::Make(newsize);
     if (length() > 0) {
         newbuf->append(buf(), length());
         ++stats.cowAllocCopy;

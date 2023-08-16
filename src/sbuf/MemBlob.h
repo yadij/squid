@@ -47,7 +47,6 @@ class MemBlob: public RefCountable
     MEMPROXY_CLASS(MemBlob);
 
 public:
-    typedef RefCount<MemBlob> Pointer;
     typedef uint32_t size_type;
 
     /// obtain a const view of class-wide statistics

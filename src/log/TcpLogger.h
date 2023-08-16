@@ -13,11 +13,9 @@
 #include "base/JobWait.h"
 #include "comm/forward.h"
 #include "ip/Address.h"
+#include "sbuf/forward.h"
 
 #include <list>
-
-class MemBlob;
-typedef RefCount<MemBlob> MemBlobPointer;
 
 namespace Log
 {

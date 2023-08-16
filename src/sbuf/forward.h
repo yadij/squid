@@ -9,10 +9,13 @@
 #ifndef SQUID_SRC_SBUF_FORWARD_H
 #define SQUID_SRC_SBUF_FORWARD_H
 
+#include "base/RefCount.h"
+
 #include <functional>
 #include <list>
 
 class MemBlob;
+typedef RefCount<MemBlob> MemBlobPointer;
 
 class SBuf;
 class SBufIterator;

@@ -617,16 +617,16 @@ private:
     public:
         Locker(SBuf *parent, const char *otherBuffer) {
             // lock if otherBuffer intersects the parents buffer area
-            const MemBlob *blob = parent->store_.getRaw();
+            const auto &blob = parent->store_;
             if (blob->mem <= otherBuffer && otherBuffer < (blob->mem + blob->capacity))
                 locket = blob;
         }
     private:
-        MemBlob::Pointer locket;
+        MemBlobPointer locket;
     };
     friend class Locker;
 
-    MemBlob::Pointer store_; ///< memory block, possibly shared with other SBufs
+    MemBlobPointer store_; ///< memory block, possibly shared with other SBufs
     size_type off_ = 0; ///< our content start offset from the beginning of shared store_
     size_type len_ = 0; ///< number of our content bytes in shared store_
     static SBufStats stats; ///< class-wide statistics
@@ -636,7 +636,7 @@ private:
      * Just-created SBufs all share to the same MemBlob.
      * This call instantiates and returns it.
      */
-    static MemBlob::Pointer GetStorePrototype();
+    static const MemBlobPointer GetStorePrototype();
 
     /**
      * obtains a char* to the beginning of this SBuf in memory.
