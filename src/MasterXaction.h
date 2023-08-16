@@ -46,14 +46,14 @@ public:
     static Pointer MakePortless()
     {
         static_assert(anInitiator != XactionInitiator::initClient, "not an HTTP or FTP client");
-        return new MasterXaction(anInitiator, nullptr);
+        return Pointer::Make(anInitiator, nullptr);
     }
 
     /// Create a master transaction associated with a AnyP::PortCfg port.
     /// \param aPort may be nil if port information was lost
     static Pointer MakePortful(const AnyP::PortCfgPointer &aPort)
     {
-        return new MasterXaction(XactionInitiator::initClient, aPort);
+        return Pointer::Make(XactionInitiator::initClient, aPort);
     }
 
     /// transaction ID.
@@ -74,6 +74,8 @@ public:
     // TODO: add state from other Jobs in the transaction
 
 private:
+    friend class RefCount<MasterXaction>;
+
     // use public Make() functions instead
     MasterXaction(const XactionInitiator anInitiator, const AnyP::PortCfgPointer &aPort):
         squidPort(aPort),
