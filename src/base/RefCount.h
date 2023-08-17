@@ -28,7 +28,7 @@ class RefCount
 
 public:
     template<typename... Args>
-    inline static auto Make(Args... args) {
+    inline static auto Make(Args&&... args) {
         return RefCount<C>(new C(std::forward<Args>(args)...));
     }
 
