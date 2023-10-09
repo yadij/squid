@@ -181,8 +181,8 @@ void Mgr::QueryParams::Parse(Parser::Tokenizer &, QueryParams &) STUB
 Mgr::QueryParam::Pointer Mgr::QueryParams::CreateParam(QueryParam::Type) STUB_RETVAL(Mgr::QueryParam::Pointer(nullptr))
 
 #include "mgr/Registration.h"
-//void Mgr::RegisterAction(char const *, char const *, OBJH *, int, int);
-//void Mgr::RegisterAction(char const *, char const *, ClassActionCreationHandler *, int, int);
+void Mgr::RegisterAction(char const*, char const*, OBJH, int, int) STUB_NOP
+void Mgr::RegisterAction(char const *, char const *, Mgr::ClassActionCreationHandler *, int, int) STUB_NOP
 
 #include "mgr/Request.h"
 //Mgr::Request::Request(int, unsigned int, int, const Mgr::ActionParams &) STUB
@@ -199,6 +199,18 @@ Ipc::Response::Pointer Mgr::Response::clone() const STUB_RETVAL(Ipc::Response::P
 bool Mgr::Response::hasAction() const STUB_RETVAL(false)
 //static Mgr::Action mgraction_static;
 //const Mgr::Action& Mgr::Response::getAction() const STUB_RETVAL(mgraction_static)
+
+#include "mgr/Server.h"
+Mgr::Action::Pointer CacheManager::createNamedAction(char const*) STUB_RETVAL(nullptr)
+void CacheManager::start(const Comm::ConnectionPointer &, HttpRequest *, StoreEntry *, const AccessLogEntryPointer &)
+{
+    std::cerr << HERE << "\n";
+    STUB
+}
+static CacheManager* instance = nullptr;
+CacheManager* CacheManager::GetInstance() STUB_RETVAL(instance)
+Mgr::Action::Pointer CacheManager::createRequestedAction(const Mgr::ActionParams &) STUB_RETVAL(nullptr)
+void CacheManager::PutCommonResponseHeaders(HttpReply &, const char *) STUB
 
 #include "mgr/ServiceTimesAction.h"
 //Mgr::ServiceTimesActionData::ServiceTimesActionData() STUB
