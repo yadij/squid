@@ -331,7 +331,6 @@ squid_SOURCES = \
 	XactionStep.h \
 	cache_cf.cc \
 	cache_cf.h \
-	cache_manager.cc \
 	carp.cc \
 	carp.h \
 	cbdata.cc \
@@ -1064,7 +1063,6 @@ tests_testRock_SOURCES = \
 	tests/stub_access_log.cc \
 	tests/stub_cache_cf.cc \
 	cache_cf.h \
-	tests/stub_cache_manager.cc \
 	cbdata.cc \
 	tests/stub_client_db.cc \
 	tests/stub_client_side.cc \
@@ -1226,12 +1224,10 @@ tests_testUfs_SOURCES = \
 	StrList.h \
 	String.cc \
 	Transients.cc \
-	tests/stub_UdsOp.cc \
 	tests/testUfs.cc \
 	tests/stub_access_log.cc \
 	tests/stub_cache_cf.cc \
 	cache_cf.h \
-	tests/stub_cache_manager.cc \
 	cbdata.cc \
 	tests/stub_client_db.cc \
 	client_db.h \
@@ -1406,7 +1402,6 @@ tests_testStore_SOURCES = \
 	tests/stub_access_log.cc \
 	tests/stub_cache_cf.cc \
 	cache_cf.h \
-	tests/stub_cache_manager.cc \
 	cbdata.cc \
 	tests/stub_client_side.cc \
 	tests/stub_client_side_request.cc \
@@ -1567,7 +1562,6 @@ tests_testDiskIO_SOURCES = \
 	tests/stub_access_log.cc \
 	tests/stub_cache_cf.cc \
 	cache_cf.h \
-	tests/stub_cache_manager.cc \
 	cbdata.cc \
 	tests/stub_client_db.cc \
 	client_db.h \
@@ -1691,7 +1685,6 @@ nodist_tests_testACLMaxUserIP_SOURCES = \
 	String.cc \
 	tests/stub_access_log.cc \
 	tests/stub_cache_cf.cc \
-	tests/stub_cache_manager.cc \
 	tests/stub_cbdata.cc \
 	tests/stub_client_side.cc \
 	tests/stub_debug.cc \
@@ -1815,7 +1808,6 @@ tests_test_http_range_SOURCES = \
 	tests/test_http_range.cc \
 	tests/stub_cache_cf.cc \
 	cache_cf.h \
-	cache_manager.cc \
 	tests/stub_carp.cc \
 	carp.h \
 	cbdata.cc \
@@ -1972,7 +1964,6 @@ tests_testHttp1Parser_SOURCES = \
 	String.cc \
 	tests/stub_cache_cf.cc \
 	cache_cf.h \
-	tests/stub_cache_manager.cc \
 	tests/stub_cbdata.cc \
 	tests/stub_comm.cc \
 	tests/stub_debug.cc \
@@ -2053,7 +2044,6 @@ tests_testHttpReply_SOURCES = \
 	tests/stub_access_log.cc \
 	tests/stub_cache_cf.cc \
 	cache_cf.h \
-	tests/stub_cache_manager.cc \
 	cbdata.cc \
 	cbdata.h \
 	tests/stub_client_side.cc \
@@ -2198,7 +2188,6 @@ tests_testHttpRequest_SOURCES = \
 	Transients.cc \
 	tests/stub_cache_cf.cc \
 	cache_cf.h \
-	cache_manager.cc \
 	tests/stub_carp.cc \
 	carp.h \
 	cbdata.cc \
@@ -2493,7 +2482,6 @@ tests_testCacheManager_SOURCES = \
 	Transients.cc \
 	tests/stub_cache_cf.cc \
 	cache_cf.h \
-	cache_manager.cc \
 	tests/stub_carp.cc \
 	carp.h \
 	cbdata.cc \
@@ -2651,7 +2639,6 @@ tests_testStatHist_SOURCES = \
 	tests/testStatHist.cc \
 	StatHist.h \
 	String.cc \
-	tests/stub_cache_manager.cc \
 	tests/stub_cbdata.cc \
 	tests/stub_comm.cc \
 	tests/stub_debug.cc \
@@ -2709,7 +2696,6 @@ tests_testEvent_SOURCES = \
 nodist_tests_testEvent_SOURCES = \
 	MemBuf.cc \
 	tests/stub_SBuf.cc \
-	tests/stub_cache_manager.cc \
 	tests/stub_cbdata.cc \
 	tests/stub_debug.cc \
 	event.cc \
