@@ -202,7 +202,6 @@ squid_SOURCES = \
 	BodyPipe.h \
 	CacheDigest.cc \
 	CacheDigest.h \
-	CacheManager.h \
 	CachePeer.cc \
 	CachePeer.h \
 	CachePeers.cc \

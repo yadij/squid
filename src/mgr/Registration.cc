@@ -9,8 +9,8 @@
 /* DEBUG: section 16    Cache Manager API */
 
 #include "squid.h"
-#include "CacheManager.h"
 #include "mgr/Registration.h"
+#include "mgr/Server.h"
 
 void
 Mgr::RegisterAction(char const * action, char const * desc,

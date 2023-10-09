@@ -11,7 +11,6 @@
 #include "squid.h"
 #include "AccessLogEntry.h"
 #include "base/TextException.h"
-#include "CacheManager.h"
 #include "comm.h"
 #include "comm/Connection.h"
 #include "comm/Write.h"
@@ -26,6 +25,7 @@
 #include "mgr/IntParam.h"
 #include "mgr/Request.h"
 #include "mgr/Response.h"
+#include "mgr/Server.h"
 
 #include <memory>
 #include <algorithm>

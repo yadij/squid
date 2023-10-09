@@ -10,13 +10,13 @@
 
 #include "squid.h"
 #include "base/TextException.h"
-#include "CacheManager.h"
 #include "ipc/Messages.h"
 #include "ipc/RequestId.h"
 #include "ipc/TypedMsgHdr.h"
 #include "mgr/ActionCreator.h"
 #include "mgr/ActionProfile.h"
 #include "mgr/Response.h"
+#include "mgr/Server.h"
 
 Mgr::Response::Response(const Ipc::RequestId aRequestId, const Action::Pointer anAction):
     Ipc::Response(aRequestId), action(anAction)

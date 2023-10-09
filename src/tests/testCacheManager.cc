@@ -8,9 +8,9 @@
 
 #include "squid.h"
 #include "anyp/Uri.h"
-#include "CacheManager.h"
 #include "compat/cppunit.h"
 #include "mgr/Action.h"
+#include "mgr/Server.h"
 #include "Store.h"
 #include "unitTestMain.h"
 

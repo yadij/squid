@@ -6,8 +6,8 @@
  * Please see the COPYING and CONTRIBUTORS files for details.
  */
 
-#ifndef SQUID_CACHEMANAGER_H
-#define SQUID_CACHEMANAGER_H
+#ifndef SQUID__SRC_MGR_SERVER_H
+#define SQUID__SRC_MGR_SERVER_H
 
 #include "anyp/forward.h"
 #include "comm/forward.h"
@@ -71,5 +71,5 @@ protected:
     Menu menu_;
 };
 
-#endif /* SQUID_CACHEMANAGER_H */
+#endif /* SQUID__SRC_MGR_SERVER_H */
 

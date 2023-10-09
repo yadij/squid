@@ -7,13 +7,13 @@
  */
 
 #include "squid.h"
-#include "CacheManager.h"
 #include "debug/Stream.h"
 #include "mgr/Registration.h"
 
 #define STUB_API "cache_manager.cc"
 #include "tests/STUB.h"
 
+#include "mgr/Server.h"
 Mgr::Action::Pointer CacheManager::createNamedAction(char const*) STUB_RETVAL(nullptr)
 void CacheManager::start(const Comm::ConnectionPointer &, HttpRequest *, StoreEntry *, const AccessLogEntryPointer &)
 {

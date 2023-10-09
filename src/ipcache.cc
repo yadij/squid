@@ -9,7 +9,6 @@
 /* DEBUG: section 14    IP Cache */
 
 #include "squid.h"
-#include "CacheManager.h"
 #include "cbdata.h"
 #include "debug/Messages.h"
 #include "dlink.h"
@@ -20,6 +19,7 @@
 #include "ip/tools.h"
 #include "ipcache.h"
 #include "mgr/Registration.h"
+#include "mgr/Server.h"
 #include "snmp_agent.h"
 #include "SquidConfig.h"
 #include "StatCounters.h"
