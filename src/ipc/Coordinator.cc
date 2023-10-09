@@ -11,7 +11,6 @@
 #include "squid.h"
 #include "base/Subscription.h"
 #include "base/TextException.h"
-#include "CacheManager.h"
 #include "comm.h"
 #include "comm/Connection.h"
 #include "ipc/Coordinator.h"
@@ -19,6 +18,7 @@
 #include "mgr/Inquirer.h"
 #include "mgr/Request.h"
 #include "mgr/Response.h"
+#include "mgr/Server.h"
 #include "tools.h"
 #if SQUID_SNMP
 #include "snmp/Inquirer.h"

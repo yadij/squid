@@ -51,6 +51,7 @@ libmgr_la_SOURCES = \
 	Request.h \
 	Response.cc \
 	Response.h \
+	Server.h \
 	ServiceTimesAction.cc \
 	ServiceTimesAction.h \
 	StoreIoAction.cc \

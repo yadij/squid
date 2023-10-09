@@ -10,11 +10,11 @@
 
 #include "squid.h"
 #include "base/TextException.h"
-#include "CacheManager.h"
 #include "mgr/ActionCreator.h"
 #include "mgr/ActionProfile.h"
 #include "mgr/BasicActions.h"
 #include "mgr/Registration.h"
+#include "mgr/Server.h"
 #include "protos.h"
 #include "SquidConfig.h"
 #include "Store.h"

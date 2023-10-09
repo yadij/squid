@@ -9,7 +9,6 @@
 /* DEBUG: section 16    Cache Manager API */
 
 #include "squid.h"
-#include "CacheManager.h"
 #include "comm/Connection.h"
 #include "HttpReply.h"
 #include "ipc/Port.h"
@@ -20,6 +19,7 @@
 #include "mgr/Command.h"
 #include "mgr/Request.h"
 #include "mgr/Response.h"
+#include "mgr/Server.h"
 #include "Store.h"
 
 Mgr::Action::Action(const Command::Pointer &aCmd): cmd(aCmd)

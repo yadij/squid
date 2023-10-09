@@ -11,7 +11,6 @@
 #include "squid.h"
 #include "base/Subscription.h"
 #include "base/TextException.h"
-#include "CacheManager.h"
 #include "CollapsedForwarding.h"
 #include "comm/Connection.h"
 #include "fatal.h"
@@ -26,6 +25,7 @@
 #include "mgr/Forwarder.h"
 #include "mgr/Request.h"
 #include "mgr/Response.h"
+#include "mgr/Server.h"
 #if HAVE_DISKIO_MODULE_IPCIO
 #include "DiskIO/IpcIo/IpcIoFile.h" /* XXX: scope boundary violation */
 #endif
