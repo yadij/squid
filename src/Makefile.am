@@ -1264,6 +1264,7 @@ tests_testUfs_SOURCES = \
 	tests/stub_libip.cc \
 	tests/stub_liblog.cc \
 	tests/stub_libsecurity.cc \
+	tests/stub_main_cc.cc \
 	log/access_log.h \
 	mem_node.cc \
 	tests/stub_mime.cc \
