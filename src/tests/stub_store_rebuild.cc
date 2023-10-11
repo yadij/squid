@@ -19,6 +19,7 @@
 #define STUB_API "stub_store_rebuild.cc"
 #include "tests/STUB.h"
 
+void storeRebuildStart(void) STUB
 void storeRebuildProgress(int, int, int) STUB
 bool storeRebuildParseEntry(MemBuf &, StoreEntry &, cache_key *, StoreRebuildData &, uint64_t) STUB_RETVAL(false)
 
