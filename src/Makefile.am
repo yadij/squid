@@ -1123,7 +1123,9 @@ nodist_tests_testRock_SOURCES = \
 	SquidMath.cc \
 	SquidMath.h \
 	hier_code.cc \
-	swap_log_op.cc
+	repl_modules.cc \
+	swap_log_op.cc \
+	tests/stub_store_digest.cc
 tests_testRock_LDADD = \
 	http/libhttp.la \
 	parser/libparser.la \
@@ -1294,7 +1296,9 @@ nodist_tests_testUfs_SOURCES = \
 	SquidMath.cc \
 	SquidMath.h \
 	hier_code.cc \
-	swap_log_op.cc
+	repl_modules.cc \
+	swap_log_op.cc \
+	tests/stub_store_digest.cc
 tests_testUfs_LDADD = \
 	http/libhttp.la \
 	parser/libparser.la \
@@ -1399,7 +1403,6 @@ tests_testStore_SOURCES = \
 	StrList.h \
 	String.cc \
 	Transients.cc \
-	tests/stub_UdsOp.cc \
 	tests/stub_access_log.cc \
 	tests/stub_cache_cf.cc \
 	cache_cf.h \
@@ -1461,7 +1464,10 @@ nodist_tests_testStore_SOURCES = \
 	$(TESTSOURCES) \
 	SquidMath.cc \
 	SquidMath.h \
+	repl_modules.cc \
 	tests/stub_libtime.cc \
+	tests/stub_main_cc.cc \
+	tests/stub_store_digest.cc \
 	swap_log_op.cc
 tests_testStore_LDADD= \
 	libsquid.la \
@@ -1476,6 +1482,7 @@ tests_testStore_LDADD= \
 	ip/libip.la \
 	fs/libfs.la \
 	mgr/libmgr.la \
+	$(REPL_OBJS) \
 	anyp/libanyp.la \
 	mem/libmem.la \
 	store/libstore.la \
@@ -1559,7 +1566,6 @@ tests_testDiskIO_SOURCES = \
 	StrList.h \
 	String.cc \
 	Transients.cc \
-	tests/stub_UdsOp.cc \
 	tests/stub_access_log.cc \
 	tests/stub_cache_cf.cc \
 	cache_cf.h \
@@ -1631,7 +1637,10 @@ nodist_tests_testDiskIO_SOURCES = \
 	SquidMath.cc \
 	SquidMath.h \
 	hier_code.cc \
+	repl_modules.cc \
 	tests/stub_libtime.cc \
+	tests/stub_main_cc.cc \
+	tests/stub_store_digest.cc \
 	swap_log_op.cc
 tests_testDiskIO_LDADD = \
 	libsquid.la \
@@ -1676,6 +1685,7 @@ tests_testACLMaxUserIP_SOURCES = \
 	tests/testACLMaxUserIP.cc
 nodist_tests_testACLMaxUserIP_SOURCES = \
 	tests/stub_CachePeer.cc \
+	tests/stub_comm.cc \
 	ConfigParser.cc \
 	tests/stub_HelperChildConfig.cc \
 	tests/stub_HttpHeader.cc \
@@ -1691,24 +1701,31 @@ nodist_tests_testACLMaxUserIP_SOURCES = \
 	tests/stub_debug.cc \
 	dlink.cc \
 	tests/stub_errorpage.cc \
+	tests/stub_event.cc \
 	tests/stub_fatal.cc \
+	tests/stub_fd.cc \
 	globals.cc \
 	tests/stub_libauth.cc \
 	tests/stub_libcomm.cc \
 	tests/stub_libhttp.cc \
 	tests/stub_libmem.cc \
+	tests/stub_libmgr.cc \
 	tests/stub_libsecurity.cc \
-	tests/stub_neighbors.cc
+	tests/stub_neighbors.cc \
+	tests/stub_tools.cc
 tests_testACLMaxUserIP_LDADD = \
 	$(AUTH_ACL_LIBS) \
 	acl/libapi.la \
 	acl/libstate.la \
 	acl/libacls.la \
+	CommCalls.o \
 	SquidConfig.o \
 	ip/libip.la \
+	ipc/libipc.la \
 	parser/libparser.la \
 	sbuf/libsbuf.la \
 	base/libbase.la \
+	$(top_builddir)/lib/libmiscutil.la \
 	$(SSLLIB) \
 	$(LIBCPPUNIT_LIBS) \
 	$(COMPAT_LIB) \
@@ -1971,6 +1988,7 @@ tests_testHttp1Parser_SOURCES = \
 	tests/stub_event.cc \
 	tests/stub_libanyp.cc \
 	tests/stub_libmem.cc \
+	tests/stub_libmgr.cc \
 	tests/stub_libsecurity.cc \
 	mime_header.cc \
 	mime_header.h \
