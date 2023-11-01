@@ -11,9 +11,6 @@
 
 #include <cmath>
 
-/* Local functions */
-static StatHistBinDumper statHistBinDumper;
-
 namespace Math
 {
 hbase_f Log;
@@ -159,28 +156,15 @@ StatHist::deltaPctile(const StatHist & B, double pctile) const
     return val(K);
 }
 
-static void
-statHistBinDumper(StoreEntry * sentry, int idx, double val, double size, int count)
-{
-    if (count)
-        storeAppendPrintf(sentry, "\t%3d/%f\t%d\t%f\n",
-                          idx, val, count, count / size);
-}
-
 void
 StatHist::dump(StoreEntry * sentry, StatHistBinDumper * bd) const
 {
-    double left_border = min_;
+    assert(bd);
 
-    if (!bd)
-        bd = statHistBinDumper;
-
-    for (unsigned int i = 0; i < capacity_; ++i) {
-        const double right_border = val(i + 1);
-        assert(right_border - left_border > 0.0);
-        bd(sentry, i, left_border, right_border - left_border, bins[i]);
-        left_border = right_border;
-    }
+    const auto tableRows = [&sentry,&bd](int idx, double val, double size, int count){
+        bd(sentry, idx, val, size, count);
+    };
+    display(tableRows);
 }
 
 StatHist &

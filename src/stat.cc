@@ -10,6 +10,7 @@
 
 #include "squid.h"
 #include "AccessLogEntry.h"
+#include "base/PackableStream.h"
 #include "CacheDigest.h"
 #include "CachePeer.h"
 #include "CachePeers.h"
@@ -1324,24 +1325,34 @@ statAvgTick(void *)
 static void
 statCountersHistograms(StoreEntry * sentry)
 {
-    storeAppendPrintf(sentry, "client_http.allSvcTime histogram:\n");
-    statCounter.client_http.allSvcTime.dump(sentry, nullptr);
-    storeAppendPrintf(sentry, "client_http.missSvcTime histogram:\n");
-    statCounter.client_http.missSvcTime.dump(sentry, nullptr);
-    storeAppendPrintf(sentry, "client_http.nearMissSvcTime histogram:\n");
-    statCounter.client_http.nearMissSvcTime.dump(sentry, nullptr);
-    storeAppendPrintf(sentry, "client_http.nearHitSvcTime histogram:\n");
-    statCounter.client_http.nearHitSvcTime.dump(sentry, nullptr);
-    storeAppendPrintf(sentry, "client_http.hitSvcTime histogram:\n");
-    statCounter.client_http.hitSvcTime.dump(sentry, nullptr);
-    storeAppendPrintf(sentry, "icp.querySvcTime histogram:\n");
-    statCounter.icp.querySvcTime.dump(sentry, nullptr);
-    storeAppendPrintf(sentry, "icp.replySvcTime histogram:\n");
-    statCounter.icp.replySvcTime.dump(sentry, nullptr);
-    storeAppendPrintf(sentry, "dns.svc_time histogram:\n");
-    statCounter.dns.svcTime.dump(sentry, nullptr);
-    storeAppendPrintf(sentry, "select_fds_hist histogram:\n");
-    statCounter.select_fds_hist.dump(sentry, nullptr);
+    PackableStream os(*sentry);
+
+    const auto table = [&os](int idx, double val, double size, int count){
+        if (count)
+            os << ' ' << idx << '/' << val
+               << '\t' << count
+               << '\t' << (count / size)
+               << '\n';
+    };
+
+    os << "client_http.allSvcTime histogram:\n";
+    statCounter.client_http.allSvcTime.display(table);
+    os << "client_http.missSvcTime histogram:\n";
+    statCounter.client_http.missSvcTime.display(table);
+    os << "client_http.nearMissSvcTime histogram:\n";
+    statCounter.client_http.nearMissSvcTime.display(table);
+    os << "client_http.nearHitSvcTime histogram:\n";
+    statCounter.client_http.nearHitSvcTime.display(table);
+    os << "client_http.hitSvcTime histogram:\n";
+    statCounter.client_http.hitSvcTime.display(table);
+    os << "icp.querySvcTime histogram:\n";
+    statCounter.icp.querySvcTime.display(table);
+    os << "icp.replySvcTime histogram:\n";
+    statCounter.icp.replySvcTime.display(table);
+    os << "dns.svc_time histogram:\n";
+    statCounter.dns.svcTime.display(table);
+    os << "select_fds_hist histogram:\n";
+    statCounter.select_fds_hist.display(table);
 }
 
 static void

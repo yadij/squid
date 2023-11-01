@@ -79,6 +79,10 @@ public:
      */
     StatHist &operator += (const StatHist &B);
 
+    /// iterate a supplied lambda over the histogram values
+    template<typename L>
+    void display(L &&) const;
+
 protected:
     /** low-level initialize function. called by *Init high-level functions
      * \note Important restrictions on val_in and val_out functions:
@@ -117,6 +121,19 @@ double statHistDeltaMedian(const StatHist & A, const StatHist & B);
 double statHistDeltaPctile(const StatHist & A, const StatHist & B, double pctile);
 StatHistBinDumper statHistEnumDumper;
 StatHistBinDumper statHistIntDumper;
+
+template<typename L>
+void
+StatHist::display(L &&show) const
+{
+    double left_border = min_;
+    for (unsigned int i = 0; i < capacity_; ++i) {
+        const double right_border = val(i + 1);
+        assert(right_border - left_border > 0.0);
+        show(i, left_border, right_border - left_border, bins[i]);
+        left_border = right_border;
+    }
+}
 
 inline StatHist&
 StatHist::operator =(const StatHist & src)

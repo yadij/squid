@@ -80,28 +80,32 @@ SBufStatsAction::collect()
     mbsizesatdestruct = collectMemBlobDestructTimeStats();
 }
 
-static void
-statHistSBufDumper(StoreEntry * sentry, int, double val, double size, int count)
-{
-    if (count == 0)
-        return;
-    storeAppendPrintf(sentry, "\t%d-%d\t%d\n", static_cast<int>(val), static_cast<int>(val+size), count);
-}
-
 void
 SBufStatsAction::dump(StoreEntry* entry)
 {
-    PackableStream ses(*entry);
-    ses << "\n\n\nThese statistics are experimental; their format and contents "
-        "should not be relied upon, they are bound to change as "
-        "the SBuf feature is evolved\n";
-    sbdata.dump(ses);
-    mbdata.dump(ses);
-    ses << "\n";
-    ses << "SBuf size distribution at destruct time:\n";
-    sbsizesatdestruct.dump(entry,statHistSBufDumper);
-    ses << "MemBlob capacity distribution at destruct time:\n";
-    mbsizesatdestruct.dump(entry,statHistSBufDumper);
+    PackableStream os(*entry);
+    os << "\n\n\nThese statistics are experimental; their format and contents "
+       "should not be relied upon, they are bound to change as "
+       "the SBuf feature is evolved\n";
+    sbdata.dump(os);
+    mbdata.dump(os);
+    os << '\n';
+
+    // display a histogram table row in legacy cachemgr text/plain syntax
+    //   table-row = SP 1*VCHAR 1*( HTAB 0*VCHAR )
+    const auto tableRow = [&os](int, double val, double size, int count){
+        if (count) {
+            os << ' ' << val << '-' << (val+size)
+               << '\t' << count
+               << '\n';
+        }
+    };
+
+    os << "SBuf size distribution at destruct time:\n";
+    sbsizesatdestruct.display(tableRow);
+
+    os << "MemBlob capacity distribution at destruct time:\n";
+    mbsizesatdestruct.display(tableRow);
 }
 
 void
