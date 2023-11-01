@@ -26,5 +26,4 @@ StatHist &StatHist::operator += (const StatHist &) STUB_RETREF(StatHist)
 */
 double statHistDeltaMedian(const StatHist &, const StatHist &) STUB_RETVAL(0.0)
 double statHistDeltaPctile(const StatHist &, const StatHist &, double) STUB_RETVAL(0.0)
-void statHistEnumDumper(StoreEntry *, int, double, double, int) STUB
 void statHistIntDumper(StoreEntry *, int, double, double, int) STUB
