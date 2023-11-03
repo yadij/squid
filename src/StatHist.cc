@@ -221,10 +221,3 @@ StatHist::enumInit(unsigned int last_enum)
     init(last_enum + 3, Math::Null, Math::Null, -1.0, (2.0 + last_enum));
 }
 
-void
-statHistIntDumper(StoreEntry * sentry, int, double val, double, int count)
-{
-    if (count)
-        storeAppendPrintf(sentry, "%9d\t%9d\n", (int) val, count);
-}
-

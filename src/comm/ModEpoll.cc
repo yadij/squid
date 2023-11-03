@@ -53,11 +53,6 @@ static int max_poll_time = 1000;
 
 static struct epoll_event *pevents;
 
-static void commEPollRegisterWithCacheManager(void);
-
-/* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
-/* Public functions */
-
 /*
  * This is a needed exported function which will be called to initialise
  * the network loop code.
@@ -78,8 +73,6 @@ Comm::SelectLoopInit(void)
         int xerrno = errno;
         fatalf("comm_select_init: epoll_create(): %s\n", xstrerr(xerrno));
     }
-
-    commEPollRegisterWithCacheManager();
 }
 
 static const char* epolltype_atoi(int x)
@@ -183,25 +176,6 @@ Comm::SetSelect(int fd, unsigned int type, PF * handler, void *client_data, time
     else if (!ev.events) // full cleanup: no more FD-associated work expected
         F->codeContext = nullptr;
     // else: direction-specific/timeout cleanup requests preserve F->codeContext
-}
-
-static void commIncomingStats(StoreEntry * sentry);
-
-static void
-commEPollRegisterWithCacheManager(void)
-{
-    Mgr::RegisterAction("comm_epoll_incoming",
-                        "comm_incoming() stats",
-                        commIncomingStats, 0, 1);
-}
-
-static void
-commIncomingStats(StoreEntry * sentry)
-{
-    StatCounters *f = &statCounter;
-    storeAppendPrintf(sentry, "Total number of epoll(2) loops: %ld\n", statCounter.select_loops);
-    storeAppendPrintf(sentry, "Histogram of returned filedescriptors\n");
-    f->select_fds_hist.dump(sentry, statHistIntDumper);
 }
 
 /**

@@ -17,6 +17,7 @@
 #include "comm/IoCallback.h"
 #include "comm/Loops.h"
 #include "comm/Read.h"
+#include "comm/Stats.h"
 #include "comm/TcpAcceptor.h"
 #include "comm/Write.h"
 #include "compat/cmsg.h"
@@ -29,6 +30,7 @@
 #include "ip/Intercept.h"
 #include "ip/QosConfig.h"
 #include "ip/tools.h"
+#include "mgr/Registration.h"
 #include "pconn.h"
 #include "sbuf/SBuf.h"
 #include "sbuf/Stream.h"
@@ -1189,6 +1191,7 @@ comm_init(void)
 
     /* setup the select loop module */
     Comm::SelectLoopInit();
+    Mgr::RegisterAction("comm_incoming", "comm_incoming() stats", Comm::IncomingStats, 0, 1);
 }
 
 void

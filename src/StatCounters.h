@@ -121,9 +121,29 @@ public:
     double cputime = 0.0;
 
     struct timeval timestamp;
-    StatHist comm_udp_incoming;
-    StatHist comm_dns_incoming;
-    StatHist comm_tcp_incoming;
+#if USE_POLL || USE_SELECT
+    struct comm_internal {
+        StatHist history;
+
+        /*
+         * Count of how many normal I/O events have been processed
+         * since the last check on the incoming sockets.
+         * When ioEvents > incoming_interval, its time to check
+         * incoming sockets.
+         */
+        int ioEvents = 0;
+
+        /**
+         * How many normal I/O events to process before checking
+         * incoming sockets again.
+         *
+         * \note we store the incoming_interval multiplied by
+         *       a factor of (2^INCOMING_FACTOR) to have some
+         *       pseudo-floating point precision.
+         */
+        double interval = 0.0;
+    } udp_incoming, dns_incoming, tcp_incoming;
+#endif
     StatHist select_fds_hist;
 
     struct {

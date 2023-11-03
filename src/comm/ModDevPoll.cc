@@ -83,10 +83,6 @@ static struct _devpoll_state *devpoll_state; /**< array of socket states */
 static struct dvpoll do_poll; /**< data struct for storing poll results */
 static int dpoll_nfds; /**< maximum number of poll results */
 
-/* PROTOTYPES */
-static void commDevPollRegisterWithCacheManager(void);
-
-/* PRIVATE FUNCTIONS */
 /** \brief Write batched file descriptor event changes to poll device
  *
  * Writes out the static array of file descriptor event changes to the
@@ -147,27 +143,6 @@ comm_update_fd(int fd, int events)
     devpoll_update.pfds[devpoll_update.cur].revents = 0;
 }
 
-static void commIncomingStats(StoreEntry *sentry)
-{
-    storeAppendPrintf(sentry, "Total number of devpoll loops: %ld\n", statCounter.select_loops);
-    storeAppendPrintf(sentry, "Histogram of returned filedescriptors\n");
-    statCounter.select_fds_hist.dump(sentry, statHistIntDumper);
-}
-
-static void
-commDevPollRegisterWithCacheManager(void)
-{
-    Mgr::RegisterAction(
-        "comm_devpoll_incoming",
-        "comm_incoming() stats",
-        commIncomingStats,
-        0,
-        1
-    );
-}
-
-/* PUBLIC FUNCTIONS */
-
 /** \brief Initialise /dev/poll support
  *
  * Allocates memory, opens /dev/poll device handle.
@@ -201,8 +176,6 @@ Comm::SelectLoopInit(void)
     }
 
     fd_open(devpoll_fd, FD_UNKNOWN, "devpoll ctl");
-
-    commDevPollRegisterWithCacheManager();
 }
 
 /** \brief Set polling state of file descriptor and callback functions

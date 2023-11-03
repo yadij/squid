@@ -119,7 +119,6 @@ protected:
 
 double statHistDeltaMedian(const StatHist & A, const StatHist & B);
 double statHistDeltaPctile(const StatHist & A, const StatHist & B, double pctile);
-StatHistBinDumper statHistIntDumper;
 
 template<typename L>
 void

@@ -40,6 +40,20 @@ Comm::Flag DoSelect(int);
 void QuickPollRequired(void);
 
 /**
+ * - The higher the INCOMING_FACTOR, the slower the algorithm will
+ *   respond to load spikes/increases/decreases in demand. A value
+ *   between 3 and 8 is recommended.
+ */
+#define INCOMING_FACTOR 5
+
+/**
+ * - We have MAX_INCOMING_INTEGER as a magic upper limit on
+ *   incoming_interval for both UDP and TCP sockets.  At the
+ *   largest value the cache will effectively be idling.
+ */
+#define MAX_INCOMING_INTEGER 256
+
+/**
  * Max number of UDP messages to receive per call to the UDP receive poller.
  * This is a per-port limit for ICP/HTCP ports.
  * DNS has a separate limit.

@@ -30,6 +30,8 @@ libcomm_la_SOURCES = \
 	ModSelect.cc \
 	Read.cc \
 	Read.h \
+	Stats.cc \
+	Stats.h \
 	Tcp.cc \
 	Tcp.h \
 	TcpAcceptor.cc \

@@ -57,10 +57,31 @@ The Squid-@SQUID_RELEASE@ change history can be <url url="https://github.com/squ
 <p>This custom scheme does not conform to RFC 3986 URI sytax. It has been replaced
    with Cache Manager access through HTTP and HTTPS URLs.
 
-<sect2>Removal of <em>non_peers</em> Report
-<p>Squid still ignores unexpected ICP responses but no longer remembers the
-   details that comprised the removed report. The senders of these ICP messages
-   are still reported to cache.log at debugging level 1 (with an exponential backoff).
+<sect2>Changes to Cache Manager Reports
+<descrip>
+	<tag>comm_incoming</tag>
+	<p>New report replacing the I/O module specific reports.
+	   Supports previously missing kqueue I/O loop statistics.
+	   Formatting has been updated slightly for YAML compliance.
+
+	<tag>comm_devpoll_incoming</tag>
+	<p>Replaced by <em>mgr:comm_incoming</em> report.
+
+	<tag>comm_epoll_incoming</tag>
+	<p>Replaced by <em>mgr:comm_incoming</em> report.
+
+	<tag>comm_poll_incoming</tag>
+	<p>Replaced by <em>mgr:comm_incoming</em> report.
+
+	<tag>comm_select_incoming</tag>
+	<p>Replaced by <em>mgr:comm_incoming</em> report.
+
+	<tag>non_peers</tag>
+	<p>Removed. Squid still ignores unexpected ICP responses but no longer remembers the
+	   details that comprised the removed report. The senders of these ICP messages
+	   are still reported to cache.log at debugging level 1 (with an exponential backoff).
+
+</descrip>
 
 <sect1>Removed purge tool
 <p>The <em>purge</em> tool (also known as <em>squidpurge</em>, and <em>squid-purge</em>)

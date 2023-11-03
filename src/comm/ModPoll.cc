@@ -53,12 +53,10 @@ static int MAX_POLL_TIME = 1000;    /* see also Comm::QuickPollRequired() */
 static int fdIsTcpListen(int fd);
 static int fdIsUdpListen(int fd);
 static int fdIsDns(int fd);
-static OBJH commIncomingStats;
 static int comm_check_incoming_poll_handlers(int nfds, int *fds);
 static void comm_poll_dns_incoming(void);
 
-/*
- * Automatic tuning for incoming requests:
+/** Automatic tuning for incoming requests:
  *
  * INCOMING sockets are the ICP and HTTP ports.  We need to check these
  * fairly regularly, but how often?  When the load increases, we
@@ -66,16 +64,9 @@ static void comm_poll_dns_incoming(void);
  * of incoming ICP, then we need to check these sockets more than
  * if we just have HTTP.
  *
- * The variables 'incoming_icp_interval' and 'incoming_http_interval'
- * determine how many normal I/O events to process before checking
- * incoming sockets again.  Note we store the incoming_interval
- * multiplied by a factor of (2^INCOMING_FACTOR) to have some
- * pseudo-floating point precision.
+ * \copydoc StatCounter::comm_internal::interval
  *
- * The variable 'udp_io_events' and 'tcp_io_events' counts how many normal
- * I/O events have been processed since the last check on the incoming
- * sockets.  When io_events > incoming_interval, its time to check incoming
- * sockets.
+ * \copydoc StatCounter::comm_internal::ioEvents
  *
  * Every time we check incoming sockets, we count how many new messages
  * or connections were processed.  This is used to adjust the
@@ -89,34 +80,19 @@ static void comm_poll_dns_incoming(void);
  * There are separate incoming_interval counters for TCP-based, UDP-based, and DNS events
  *
  * You can see the current values of the incoming_interval's, as well as
- * a histogram of 'incoming_events' by asking the cache manager
- * for 'comm_incoming', e.g.:
- *
- *      % ./client mgr:comm_poll_incoming
+ * a histogram of 'incoming_events' in the cache manager 'comm_incoming' report.
  *
  * Caveats:
  *
- *      - We have MAX_INCOMING_INTEGER as a magic upper limit on
- *        incoming_interval for both types of sockets.  At the
- *        largest value the cache will effectively be idling.
+ * \copydoc MAX_INCOMING_INTEGER
  *
- *      - The higher the INCOMING_FACTOR, the slower the algorithm will
- *        respond to load spikes/increases/decreases in demand. A value
- *        between 3 and 8 is recommended.
+ * \copydoc INCOMING_FACTOR
  */
 
-#define MAX_INCOMING_INTEGER 256
-#define INCOMING_FACTOR 5
 #define MAX_INCOMING_INTERVAL (MAX_INCOMING_INTEGER << INCOMING_FACTOR)
-static int udp_io_events = 0; ///< I/O events passed since last UDP receiver socket poll
-static int dns_io_events = 0; ///< I/O events passed since last DNS socket poll
-static int tcp_io_events = 0; ///< I/O events passed since last TCP listening socket poll
-static int incoming_udp_interval = 16 << INCOMING_FACTOR;
-static int incoming_dns_interval = 16 << INCOMING_FACTOR;
-static int incoming_tcp_interval = 16 << INCOMING_FACTOR;
-#define commCheckUdpIncoming (++udp_io_events > (incoming_udp_interval>> INCOMING_FACTOR))
-#define commCheckDnsIncoming (++dns_io_events > (incoming_dns_interval>> INCOMING_FACTOR))
-#define commCheckTcpIncoming (++tcp_io_events > (incoming_tcp_interval>> INCOMING_FACTOR))
+#define commCheckUdpIncoming (++statCounter.udp_incoming.ioEvents > (statCounter.udp_incoming.interval >> INCOMING_FACTOR))
+#define commCheckDnsIncoming (++statCounter.dns.ioEvents > (statCounter.dns.interval >> INCOMING_FACTOR))
+#define commCheckTcpIncoming (++statCounter.tcp.ioEvents > (statCounter.tcp.interval >> INCOMING_FACTOR))
 
 void
 Comm::SetSelect(int fd, unsigned int type, PF * handler, void *client_data, time_t timeout)
@@ -248,7 +224,7 @@ comm_poll_udp_incoming(void)
     int nfds = 0;
     int fds[2];
     int nevents;
-    udp_io_events = 0;
+    statCounter.udp_incoming.ioEvents = 0;
 
     if (Comm::IsConnOpen(icpIncomingConn)) {
         fds[nfds] = icpIncomingConn->fd;
@@ -265,18 +241,18 @@ comm_poll_udp_incoming(void)
 
     nevents = comm_check_incoming_poll_handlers(nfds, fds);
 
-    incoming_udp_interval += Config.comm_incoming.udp.average - nevents;
+    statCounter.udp_incoming.interval += Config.comm_incoming.udp.average - nevents;
 
-    if (incoming_udp_interval < Config.comm_incoming.udp.min_poll)
-        incoming_udp_interval = Config.comm_incoming.udp.min_poll;
+    if (statCounter.udp_incoming.interval < Config.comm_incoming.udp.min_poll)
+        statCounter.udp_incoming.interval = Config.comm_incoming.udp.min_poll;
 
-    if (incoming_udp_interval > MAX_INCOMING_INTERVAL)
-        incoming_udp_interval = MAX_INCOMING_INTERVAL;
+    if (statCounter.udp_incoming.interval > MAX_INCOMING_INTERVAL)
+        statCounter.udp_incoming.interval = MAX_INCOMING_INTERVAL;
 
     if (nevents > INCOMING_UDP_MAX)
         nevents = INCOMING_UDP_MAX;
 
-    statCounter.comm_udp_incoming.count(nevents);
+    statCounter.udp_incoming.history.count(nevents);
 }
 
 static void
@@ -286,7 +262,7 @@ comm_poll_tcp_incoming(void)
     int fds[MAXTCPLISTENPORTS];
     int j;
     int nevents;
-    tcp_io_events = 0;
+    statCounter.tcp.ioEvents = 0;
 
     // XXX: only poll sockets that won't be deferred. But how do we identify them?
 
@@ -299,19 +275,18 @@ comm_poll_tcp_incoming(void)
     }
 
     nevents = comm_check_incoming_poll_handlers(nfds, fds);
-    incoming_tcp_interval = incoming_tcp_interval
-                            + Config.comm_incoming.tcp.average - nevents;
+    statCounter.tcp.interval += Config.comm_incoming.tcp.average - nevents;
 
-    if (incoming_tcp_interval < Config.comm_incoming.tcp.min_poll)
-        incoming_tcp_interval = Config.comm_incoming.tcp.min_poll;
+    if (statCounter.udp_incoming.interval < Config.comm_incoming.tcp.min_poll)
+        statCounter.udp_incoming.interval = Config.comm_incoming.tcp.min_poll;
 
-    if (incoming_tcp_interval > MAX_INCOMING_INTERVAL)
-        incoming_tcp_interval = MAX_INCOMING_INTERVAL;
+    if (statCounter.udp_incoming.interval > MAX_INCOMING_INTERVAL)
+        statCounter.udp_incoming.interval = MAX_INCOMING_INTERVAL;
 
     if (nevents > INCOMING_TCP_MAX)
         nevents = INCOMING_TCP_MAX;
 
-    statCounter.comm_tcp_incoming.count(nevents);
+    statCounter.tcp.comm_incoming.count(nevents);
 }
 
 /* poll all sockets; call handlers for those that are ready. */
@@ -548,7 +523,7 @@ comm_poll_dns_incoming(void)
     int nfds = 0;
     int fds[2];
     int nevents;
-    dns_io_events = 0;
+    statCounter.dns.ioEvents = 0;
 
     if (DnsSocketA < 0 && DnsSocketB < 0)
         return;
@@ -568,51 +543,23 @@ comm_poll_dns_incoming(void)
     if (nevents < 0)
         return;
 
-    incoming_dns_interval += Config.comm_incoming.dns.average - nevents;
+    statCounter.dns.interval += Config.comm_incoming.dns.average - nevents;
 
-    if (incoming_dns_interval < Config.comm_incoming.dns.min_poll)
-        incoming_dns_interval = Config.comm_incoming.dns.min_poll;
+    if (statCounter.dns.interval < Config.comm_incoming.dns.min_poll)
+        statCounter.dns.interval = Config.comm_incoming.dns.min_poll;
 
-    if (incoming_dns_interval > MAX_INCOMING_INTERVAL)
-        incoming_dns_interval = MAX_INCOMING_INTERVAL;
+    if (statCounter.dns.interval > MAX_INCOMING_INTERVAL)
+        statCounter.dns.interval = MAX_INCOMING_INTERVAL;
 
     if (nevents > INCOMING_DNS_MAX)
         nevents = INCOMING_DNS_MAX;
 
-    statCounter.comm_dns_incoming.count(nevents);
-}
-
-static void
-commPollRegisterWithCacheManager(void)
-{
-    Mgr::RegisterAction("comm_poll_incoming",
-                        "comm_incoming() stats",
-                        commIncomingStats, 0, 1);
+    statCounter.dns.comm_incoming.count(nevents);
 }
 
 void
 Comm::SelectLoopInit(void)
 {
-    commPollRegisterWithCacheManager();
-}
-
-static void
-commIncomingStats(StoreEntry * sentry)
-{
-    storeAppendPrintf(sentry, "Current incoming_udp_interval: %d\n",
-                      incoming_udp_interval >> INCOMING_FACTOR);
-    storeAppendPrintf(sentry, "Current incoming_dns_interval: %d\n",
-                      incoming_dns_interval >> INCOMING_FACTOR);
-    storeAppendPrintf(sentry, "Current incoming_tcp_interval: %d\n",
-                      incoming_tcp_interval >> INCOMING_FACTOR);
-    storeAppendPrintf(sentry, "\n");
-    storeAppendPrintf(sentry, "Histogram of events per incoming socket type\n");
-    storeAppendPrintf(sentry, "ICP Messages handled per comm_poll_udp_incoming() call:\n");
-    statCounter.comm_udp_incoming.dump(sentry, statHistIntDumper);
-    storeAppendPrintf(sentry, "DNS Messages handled per comm_poll_dns_incoming() call:\n");
-    statCounter.comm_dns_incoming.dump(sentry, statHistIntDumper);
-    storeAppendPrintf(sentry, "HTTP Messages handled per comm_poll_tcp_incoming() call:\n");
-    statCounter.comm_tcp_incoming.dump(sentry, statHistIntDumper);
 }
 
 /* Called by async-io or diskd to speed up the polling */
