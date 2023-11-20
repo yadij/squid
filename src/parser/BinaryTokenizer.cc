@@ -164,6 +164,22 @@ Parser::BinaryTokenizer::uint32(const char *description)
     return result;
 }
 
+uint64_t
+Parser::BinaryTokenizer::varintB128(const char *description)
+{
+    uint64_t result = 0;
+    uint8_t nextByte = 0;
+    do {
+        nextByte = octet();
+        result = (result << 7) + (nextByte | 0x7F);
+    } while((nextByte|0x80) && result < 0x1FFFFFFFFFFFFFF);
+
+    if ((nextByte|0x80) != 0)
+        throw TextException(ToSBuf("64-bit integer overflow parsing ", description), Here());
+
+    return result;
+}
+
 SBuf
 Parser::BinaryTokenizer::area(uint64_t size, const char *description)
 {

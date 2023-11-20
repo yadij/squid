@@ -81,6 +81,9 @@ public:
     /// parse a four-byte unsigned integer
     uint32_t uint32(const char *description);
 
+    /// parse a Base-128 encoded (aka variable-length) unsigned integer
+    uint64_t varintB128(const char *description);
+
     /// parse size consecutive bytes as an opaque blob
     SBuf area(uint64_t size, const char *description);
 
