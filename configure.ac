@@ -1029,7 +1029,6 @@ AC_MSG_NOTICE([HTCP support enabled: $enable_htcp])
 SQUID_AUTO_LIB(nettle,[Nettle crypto],[LIBNETTLE])
 SQUID_CHECK_LIB_WORKS(nettle,[
   PKG_CHECK_MODULES([LIBNETTLE],[nettle >= 3.4],[
-    CPPFLAGS="$LIBNETTLE_CFLAGS $CPPFLAGS"
     AC_CHECK_HEADERS(nettle/base64.h nettle/md5.h)
   ],[:])
 ])
@@ -1046,8 +1045,8 @@ AC_SUBST(CRYPTLIB)
 SQUID_AUTO_LIB(gnutls,[GnuTLS crypto],[LIBGNUTLS])
 SQUID_CHECK_LIB_WORKS(gnutls,[
   PKG_CHECK_MODULES([LIBGNUTLS],[gnutls >= 3.4.0],[
-    CPPFLAGS="$LIBGNUTLS_CFLAGS $CPPFLAGS"
-    AC_CHECK_HEADERS(gnutls/gnutls.h gnutls/x509.h gnutls/abstract.h)
+    # if any of the required headers is not found, signal we can't support gnutls
+    AC_CHECK_HEADERS([gnutls/gnutls.h gnutls/x509.h gnutls/abstract.h],[],[LIBGNUTLS_LIBS=""])
   ],[:])
 ])
 
@@ -1228,7 +1227,6 @@ SQUID_CHECK_LIB_WORKS([sasl],[
 
 SQUID_AUTO_LIB(systemd,[systemd API for start-up notification],[LIBSYSTEMD])
 SQUID_CHECK_LIB_WORKS(systemd,[
-  LIBS="$LIBS $LIBSYSTEMD_PATH"
   PKG_CHECK_MODULES(LIBSYSTEMD,[libsystemd >= 209],[
     AC_CHECK_HEADERS(systemd/sd-daemon.h)
   ],[:])
@@ -1752,9 +1750,6 @@ SQUID_CHECK_LIB_WORKS(cppunit,[
     squid_cv_cppunit_version="`pkg-config --modversion cppunit`"
     AC_MSG_NOTICE([using system installed cppunit version $squid_cv_cppunit_version])
     AS_UNSET(squid_cv_cppunit_version)
-
-    CXXFLAGS="${CXXFLAGS} ${LIBCPPUNIT_CFLAGS}"
-    LIBS="${LIBS} ${LIBCPPUNIT_LIBS}"
     AC_CHECK_HEADERS(cppunit/extensions/HelperMacros.h)
   ],[
     AC_MSG_WARN([cppunit does not appear to be installed. Squid does not require this, but code testing with 'make check' will fail.])
@@ -1971,8 +1966,6 @@ AC_FUNC_ALLOCA
 SQUID_AUTO_LIB(cap,[Linux capabilities],[LIBCAP])
 SQUID_CHECK_LIB_WORKS(cap,[
   PKG_CHECK_MODULES([LIBCAP],[libcap >= 2.09],[:],[:])
-  CPPFLAGS="$LIBCAP_CFLAGS $CPPFLAGS"
-  LIBS="$LIBCAP_PATH $LIBCAP_LIBS $LIBS"
   SQUID_CHECK_FUNCTIONAL_LIBCAP2
   AC_MSG_NOTICE([libcap headers are ok: $squid_cv_sys_capability_works])
   AS_IF([test "x$squid_cv_sys_capability_works" = "xno"],[LIBCAP_LIBS=""])
@@ -2497,6 +2490,8 @@ AC_MSG_NOTICE([BUILD OBJECTS: $OBJS])
 AC_MSG_NOTICE([BUILD EXTRA OBJECTS: $XTRA_OBJS])
 AC_MSG_NOTICE([BUILD C FLAGS: $CFLAGS])
 AC_MSG_NOTICE([BUILD EXTRA C FLAGS: $SQUID_CFLAGS])
+AC_MSG_NOTICE([BUILD CPP FLAGS: $CPPFLAGS])
+AC_MSG_NOTICE([BUILD EXTRA CPP FLAGS: $AM_CPPFLAGS])
 AC_MSG_NOTICE([BUILD C++ FLAGS: $CXXFLAGS])
 AC_MSG_NOTICE([BUILD EXTRA C++ FLAGS: $SQUID_CXXFLAGS])
 AC_MSG_NOTICE([BUILD Tools C++ FLAGS: $BUILDCXXFLAGS])

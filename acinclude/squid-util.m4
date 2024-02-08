@@ -20,6 +20,7 @@ $1_LIBS="${LIBS}"
 $1_CC="${CC}"
 $1_CXX="${CXX}"
 $1_CPPFLAGS="${CPPFLAGS}"
+$1_AM_CPPFLAGS="${AM_CPPFLAGS}"
 $1_squid_saved_vars="$2"
 for squid_util_var_tosave in $$1_squid_saved_vars
 do
@@ -40,6 +41,7 @@ unset $1_LIBS
 unset $1_CC
 unset $1_CXX
 unset $1_CPPFLAGS
+unset $1_AM_CPPFLAGS
 for squid_util_var_tosave in $$1_squid_saved_vars
 do
     unset ${squid_util_var_tosave}
@@ -59,6 +61,7 @@ LIBS="${$1_LIBS}"
 CC="${$1_CC}"
 CXX="${$1_CXX}"
 CPPFLAGS="${$1_CPPFLAGS}"
+AM_CPPFLAGS="${$1_AM_CPPFLAGS}"
 for squid_util_var_tosave in $$1_squid_saved_vars
 do
     squid_util_var_tosave2="\$$1_${squid_util_var_tosave}"
@@ -228,10 +231,12 @@ AC_DEFUN([SQUID_CHECK_LIB_WORKS],[
 AH_TEMPLATE(m4_toupper(m4_translit([HAVE_LIB$1], [-+.], [___])),[Define as 1 to enable '$1' library support.])
 AS_IF([m4_translit([test "x$with_$1" != "xno"], [-+.], [___])],[
   SQUID_STATE_SAVE(check_lib_works_state)
+  m4_toupper(m4_translit([CPPFLAGS="$LIB$1_CFLAGS $AM_CPPFLAGS $CPPFLAGS"], [-+.], [___]))
+  m4_toupper(m4_translit([LIBS="$LIBS $LIB$1_PATH"], [-+.], [___]))
   $2
   SQUID_STATE_ROLLBACK(check_lib_works_state)
   AS_IF([! test -z m4_toupper(m4_translit(["$LIB$1_LIBS"], [-+.], [___]))],[
-    m4_toupper(m4_translit([CPPFLAGS="$LIB$1_CFLAGS $CPPFLAGS"], [-+.], [___]))
+    m4_toupper(m4_translit([AM_CPPFLAGS="$LIB$1_CFLAGS $AM_CPPFLAGS"], [-+.], [___]))
     m4_toupper(m4_translit([LIB$1_LIBS="$LIB$1_PATH $LIB$1_LIBS"], [-+.], [___]))
     AC_MSG_NOTICE([Library '$1' support: m4_translit([${with_$1:=yes (auto)} m4_toupper($LIB$1_LIBS)], [-+.], [___])])
     m4_translit([with_$1], [-+.], [___])=yes
