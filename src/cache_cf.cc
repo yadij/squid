@@ -3179,14 +3179,12 @@ parse_uri_whitespace(int *var)
         *var = URI_WHITESPACE_STRIP;
     else if (!strcmp(token, "deny"))
         *var = URI_WHITESPACE_DENY;
-    else if (!strcmp(token, "allow"))
-        *var = URI_WHITESPACE_ALLOW;
     else if (!strcmp(token, "encode"))
         *var = URI_WHITESPACE_ENCODE;
     else if (!strcmp(token, "chop"))
         *var = URI_WHITESPACE_CHOP;
     else {
-        debugs(0, DBG_PARSE_NOTE(2), "ERROR: Invalid option '" << token << "': 'uri_whitespace' accepts 'strip', 'deny', 'allow', 'encode', and 'chop'.");
+        debugs(0, DBG_PARSE_NOTE(2), "ERROR: Invalid option '" << token << "': 'uri_whitespace' accepts 'strip', 'deny', 'encode', and 'chop'.");
         self_destruct();
     }
 }
@@ -3196,9 +3194,7 @@ dump_uri_whitespace(StoreEntry * entry, const char *name, int var)
 {
     const char *s;
 
-    if (var == URI_WHITESPACE_ALLOW)
-        s = "allow";
-    else if (var == URI_WHITESPACE_ENCODE)
+    if (var == URI_WHITESPACE_ENCODE)
         s = "encode";
     else if (var == URI_WHITESPACE_CHOP)
         s = "chop";

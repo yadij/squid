@@ -10,6 +10,7 @@
 #define SQUID_SRC_ANYP_URI_H
 
 #include "anyp/UriScheme.h"
+#include "base/CharacterSet.h"
 #include "ip/Address.h"
 #include "rfc2181.h"
 #include "sbuf/SBuf.h"
@@ -113,8 +114,9 @@ public:
     /// the provided set of expected characters.
     static SBuf Encode(const SBuf &, const CharacterSet &expected);
 
-    /// %-decode the given buffer
-    static SBuf Decode(const SBuf &);
+    /// %-decode characters in the given buffer which do not conform to
+    /// the provided set of characters to ignore.
+    static SBuf Decode(const SBuf &, const CharacterSet &ignore = CharacterSet::Nil);
 
     /**
      * The authority-form URI for currently stored values.
@@ -140,6 +142,7 @@ public:
 private:
     void parseUrn(Parser::Tokenizer&);
 
+    void parseAuthority(Parser::Tokenizer &, SBuf &, int &) const;
     SBuf parseHost(Parser::Tokenizer &) const;
     int parsePort(Parser::Tokenizer &) const;
 
@@ -216,7 +219,6 @@ const char *urlCanonicalFakeHttps(const HttpRequest * request);
 bool urlIsRelative(const char *);
 char *urlRInternal(const char *host, unsigned short port, const char *dir, const char *name);
 char *urlInternal(const char *dir, const char *name);
-bool urlAppendDomain(char *host); ///< apply append_domain config to the given hostname
 
 enum MatchDomainNameFlags {
     mdnNone = 0,

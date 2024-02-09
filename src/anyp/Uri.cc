@@ -15,21 +15,9 @@
 #include "HttpRequest.h"
 #include "parser/Tokenizer.h"
 #include "rfc1738.h"
+#include "sbuf/Stream.h"
 #include "SquidConfig.h"
 #include "SquidMath.h"
-
-static const char valid_hostname_chars_u[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    "abcdefghijklmnopqrstuvwxyz"
-    "0123456789-._"
-    "[:]"
-    ;
-static const char valid_hostname_chars[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    "abcdefghijklmnopqrstuvwxyz"
-    "0123456789-."
-    "[:]"
-    ;
 
 /// Characters which are valid within a URI userinfo section
 static const CharacterSet &
@@ -47,6 +35,92 @@ UserInfoChars()
                                       CharacterSet::ALPHA +
                                       CharacterSet::DIGIT;
     return userInfoValid;
+}
+
+/// Characters which are valid for a domain name in the URI-authority section
+/// and optionally '_' when allow_underscore is configured
+static const CharacterSet &
+DomainNameChars()
+{
+    /*
+     * RFC 3986 section 3.2.2 defines an overly-broad set of valid
+     * characters. Then delegates further limitations to whichever
+     * specification governs the registry used to resolve the hostname.
+     *
+     * URLs accepted by Squid are resolved with DNS.
+     *
+     * RFC 1034 section 3.5
+     *
+     *  <subdomain> ::= <label> | <subdomain> "." <label>
+     *
+     *  <label> ::= <letter> [ [ <ldh-str> ] <let-dig> ]
+     *
+     *  <ldh-str> ::= <let-dig-hyp> | <let-dig-hyp> <ldh-str>
+     *
+     *  <let-dig-hyp> ::= <let-dig> | "-"
+     *
+     *  <let-dig> ::= <letter> | <digit>
+     *
+     *  <letter> ::= any one of the 52 alphabetic characters A through Z in
+     *               upper case and a through z in lower case
+     *
+     *  <digit> ::= any one of the ten digits 0 through 9
+     */
+    static const auto dnsValid = CharacterSet("domain", ".-") +
+                                 CharacterSet::ALPHA +
+                                 CharacterSet::DIGIT;
+
+    static const auto squidLax = CharacterSet("host_name","_") +
+                                 dnsValid;
+
+    return (Config.onoff.allow_underscore ? squidLax : dnsValid);
+}
+
+/// Characters which are valid for the URI-path section.
+/// Includes delimiters which we must ignore due to Squid
+/// still combining the path?query#fragment sections.
+static const CharacterSet &
+PathChars()
+{
+    /*
+     * RFC 3986 section 3.3 (duplicate cases excluded)
+     *
+     *  path          = path-abempty    ; begins with "/" or is empty
+     *  path-abempty  = *( "/" segment )
+     *  segment       = *pchar
+     *  pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
+     *  unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
+     *  pct-encoded   = "%" HEXDIG HEXDIG
+     *  sub-delims    = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+     */
+    static const auto pathValid = CharacterSet("path","/") + CharacterSet::PCHAR;
+
+    /*
+     * RFC 3986 section 3.4
+     *
+     *  query         = *( pchar / "/" / "?" )
+     */
+    static const auto queryValid = CharacterSet("query","/?") + CharacterSet::PCHAR;
+
+    /*
+     * RFC 3986 section 3.5
+     *
+     *  fragment      = *( pchar / "/" / "?" )
+     */
+    static const auto fragmentValid = CharacterSet("fragment","/?") + CharacterSet::PCHAR;
+
+    /*
+     * RFC 3986 section 4.2
+     *
+     *  relative-ref  = relative-part [ "?" query ] [ "#" fragment ]
+     *
+     *  relative-part = "//" authority path-abempty
+     *                / path-absolute
+     *                / path-noscheme
+     *                / path-empty
+     */
+    static const auto relativeRef = CharacterSet("relative-ref","/?#") + pathValid + queryValid + fragmentValid;
+    return relativeRef;
 }
 
 /**
@@ -82,7 +156,7 @@ AnyP::Uri::Encode(const SBuf &buf, const CharacterSet &ignore)
 }
 
 SBuf
-AnyP::Uri::Decode(const SBuf &buf)
+AnyP::Uri::Decode(const SBuf &buf, const CharacterSet &ignore)
 {
     SBuf output;
     Parser::Tokenizer tok(buf);
@@ -93,11 +167,16 @@ AnyP::Uri::Decode(const SBuf &buf)
             output.append(token);
 
         // we are either at '%' or at end of input
+        const auto savePoint = tok.remaining();
         if (tok.skip('%')) {
             int64_t hex1 = 0, hex2 = 0;
-            if (tok.int64(hex1, 16, false, 1) && tok.int64(hex2, 16, false, 1))
-                output.append(static_cast<char>((hex1 << 4) | hex2));
-            else
+            if (tok.int64(hex1, 16, false, 1) && tok.int64(hex2, 16, false, 1)) {
+                const char found = static_cast<char>((hex1 << 4) | hex2);
+                if (ignore[found])
+                    output.append(savePoint.substr(0,3));
+                else
+                    output.append(found);
+            } else
                 throw TextException("invalid pct-encoded triplet", Here());
         }
     }
@@ -234,28 +313,40 @@ uriParseScheme(Parser::Tokenizer &tok)
     throw TextException("invalid URI scheme", Here());
 }
 
-/**
- * Appends configured append_domain to hostname, assuming
- * the given buffer is at least SQUIDHOSTNAMELEN bytes long,
- * and that the host FQDN is not a 'dotless' TLD.
- *
- * \returns false if and only if there is not enough space to append
- */
-bool
-urlAppendDomain(char *host)
+static void
+fixPathWhitespace(SBuf &foundPath)
 {
-    /* For IPv4 addresses check for a dot */
-    /* For IPv6 addresses also check for a colon */
-    if (Config.appendDomain && !strchr(host, '.') && !strchr(host, ':')) {
-        const uint64_t dlen = strlen(host);
-        const uint64_t want = dlen + Config.appendDomainLen;
-        if (want > SQUIDHOSTNAMELEN - 1) {
-            debugs(23, 2, "URL domain too large (" << dlen << " bytes)");
-            return false;
+    const auto firstWsp = foundPath.findFirstOf(CharacterSet::WSP);
+    if (firstWsp != SBuf::npos) {
+        debugs(23, 2, "URI-path has whitespace: {" << foundPath << "}");
+        switch (Config.uri_whitespace) {
+
+        case URI_WHITESPACE_DENY:
+            throw TextException("whitespace in URL path", Here());
+
+        case URI_WHITESPACE_ENCODE: // done later
+            break;
+
+        case URI_WHITESPACE_CHOP:
+            foundPath.chop(0, firstWsp);
+            return;
+
+        case URI_WHITESPACE_STRIP:
+        default: {
+            size_t dst = 0;
+            for (size_t src = 0; src < foundPath.length(); ++src) {
+               if (CharacterSet::WSP[foundPath[src]])
+                   continue;
+               if (src != dst)
+                   foundPath.setAt(dst, foundPath[src]);
+               ++dst;
+            }
+            if (dst != foundPath.length())
+                foundPath.chop(0, dst); // truncate
+            return;
         }
-        strncat(host, Config.appendDomain, SQUIDHOSTNAMELEN - dlen - 1);
+        }
     }
-    return true;
 }
 
 /*
@@ -274,23 +365,9 @@ bool
 AnyP::Uri::parse(const HttpRequestMethod& method, const SBuf &rawUrl)
 {
     try {
-
-        LOCAL_ARRAY(char, login, MAX_URL);
-        LOCAL_ARRAY(char, foundHost, MAX_URL);
-        LOCAL_ARRAY(char, urlpath, MAX_URL);
-        char *t = nullptr;
-        char *q = nullptr;
-        int foundPort;
-        int l;
-        int i;
-        const char *src;
-        char *dst;
-        foundHost[0] = urlpath[0] = login[0] = '\0';
-
-        if ((l = rawUrl.length()) + Config.appendDomainLen > (MAX_URL - 1)) {
-            debugs(23, DBG_IMPORTANT, MYNAME << "URL too large (" << l << " bytes)");
-            return false;
-        }
+        int len = rawUrl.length();
+        if (len + Config.appendDomainLen > (MAX_URL - 1))
+            throw TextException(ToSBuf("URL too large (", len, " bytes)"), Here());
 
         if ((method == Http::METHOD_OPTIONS || method == Http::METHOD_TRACE) &&
                 Asterisk().cmp(rawUrl) == 0) {
@@ -303,23 +380,23 @@ AnyP::Uri::parse(const HttpRequestMethod& method, const SBuf &rawUrl)
 
         Parser::Tokenizer tok(rawUrl);
         AnyP::UriScheme scheme;
+        SBuf foundUserInfo;
+        SBuf foundHost;
+        int foundPort = -1;
+        SBuf foundPath;
 
         if (method == Http::METHOD_CONNECT) {
             // For CONNECTs, RFC 9110 Section 9.3.6 requires "only the host and
             // port number of the tunnel destination, separated by a colon".
+            parseAuthority(tok, foundHost, foundPort);
 
-            const auto rawHost = parseHost(tok);
-            Assure(rawHost.length() < sizeof(foundHost));
-            SBufToCstring(foundHost, rawHost);
-
-            if (!tok.skip(':'))
+            if (foundPort == -1)
                 throw TextException("missing required :port in CONNECT target", Here());
-            foundPort = parsePort(tok);
 
-            if (!tok.remaining().isEmpty())
+            if (!tok.atEnd())
                 throw TextException("garbage after host:port in CONNECT target", Here());
-        } else {
 
+        } else {
             scheme = uriParseScheme(tok);
 
             if (scheme == AnyP::PROTO_NONE)
@@ -330,199 +407,71 @@ AnyP::Uri::parse(const HttpRequestMethod& method, const SBuf &rawUrl)
                 return true;
             }
 
-            // URLs then have "//"
-            static const SBuf doubleSlash("//");
-            if (!tok.skip(doubleSlash))
-                return false;
-
-            auto B = tok.remaining();
-            const char *url = B.c_str();
-
-            /* Parse the URL: */
-            src = url;
-            i = 0;
-
-            /* Then everything until first /; that's host (and port; which we'll look for here later) */
-            // bug 1881: If we don't get a "/" then we imply it was there
-            // bug 3074: We could just be given a "?" or "#". These also imply "/"
-            // bug 3233: whitespace is also a hostname delimiter.
-            for (dst = foundHost; i < l && *src != '/' && *src != '?' && *src != '#' && *src != '\0' && !xisspace(*src); ++i, ++src, ++dst) {
-                *dst = *src;
-            }
-
-            /*
-             * We can't check for "i >= l" here because we could be at the end of the line
-             * and have a perfectly valid URL w/ no trailing '/'. In this case we assume we've
-             * been -given- a valid URL and the path is just '/'.
-             */
-            if (i > l)
-                return false;
-            *dst = '\0';
-
-            // We are looking at path-abempty.
-            if (*src != '/') {
-                // path-empty, including the end of the `src` c-string cases
-                urlpath[0] = '/';
-                dst = &urlpath[1];
-            } else {
-                dst = urlpath;
-            }
-            /* Then everything from / (inclusive) until \r\n or \0 - that's urlpath */
-            for (; i < l && *src != '\r' && *src != '\n' && *src != '\0'; ++i, ++src, ++dst) {
-                *dst = *src;
-            }
-
-            /* We -could- be at the end of the buffer here */
-            if (i > l)
-                return false;
-            *dst = '\0';
-
             // If the parsed scheme has no (known) default port, and there is no
             // explicit port, then we will reject the zero port during foundPort
             // validation, often resulting in a misleading 400/ERR_INVALID_URL.
-            // TODO: Remove this hack when switching to Tokenizer-based parsing.
+            // TODO: Remove this hack
             foundPort = scheme.defaultPort().value_or(0); // may be reset later
 
-            /* Is there any login information? (we should eventually parse it above) */
-            t = strrchr(foundHost, '@');
-            if (t != nullptr) {
-                strncpy((char *) login, (char *) foundHost, sizeof(login)-1);
-                login[sizeof(login)-1] = '\0';
-                t = strrchr(login, '@');
-                *t = 0;
-                strncpy((char *) foundHost, t + 1, sizeof(foundHost)-1);
-                foundHost[sizeof(foundHost)-1] = '\0';
-                // Bug 4498: URL-unescape the login info after extraction
-                rfc1738_unescape(login);
-            }
+            // URLs then have "//"
+            static const SBuf doubleSlash("//");
+            tok.skipRequired("authority-prefix",doubleSlash);
 
-            /* Is there any host information? (we should eventually parse it above) */
-            if (*foundHost == '[') {
-                /* strip any IPA brackets. valid under IPv6. */
-                dst = foundHost;
-                /* only for IPv6 sadly, pre-IPv6/URL code can't handle the clean result properly anyway. */
-                src = foundHost;
-                ++src;
-                l = strlen(foundHost);
-                i = 1;
-                for (; i < l && *src != ']' && *src != '\0'; ++i, ++src, ++dst) {
-                    *dst = *src;
-                }
-
-                /* we moved in-place, so truncate the actual hostname found */
-                *dst = '\0';
-                ++dst;
-
-                /* skip ahead to either start of port, or original EOS */
-                while (*dst != '\0' && *dst != ':')
-                    ++dst;
-                t = dst;
+            /*
+             * RFC 9110 section 4.2.4
+             *
+             *  Before making use of an "http" or "https" URI reference received
+             *  from an untrusted source, a recipient SHOULD parse for userinfo
+             *  and treat its presence as an error; it is likely being used to
+             *  obscure the authority for the sake of phishing attacks.
+             */
+            const auto savePoint = tok.buf();
+            (void)tok.prefix(foundUserInfo, UserInfoChars());
+            if (!tok.skip('@')) {
+                // no userinfo present
+                tok.reset(savePoint);
+                foundUserInfo.clear();
             } else {
-                t = strrchr(foundHost, ':');
-
-                if (t != strchr(foundHost,':') ) {
-                    /* RFC 2732 states IPv6 "SHOULD" be bracketed. allowing for times when its not. */
-                    /* RFC 3986 'update' simply modifies this to an "is" with no emphasis at all! */
-                    /* therefore we MUST accept the case where they are not bracketed at all. */
-                    t = nullptr;
-                }
+                if (scheme == AnyP::PROTO_HTTP || scheme == AnyP::PROTO_HTTPS)
+                    throw TextException(ToSBuf("forbidden userinfo@ found in ", scheme.image(), " URL"), Here());
+                // normalize: strip encoding except for reserved ':' delimiter
+                static const auto colon = CharacterSet("colon",":");
+                foundUserInfo = Decode(foundUserInfo, colon);
             }
 
-            // Bug 3183 sanity check: If scheme is present, host must be too.
-            if (scheme != AnyP::PROTO_NONE && foundHost[0] == '\0') {
-                debugs(23, DBG_IMPORTANT, "SECURITY ALERT: Missing hostname in URL '" << url << "'. see access.log for details.");
-                return false;
+            // RFC 3986 authority section is mandatory when scheme is present
+            parseAuthority(tok, foundHost, foundPort);
+            // RFC 9110 section 4.2.1 and 4.2.2 require hostname, not allowing port-only authority section
+            if (scheme == AnyP::PROTO_HTTP || scheme == AnyP::PROTO_HTTPS)
+                throw TextException(ToSBuf("missing required hostname in ", scheme.image(), " URL"), Here());
+            else {
+                // Bug 3183 paranoid sanity check: If scheme is present, host must be too.
+                Assure(!foundHost.isEmpty());
             }
 
-            if (t && *t == ':') {
-                *t = '\0';
-                ++t;
-                foundPort = atoi(t);
+            // TODO: separate the path?query#fragment sections
+            foundPath = tok.remaining();
+            if (!tok.skip('/')) {
+                foundPath = SlashPath();
+                foundPath.append(tok.remaining());
             }
+
+            // normalize: decode all improperly encoded characters in the path?query#fragment area
+            static const auto pathEncode = CharacterSet("path-delim","?#") + PathChars().complement();
+            foundPath = Decode(foundPath, pathEncode);
         }
 
-        for (t = foundHost; *t; ++t)
-            *t = xtolower(*t);
+        debugs(23, 3, "Split URL '" << rawUrl << "' into proto='" << scheme.image() << "', host='" << foundHost << "', port='" << foundPort << "', path='" << foundPath << "'");
 
-        if (stringHasWhitespace(foundHost)) {
-            if (URI_WHITESPACE_STRIP == Config.uri_whitespace) {
-                t = q = foundHost;
-                while (*t) {
-                    if (!xisspace(*t)) {
-                        *q = *t;
-                        ++q;
-                    }
-                    ++t;
-                }
-                *q = '\0';
-            }
-        }
+        // TODO: remove more of the RFC violations when possible
+        fixPathWhitespace(foundPath);
 
-        debugs(23, 3, "Split URL '" << rawUrl << "' into proto='" << scheme.image() << "', host='" << foundHost << "', port='" << foundPort << "', path='" << urlpath << "'");
-
-        if (Config.onoff.check_hostnames &&
-                strspn(foundHost, Config.onoff.allow_underscore ? valid_hostname_chars_u : valid_hostname_chars) != strlen(foundHost)) {
-            debugs(23, DBG_IMPORTANT, MYNAME << "Illegal character in hostname '" << foundHost << "'");
-            return false;
-        }
-
-        if (!urlAppendDomain(foundHost))
-            return false;
-
-        /* remove trailing dots from hostnames */
-        while ((l = strlen(foundHost)) > 0 && foundHost[--l] == '.')
-            foundHost[l] = '\0';
-
-        /* reject duplicate or leading dots */
-        if (strstr(foundHost, "..") || *foundHost == '.') {
-            debugs(23, DBG_IMPORTANT, MYNAME << "Illegal hostname '" << foundHost << "'");
-            return false;
-        }
-
-        if (foundPort < 1 || foundPort > 65535) {
-            debugs(23, 3, "Invalid port '" << foundPort << "'");
-            return false;
-        }
-
-        if (stringHasWhitespace(urlpath)) {
-            debugs(23, 2, "URI has whitespace: {" << rawUrl << "}");
-
-            switch (Config.uri_whitespace) {
-
-            case URI_WHITESPACE_DENY:
-                return false;
-
-            case URI_WHITESPACE_ALLOW:
-                break;
-
-            case URI_WHITESPACE_ENCODE:
-                t = rfc1738_escape_unescaped(urlpath);
-                xstrncpy(urlpath, t, MAX_URL);
-                break;
-
-            case URI_WHITESPACE_CHOP:
-                *(urlpath + strcspn(urlpath, w_space)) = '\0';
-                break;
-
-            case URI_WHITESPACE_STRIP:
-            default:
-                t = q = urlpath;
-                while (*t) {
-                    if (!xisspace(*t)) {
-                        *q = *t;
-                        ++q;
-                    }
-                    ++t;
-                }
-                *q = '\0';
-            }
-        }
-
+        // all good. store the results
         setScheme(scheme);
-        path(urlpath);
-        host(foundHost);
-        userInfo(SBuf(login));
+        userInfo(foundUserInfo);
+        host(foundHost.c_str());
         port(foundPort);
+        path(foundPath);
         return true;
 
     } catch (...) {
@@ -573,6 +522,15 @@ AnyP::Uri::parseUrn(Parser::Tokenizer &tok)
     debugs(23, 3, "Split URI into proto=urn, nid=" << nid << ", " << Raw("path",path().rawContent(),path().length()));
 }
 
+/// Extracts a suspected but only partially validated; hostname and optional port.
+void
+AnyP::Uri::parseAuthority(Parser::Tokenizer &tok, SBuf &foundHost, int &foundPort) const
+{
+    foundHost = parseHost(tok);
+    if (tok.skip(':'))
+        foundPort = parsePort(tok);
+}
+
 /// Extracts and returns a (suspected but only partially validated) uri-host
 /// IPv6address, IPv4address, or reg-name component. This function uses (and
 /// quotes) RFC 3986, Section 3.2.2 syntax rules.
@@ -580,12 +538,6 @@ SBuf
 AnyP::Uri::parseHost(Parser::Tokenizer &tok) const
 {
     // host = IP-literal / IPv4address / reg-name
-
-    // XXX: CharacterSets below reject uri-host values containing whitespace
-    // (e.g., "10.0.0. 1"). That is not a bug, but the uri_whitespace directive
-    // can be interpreted as if it applies to uri-host and this code. TODO: Fix
-    // uri_whitespace and the code using it to exclude uri-host (and URI scheme,
-    // port, etc.) from that directive scope.
 
     // IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
     if (tok.skip('[')) {
@@ -616,14 +568,40 @@ AnyP::Uri::parseHost(Parser::Tokenizer &tok) const
 
     // no brackets implies we are looking at IPv4address or reg-name
 
-    // XXX: This code does not detect/reject some bad host values (e.g. "!#$%&"
-    // and "1.2.3.4.5"). TODO: Add more checks here, after migrating the
-    // non-CONNECT uri-host parsing code to use us.
+    // XXX: This code does not detect/reject some bad host values (e.g.
+    // "1.2.3.4.5"). TODO: Add more checks here.
 
     SBuf otherHost; // IPv4address-ish or reg-name-ish;
-    // ":" is not in TCHAR so we will stop before any port specification
-    if (tok.prefix(otherHost, CharacterSet::TCHAR))
+    // ":" is not in DomainNameChars() so we will stop before any port specification
+    if (tok.prefix(otherHost, DomainNameChars())) {
+        static const SBuf dot(".");
+
+        // TODO: implement /etc/resolv.conf 'ndots' setting
+        if (Config.appendDomain) {
+            // For FQDN check for a dot.
+            // For IPv4 addresses check for a dot.
+            if (otherHost.find(dot) == SBuf::npos)
+                otherHost.append(Config.appendDomain);
+        }
+
+        // remove (all) trailing dots from hostnames
+        otherHost.trim(dot, false, true);
+
+        // reject leading dot(s)
+        if (otherHost.startsWith(dot))
+            throw TextException("illegal hostname", Here());
+
+        // reject repeated dot(s)
+        static const SBuf twoDot("..");
+        if (otherHost.find(twoDot) != SBuf::npos)
+            throw TextException("illegal hostname", Here());
+
+        // TODO: check RFC 1035 section 2.3.1 'label' requirements
+
+        // RFC 1035 - hostnames should be treated as lower case to avoid security issues
+        otherHost.toLower();
         return otherHost;
+    }
 
     throw TextException("malformed IPv4 address or host name in uri-host", Here());
 }
@@ -712,7 +690,7 @@ AnyP::Uri::absolute() const
             absolute_.append(host());
             absolute_.append(":", 1);
         }
-        absolute_.append(path()); // TODO: Encode each URI subcomponent in path_ as needed.
+        absolute_.append(Encode(path(), PathChars()));
     }
 
     return absolute_;
@@ -1013,12 +991,6 @@ AnyP::Uri::cleanup(const char *uri)
 {
     char *cleanedUri = nullptr;
     switch (Config.uri_whitespace) {
-    case URI_WHITESPACE_ALLOW: {
-        const auto flags = RFC1738_ESCAPE_NOSPACE | RFC1738_ESCAPE_UNESCAPED;
-        cleanedUri = xstrndup(rfc1738_do_escape(uri, flags), MAX_URL);
-        break;
-    }
-
     case URI_WHITESPACE_ENCODE:
         cleanedUri = xstrndup(rfc1738_do_escape(uri, RFC1738_ESCAPE_UNESCAPED), MAX_URL);
         break;

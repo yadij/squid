@@ -71,6 +71,9 @@ public:
     /// optional set label for debugging (default: "anonymous")
     const char * name;
 
+    /// a CharacterSet which does not match anything
+    static const CharacterSet Nil;
+
     // common character sets, RFC 5234
     // A-Za-z
     static const CharacterSet ALPHA;
@@ -118,7 +121,10 @@ public:
     // token68 (internal characters only, excludes '=' terminator)
     static const CharacterSet TOKEN68C;
 
-    /// allowed URI characters that do not have a reserved purpose, RFC 3986
+    // URI character sets, RFC 3986
+    // pchar - path characters excluding delimiters
+    static const CharacterSet PCHAR;
+    // unreserved - URI characters that do not have a reserved purpose
     static const CharacterSet &RFC3986_UNRESERVED();
 
 private:
