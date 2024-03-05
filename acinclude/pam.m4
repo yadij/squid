@@ -48,10 +48,7 @@ static struct pam_conv conv = { &password_conversation, 0 };
 dnl check for --with-pam option
 AC_DEFUN_ONCE([SQUID_CHECK_LIBPAM],[
 SQUID_AUTO_LIB(pam,[Pluggable Authentication Modules],[LIBPAM])
-SQUID_CHECK_LIB_WORKS(pam,[
-  LIBS="$LIBS $LIBPAM_PATH"
-  PKG_CHECK_MODULES([LIBPAM],[pam],[:],[:])
-  CPPFLAGS="$CPPFLAGS $LIBPAM_CFLAGS"
+SQUID_CHECK_LIB_WORKS(pam,[pam],[
   AC_CHECK_HEADERS([security/pam_appl.h],[CHECK_STRUCT_PAM_CONV],[LIBPAM_LIBS=""])
 ])
 ]) dnl SQUID_CHECK_LIBPAM

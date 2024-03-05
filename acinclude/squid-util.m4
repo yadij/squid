@@ -218,33 +218,56 @@ dnl Check that a library is actually available, useable,
 dnl and where its pieces are (eg headers and hack macros)
 dnl Parameters for this macro are:
 dnl 1) library name without 'lib' prefix
-dnl 2) necessary library checks to be executed by this macro
+dnl
+dnl 2) A []-quoted, comma-separated list of conditions to pass PKG_CHECK_MODULES macro.
+dnl  - The list and each condition are []-quoted, list entries are comma-separated.
+dnl    For example; [[library-name1],[alternative1],[alternative2 dependency1]]
+dnl  - When a single condition is to be tested the list []-quotes are optional.
+dnl    For example; [library-name] or [library-name dependency-name]
+dnl  - First condition to match is used to set *_LIBS and *_CFLAGS variables.
+dnl
+dnl 3) necessary library checks to be executed by this macro
 dnl  - These checks are not run when library use is explicitly disabled.
 dnl  - These checks should set LIBFOO_LIBS automake variable on success
 dnl    and ensure that it is empty or unset on failures.
 dnl  - These checks may set or change LIBS and xxFLAGS variables as needed.
 dnl    This macro restores those variables afterward (see SQUID_STATE_SAVE for details).
 AC_DEFUN([SQUID_CHECK_LIB_WORKS],[
-AH_TEMPLATE(m4_toupper(m4_translit([HAVE_LIB$1], [-+.], [___])),[Define as 1 to enable '$1' library support.])
-AS_IF([m4_translit([test "x$with_$1" != "xno"], [-+.], [___])],[
+  AC_PREREQ([2.61])
+  pushdef([VARIABLE], m4_toupper(m4_translit([LIB$1],[-+.],[___])))
+  pushdef([WITHVAR], m4_translit([with_$1],[-+.],[___]))
+AH_TEMPLATE([HAVE_[]VARIABLE],[Define as 1 to enable '$1' library support.])
+AS_IF([test "x$[]WITHVAR" != "xno"],[
   SQUID_STATE_SAVE(check_lib_works_state)
-  $2
+  dnl loop through the pkg-config conditions until one succeeds
+  m4_foreach([pkg_condition],[$2],[
+    AS_IF([test -n "$[]VARIABLE[]_LIBS"],[
+      PKG_CHECK_MODULES(VARIABLE,[pkg_condition],[:],[:])
+    ])
+  ])
+  dnl run caller-provided logic with context of the details discovered so far
+  CPPFLAGS="$[]VARIABLE[]_CFLAGS $CPPFLAGS"
+  LIBS="$[]VARIABLE[]_PATH $[]VARIABLE[]_LIBS $LIBS"
+  $3
   SQUID_STATE_ROLLBACK(check_lib_works_state)
-  AS_IF([! test -z m4_toupper(m4_translit(["$LIB$1_LIBS"], [-+.], [___]))],[
-    m4_toupper(m4_translit([CPPFLAGS="$LIB$1_CFLAGS $CPPFLAGS"], [-+.], [___]))
-    m4_toupper(m4_translit([LIB$1_LIBS="$LIB$1_PATH $LIB$1_LIBS"], [-+.], [___]))
-    AC_MSG_NOTICE([Library '$1' support: m4_translit([${with_$1:=yes (auto)} m4_toupper($LIB$1_LIBS)], [-+.], [___])])
-    m4_translit([with_$1], [-+.], [___])=yes
-    AC_DEFINE(m4_toupper(m4_translit([HAVE_LIB$1], [-+.], [___])),1,[Define as 1 to enable '$1' library support.])
-  ],[m4_translit([test "x$with_$1" = "xyes"], [-+.], [___])],[
+  dnl determine the final success/failure status
+  AS_IF([! test -z "$[]VARIABLE[]_LIBS"],[
+    CPPFLAGS="$[]VARIABLE[]_CFLAGS $CPPFLAGS"
+    VARIABLE[]_LIBS="$[]VARIABLE[]_PATH $[]VARIABLE[]_LIBS"
+    AC_MSG_NOTICE([Library '$1' support: ${[]WITHVAR[]:=yes (auto)} VARIABLE])
+    WITHVAR=yes
+    AC_DEFINE([HAVE_[]VARIABLE],1,[Define as 1 to enable '$1' library support.])
+  ],[test "x$[]WITHVAR" = "xyes"],[
     AC_MSG_ERROR([Required library '$1' not found])
   ],[
-    m4_translit([with_$1], [-+.], [___])=no
+    WITHVAR=no
     AC_MSG_NOTICE([Library '$1' support: no (auto)])
   ])
 ])
-AM_CONDITIONAL(m4_toupper(m4_translit([ENABLE_LIB$1],[-+.],[___])),m4_translit([test "x$with_$1" != "xno"],[-+.],[___]))
-AC_SUBST(m4_toupper(m4_translit([LIB$1_LIBS], [-+.], [___])))
+  AM_CONDITIONAL(ENABLE_[]VARIABLE,[test "x$[]WITHVAR" != "xno"])
+  AC_SUBST(VARIABLE[]_LIBS)
+  popdef([WITHVAR])
+  popdef([VARIABLE])
 ])
 
 dnl check the build parameters for a library to auto-enable

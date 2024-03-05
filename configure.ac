@@ -441,9 +441,7 @@ SQUID_STATE_ROLLBACK(LIBATOMIC)
 AC_SUBST(ATOMICLIB)
 
 SQUID_AUTO_LIB(psapi,[Windows PSAPI.dll],[LIBPSAPI])
-SQUID_CHECK_LIB_WORKS(psapi,[
-  CPPFLAGS="$LIBPSAPI_CFLAGS $CPPFLAGS"
-  LIBS="$LIBPSAPI_PATH $LIBS"
+SQUID_CHECK_LIB_WORKS(psapi,[psapi],[
   AC_CHECK_LIB([psapi],[K32GetProcessMemoryInfo],[
     LIBPSAPI_LIBS="-lpsapi"
     AC_CHECK_HEADERS([psapi.h],,,[
@@ -1019,9 +1017,7 @@ AC_MSG_NOTICE([HTCP support enabled: $enable_htcp])
 
 # Cryptograhic libraries
 SQUID_AUTO_LIB(nettle,[Nettle crypto],[LIBNETTLE])
-SQUID_CHECK_LIB_WORKS(nettle,[
-  PKG_CHECK_MODULES([LIBNETTLE],[nettle >= 3.4],[:],[:])
-  CPPFLAGS="$LIBNETTLE_CFLAGS $CPPFLAGS"
+SQUID_CHECK_LIB_WORKS(nettle,[nettle >= 3.4],[
   AC_CHECK_HEADERS(nettle/base64.h nettle/md5.h)
 ])
 
@@ -1035,9 +1031,7 @@ AC_CHECK_LIB(md5, MD5Init, [CRYPTLIB="$CRYPTLIB -lmd5"])
 AC_SUBST(CRYPTLIB)
 
 SQUID_AUTO_LIB(gnutls,[GnuTLS crypto],[LIBGNUTLS])
-SQUID_CHECK_LIB_WORKS(gnutls,[
-  PKG_CHECK_MODULES([LIBGNUTLS],[gnutls >= 3.4.0],[:],[:])
-  CPPFLAGS="$LIBGNUTLS_CFLAGS $CPPFLAGS"
+SQUID_CHECK_LIB_WORKS(gnutls,[gnutls >= 3.4.0],[
   AC_CHECK_HEADERS(gnutls/gnutls.h gnutls/x509.h gnutls/abstract.h)
 ])
 
@@ -1119,10 +1113,8 @@ AC_SUBST(SSLLIB)
 SQUID_AUTO_LIB(mit-krb5,[MIT Kerberos],[LIB_KRB5])
 AH_TEMPLATE(USE_APPLE_KRB5,[Apple Kerberos support is available])
 AH_TEMPLATE(USE_SOLARIS_KRB5,[Solaris Kerberos support is available])
-SQUID_CHECK_LIB_WORKS(mit-krb5,[
-  PKG_CHECK_MODULES([LIBMIT_KRB5],[mit-krb5 mit-krb5-gssapi],[:],[:])
+SQUID_CHECK_LIB_WORKS(mit-krb5,[mit-krb5 mit-krb5-gssapi],[
   AS_IF([test "x$squid_host_os" = "xsolaris"],[
-    # pkg-config not available for Solaris krb5 implementation
     SQUID_CHECK_SOLARIS_KRB5
   ],[test "x$squid_host_os" = "xdarwin"],[
     AC_DEFINE(USE_APPLE_KRB5,1,[Apple Kerberos support is available])
@@ -1130,8 +1122,6 @@ SQUID_CHECK_LIB_WORKS(mit-krb5,[
       AC_MSG_ERROR([library 'resolv' is required for Apple Kerberos])
     ])
   ])
-  CPPFLAGS="$LIBMIT_KRB5_CFLAGS $CPPFLAGS"
-  LIBS="$LIBMIT_KRB5_PATH $LIBMIT_KRB5_LIBS $LIBS"
   AC_CHECK_HEADERS([ \
     gssapi.h \
     gssapi/gssapi.h \
@@ -1148,43 +1138,34 @@ SQUID_CHECK_LIB_WORKS(mit-krb5,[
 
 # Kerberos support libraries: Heimdal
 SQUID_AUTO_LIB(heimdal-krb5,[Heimdal Kerberos],[LIBHEIMDAL_KRB5])
-SQUID_CHECK_LIB_WORKS(heimdal-krb5,[
+SQUID_CHECK_LIB_WORKS(heimdal-krb5,[[heimdal-krb5 heimdal-gssapi],[heimdal heimdal-gssapi]],[
   AS_IF([test "x$LIBMIT_KRB5_LIBS" = "x"],[
-    PKG_CHECK_MODULES([LIBHEIMDAL_KRB5],[heimdal-krb5 heimdal-gssapi],[:],[
-      dnl FreeBSD ports package name is just 'heimdal'
-      PKG_CHECK_MODULES([LIBHEIMDAL_KRB5],[heimdal heimdal-gssapi],[:],[:])
-    ])
-    AS_IF([test "x$LIBHEIMDAL_KRB5_LIBS" != "x" ],[
-      CPPFLAGS="$LIBHEIMDAL_KRB5_CFLAGS $CPPFLAGS"
-      AC_CHECK_HEADERS(gssapi.h gssapi/gssapi.h gssapi/gssapi_krb5.h)
-      AC_CHECK_HEADERS(krb5.h com_err.h et/com_err.h)
-
-      LIBS="$LIBHEIMDAL_KRB5_PATH $LIBHEIMDAL_KRB5_LIBS $LIBS"
-      SQUID_CHECK_KRB5_FUNCS
-    ])
+    AC_CHECK_HEADERS(gssapi.h gssapi/gssapi.h gssapi/gssapi_krb5.h)
+    AC_CHECK_HEADERS(krb5.h com_err.h et/com_err.h)
+    SQUID_CHECK_KRB5_FUNCS
+  ],[
+    LIBHEIMDAL_KRB5_LIBS=""
   ])
 ])
 
 # Kerberos support libraries: GNU GSS
 SQUID_AUTO_LIB(gss,[GNU gss],[LIBGSS])
-SQUID_CHECK_LIB_WORKS(gss,[
+SQUID_CHECK_LIB_WORKS(gss,[gss],[
   AS_IF([test "x$LIBMIT_KRB5_LIBS" = "x" -a "x$LIBHEIMDAL_KRB5_LIBS" = "x"],[
-    PKG_CHECK_MODULES([LIBGSS],[gss],[:],[:])
-    CPPFLAGS="$LIBGSS_CFLAGS $CPPFLAGS"
     AC_CHECK_HEADERS(gss.h)
-    LIBS="$LIBGSS_PATH $LIBS"
     SQUID_CHECK_WORKING_GSSAPI
     SQUID_DEFINE_BOOL(HAVE_GSSAPI,$squid_cv_working_gssapi,[GSSAPI support])
     SQUID_CHECK_SPNEGO_SUPPORT
     SQUID_DEFINE_BOOL(HAVE_SPNEGO,$squid_cv_have_spnego,[SPNEGO support])
     SQUID_CHECK_WORKING_KRB5
     SQUID_DEFINE_BOOL(HAVE_KRB5,$squid_cv_working_krb5,[KRB5 support])
+  ],[
+    LIBGSS_LIBS=""
   ])
 ])
 
 SQUID_AUTO_LIB(ldap,[LDAP],[LIBLDAP])
-SQUID_CHECK_LIB_WORKS(ldap,[
-  PKG_CHECK_MODULES([LIBLDAP],[ldap],[:],[:])
+SQUID_CHECK_LIB_WORKS(ldap,[ldap],[
   AS_IF([test "$squid_host_os" = "mingw" -a "x$LIBLDAP_LIBS" = "x"],[
     dnl On MinGW OpenLDAP is not available, try Windows LDAP libraries
     dnl TODO: use AC_CHECK_LIB
@@ -1194,6 +1175,8 @@ SQUID_CHECK_LIB_WORKS(ldap,[
       #include <windows.h>
       #endif
     ])
+  ],[
+    LIBS="$LIBLDAP_PATH $LIBLDAP_LIBS $LIBPTHREADS $LIBS"
   ])
   AC_CHECK_HEADERS(ldap.h lber.h)
   AC_CHECK_HEADERS(mozldap/ldap.h)
@@ -1201,17 +1184,12 @@ SQUID_CHECK_LIB_WORKS(ldap,[
 ])
 
 SQUID_AUTO_LIB(sasl,[Cyrus SASL],[LIBSASL])
-SQUID_CHECK_LIB_WORKS([sasl],[
-  PKG_CHECK_MODULES([LIBSASL],[libsasl2],[:],[:])
-  CPPFLAGS="$LIBSASL_CFLAGS $CPPFLAGS"
-  LIBS="$LIBSASL_LIBS $LIBS"
+SQUID_CHECK_LIB_WORKS(sasl,[libsasl2],[
   AC_CHECK_HEADERS([sasl/sasl.h sasl.h])
 ])
 
 SQUID_AUTO_LIB(systemd,[systemd API for start-up notification],[LIBSYSTEMD])
-SQUID_CHECK_LIB_WORKS(systemd,[
-  LIBS="$LIBS $LIBSYSTEMD_PATH"
-  PKG_CHECK_MODULES(LIBSYSTEMD,[libsystemd >= 209],[:],[:])
+SQUID_CHECK_LIB_WORKS(systemd,[libsystemd >= 209],[
   AC_CHECK_HEADERS(systemd/sd-daemon.h)
 ])
 
@@ -1401,10 +1379,7 @@ AC_MSG_NOTICE([Linux Netfilter support requested: ${enable_linux_netfilter:=auto
 
 dnl Look for libnetfilter_conntrack options (needed for QOS netfilter marking)
 SQUID_AUTO_LIB(netfilter-conntrack,[Netfilter conntrack],[LIBNETFILTER_CONNTRACK])
-SQUID_CHECK_LIB_WORKS(netfilter-conntrack,[
-  PKG_CHECK_MODULES([LIBNETFILTER_CONNTRACK],[libnetfilter_conntrack],[:],[:])
-  CPPFLAGS="$LIBNETFILTER_CONNTRACK_CFLAGS $CPPFLAGS"
-  LIBS="$LIBNETFILTER_CONNTRACK_PATH $LIBNETFILTER_CONNTRACK_LIBS $LIBS"
+SQUID_CHECK_LIB_WORKS(netfilter-conntrack,[libnetfilter_conntrack],[
   AC_CHECK_HEADERS([ \
     libnetfilter_conntrack/libnetfilter_conntrack.h \
     libnetfilter_conntrack/libnetfilter_conntrack_tcp.h \
@@ -1728,10 +1703,7 @@ SQUID_DEFINE_BOOL(X_ACCELERATOR_VARY,${enable_x_accelerator_vary:=no},
 AC_MSG_NOTICE([X-Accelerator-Vary support enabled: $enable_x_accelerator_vary])
 
 SQUID_AUTO_LIB(cppunit,[cppunit test framework],[LIBCPPUNIT])
-SQUID_CHECK_LIB_WORKS(cppunit,[
-  PKG_CHECK_MODULES([LIBCPPUNIT],[cppunit],[:],[:])
-  CPPFLAGS="$LIBCPPUNIT_CFLAGS $CPPFLAGS"
-  LIBS="$LIBCPPUNIT_LIBS $LIBS"
+SQUID_CHECK_LIB_WORKS(cppunit,[cppunit],[
   AC_CHECK_HEADERS(cppunit/extensions/HelperMacros.h)
 ])
 
@@ -1943,10 +1915,7 @@ dnl Check for special functions
 AC_FUNC_ALLOCA
 
 SQUID_AUTO_LIB(cap,[Linux capabilities],[LIBCAP])
-SQUID_CHECK_LIB_WORKS(cap,[
-  PKG_CHECK_MODULES([LIBCAP],[libcap >= 2.09],[:],[:])
-  CPPFLAGS="$LIBCAP_CFLAGS $CPPFLAGS"
-  LIBS="$LIBCAP_PATH $LIBCAP_LIBS $LIBS"
+SQUID_CHECK_LIB_WORKS(cap,[libcap >= 2.09],[
   SQUID_CHECK_FUNCTIONAL_LIBCAP2
   AC_MSG_NOTICE([libcap headers are ok: $squid_cv_sys_capability_works])
   AS_IF([test "x$squid_cv_sys_capability_works" = "xno"],[LIBCAP_LIBS=""])
