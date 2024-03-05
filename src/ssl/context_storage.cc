@@ -8,17 +8,12 @@
 
 #include "squid.h"
 #include "base/PackableStream.h"
+#include "compat/openssl.h"
 #include "mgr/Registration.h"
 #include "ssl/context_storage.h"
 #include "Store.h"
 
 #include <limits>
-#if USE_OPENSSL
-#include "compat/openssl.h"
-#if HAVE_OPENSSL_SSL_H
-#include <openssl/ssl.h>
-#endif
-#endif
 
 Ssl::CertificateStorageAction::CertificateStorageAction(const Mgr::Command::Pointer &aCmd)
     :   Mgr::Action(aCmd)

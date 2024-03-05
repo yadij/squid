@@ -19,9 +19,7 @@
 #include "security/EncryptorAnswer.h"
 #include "security/forward.h"
 #include "security/KeyLogger.h"
-#if USE_OPENSSL
 #include "ssl/support.h"
-#endif
 
 #include <iosfwd>
 #include <queue>
@@ -100,7 +98,7 @@ protected:
     /// Whether TLS negotiation has been paused and not yet resumed
     bool isSuspended() const { return static_cast<bool>(suspendedError_); }
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     /// Suspends TLS negotiation to download the missing certificates
     /// \param lastError an error to handle when resuming negotiations
     void suspendNegotiation(const Security::IoResult &lastError);
@@ -116,7 +114,7 @@ protected:
 
     /// Called by Downloader after a certificate object downloaded.
     void certDownloadingDone(DownloaderAnswer &);
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
     /// Called when the openSSL SSL_connect function needs to write data to
     /// the remote SSL server. Sets the Squid COMM_SELECT_WRITE handler.
@@ -173,7 +171,7 @@ private:
     PeerConnector(const PeerConnector &); // not implemented
     PeerConnector &operator =(const PeerConnector &); // not implemented
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     unsigned int certDownloadNestingLevel() const;
 
     /// Process response from cert validator helper
@@ -183,7 +181,7 @@ private:
     Security::CertErrors *sslCrtvdCheckForErrors(Ssl::CertValidationResponse const &, ErrorDetailPointer &);
 
     bool computeMissingCertificateUrls(const Connection &);
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
     static void NegotiateSsl(int fd, void *data);
     void negotiateSsl();
@@ -205,7 +203,7 @@ private:
     std::queue<SBuf> urlsOfMissingCerts;
     unsigned int certsDownloads; ///< the number of downloaded missing certificates
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     /// successfully downloaded intermediate certificates (omitted by the peer)
     Ssl::X509_STACK_Pointer downloadedCerts;
 #endif

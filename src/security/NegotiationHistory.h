@@ -18,8 +18,6 @@ namespace Security {
 class NegotiationHistory
 {
 public:
-    NegotiationHistory();
-
     /// Extract negotiation information from TLS object
     void retrieveNegotiatedInfo(const Security::SessionPointer &);
 
@@ -40,8 +38,8 @@ private:
     AnyP::ProtocolVersion helloVersion_; ///< The TLS version of the hello message
     AnyP::ProtocolVersion supportedVersion_; ///< The maximum supported TLS version
     AnyP::ProtocolVersion version_; ///< The negotiated TLS version
-#if USE_OPENSSL
-    const SSL_CIPHER *cipher; ///< The negotiated cipher
+#if HAVE_LIBOPENSSL
+    const SSL_CIPHER *cipher = nullptr; ///< The negotiated cipher
 #endif
 };
 

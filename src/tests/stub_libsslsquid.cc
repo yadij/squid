@@ -8,7 +8,7 @@
 
 #include "squid.h"
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 
 #include "fatal.h"
 #include "sbuf/Algorithms.h"
@@ -75,5 +75,4 @@ void setClientSNI(SSL *, const char *) STUB
 SBuf GetX509PEM(X509 *) STUB_RETVAL(SBuf())
 } //namespace Ssl
 
-#endif
-
+#endif /* HAVE_LIBOPENSSL */

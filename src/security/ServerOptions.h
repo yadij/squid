@@ -10,13 +10,8 @@
 #define SQUID_SRC_SECURITY_SERVEROPTIONS_H
 
 #include "anyp/forward.h"
-#include "security/PeerOptions.h"
-#if USE_OPENSSL
 #include "compat/openssl.h"
-#if HAVE_OPENSSL_X509_H
-#include <openssl/x509.h>
-#endif
-#endif
+#include "security/PeerOptions.h"
 
 namespace Security
 {
@@ -25,7 +20,7 @@ namespace Security
 class ServerOptions : public PeerOptions
 {
 public:
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     sk_dtor_wrapper(sk_X509_NAME, STACK_OF(X509_NAME) *, X509_NAME_free);
     typedef std::unique_ptr<STACK_OF(X509_NAME), Security::ServerOptions::sk_X509_NAME_free_wrapper> X509_NAME_STACK_Pointer;
 #endif
@@ -71,7 +66,7 @@ public:
     Security::ContextPointer staticContext;
     SBuf staticContextSessionId; ///< "session id context" for staticContext
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     bool generateHostCertificates = true; ///< dynamically make host cert
 #elif HAVE_LIBGNUTLS
     // TODO: GnuTLS does implement TLS server connections so the cert
@@ -105,7 +100,7 @@ private:
 
 private:
     SBuf clientCaFile;  ///< name of file to load client CAs from
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     /// CA certificate(s) to use when verifying client certificates
     X509_NAME_STACK_Pointer clientCaStack;
 #else

@@ -24,12 +24,10 @@
 #include "Notes.h"
 #include "proxyp/forward.h"
 #include "sbuf/forward.h"
-#if ICAP_CLIENT
-#include "adaptation/icap/Elements.h"
-#endif
-#if USE_OPENSSL
 #include "ssl/gadgets.h"
 #include "ssl/support.h"
+#if ICAP_CLIENT
+#include "adaptation/icap/Elements.h"
 #endif
 
 /* forward decls */
@@ -124,7 +122,7 @@ public:
         const char *opcode = nullptr;
     } htcp;
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     /// logging information specific to the SSL protocol
     class SslDetails
     {
@@ -132,7 +130,7 @@ public:
         const char *user = nullptr; ///< emailAddress from the SSL client certificate
         int bumpMode = ::Ssl::bumpEnd; ///< whether and how the request was SslBumped
     } ssl;
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
     /** \brief This subclass holds log info for Squid internal stats
      * TODO: Inner class declarations should be moved outside
@@ -155,10 +153,10 @@ public:
         struct timeval start_time; ///< The time the master transaction started
         struct timeval trTime; ///< The response time
         const char *extuser = nullptr;
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
         const char *ssluser = nullptr;
         Security::CertPointer sslClientCert; ///< cert received from the client
-#endif
+#endif /* HAVE_LIBOPENSSL */
         AnyP::PortCfgPointer port;
     } cache;
 

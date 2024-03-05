@@ -34,5 +34,5 @@ private:
 extern Config TheConfig;
 
 } // namespace Ssl
-#endif /* SQUID_SRC_SSL_CONFIG_H */
 
+#endif /* SQUID_SRC_SSL_CONFIG_H */

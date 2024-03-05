@@ -10,10 +10,7 @@
 
 #include "squid.h"
 
-/* MS Visual Studio Projects are monolithic, so we need the following
- * #if to exclude the SSL code from compile process when not needed.
- */
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 
 #include "acl/FilledChecklist.h"
 #include "anyp/Host.h"
@@ -1595,5 +1592,4 @@ BIO *Ssl::BIO_new_SBuf(SBuf *buf)
     return bio;
 }
 
-#endif /* USE_OPENSSL */
-
+#endif /* HAVE_LIBOPENSSL */

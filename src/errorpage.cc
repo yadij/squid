@@ -31,14 +31,12 @@
 #include "rfc1738.h"
 #include "sbuf/Stream.h"
 #include "SquidConfig.h"
+#include "ssl/ErrorDetailManager.h"
 #include "Store.h"
 #include "tools.h"
 #include "wordlist.h"
 #if USE_AUTH
 #include "auth/UserRequest.h"
-#endif
-#if USE_OPENSSL
-#include "ssl/ErrorDetailManager.h"
 #endif
 
 #include <array>
@@ -314,7 +312,7 @@ errorInitialize(void)
         error_stylesheet.appendf("%s",tmpl.text());
     }
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     Ssl::errorDetailInitialize();
 #endif
 }
@@ -338,7 +336,7 @@ errorClean(void)
 
     error_page_count = 0;
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     Ssl::errorDetailClean();
 #endif
 }

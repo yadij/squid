@@ -42,7 +42,7 @@ void ConnStateData::swanSong() STUB
 void ConnStateData::quitAfterError(HttpRequest *) STUB
 NotePairs::Pointer ConnStateData::notes() STUB_RETVAL(NotePairs::Pointer())
 void ConnStateData::fillConnectionLevelDetails(ACLFilledChecklist &) const STUB
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 void ConnStateData::httpsPeeked(PinnedIdleContext) STUB
 void ConnStateData::getSslContextStart() STUB
 void ConnStateData::getSslContextDone(Security::ContextPointer &) STUB
@@ -51,7 +51,7 @@ void ConnStateData::sslCrtdHandleReply(const Helper::Reply &) STUB
 void ConnStateData::switchToHttps(ClientHttpRequest *, Ssl::BumpMode) STUB
 void ConnStateData::buildSslCertGenerationParams(Ssl::CertificateProperties &) STUB
 bool ConnStateData::serveDelayedError(Http::Stream *) STUB_RETVAL(false)
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
 const char *findTrailingHTTPVersion(const char *, const char *) STUB_RETVAL(nullptr)
 int varyEvaluateMatch(StoreEntry *, HttpRequest *) STUB_RETVAL(0)

@@ -9,6 +9,8 @@
 #ifndef SQUID_SRC_SSL_SERVERBUMP_H
 #define SQUID_SRC_SSL_SERVERBUMP_H
 
+#if HAVE_LIBOPENSSL
+
 #include "base/AsyncJob.h"
 #include "base/CbcPointer.h"
 #include "comm/forward.h"
@@ -69,5 +71,6 @@ private:
 
 } // namespace Ssl
 
+#endif /* HAVE_LIBOPENSSL */
 #endif /* SQUID_SRC_SSL_SERVERBUMP_H */
 

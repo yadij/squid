@@ -36,13 +36,10 @@
 #include "sbuf/SBuf.h"
 #include "sbuf/Stream.h"
 #include "SquidConfig.h"
+#include "ssl/support.h"
 #include "StatCounters.h"
 #include "StoreIOBuffer.h"
 #include "tools.h"
-
-#if USE_OPENSSL
-#include "ssl/support.h"
-#endif
 
 #include <cerrno>
 #include <cmath>
@@ -105,18 +102,18 @@ static void
 comm_empty_os_read_buffers(int fd)
 {
 #if _SQUID_LINUX_
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     // Bug 4146: SSL-Bump BIO does not release sockets on close.
     if (fd_table[fd].ssl)
         return;
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
     /* prevent those nasty RST packets */
     char buf[SQUID_TCP_SO_RCVBUF];
     if (fd_table[fd].flags.nonblocking && fd_table[fd].type != FD_MSGHDR) {
         while (FD_READ_METHOD(fd, buf, SQUID_TCP_SO_RCVBUF) > 0) {};
     }
-#else
+#else /* _SQUID_LINUX_ */
     (void)fd;
 #endif
 }

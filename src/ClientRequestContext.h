@@ -48,7 +48,7 @@ public:
 #if USE_ADAPTATION
     void adaptationAccessCheck();
 #endif
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     /**
      * Initiates and start the acl checklist to check if the CONNECT
      * request must be bumped.
@@ -58,7 +58,7 @@ public:
     bool sslBumpAccessCheck();
     /// The callback function for ssl-bump access check list
     void sslBumpAccessCheckDone(const Acl::Answer &answer);
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
     ClientHttpRequest *http;
     int redirect_state = REDIRECT_NONE;
@@ -75,7 +75,7 @@ public:
     bool no_cache_done = false;
     bool interpreted_req_hdrs = false;
     bool toClientMarkingDone = false;
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     bool sslBumpCheckDone = false;
 #endif
 

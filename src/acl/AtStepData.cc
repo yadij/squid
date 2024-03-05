@@ -25,11 +25,11 @@ StepName(const XactionStep xstep)
     static const char *StepNames[static_cast<int>(XactionStep::enumEnd_)] = {
         "[unknown step]"
         ,"GeneratingCONNECT"
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
         ,"SslBump1"
         ,"SslBump2"
         ,"SslBump3"
-#endif
+#endif /* HAVE_LIBOPENSSL */
     };
 
     assert(XactionStep::enumBegin_ <= xstep && xstep < XactionStep::enumEnd_);

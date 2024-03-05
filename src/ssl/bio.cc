@@ -9,12 +9,10 @@
 /* DEBUG: section 83    SSL accelerator support */
 
 #include "squid.h"
+
+#if HAVE_LIBOPENSSL
+
 #include "base/IoManip.h"
-#include "ssl/support.h"
-
-/* support.cc says this is needed */
-#if USE_OPENSSL
-
 #include "base/Raw.h"
 #include "comm.h"
 #include "fd.h"
@@ -23,6 +21,7 @@
 #include "ip/Address.h"
 #include "parser/BinaryTokenizer.h"
 #include "ssl/bio.h"
+#include "ssl/support.h"
 
 #if _SQUID_WINDOWS_
 extern int socket_read_method(int, char *, int);
@@ -628,5 +627,4 @@ applyTlsDetailsToSSL(SSL *ssl, Security::TlsDetails::Pointer const &details, Ssl
 #endif
 }
 
-#endif // USE_OPENSSL
-
+#endif /* HAVE_LIBOPENSSL */

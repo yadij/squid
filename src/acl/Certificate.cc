@@ -10,10 +10,7 @@
 
 #include "squid.h"
 
-/* MS Visual Studio Projects are monolithic, so we need the following
- * #if to exclude the SSL code from compile process when not needed.
- */
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 
 #include "acl/Certificate.h"
 #include "acl/FilledChecklist.h"
@@ -34,5 +31,4 @@ Acl::ClientCertificateCheck::match(ACLChecklist * const ch)
     return res;
 }
 
-#endif /* USE_OPENSSL */
-
+#endif /* HAVE_LIBOPENSSL */

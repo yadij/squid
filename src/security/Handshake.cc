@@ -12,9 +12,7 @@
 #include "base/IoManip.h"
 #include "sbuf/Stream.h"
 #include "security/Handshake.h"
-#if USE_OPENSSL
 #include "ssl/support.h"
-#endif
 
 #include <unordered_set>
 
@@ -665,7 +663,7 @@ static
 Security::Extensions
 Security::SupportedExtensions()
 {
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 
     // optimize lookup speed by reserving the number of values x3, approximately
     Security::Extensions extensions(64);

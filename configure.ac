@@ -1051,90 +1051,51 @@ SQUID_CHECK_LIB_WORKS(gnutls,[
   ],[:])
 ])
 
-SSLLIB=""
 dnl User may specify OpenSSL is needed from a non-standard location
+dnl OpenSSL is default disable due to licensing issues on some OS
 SQUID_OPTIONAL_LIB(openssl,[OpenSSL],[LIBOPENSSL])
-AH_TEMPLATE(USE_OPENSSL,[OpenSSL support is available])
-## OpenSSL is default disable due to licensing issues on some OS
-AS_IF([test "x$with_openssl" = "xyes"],[
-  CPPFLAGS="$LIBOPENSSL_CFLAGS $CPPFLAGS"
-  AC_CHECK_HEADERS( \
-    openssl/asn1.h \
-    openssl/bio.h \
-    openssl/bn.h \
-    openssl/crypto.h \
-    openssl/decoder.h \
-    openssl/dh.h \
-    openssl/err.h \
-    openssl/evp.h \
-    openssl/lhash.h \
-    openssl/md5.h \
-    openssl/opensslv.h \
-    openssl/rsa.h \
-    openssl/ssl.h \
-    openssl/x509.h \
-    openssl/x509v3.h \
-    openssl/engine.h \
-    openssl/txt_db.h \
-    openssl/pem.h \
-  )
-
-  # User may have provided a custom location for OpenSSL. Otherwise...
-  SQUID_STATE_SAVE(squid_openssl_state)
-  LIBS="$LIBS $LIBOPENSSL_PATH"
-
-  # auto-detect using pkg-config
-  PKG_CHECK_MODULES([LIBOPENSSL],[openssl],,[
-    ## For some OS pkg-config is broken or unavailable.
-    ## Detect libraries the hard way.
-
-    # Windows MinGW has some special libraries ...
-    AS_IF([test "x$squid_host_os" = "xmingw"],[
-      LIBOPENSSL_LIBS='-lssleay32 -leay32 -lgdi32 $LIBOPENSSL_LIBS'
-      AC_MSG_NOTICE([Windows OpenSSL library support: yes -lssleay32 -leay32 -lgdi32])
-    ])
-
-    AC_CHECK_LIB(crypto,[CRYPTO_new_ex_data],[LIBOPENSSL_LIBS="-lcrypto $LIBOPENSSL_LIBS"],[
-      AC_MSG_ERROR([library 'crypto' is required for OpenSSL])
-    ],$LIBOPENSSL_LIBS)
-    AC_CHECK_LIB(ssl,[SSL_CTX_new],[LIBOPENSSL_LIBS="-lssl $LIBOPENSSL_LIBS"],[
-      AC_MSG_ERROR([library 'ssl' is required for OpenSSL])
-    ],$LIBOPENSSL_LIBS)
-  ])
-
-  SQUID_STATE_ROLLBACK(squid_openssl_state) #de-pollute LIBS
-
+SQUID_CHECK_LIB_WORKS(openssl,[
+  PKG_CHECK_MODULES([LIBOPENSSL],[openssl],[:],[:])
   AS_IF([test "x$LIBOPENSSL_LIBS" != "x"],[
-    CXXFLAGS="$LIBOPENSSL_CFLAGS $CXXFLAGS"
-    SSLLIB="$LIBOPENSSL_PATH $LIBOPENSSL_LIBS $SSLLIB"
-    AC_DEFINE(USE_OPENSSL,1,[OpenSSL support is available])
+    LIBS="$LIBOPENSSL_PATH $LIBOPENSSL_LIBS $LIBS"
+    CPPFLAGS="$LIBOPENSSL_CFLAGS $CPPFLAGS"
+    AC_CHECK_HEADERS( \
+      openssl/asn1.h \
+      openssl/bio.h \
+      openssl/bn.h \
+      openssl/crypto.h \
+      openssl/decoder.h \
+      openssl/dh.h \
+      openssl/err.h \
+      openssl/evp.h \
+      openssl/lhash.h \
+      openssl/md5.h \
+      openssl/opensslv.h \
+      openssl/rsa.h \
+      openssl/ssl.h \
+      openssl/x509.h \
+      openssl/x509v3.h \
+      openssl/engine.h \
+      openssl/txt_db.h \
+      openssl/pem.h \
+    )
 
-    # check for API functions
     SQUID_CHECK_LIBCRYPTO_API
     SQUID_CHECK_LIBSSL_API
     SQUID_CHECK_OPENSSL_TLS_METHODS
-    SQUID_STATE_SAVE(check_SSL_CTX_get0_certificate)
-    LIBS="$LIBS $SSLLIB"
-    AC_CHECK_LIB(ssl, SSL_CTX_get0_certificate, [
-      AC_DEFINE(HAVE_SSL_CTX_GET0_CERTIFICATE, 1, [SSL_CTX_get0_certificate is available])
-      ], [
-          missing_SSL_CTX_get0_certificate=yes
-      ])
-    SQUID_STATE_ROLLBACK(check_SSL_CTX_get0_certificate)
+    AC_CHECK_LIB(ssl,[SSL_CTX_get0_certificate],[
+      AC_DEFINE(HAVE_SSL_CTX_GET0_CERTIFICATE,1,[SSL_CTX_get0_certificate is available])
+    ],[
+      SQUID_CHECK_OPENSSL_GETCERTIFICATE_WORKS
+    ])
 
-    # check for other specific broken implementations
-    AS_IF([test "x$missing_SSL_CTX_get0_certificate" = "xyes"],SQUID_CHECK_OPENSSL_GETCERTIFICATE_WORKS)
     SQUID_CHECK_OPENSSL_CONST_SSL_METHOD
     SQUID_CHECK_OPENSSL_CONST_CRYPTO_EX_DATA
     SQUID_CHECK_OPENSSL_CONST_SSL_SESSION_CB_ARG
     SQUID_CHECK_OPENSSL_CONST_X509_GET0_SIGNATURE_ARGS
     SQUID_CHECK_OPENSSL_TXTDB
   ])
-  AS_IF([test "x$SSLLIB" = "x"],[AC_MSG_ERROR([Required OpenSSL library not found])])
 ])
-AC_MSG_NOTICE([OpenSSL library support: ${with_openssl:=no} ${LIBOPENSSL_PATH} ${LIBOPENSSL_LIBS}])
-AM_CONDITIONAL(ENABLE_SSL,[ test "x$with_openssl" = "xyes" ])
-AC_SUBST(SSLLIB)
 
 # Kerberos support libraries: MIT
 SQUID_AUTO_LIB(mit-krb5,[MIT Kerberos],[LIB_KRB5])

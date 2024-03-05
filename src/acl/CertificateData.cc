@@ -9,6 +9,9 @@
 /* DEBUG: section 28    Access Control */
 
 #include "squid.h"
+
+#if HAVE_LIBOPENSSL
+
 #include "acl/CertificateData.h"
 #include "acl/Checklist.h"
 #include "cache_cf.h"
@@ -145,3 +148,4 @@ ACLCertificateData::empty() const
     return values.empty();
 }
 
+#endif /* HAVE_LIBOPENSSL */

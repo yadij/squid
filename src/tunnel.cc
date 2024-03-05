@@ -43,12 +43,10 @@
 #include "ResolvedPeers.h"
 #include "sbuf/SBuf.h"
 #include "security/BlindPeerConnector.h"
-#include "SquidConfig.h"
-#include "StatCounters.h"
-#if USE_OPENSSL
 #include "ssl/bio.h"
 #include "ssl/ServerBump.h"
-#endif
+#include "SquidConfig.h"
+#include "StatCounters.h"
 #include "tools.h"
 #include "tunnel.h"
 #if USE_DELAY_POOLS
@@ -110,11 +108,11 @@ public:
         // have already responded to that CONNECT before tunnel.cc started.
         if (request && request->flags.forceTunnel)
             return false;
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
         // We are bumping and we had already send "OK CONNECTED"
         if (http.valid() && http->getConn() && http->getConn()->serverBump() && http->getConn()->serverBump()->at(XactionStep::tlsBump2, XactionStep::tlsBump3))
             return false;
-#endif
+#endif /* HAVE_LIBOPENSSL */
         return !(request != nullptr &&
                  (request->flags.interceptTproxy || request->flags.intercepted));
     }

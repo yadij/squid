@@ -14,12 +14,9 @@
 #include "http/forward.h"
 #include "security/forward.h"
 #include "SquidString.h"
-
-#if USE_OPENSSL
 #include "ssl/ErrorDetailManager.h"
-#endif
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 #include <optional>
 #endif
 
@@ -47,7 +44,7 @@ public:
     /// If `broken` is nil, then the broken certificate is the peer certificate.
     ErrorDetail(ErrorCode err_no, const CertPointer &peer, const CertPointer &broken, const char *aReason = nullptr);
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     /// Details (or starts detailing) a non-validation failure.
     /// \param anIoErrorNo TLS I/O function outcome; \see ErrorDetail::ioErrorNo
     /// \param aSysErrorNo saved errno(3); \see ErrorDetail::sysErrorNo
@@ -107,7 +104,7 @@ private:
     /// errno(3); system call failure code or zero
     int sysErrorNo = 0;
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     /// OpenSSL-specific (first-level or intermediate) TLS I/O operation result
     /// reported by SSL_get_error(3SSL) (e.g., SSL_ERROR_SYSCALL) or zero.
     /// Unlike lib_error_no, this error is mostly meant for I/O control and has

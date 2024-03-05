@@ -23,15 +23,13 @@
 #include "log/forward.h"
 #include "proxyp/forward.h"
 #include "sbuf/SBuf.h"
-#include "servers/Server.h"
-#if USE_AUTH
-#include "auth/UserRequest.h"
-#endif
 #include "security/KeyLogger.h"
-#if USE_OPENSSL
 #include "security/forward.h"
 #include "security/Handshake.h"
+#include "servers/Server.h"
 #include "ssl/support.h"
+#if USE_AUTH
+#include "auth/UserRequest.h"
 #endif
 #if USE_DELAY_POOLS
 #include "MessageBucket.h"
@@ -45,12 +43,12 @@ class HttpHdrRangeSpec;
 class MasterXaction;
 typedef RefCount<MasterXaction> MasterXactionPointer;
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 namespace Ssl
 {
 class ServerBump;
 }
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
 /**
  * Legacy Server code managing a connection to a client.
@@ -254,7 +252,7 @@ public:
     /// the second part of old httpsAccept, waiting for future HttpsServer home
     void postHttpsAccept();
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     /// Initializes and starts a peek-and-splice negotiation with the SSL client
     void startPeekAndSplice();
 
@@ -306,9 +304,10 @@ public:
     /// Tls parser to use for client HELLO messages parsing on bumped
     /// connections.
     Security::HandshakeParser tlsParser;
-#else
+#else /* HAVE_LIBOPENSSL */
     bool switchedToHttps() const { return false; }
-#endif
+#endif /* HAVE_LIBOPENSSL */
+
     char *prepareTlsSwitchingURL(const Http1::RequestParserPointer &hp);
 
     /// registers a newly created stream
@@ -394,12 +393,12 @@ protected:
 
     void startPinnedConnectionMonitoring();
     void clientPinnedConnectionRead(const CommIoCbParams &io);
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     /// Handles a ready-for-reading TLS squid-to-server connection that
     /// we thought was idle.
     /// \return false if and only if the connection should be closed.
     bool handleIdleClientPinnedTlsRead();
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
     /// Parse an HTTP request
     /// \note Sets result->flags.parsed_ok to 0 if failed to parse the request,
@@ -453,7 +452,7 @@ private:
     bool parseProxyProtocolHeader();
     bool proxyProtocolError(const char *reason);
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     /// \returns a pointer to the matching cached TLS context or nil
     Security::ContextPointer getTlsContextFromCache(const SBuf &cacheKey, const Ssl::CertificateProperties &certProperties);
 
@@ -461,7 +460,7 @@ private:
     /// same-key context, if any
     void storeTlsContextToCache(const SBuf &cacheKey, Security::ContextPointer &ctx);
     void handleSslBumpHandshakeError(const Security::IoResult &);
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
     /// whether PROXY protocol header is still expected
     bool needProxyProtocolHeader_ = false;
@@ -474,7 +473,7 @@ private:
     Auth::UserRequest::Pointer auth_;
 #endif
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     bool switchedToHttps_ = false;
     bool parsingTlsHandshake = false; ///< whether we are getting/parsing TLS Hello bytes
     /// The number of parsed HTTP requests headers on a bumped client connection
@@ -493,7 +492,7 @@ private:
     /// HTTPS server cert. fetching state for bump-ssl-server-first
     Ssl::ServerBump *sslServerBump = nullptr;
     Ssl::CertSignAlgorithm signAlgorithm = Ssl::algSignTrusted; ///< The signing algorithm to use
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
     /// the reason why we no longer write the response or nil
     const char *stoppedSending_ = nullptr;

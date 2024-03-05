@@ -28,12 +28,10 @@
 #include "rfc1738.h"
 #include "sbuf/SBuf.h"
 #include "SquidConfig.h"
+#include "ssl/support.h"
 #include "Store.h"
 #if USE_AUTH
 #include "auth/UserRequest.h"
-#endif
-#if USE_OPENSSL
-#include "ssl/support.h"
 #endif
 
 /// url maximum length + extra information passed to redirector

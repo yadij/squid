@@ -9,11 +9,14 @@
 #ifndef SQUID_SRC_ACL_CERTIFICATEDATA_H
 #define SQUID_SRC_ACL_CERTIFICATEDATA_H
 
+#if HAVE_LIBOPENSSL
+
 #include "acl/Acl.h"
 #include "acl/Data.h"
 #include "acl/StringData.h"
 #include "security/forward.h"
 #include "ssl/support.h"
+
 #include <string>
 #include <list>
 
@@ -46,5 +49,5 @@ private:
     Ssl::GETX509ATTRIBUTE *sslAttributeCall;
 };
 
+#endif /* HAVE_LIBOPENSSL */
 #endif /* SQUID_SRC_ACL_CERTIFICATEDATA_H */
-

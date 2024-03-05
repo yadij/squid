@@ -21,10 +21,8 @@
 #include "acl/Arp.h"
 #include "acl/Eui64.h"
 #endif
-#if USE_OPENSSL
 #include "acl/AtStep.h"
 #include "acl/AtStepData.h"
-#endif
 #include "acl/Checklist.h"
 #include "acl/ConnectionsEncrypted.h"
 #include "acl/Data.h"
@@ -72,17 +70,13 @@
 #include "acl/SourceIp.h"
 #include "acl/SquidError.h"
 #include "acl/SquidErrorData.h"
-#if USE_OPENSSL
 #include "acl/Certificate.h"
 #include "acl/CertificateData.h"
+#include "acl/ServerCertificate.h"
 #include "acl/ServerName.h"
 #include "acl/SslError.h"
 #include "acl/SslErrorData.h"
-#endif
 #include "acl/StringData.h"
-#if USE_OPENSSL
-#include "acl/ServerCertificate.h"
-#endif
 #include "acl/Tag.h"
 #include "acl/Time.h"
 #include "acl/TimeData.h"
@@ -193,6 +187,7 @@ Acl::Init()
 
     RegisterMaker("all-of", [](TypeName)->Node* { return new AllOf; }); // XXX: Add name parameter to ctor
     RegisterMaker("any-of", [](TypeName)->Node* { return new AnyOf; }); // XXX: Add name parameter to ctor
+    RegisterMaker("at_step", [](TypeName name)->Node* { return new FinalizedParameterizedNode<AtStepCheck>(name, new ACLAtStepData); });
     RegisterMaker("random", [](TypeName name)->Node* { return new ACLRandom(name); });
     RegisterMaker("time", [](TypeName name)->Node* { return new FinalizedParameterizedNode<CurrentTimeCheck>(name, new ACLTimeData); });
     RegisterMaker("browser", [](TypeName name)->Node* { return new FinalizedParameterizedNode<RequestHeaderCheck<Http::HdrType::USER_AGENT> >(name, new ACLRegexData); });
@@ -245,7 +240,7 @@ Acl::Init()
     RegisterMaker("client_connection_mark", [](TypeName)->Node* { return new ConnMark; }); // XXX: Add name parameter to ctor
 #endif
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     RegisterMaker("ssl_error", [](TypeName name)->Node* { return new FinalizedParameterizedNode<CertificateErrorCheck>(name, new ACLSslErrorData); });
 
     RegisterMaker("user_cert", [](TypeName name)->Node* { return new FinalizedParameterizedNode<ClientCertificateCheck>(name, new ACLCertificateData(Ssl::GetX509UserAttribute, "*")); });
@@ -253,12 +248,11 @@ Acl::Init()
     FinalizedParameterizedNode<ClientCertificateCheck>::PreferAllocatorLabelPrefix("user_cert+");
 
     RegisterMaker("server_cert_fingerprint", [](TypeName name)->Node* { return new FinalizedParameterizedNode<ServerCertificateCheck>(name, new ACLCertificateData(Ssl::GetX509Fingerprint, nullptr, true)); });
-    RegisterMaker("at_step", [](TypeName name)->Node* { return new FinalizedParameterizedNode<AtStepCheck>(name, new ACLAtStepData); });
 
     RegisterMaker("ssl::server_name", [](TypeName name)->Node* { return new FinalizedParameterizedNode<ServerNameCheck>(name, new ACLServerNameData); });
     RegisterMaker("ssl::server_name_regex", [](TypeName name)->Node* { return new FinalizedParameterizedNode<ServerNameCheck>(name, new ACLRegexData); });
     FinalizedParameterizedNode<ServerNameCheck>::PreferAllocatorLabelPrefix("ssl::server_name+");
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
 #if USE_SQUID_EUI
     RegisterMaker("arp", [](TypeName name)->Node* { return new ACLARP(name); });

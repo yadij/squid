@@ -217,7 +217,7 @@ typedef enum {
 #endif
     LFT_CREDENTIALS,
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     LFT_SSL_BUMP_MODE,
     LFT_SSL_USER_CERT_SUBJECT,
     LFT_SSL_USER_CERT_ISSUER,
@@ -234,19 +234,19 @@ typedef enum {
     LFT_TLS_SERVER_RECEIVED_HELLO_VERSION,
     LFT_TLS_CLIENT_SUPPORTED_VERSION,
     LFT_TLS_SERVER_SUPPORTED_VERSION,
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
     LFT_NOTE,
     LFT_PERCENT,            /* special string cases for escaped chars */
     LFT_MASTER_XACTION,
 
     // TODO assign better bytecode names and Token strings for these
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     LFT_EXT_ACL_USER_CERT_RAW,
     LFT_EXT_ACL_USER_CERTCHAIN_RAW,
     LFT_EXT_ACL_USER_CERT,
     LFT_EXT_ACL_USER_CA_CERT,
-#endif
+#endif /* HAVE_LIBOPENSSL */
     LFT_EXT_ACL_CLIENT_EUI48,
     LFT_EXT_ACL_CLIENT_EUI64,
     LFT_EXT_ACL_NAME,

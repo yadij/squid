@@ -189,7 +189,7 @@ private:
     StoreEntry *loggingEntry_ = nullptr;
     ConnStateData * conn_ = nullptr;
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 public:
     /// returns raw sslBump mode value
     Ssl::BumpMode sslBumpNeed() const { return sslBumpNeed_; }
@@ -203,7 +203,7 @@ public:
 private:
     /// whether (and how) the request needs to be bumped
     Ssl::BumpMode sslBumpNeed_ = Ssl::bumpEnd;
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
 #if USE_ADAPTATION
 public:

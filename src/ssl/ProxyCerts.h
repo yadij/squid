@@ -9,7 +9,8 @@
 #ifndef SQUID_SRC_SSL_PROXYCERTS_H
 #define SQUID_SRC_SSL_PROXYCERTS_H
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
+
 #include "acl/forward.h"
 #include "acl/Gadgets.h"
 #include "ssl/gadgets.h"
@@ -57,7 +58,7 @@ public:
     ACLList *aclList = nullptr;
     sslproxy_cert_adapt *next = nullptr;
 };
-#endif
 
+#endif /* HAVE_LIBOPENSSL */
 #endif /* SQUID_SRC_SSL_PROXYCERTS_H */
 

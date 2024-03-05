@@ -47,6 +47,6 @@ std::optional<SBuf> GetErrorDescr(Security::ErrorCode);
 /// \return true if the TLS error is optional and may not be supported by current squid version
 bool ErrorIsOptional(const char *name);
 
-}//namespace Ssl
-#endif /* SQUID_SRC_SSL_ERRORDETAIL_H */
+} // namespace Ssl
 
+#endif /* SQUID_SRC_SSL_ERRORDETAIL_H */

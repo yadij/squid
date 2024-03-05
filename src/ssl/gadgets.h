@@ -9,7 +9,7 @@
 #ifndef SQUID_SRC_SSL_GADGETS_H
 #define SQUID_SRC_SSL_GADGETS_H
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 
 #include "anyp/forward.h"
 #include "base/HardFun.h"
@@ -21,9 +21,6 @@
 #include <optional>
 #include <string>
 
-#if HAVE_OPENSSL_ASN1_H
-#include <openssl/asn1.h>
-#endif
 #if HAVE_OPENSSL_PEM_H
 #include <openssl/pem.h>
 #endif
@@ -308,6 +305,6 @@ const ASN1_BIT_STRING *X509_get_signature(const Security::CertPointer &);
 
 } // namespace Ssl
 
-#endif // USE_OPENSSL
+#endif /* HAVE_LIBOPENSSL */
 #endif /* SQUID_SRC_SSL_GADGETS_H */
 

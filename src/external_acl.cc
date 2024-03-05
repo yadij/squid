@@ -31,13 +31,11 @@
 #include "rfc1738.h"
 #include "SquidConfig.h"
 #include "SquidString.h"
+#include "ssl/ServerBump.h"
+#include "ssl/support.h"
 #include "Store.h"
 #include "tools.h"
 #include "wordlist.h"
-#if USE_OPENSSL
-#include "ssl/ServerBump.h"
-#include "ssl/support.h"
-#endif
 #if USE_AUTH
 #include "auth/Acl.h"
 #include "auth/Gadgets.h"
@@ -278,7 +276,7 @@ parse_externalAclHelper(external_acl ** list)
         (*fmt)->quote = a->quote;
 
         // compatibility for old tokens incompatible with Format::Token syntax
-#if USE_OPENSSL // do not bother unless we have to.
+#if HAVE_LIBOPENSSL // do not bother unless we have to.
         if (strncmp(token, "%USER_CERT_", 11) == 0) {
             (*fmt)->type = Format::LFT_EXT_ACL_USER_CERT;
             (*fmt)->data.string = xstrdup(token + 11);

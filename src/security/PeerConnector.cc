@@ -28,14 +28,12 @@
 #include "security/NegotiationHistory.h"
 #include "security/PeerConnector.h"
 #include "SquidConfig.h"
-#if USE_OPENSSL
 #include "ssl/bio.h"
 #include "ssl/cert_validate_message.h"
 #include "ssl/Config.h"
 #include "ssl/helper.h"
 
 #include <optional>
-#endif
 
 Security::PeerConnector::PeerConnector(const Comm::ConnectionPointer &aServerConn, const AsyncCallback<EncryptorAnswer> &aCallback, const AccessLogEntryPointer &alp, const time_t timeout):
     AsyncJob("Security::PeerConnector"),
@@ -95,7 +93,7 @@ Security::PeerConnector::fillChecklist(ACLFilledChecklist &checklist) const
     checklist.syncAle(request.getRaw(), nullptr);
     // checklist.fd(fd); XXX: need client FD here
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     if (!checklist.serverCert) {
         if (const auto session = fd_table[serverConnection()->fd].ssl.get())
             checklist.serverCert.resetWithoutLocking(SSL_get_peer_certificate(session));
@@ -159,7 +157,7 @@ Security::PeerConnector::initialize(Security::SessionPointer &serverSession)
     serverSession = fd_table[serverConnection()->fd].ssl;
     debugs(83, 5, serverConnection() << ", session=" << (void*)serverSession.get());
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     // If CertValidation Helper used do not lookup checklist for errors,
     // but keep a list of errors to send it to CertValidator
     if (!Ssl::TheConfig.ssl_crt_validator) {
@@ -200,7 +198,7 @@ Security::PeerConnector::recordNegotiationDetails()
     // retrieve TLS server negotiated information if any
     serverConnection()->tlsNegotiations()->retrieveNegotiatedInfo(session);
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     // retrieve TLS parsed extra info
     BIO *b = SSL_get_rbio(session.get());
     Ssl::ServerBio *bio = static_cast<Ssl::ServerBio *>(BIO_get_data(b));
@@ -220,7 +218,7 @@ Security::PeerConnector::negotiate()
 
     const auto result = Security::Connect(*serverConnection());
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     auto &sconn = *fd_table[fd].ssl;
 
     // log ASAP, even if the handshake has not completed (or failed)
@@ -288,7 +286,7 @@ Security::PeerConnector::handleNegotiationResult(const Security::IoResult &resul
 bool
 Security::PeerConnector::sslFinalized()
 {
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     if (Ssl::TheConfig.ssl_crt_validator && useCertValidator_) {
         Must(Comm::IsConnOpen(serverConnection()));
         const int fd = serverConnection()->fd;
@@ -329,7 +327,7 @@ Security::PeerConnector::sslFinalized()
     return true;
 }
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 void
 Security::PeerConnector::sslCrtvdHandleReply(Ssl::CertValidationResponse::Pointer &validationResponse)
 {
@@ -377,7 +375,7 @@ Security::PeerConnector::sslCrtvdHandleReply(Ssl::CertValidationResponse::Pointe
 }
 #endif
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 /// Checks errors in the cert. validator response against sslproxy_cert_error.
 /// The first honored error, if any, is returned via errDetails parameter.
 /// The method returns all seen errors except SSL_ERROR_NONE as Security::CertErrors.
@@ -595,7 +593,7 @@ Security::PeerConnector::status() const
     return buf.content();
 }
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 /// the number of concurrent PeerConnector jobs waiting for us
 unsigned int
 Security::PeerConnector::certDownloadNestingLevel() const
@@ -756,5 +754,5 @@ Security::PeerConnector::resumeNegotiation()
     handleNegotiationResult(*lastError);
 }
 
-#endif //USE_OPENSSL
+#endif //HAVE_LIBOPENSSL
 

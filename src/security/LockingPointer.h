@@ -11,11 +11,11 @@
 
 #include "base/Assure.h"
 #include "base/HardFun.h"
+#include "compat/openssl.h"
 
 #include <cstddef>
 
-#if USE_OPENSSL
-#include "compat/openssl.h"
+#if HAVE_LIBOPENSSL
 #if HAVE_OPENSSL_CRYPTO_H
 #include <openssl/crypto.h>
 #endif
@@ -28,7 +28,7 @@
             sk_object ## _pop_free(a, freefunction); \
         }
 
-#endif /* USE_OPENSSL */
+#endif /* HAVE_LIBOPENSSL */
 
 namespace Security
 {

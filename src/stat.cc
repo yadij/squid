@@ -40,6 +40,7 @@
 #include "PeerDigest.h"
 #include "SquidConfig.h"
 #include "SquidMath.h"
+#include "ssl/support.h"
 #include "stat.h"
 #include "StatCounters.h"
 #include "Store.h"
@@ -51,9 +52,6 @@
 #endif
 #if USE_DELAY_POOLS
 #include "DelayId.h"
-#endif
-#if USE_OPENSSL
-#include "ssl/support.h"
 #endif
 
 /* these are included because they expose stats calls */
@@ -1820,7 +1818,7 @@ statClientRequests(StoreEntry * s)
                 p = http->request->extacl_user.termedBuf();
             }
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
         if (!p && conn != nullptr && Comm::IsConnOpen(conn->clientConnection))
             p = sslGetUserEmail(fd_table[conn->clientConnection->fd].ssl.get());
 #endif

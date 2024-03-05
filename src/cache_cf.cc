@@ -68,7 +68,10 @@
 #include "sbuf/Stream.h"
 #include "SquidConfig.h"
 #include "SquidString.h"
+#include "ssl/Config.h"
+#include "ssl/gadgets.h"
 #include "ssl/ProxyCerts.h"
+#include "ssl/support.h"
 #include "Store.h"
 #include "store/Disks.h"
 #include "tools.h"
@@ -84,10 +87,6 @@
 #endif
 #if USE_ECAP
 #include "adaptation/ecap/Config.h"
-#endif
-#if USE_OPENSSL
-#include "ssl/Config.h"
-#include "ssl/support.h"
 #endif
 #if SQUID_SNMP
 #include "snmp.h"
@@ -108,10 +107,6 @@
 #endif
 #if HAVE_SYS_STAT_H
 #include <sys/stat.h>
-#endif
-
-#if USE_OPENSSL
-#include "ssl/gadgets.h"
 #endif
 
 #if USE_ADAPTATION
@@ -218,7 +213,7 @@ static void parsePortCfg(AnyP::PortCfgPointer *, const char *protocol);
 static void dump_PortCfg(StoreEntry *, const char *, const AnyP::PortCfgPointer &);
 #define free_PortCfg(h)  *(h)=NULL
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 static void parse_sslproxy_cert_sign(sslproxy_cert_sign **cert_sign);
 static void dump_sslproxy_cert_sign(StoreEntry *entry, const char *name, sslproxy_cert_sign *cert_sign);
 static void free_sslproxy_cert_sign(sslproxy_cert_sign **cert_sign);
@@ -228,7 +223,7 @@ static void free_sslproxy_cert_adapt(sslproxy_cert_adapt **cert_adapt);
 static void parse_sslproxy_ssl_bump(acl_access **ssl_bump);
 static void dump_sslproxy_ssl_bump(StoreEntry *entry, const char *name, acl_access *ssl_bump);
 static void free_sslproxy_ssl_bump(acl_access **ssl_bump);
-#endif /* USE_OPENSSL */
+#endif /* HAVE_LIBOPENSSL */
 
 static void parse_ftp_epsv(acl_access **ftp_epsv);
 static void dump_ftp_epsv(StoreEntry *entry, const char *name, acl_access *ftp_epsv);
@@ -940,10 +935,10 @@ configDoConfigure(void)
         Config2.effectiveGroupID = grp->gr_gid;
     }
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     if (Config.ssl_client.foreignIntermediateCertsPath)
         Ssl::loadSquidUntrusted(Config.ssl_client.foreignIntermediateCertsPath);
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
     if (Security::ProxyOutgoingConfig().encryptTransport) {
         debugs(3, 2, "initializing https:// proxy context");
@@ -951,15 +946,15 @@ configDoConfigure(void)
         const auto rawSslContext = Security::ProxyOutgoingConfig().createClientContext(false);
         Config.ssl_client.sslContext_ = rawSslContext ? new Security::ContextPointer(rawSslContext) : nullptr;
         if (!Config.ssl_client.sslContext_) {
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
             fatal("ERROR: Could not initialize https:// proxy context");
 #else
             debugs(3, DBG_IMPORTANT, "ERROR: proxying https:// currently still requires --with-openssl");
-#endif
+#endif /* HAVE_LIBOPENSSL */
         }
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
         Ssl::useSquidUntrusted(Config.ssl_client.sslContext_->get());
-#endif
+#endif /* HAVE_LIBOPENSSL */
         Config.ssl_client.defaultPeerContext = new Security::FuturePeerContext(Security::ProxyOutgoingConfig(), *Config.ssl_client.sslContext_);
     }
 
@@ -2330,7 +2325,7 @@ parse_peer(CachePeers **peers)
                 p->domain = xstrdup(token + 13);
 
         } else if (strncmp(token, "ssl", 3) == 0) {
-#if !USE_OPENSSL
+#if !HAVE_LIBOPENSSL
             debugs(0, DBG_CRITICAL, "WARNING: cache_peer option '" << token << "' requires --with-openssl");
 #else
             p->secure.parse(token+3);
@@ -3632,7 +3627,7 @@ parse_port_option(AnyP::PortCfgPointer &s, char *token)
             ++t;
             s->tcp_keepalive.timeout = xatoui(t);
         }
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     } else if (strcmp(token, "sslBump") == 0) {
         debugs(3, DBG_PARSE_NOTE(1), "WARNING: '" << token << "' is deprecated " <<
                "in " << cfg_directive << ". Use 'ssl-bump' instead.");
@@ -3673,7 +3668,7 @@ parse_port_option(AnyP::PortCfgPointer &s, char *token)
         s->secure.parse(token+3);
     } else if (strncmp(token, "generate-host-certificates", 26) == 0) {
         s->secure.parse(token);
-#endif
+#endif /* HAVE_LIBOPENSSL */
     } else if (strncmp(token, "dynamic_cert_mem_cache_size=", 28) == 0) {
         s->secure.parse(token);
     } else if (strncmp(token, "tls-", 4) == 0) {
@@ -3742,7 +3737,7 @@ parsePortCfg(AnyP::PortCfgPointer *head, const char *optionName)
 
     if (s->transport.protocol == AnyP::PROTO_HTTPS) {
         s->secure.encryptTransport = true;
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
         /* ssl-bump on https_port configuration requires either tproxy or intercept, and vice versa */
         const bool hijacked = s->flags.isIntercepted();
         if (s->flags.tunnelSslBumping && !hijacked) {
@@ -3755,7 +3750,7 @@ parsePortCfg(AnyP::PortCfgPointer *head, const char *optionName)
             self_destruct();
             return;
         }
-#endif
+#endif /* HAVE_LIBOPENSSL */
         if (s->flags.proxySurrogate) {
             debugs(3,DBG_CRITICAL, "FATAL: https_port: require-proxy-header option is not supported on HTTPS ports.");
             self_destruct();
@@ -3878,10 +3873,10 @@ dump_generic_port(StoreEntry * e, const char *n, const AnyP::PortCfgPointer &s)
         }
     }
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     if (s->flags.tunnelSslBumping)
         storeAppendPrintf(e, " ssl-bump");
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
     PackableStream os(*e);
     s->secure.dumpCfg(os, "tls-");
@@ -3905,7 +3900,7 @@ configFreeMemory(void)
     Config.ssl_client.defaultPeerContext = nullptr;
     delete Config.ssl_client.sslContext_;
     Config.ssl_client.sslContext_ = nullptr;
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
     Ssl::unloadSquidUntrusted();
 #endif
 }
@@ -4237,7 +4232,7 @@ static void free_icap_service_failure_limit(Adaptation::Icap::Config *cfg)
 }
 #endif
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 static void parse_sslproxy_cert_adapt(sslproxy_cert_adapt **cert_adapt)
 {
     auto *al = ConfigParser::NextToken();
@@ -4481,7 +4476,7 @@ static void free_sslproxy_ssl_bump(acl_access **ssl_bump)
     free_acl_access(ssl_bump);
 }
 
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
 static void dump_HeaderWithAclList(StoreEntry * entry, const char *name, HeaderWithAclList *headers)
 {

@@ -9,7 +9,7 @@
 #ifndef SQUID_SRC_SSL_BIO_H
 #define SQUID_SRC_SSL_BIO_H
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 
 #include "compat/openssl.h"
 #include "FadingCounter.h"
@@ -20,9 +20,6 @@
 
 #include <iosfwd>
 #include <list>
-#if HAVE_OPENSSL_BIO_H
-#include <openssl/bio.h>
-#endif
 #include <string>
 #include <type_traits>
 
@@ -200,6 +197,6 @@ private:
 void
 applyTlsDetailsToSSL(SSL *ssl, Security::TlsDetails::Pointer const &details, Ssl::BumpMode bumpMode);
 
-#endif /* USE_OPENSSL */
+#endif /* HAVE_LIBOPENSSL */
 #endif /* SQUID_SRC_SSL_BIO_H */
 

@@ -11,11 +11,8 @@
 
 #include <memory>
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 #include "compat/openssl.h"
-#if HAVE_OPENSSL_SSL_H
-#include <openssl/ssl.h>
-#endif
 
 #elif HAVE_LIBGNUTLS
 #if HAVE_GNUTLS_GNUTLS_H
@@ -25,7 +22,7 @@
 
 namespace Security {
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 typedef std::shared_ptr<SSL_CTX> ContextPointer;
 
 #elif HAVE_LIBGNUTLS

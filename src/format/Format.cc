@@ -27,12 +27,10 @@
 #include "security/CertError.h"
 #include "security/Certificate.h"
 #include "security/NegotiationHistory.h"
-#include "Store.h"
-#include "tools.h"
-#if USE_OPENSSL
 #include "ssl/ErrorDetail.h"
 #include "ssl/ServerBump.h"
-#endif
+#include "Store.h"
+#include "tools.h"
 
 /// Convert a string to NULL pointer if it is ""
 #define strOrNull(s) ((s)==NULL||(s)[0]=='\0'?NULL:(s))
@@ -951,7 +949,7 @@ Format::Format::assemble(MemBuf &mb, const AccessLogEntry::Pointer &al, int logS
             }
             if (!out)
                 out = strOrNull(al->getExtUser());
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
             if (!out)
                 out = strOrNull(al->cache.ssluser);
 #endif
@@ -1225,7 +1223,7 @@ Format::Format::assemble(MemBuf &mb, const AccessLogEntry::Pointer &al, int logS
             dooff = 1;
             break;
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
         case LFT_SSL_BUMP_MODE: {
             const Ssl::BumpMode mode = static_cast<Ssl::BumpMode>(al->ssl.bumpMode);
             // for Ssl::bumpEnd, Ssl::bumpMode() returns NULL and we log '-'
@@ -1379,7 +1377,7 @@ Format::Format::assemble(MemBuf &mb, const AccessLogEntry::Pointer &al, int logS
             if (al->hier.tcpServer && al->hier.tcpServer->hasTlsNegotiations())
                 out = al->hier.tcpServer->hasTlsNegotiations()->cipherName();
             break;
-#endif
+#endif /* HAVE_LIBOPENSSL */
 
         case LFT_REQUEST_URLGROUP_OLD_2X:
             assert(LFT_REQUEST_URLGROUP_OLD_2X == 0); // should never happen.

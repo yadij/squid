@@ -9,6 +9,8 @@
 #ifndef SQUID_SRC_SSL_CERT_VALIDATE_MESSAGE_H
 #define SQUID_SRC_SSL_CERT_VALIDATE_MESSAGE_H
 
+#if HAVE_LIBOPENSSL
+
 #include "base/RefCount.h"
 #include "helper/ResultCode.h"
 #include "ssl/crtd_message.h"
@@ -130,5 +132,6 @@ private:
 
 }//namespace Ssl
 
+#endif /* HAVE_LIBOPENSSL */
 #endif /* SQUID_SRC_SSL_CERT_VALIDATE_MESSAGE_H */
 

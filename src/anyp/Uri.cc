@@ -1045,7 +1045,7 @@ urlCheckRequest(const HttpRequest * r)
         return false;
 
     case AnyP::PROTO_HTTPS:
-#if USE_OPENSSL || HAVE_LIBGNUTLS
+#if HAVE_LIBOPENSSL || HAVE_LIBGNUTLS
         return true;
 #else
         /*
@@ -1054,7 +1054,7 @@ urlCheckRequest(const HttpRequest * r)
          * CONNECT instead.
          */
         return false;
-#endif
+#endif /* HAVE_LIBOPENSSL || HAVE_LIBGNUTLS */
 
     default:
         return false;

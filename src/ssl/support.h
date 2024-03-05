@@ -11,7 +11,7 @@
 #ifndef SQUID_SRC_SSL_SUPPORT_H
 #define SQUID_SRC_SSL_SUPPORT_H
 
-#if USE_OPENSSL
+#if HAVE_LIBOPENSSL
 
 #include "anyp/forward.h"
 #include "base/CbDataList.h"
@@ -33,6 +33,7 @@
 #if HAVE_OPENSSL_ENGINE_H
 #include <openssl/engine.h>
 #endif
+
 #include <queue>
 #include <map>
 #include <optional>
@@ -420,6 +421,6 @@ int SSL_set_fd(SSL *ssl, int fd)
 
 #endif /* _SQUID_WINDOWS_ */
 
-#endif /* USE_OPENSSL */
+#endif /* HAVE_LIBOPENSSL */
 #endif /* SQUID_SRC_SSL_SUPPORT_H */
 

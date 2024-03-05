@@ -9,6 +9,8 @@
 #ifndef SQUID_SRC_ACL_SERVERCERTIFICATE_H
 #define SQUID_SRC_ACL_SERVERCERTIFICATE_H
 
+#if HAVE_LIBOPENSSL
+
 #include "acl/Data.h"
 #include "acl/ParameterizedNode.h"
 #include "security/forward.h"
@@ -27,5 +29,5 @@ public:
 
 } // namespace Acl
 
+#endif /* HAVE_LIBOPENSSL */
 #endif /* SQUID_SRC_ACL_SERVERCERTIFICATE_H */
-

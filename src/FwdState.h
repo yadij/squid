@@ -23,9 +23,7 @@
 #include "PeerSelectState.h"
 #include "ResolvedPeers.h"
 #include "security/forward.h"
-#if USE_OPENSSL
 #include "ssl/support.h"
-#endif
 
 /* forward decls */
 

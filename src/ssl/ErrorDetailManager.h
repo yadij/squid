@@ -92,6 +92,6 @@ private:
 
 void errorDetailInitialize();
 void errorDetailClean();
-} //namespace Ssl
-#endif /* SQUID_SRC_SSL_ERRORDETAILMANAGER_H */
+} // namespace Ssl
 
+#endif /* SQUID_SRC_SSL_ERRORDETAILMANAGER_H */
