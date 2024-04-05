@@ -25,7 +25,8 @@ AH_TEMPLATE(USE_TRIVIALDB,[Samba TrivialDB support is available])
 AS_IF([test "x$with_tdb" != "xno"],[
   SQUID_STATE_SAVE(squid_libtdb_state)
   LIBS="$LIBS $LIBTDB_PATH"
-  PKG_CHECK_MODULES([LIBTDB],[tdb],[CPPFLAGS="$CPPFLAGS $LIBTDB_CFLAGS"],[:])
+  PKG_CHECK_MODULES([LIBTDB],[tdb],[:],[:])
+  CPPFLAGS="$CPPFLAGS $LIBTDB_CFLAGS"
   AC_CHECK_HEADERS([sys/stat.h tdb.h],,,[
 #if HAVE_SYS_STAT_H
 #include <sys/stat.h>
