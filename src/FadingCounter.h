@@ -9,6 +9,8 @@
 #ifndef SQUID_SRC_FADINGCOUNTER_H
 #define SQUID_SRC_FADINGCOUNTER_H
 
+#include "time/forward.h"
+
 #include <array>
 
 /// Counts events, forgetting old ones. Useful for "3 errors/minute" limits.
@@ -30,7 +32,7 @@ private:
     time_t horizon_ = -1;
     double delta = -1; ///< sub-interval duration = horizon/precision
 
-    double lastTime = 0.0; ///< time of the last update
+    Time::Point lastTime = Time::DefaultClock::now(); ///< time of the last update
     std::array<int, 10> counters = {}; ///< events per delta (possibly stale)
     uint64_t total = 0; ///< number of remembered events (possibly stale)
 };
