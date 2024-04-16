@@ -9,11 +9,17 @@
 #ifndef SQUID_SRC_TIME_FORWARD_H
 #define SQUID_SRC_TIME_FORWARD_H
 
+#include <chrono>
+
 /// Time and Date handling tools
 namespace Time
 {
 
+using DefaultClock = std::chrono::system_clock;
+
 class Engine;
+
+using Point = std::chrono::time_point<DefaultClock>;
 
 } // namespace Time
 
