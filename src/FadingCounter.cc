@@ -18,7 +18,7 @@ void
 FadingCounter::clear()
 {
     counters = {};
-    lastTime = current_dtime;
+    lastTime = Time::DefaultClock::now();
     total = 0;
 }
 
@@ -41,27 +41,34 @@ FadingCounter::count(uint64_t howMany)
     if (horizon() == Horizon::zero())
         return howMany; // remember nothing
 
-    const double deltas = (current_dtime - lastTime) / delta;
-    if (deltas >= counters.size() || current_dtime < lastTime) {
+    const auto now = Time::DefaultClock::now();
+    const auto past = std::chrono::duration_cast<std::chrono::milliseconds>(lastTime.time_since_epoch()) % horizon();
+
+    if (now < lastTime) {
         clear(); // forget all values
     } else {
-        // forget stale values, if any
-        // fmod() or "current_dtime/delta" will overflow int for small deltas
-        const auto lastSlot = static_cast<int>(fmod(lastTime, horizon().count()) / delta);
-        const int staleSlots = static_cast<int>(deltas);
-        for (int i = 0, s = lastSlot + 1; i < staleSlots; ++i, ++s) {
-            const auto idx = s % counters.size();
-            Assure(counters[idx] >= 0);
-            Assure(total >= uint64_t(counters[idx]));
-            total -= counters[idx];
-            counters[idx] = 0;
+        const double deltas = (now - lastTime).count() / delta;
+        if (deltas >= counters.size()) {
+            clear(); // forget all values
+        } else {
+            // forget stale values, if any
+            // fmod() or "past/delta" will overflow int for small deltas
+            const int lastSlot = static_cast<int>(fmod(past.count(), horizon().count()) / delta);
+            const int staleSlots = static_cast<int>(deltas);
+            for (int i = 0, s = lastSlot + 1; i < staleSlots; ++i, ++s) {
+                const int idx = s % counters.size();
+                Assure(counters[idx] >= 0);
+                Assure(total >= uint64_t(counters[idx]));
+                total -= counters[idx];
+                counters[idx] = 0;
+            }
         }
     }
 
     // apply new information
-    lastTime = current_dtime;
-    const auto curSlot = static_cast<int>(fmod(lastTime, horizon().count()) / delta);
-    counters[curSlot % counters.size()] += howMany;
+    lastTime = now;
+    const auto idx = static_cast<int>(fmod(past.count(), horizon().count()) / delta) % counters.size();
+    counters[idx] += howMany;
     total += howMany;
 
     return total;
