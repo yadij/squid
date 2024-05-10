@@ -25,14 +25,6 @@ namespace Ssl
  */
 bool ParseErrorString(const char *name, Security::Errors &);
 
-/// \return string representation of a known TLS error (or a raw error code)
-/// \param prefixRawCode whether to prefix raw codes with "SSL_ERR="
-inline const char *
-GetErrorName(const Security::ErrorCode code, const bool prefixRawCode = false)
-{
-    return Security::ErrorNameFromCode(code, prefixRawCode);
-}
-
 /// a short description of the given TLS error known to Squid (or, if the error
 /// is unknown, nothing)
 std::optional<SBuf> GetErrorDescr(Security::ErrorCode);

@@ -1308,7 +1308,7 @@ Format::Format::assemble(MemBuf &mb, const AccessLogEntry::Pointer &al, int logS
                     for (const Security::CertErrors *sslError = srvBump->sslErrors(); sslError; sslError = sslError->next) {
                         if (!sb.isEmpty())
                             sb.append(separator);
-                        sb.append(Ssl::GetErrorName(sslError->element.code, true));
+                        sb.append(Security::ErrorNameFromCode(sslError->element.code, true));
                         if (sslError->element.depth >= 0)
                             sb.appendf("@depth=%d", sslError->element.depth);
                     }

@@ -71,7 +71,7 @@ SBuf Security::ErrorDetail::verbose(const HttpRequestPointer &) const STUB_RETVA
 SBuf Security::ErrorDetail::brief() const STUB_RETVAL(SBuf())
 bool Security::ErrorIsOptional(const char *) STUB_RETVAL(false)
 Security::ErrorCode Security::ErrorCodeFromName(const char *) STUB_RETVAL(0)
-const char *Security::ErrorNameFromCode(ErrorCode, bool) STUB_RETVAL("")
+const SBuf &Security::ErrorNameFromCode(ErrorCode, bool) STUB_RETREF(SBuf)
 
 #include "security/NegotiationHistory.h"
 Security::NegotiationHistory::NegotiationHistory() STUB
