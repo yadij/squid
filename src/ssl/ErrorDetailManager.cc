@@ -8,13 +8,13 @@
 
 #include "squid.h"
 #include "base/Raw.h"
-#include "ErrorDetail.h"
-#include "ErrorDetailManager.h"
 #include "errorpage.h"
 #include "http/ContentLengthInterpreter.h"
 #include "mime_header.h"
 #include "sbuf/Stream.h"
 #include "sbuf/StringConvert.h"
+#include "ssl/ErrorDetail.h"
+#include "ssl/ErrorDetailManager.h"
 
 void Ssl::errorDetailInitialize()
 {
@@ -224,7 +224,7 @@ Ssl::ErrorDetailFile::parse()
                     return false;
                 }
 
-            } else if (!Ssl::ErrorIsOptional(errorName.termedBuf())) {
+            } else if (!Security::ErrorIsOptional(errorName.termedBuf())) {
                 debugs(83, DBG_IMPORTANT, "WARNING: invalid error detail name: " << errorName);
                 return false;
             }

@@ -123,6 +123,9 @@ private:
     String errReason; ///< a custom reason for the error
 };
 
+/// \return true if the TLS error is optional and may not be supported by current squid version
+bool ErrorIsOptional(const char *name);
+
 /// \returns ErrorCode with a given name (or zero)
 ErrorCode ErrorCodeFromName(const char *name);
 
