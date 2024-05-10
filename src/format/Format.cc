@@ -26,11 +26,11 @@
 #include "sbuf/StringConvert.h"
 #include "security/CertError.h"
 #include "security/Certificate.h"
+#include "security/ErrorDetail.h"
 #include "security/NegotiationHistory.h"
 #include "Store.h"
 #include "tools.h"
 #if USE_OPENSSL
-#include "ssl/ErrorDetail.h"
 #include "ssl/ServerBump.h"
 #endif
 

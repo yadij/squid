@@ -137,6 +137,13 @@ const SBuf &ErrorNameFromCode(ErrorCode err, bool prefixRawCode = false);
 /// is unknown, nothing)
 std::optional<SBuf> GetErrorDescr(ErrorCode);
 
+/**
+ * Converts user-friendly error "name" into an Security::ErrorCode
+ * and adds it to the provided container (using emplace).
+ * This function can handle numeric error numbers as well as names.
+ */
+void ParseErrorString(const char *name, Security::Errors &);
+
 /// Dump the given Security::ErrorDetail via a possibly nil pointer (for
 /// debugging). Unfortunately, without this, compilers pick generic RefCount<T>
 /// operator "<<" overload (with T=Security::ErrorDetail) instead of the

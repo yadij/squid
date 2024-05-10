@@ -42,11 +42,9 @@ Ssl::LocalContextStorage *Ssl::GlobalContextStorage::getLocalStorage(Ip::Address
 void Ssl::GlobalContextStorage::reconfigureStart() STUB
 //Ssl::GlobalContextStorage Ssl::TheGlobalContextStorage;
 
-#include "ssl/ErrorDetail.h"
 #include "ssl/support.h"
 namespace Ssl
 {
-bool ParseErrorString(const char *, Security::Errors &) STUB_RETVAL(false)
 int AskPasswordCb(char *, int, int, void *) STUB_RETVAL(0)
 bool InitServerContext(Security::ContextPointer &, AnyP::PortCfg &) STUB_RETVAL(false)
 bool InitClientContext(Security::ContextPointer &, Security::PeerOptions &, Security::ParsedPortFlags) STUB_RETVAL(false)

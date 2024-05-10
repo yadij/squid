@@ -13,8 +13,6 @@ noinst_LTLIBRARIES = libsslsquid.la libsslutil.la
 libsslsquid_la_SOURCES = \
 	Config.cc \
 	Config.h \
-	ErrorDetail.cc \
-	ErrorDetail.h \
 	ErrorDetailManager.cc \
 	ErrorDetailManager.h \
 	PeekingPeerConnector.cc \

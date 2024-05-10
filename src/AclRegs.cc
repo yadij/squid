@@ -79,9 +79,9 @@
 #include "acl/Certificate.h"
 #include "acl/CertificateData.h"
 #include "acl/ServerName.h"
+#endif
 #include "acl/SslError.h"
 #include "acl/SslErrorData.h"
-#endif
 #include "acl/StringData.h"
 #if USE_OPENSSL
 #include "acl/ServerCertificate.h"
@@ -253,9 +253,9 @@ Acl::Init()
     RegisterMaker("client_connection_mark", [](TypeName)->Node* { return new ConnMark; }); // XXX: Add name parameter to ctor
 #endif
 
-#if USE_OPENSSL
     RegisterMaker("ssl_error", [](TypeName name)->Node* { return new FinalizedParameterizedNode<CertificateErrorCheck>(name, new ACLSslErrorData); });
 
+#if USE_OPENSSL
     RegisterMaker("user_cert", [](TypeName name)->Node* { return new FinalizedParameterizedNode<ClientCertificateCheck>(name, new ACLCertificateData(Ssl::GetX509UserAttribute, "*")); });
     RegisterMaker("ca_cert", [](TypeName name)->Node* { return new FinalizedParameterizedNode<ClientCertificateCheck>(name, new ACLCertificateData(Ssl::GetX509CAAttribute, "*")); });
     FinalizedParameterizedNode<ClientCertificateCheck>::PreferAllocatorLabelPrefix("user_cert+");

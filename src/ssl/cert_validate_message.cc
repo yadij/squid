@@ -12,8 +12,8 @@
 #include "helper.h"
 #include "sbuf/Stream.h"
 #include "security/CertError.h"
+#include "security/ErrorDetail.h"
 #include "ssl/cert_validate_message.h"
-#include "ssl/ErrorDetail.h"
 #include "ssl/support.h"
 #include "util.h"
 

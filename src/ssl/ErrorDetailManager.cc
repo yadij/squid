@@ -13,7 +13,7 @@
 #include "mime_header.h"
 #include "sbuf/Stream.h"
 #include "sbuf/StringConvert.h"
-#include "ssl/ErrorDetail.h"
+#include "security/ErrorDetail.h"
 #include "ssl/ErrorDetailManager.h"
 
 void Ssl::errorDetailInitialize()

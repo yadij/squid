@@ -73,6 +73,7 @@ bool Security::ErrorIsOptional(const char *) STUB_RETVAL(false)
 Security::ErrorCode Security::ErrorCodeFromName(const char *) STUB_RETVAL(0)
 const SBuf &Security::ErrorNameFromCode(ErrorCode, bool) STUB_RETREF(SBuf)
 std::optional<SBuf> Security::GetErrorDescr(ErrorCode) STUB_RETVAL(std::nullopt)
+void Security::ParseErrorString(const char *, Errors &) STUB
 
 #include "security/NegotiationHistory.h"
 Security::NegotiationHistory::NegotiationHistory() STUB

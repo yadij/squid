@@ -136,6 +136,10 @@ libacls_la_SOURCES = \
 	SquidError.h \
 	SquidErrorData.cc \
 	SquidErrorData.h \
+        SslError.cc \
+        SslError.h \
+        SslErrorData.cc \
+        SslErrorData.h \
 	StringData.cc \
 	StringData.h \
 	Tag.cc \
@@ -170,11 +174,7 @@ SSL_ACLS = \
 	ServerCertificate.cc \
 	ServerCertificate.h \
 	ServerName.cc \
-	ServerName.h \
-        SslError.cc \
-        SslError.h \
-        SslErrorData.cc \
-        SslErrorData.h
+	ServerName.h
 
 if ENABLE_SSL
 libacls_la_SOURCES += $(SSL_ACLS)

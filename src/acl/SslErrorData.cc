@@ -10,7 +10,7 @@
 #include "acl/Checklist.h"
 #include "acl/SslErrorData.h"
 #include "security/CertError.h"
-#include "ssl/ErrorDetail.h"
+#include "security/ErrorDetail.h"
 
 bool
 ACLSslErrorData::match(const Security::CertErrors *toFind)
@@ -36,7 +36,7 @@ void
 ACLSslErrorData::parse()
 {
     while (char *t = ConfigParser::strtokFile()) {
-        Ssl::ParseErrorString(t, values);
+        Security::ParseErrorString(t, values);
     }
 }
 

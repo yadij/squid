@@ -30,7 +30,6 @@
 #include "SquidConfig.h"
 #include "ssl/bio.h"
 #include "ssl/Config.h"
-#include "ssl/ErrorDetail.h"
 #include "ssl/gadgets.h"
 #include "ssl/support.h"
 
