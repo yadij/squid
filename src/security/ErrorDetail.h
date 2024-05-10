@@ -133,6 +133,10 @@ ErrorCode ErrorCodeFromName(const char *name);
 /// \param prefixRawCode whether to prefix raw codes with "SSL_ERR="
 const SBuf &ErrorNameFromCode(ErrorCode err, bool prefixRawCode = false);
 
+/// a short description of the given TLS error known to Squid (or, if the error
+/// is unknown, nothing)
+std::optional<SBuf> GetErrorDescr(ErrorCode);
+
 /// Dump the given Security::ErrorDetail via a possibly nil pointer (for
 /// debugging). Unfortunately, without this, compilers pick generic RefCount<T>
 /// operator "<<" overload (with T=Security::ErrorDetail) instead of the

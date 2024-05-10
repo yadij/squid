@@ -16,6 +16,7 @@
 #include "security/ErrorDetail.h"
 #include "security/forward.h"
 #include "security/Io.h"
+#include "ssl/ErrorDetailManager.h"
 #include "util.h"
 
 #if USE_OPENSSL
@@ -502,7 +503,13 @@ Security::ErrorNameFromCode(const ErrorCode err, const bool prefixRawCode)
     return tmpBuffer;
 }
 
-/* Security::ErrorDetail */
+std::optional<SBuf>
+Security::GetErrorDescr(const Security::ErrorCode value)
+{
+    if (const auto detail = Ssl::ErrorDetailsManager::GetInstance().findDefaultDetail(value))
+        return detail->descr;
+    return std::nullopt;
+}
 
 /// helper constructor implementing the logic shared by the two public ones
 Security::ErrorDetail::ErrorDetail(const ErrorCode err, const int aSysErrorNo):

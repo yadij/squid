@@ -25,10 +25,6 @@ namespace Ssl
  */
 bool ParseErrorString(const char *name, Security::Errors &);
 
-/// a short description of the given TLS error known to Squid (or, if the error
-/// is unknown, nothing)
-std::optional<SBuf> GetErrorDescr(Security::ErrorCode);
-
 }//namespace Ssl
 #endif /* SQUID_SRC_SSL_ERRORDETAIL_H */
 

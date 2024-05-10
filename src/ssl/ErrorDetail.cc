@@ -98,12 +98,3 @@ Ssl::ParseErrorString(const char *name, Security::Errors &errors)
     fatalf("Unknown TLS error name '%s'", name);
     return false; // not reached
 }
-
-std::optional<SBuf>
-Ssl::GetErrorDescr(Security::ErrorCode value)
-{
-    if (const auto detail = ErrorDetailsManager::GetInstance().findDefaultDetail(value))
-        return detail->descr;
-    return std::nullopt;
-}
-
