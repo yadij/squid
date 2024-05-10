@@ -205,7 +205,7 @@ Ssl::ErrorDetailFile::parse()
                 return false;
             }
 
-            Security::ErrorCode ssl_error = Ssl::GetErrorCode(errorName.termedBuf());
+            const auto ssl_error = Security::ErrorCodeFromName(errorName.termedBuf());
             if (ssl_error != SSL_ERROR_NONE) {
 
                 if (theDetails->findRecord(ssl_error)) {

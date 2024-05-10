@@ -25,13 +25,6 @@ namespace Ssl
  */
 bool ParseErrorString(const char *name, Security::Errors &);
 
-/// The Security::ErrorCode code of the error described by  "name".
-inline Security::ErrorCode
-GetErrorCode(const char *name)
-{
-    return Security::ErrorCodeFromName(name);
-}
-
 /// \return string representation of a known TLS error (or a raw error code)
 /// \param prefixRawCode whether to prefix raw codes with "SSL_ERR="
 inline const char *

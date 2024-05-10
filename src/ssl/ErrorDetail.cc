@@ -66,7 +66,7 @@ Ssl::ParseErrorString(const char *name, Security::Errors &errors)
 {
     assert(name);
 
-    const Security::ErrorCode ssl_error = GetErrorCode(name);
+    const auto ssl_error = Security::ErrorCodeFromName(name);
     if (ssl_error != SSL_ERROR_NONE) {
         errors.emplace(ssl_error);
         return true;

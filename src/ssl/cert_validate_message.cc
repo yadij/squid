@@ -152,7 +152,7 @@ Ssl::CertValidationMsg::tryParsingResponse(CertValidationResponse &resp)
 
         if (param_len > param_error_name.length() &&
                 strncmp(param, param_error_name.c_str(), param_error_name.length()) == 0) {
-            currentItem.error_no = Ssl::GetErrorCode(v.c_str());
+            currentItem.error_no = Security::ErrorCodeFromName(v.c_str());
             if (currentItem.error_no == SSL_ERROR_NONE) {
                 throw TextException(ToSBuf("Unknown TLS error name: ", v), Here());
             }
