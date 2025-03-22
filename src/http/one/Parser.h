@@ -108,12 +108,16 @@ public:
     Http::StatusCode parseStatusCode = Http::scNone;
 
     /// Whitespace between regular protocol elements.
-    /// Seen in RFCs as OWS, RWS, BWS, SP/HTAB but may be "relaxed" by us.
-    /// See also: DelimiterCharacters().
+    /// Seen in RFCs as OWS, RWS, BWS but may be "relaxed" by us.
+    /// See also: FirstLineWhitespaceCharacters().
     static const CharacterSet &WhitespaceCharacters();
 
+    /// Whitespace between protocol elements in message first line.
+    /// May extend WSP with tolerance for VTAB, FF, CR.
+    static const CharacterSet &FirstLineWhitespaceCharacters();
+
     /// Whitespace between protocol elements in restricted contexts like
-    /// request line, status line, asctime-date, and credentials
+    /// asctime-date, and credentials
     /// Seen in RFCs as SP but may be "relaxed" by us.
     /// See also: WhitespaceCharacters().
     /// XXX: Misnamed and overused.

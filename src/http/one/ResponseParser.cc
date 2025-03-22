@@ -86,7 +86,7 @@ void
 Http::One::ResponseParser::ParseResponseStatus(Tokenizer &tok, StatusCode &code)
 {
     int64_t statusValue;
-    if (tok.int64(statusValue, 10, false, 3) && tok.skipOne(Parser::DelimiterCharacters())) {
+    if (tok.int64(statusValue, 10, false, 3) && tok.skipOne(FirstLineWhitespaceCharacters())) {
         debugs(74, 6, "raw status-code=" << statusValue);
         code = static_cast<StatusCode>(statusValue); // may be invalid
 
@@ -138,8 +138,7 @@ Http::One::ResponseParser::parseResponseFirstLine()
 
         // magic contains major version, still need to find minor DIGIT
         int64_t verMinor;
-        const auto &WspDelim = DelimiterCharacters();
-        if (tok.int64(verMinor, 10, false, 1) && tok.skipOne(WspDelim)) {
+        if (tok.int64(verMinor, 10, false, 1) && tok.skipOne(FirstLineWhitespaceCharacters())) {
             msgProtocol_.protocol = AnyP::PROTO_HTTP;
             msgProtocol_.major = 1;
             msgProtocol_.minor = static_cast<unsigned int>(verMinor);

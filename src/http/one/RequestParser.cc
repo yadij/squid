@@ -76,7 +76,7 @@ Http::One::RequestParser::parseMethodField(Tokenizer &tok)
     }
     method_ = HttpRequestMethod(methodFound);
 
-    if (!skipDelimiter(tok.skipAll(DelimiterCharacters()), "after method"))
+    if (!skipDelimiter(tok.skipAll(FirstLineWhitespaceCharacters()), "after method"))
         return false;
 
     return true;
@@ -115,7 +115,7 @@ Http::One::RequestParser::RequestTargetCharacters()
         static const CharacterSet RelaxedExtended =
             UriValidCharacters() +
             // accept whitespace (extended), it will be dealt with later
-            DelimiterCharacters() +
+            FirstLineWhitespaceCharacters() +
             // RFC 2396 unwise character set which must never be transmitted
             // in un-escaped form. But many web services do anyway.
             CharacterSet("RFC2396-unwise","\"\\|^<>`{}") +
@@ -127,7 +127,7 @@ Http::One::RequestParser::RequestTargetCharacters()
         static const CharacterSet RelaxedCompliant =
             UriValidCharacters() +
             // accept whitespace (extended), it will be dealt with later.
-            DelimiterCharacters();
+            FirstLineWhitespaceCharacters();
 
         return RelaxedCompliant;
 #endif
@@ -313,7 +313,7 @@ Http::One::RequestParser::parseRequestFirstLine()
     if (!parseHttpVersionField(tok))
         return -1;
 
-    if (!http0() && !skipDelimiter(tok.skipAllTrailing(DelimiterCharacters()), "before protocol version"))
+    if (!http0() && !skipDelimiter(tok.skipAllTrailing(FirstLineWhitespaceCharacters()), "before protocol version"))
         return -1;
 
     /* parsed everything before and after the URI */

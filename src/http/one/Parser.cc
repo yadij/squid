@@ -56,6 +56,26 @@ Http::One::Parser::WhitespaceCharacters()
 }
 
 const CharacterSet &
+Http::One::Parser::FirstLineWhitespaceCharacters()
+{
+    // RFC 9112 section 3 and section 5:
+    //  recipients MAY ... treat any form of whitespace as the SP separator
+    //  while ignoring preceding or trailing whitespace; such whitespace
+    //  includes one or more of the following octets:
+    //     SP, HTAB, VT (%x0B), FF (%x0C), or bare CR.
+    if (Config.onoff.relaxed_header_parser) {
+        static const CharacterSet relaxed =
+            (CharacterSet::SP +
+             CharacterSet::HTAB +
+             CharacterSet("VT,FF","\x0B\x0C") +
+             CharacterSet::CR).rename("first-line-whitespace");
+        return relaxed;
+    }
+
+    return CharacterSet::SP;
+}
+
+const CharacterSet &
 Http::One::Parser::DelimiterCharacters()
 {
     return Config.onoff.relaxed_header_parser ?

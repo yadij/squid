@@ -56,7 +56,7 @@ Http::ContentLengthInterpreter::goodSuffix(const char *suffix, const char * cons
     if (suffix == end)
         return true;
 
-    for (const CharacterSet &delimiters = Http::One::Parser::DelimiterCharacters();
+    for (const CharacterSet &delimiters = Http::One::Parser::WhitespaceCharacters();
             suffix < end; ++suffix) {
         if (!delimiters[*suffix])
             return false;
