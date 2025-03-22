@@ -116,13 +116,6 @@ public:
     /// May extend WSP with tolerance for VTAB, FF, CR.
     static const CharacterSet &FirstLineWhitespaceCharacters();
 
-    /// Whitespace between protocol elements in restricted contexts like
-    /// asctime-date, and credentials
-    /// Seen in RFCs as SP but may be "relaxed" by us.
-    /// See also: WhitespaceCharacters().
-    /// XXX: Misnamed and overused.
-    static const CharacterSet &DelimiterCharacters();
-
 protected:
     /**
      * detect and skip the CRLF or (if tolerant) LF line terminator

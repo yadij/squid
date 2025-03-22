@@ -75,13 +75,6 @@ Http::One::Parser::FirstLineWhitespaceCharacters()
     return CharacterSet::SP;
 }
 
-const CharacterSet &
-Http::One::Parser::DelimiterCharacters()
-{
-    return Config.onoff.relaxed_header_parser ?
-           RelaxedDelimiterCharacters() : CharacterSet::SP;
-}
-
 void
 Http::One::Parser::skipLineTerminator(Tokenizer &tok) const
 {
