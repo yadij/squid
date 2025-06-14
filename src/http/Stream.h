@@ -149,9 +149,8 @@ public: // HTTP/1.x state data
     /// This is a pipelined request waiting for the current object to complete
     class DeferredParams
     {
-
     public:
-        clientStreamNode *node;
+        clientStreamNode *node = nullptr;
         HttpReplyPointer rep;
         StoreIOBuffer queuedBuffer;
     };

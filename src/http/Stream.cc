@@ -32,7 +32,6 @@ Http::Stream::Stream(const Comm::ConnectionPointer &aConn, ClientHttpRequest *aR
     assert(http != nullptr);
     memset(reqbuf, '\0', sizeof (reqbuf));
     flags.parsed_ok = 0;
-    deferredparams.node = nullptr;
 }
 
 Http::Stream::~Stream()

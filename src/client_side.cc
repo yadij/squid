@@ -878,9 +878,11 @@ ClientSocketContextPushDeferredIfNeeded(Http::StreamPointer deferredRequest, Con
         /** NO data is allowed to have been sent. */
         assert(deferredRequest->http->out.size == 0);
         // clientSocketRecipient may re-schedule the defer (or not).
-        // ensure that the pointer reference is not kept
+        // Ensure that the pointers are not kept overly long.
         deferredRequest->deferredparams.rep = nullptr;
-        clientSocketRecipient(deferredRequest->deferredparams.node,
+        const auto clientStreamNode = deferredRequest->deferredparams.node;
+        deferredRequest->deferredparams.node = nullptr;
+        clientSocketRecipient(clientStreamNode,
                               deferredRequest->http,
                               savedReply.getRaw(),
                               deferredRequest->deferredparams.queuedBuffer);
