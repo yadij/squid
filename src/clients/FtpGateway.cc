@@ -1078,19 +1078,21 @@ Ftp::Gateway::checkAuth(const HttpHeader * req_hdr)
 void
 Ftp::Gateway::checkUrlpath()
 {
-    // TODO: parse FTP URL syntax properly in AnyP::Uri::parse()
-
-    // If typecode was specified, extract it and leave just the filename in
-    // url.path. Tolerate trailing garbage or missing typecode value. Roughly:
-    // [filename] ;type=[typecode char] [trailing garbage]
+    // If typecode was specified, extract it.
     static const SBuf middle(";type=");
-    const auto typeSpecStart = request->url.path().find(middle);
-    if (typeSpecStart != SBuf::npos) {
-        const auto fullPath = request->url.path();
-        const auto typecodePos = typeSpecStart + middle.length();
-        typecode = (typecodePos < fullPath.length()) ?
-                   static_cast<char>(xtoupper(fullPath[typecodePos])) : '\0';
-        request->url.path(fullPath.substr(0, typeSpecStart));
+
+    auto params = request->url.legacyParams();
+    params.consume(params.find(middle));
+    if (!params.isEmpty()) {
+        // Tolerate trailing garbage or missing typecode value. Roughly:
+        // [filename] ;type=[typecode char] [trailing garbage]
+        typecode = '\0';
+        params.consume(middle.length());
+        if (!params.isEmpty()) {
+            auto tc = params.substr(0,1);
+            tc.toUpper();
+            typecode = tc[0];
+        }
     }
 
     int l = request->url.path().length();

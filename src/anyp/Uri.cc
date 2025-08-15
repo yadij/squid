@@ -82,6 +82,31 @@ QueryChars()
     return queryValid;
 }
 
+/// Characters which are valid within a URI 'params' section
+static const CharacterSet &
+LegacyParamsChars()
+{
+    /*
+     * RFC 1808 section 2.2
+     *
+     *   params      = param *( ";" param )
+     *   param       = *( pchar | "/" )
+     *
+     *   pchar       = uchar | ":" | "@" | "&" | "="
+     *   uchar       = unreserved | escape
+     *   unreserved  = alpha | digit | safe | extra
+     *
+     *   escape      = "%" hex hex
+     *   safe        = "$" | "-" | "_" | "." | "+"
+     *   extra       = "!" | "*" | "'" | "(" | ")" | ","
+     *
+     * RFC 1808 "pchar" is almost the same set as RFC 3986,
+     * except that "unreserved" did not include '~'.
+     */
+    static const auto legacyParamsValid = (CharacterSet("rfc1808-params", ";/") + PathChars()).remove('~');
+    return legacyParamsValid;
+}
+
 /**
  * Governed by RFC 3986 section 2.1
  */
@@ -343,8 +368,8 @@ StripAnyWsp(char *buf)
         case URI_WHITESPACE_ENCODE: {
             auto *t = rfc1738_escape_unescaped(buf);
             xstrncpy(buf, t, MAX_URL);
-            }
-            break;
+        }
+        break;
 
         case URI_WHITESPACE_CHOP:
             *(buf + strcspn(buf, w_space)) = '\0';
@@ -362,7 +387,7 @@ StripAnyWsp(char *buf)
                 ++t;
             }
             *q = '\0';
-            }
+        }
         }
     }
     return false;
@@ -389,13 +414,14 @@ AnyP::Uri::parse(const HttpRequestMethod& method, const SBuf &rawUrl)
         LOCAL_ARRAY(char, foundHost, MAX_URL);
         LOCAL_ARRAY(char, urlpath, MAX_URL);
         LOCAL_ARRAY(char, foundQuery, MAX_URL);
+        LOCAL_ARRAY(char, foundParams, MAX_URL);
         char *t = nullptr;
         int foundPort;
         int l;
         int i;
         const char *src;
         char *dst;
-        foundHost[0] = urlpath[0] = foundQuery[0] = login[0] = '\0';
+        foundHost[0] = urlpath[0] = foundQuery[0] = foundParams[0] = login[0] = '\0';
 
         if ((l = rawUrl.length()) + Config.appendDomainLen > (MAX_URL - 1)) {
             debugs(23, DBG_IMPORTANT, MYNAME << "URL too large (" << l << " bytes)");
@@ -452,11 +478,14 @@ AnyP::Uri::parse(const HttpRequestMethod& method, const SBuf &rawUrl)
             src = url;
             i = 0;
 
+            static const auto uriDelims = CharacterSet("delims","/?#\r\n").add('\0');
+            auto nextComponent = uriDelims; // modifiable copy to prune as we find the components.
+
             /* Then everything until first /; that's host (and port; which we'll look for here later) */
             // bug 1881: If we don't get a "/" then we imply it was there
             // bug 3074: We could just be given a "?" or "#". These also imply "/"
             // bug 3233: whitespace is also a hostname delimiter.
-            for (dst = foundHost; i < l && *src != '/' && *src != '?' && *src != '#' && *src != '\0' && !xisspace(*src); ++i, ++src, ++dst) {
+            for (dst = foundHost; i < l && !nextComponent[*src] && !xisspace(*src); ++i, ++src, ++dst) {
                 *dst = *src;
             }
 
@@ -469,11 +498,16 @@ AnyP::Uri::parse(const HttpRequestMethod& method, const SBuf &rawUrl)
                 return false;
             *dst = '\0';
 
+            // FTP scheme uses legacy RFC 1808 'params' component
+            if (scheme == AnyP::PROTO_FTP)
+                nextComponent.add(';');
+
             bool chopped = false;
+            nextComponent.remove('/');
             if (*src == '/') {
                 dst = urlpath;
-                /* Then everything from / (inclusive) until '?', '#', '\r\n' or '\0' - that's urlpath */
-                for (; i < l && *src != '?' && *src != '#' && *src != '\r' && *src != '\n' && *src != '\0'; ++i, ++src, ++dst) {
+                /* Then everything from / (inclusive) until '?', '#', '\r\n' or '\0'; and maybe ';' - that's urlpath */
+                for (; i < l && !nextComponent[*src]; ++i, ++src, ++dst) {
                     *dst = *src;
                 }
                 *dst = '\0';
@@ -488,12 +522,31 @@ AnyP::Uri::parse(const HttpRequestMethod& method, const SBuf &rawUrl)
             if (i > l)
                 return false;
 
+            nextComponent.remove(';');
+            if (scheme == AnyP::PROTO_FTP && *src == ';') {
+                dst = foundParams;
+                /* Then everything from ';' (inclusive) until '?', '#', '\r\n' or '\0' - that's 'params' */
+                for (; i < l && !nextComponent[*src]; ++i, ++src, ++dst) {
+                    *dst = *src;
+                }
+                *dst = '\0';
+                if (chopped)
+                    *foundParams = '\0';
+                else
+                    chopped = StripAnyWsp(foundParams);
+            }
+
+            /* We -could- be at the end of the buffer here */
+            if (i > l)
+                return false;
+
+            nextComponent.remove('?');
             if (*src == '?') {
                 dst = foundQuery;
                 ++src; // skip '?' delimiter
                 ++i; // keep track of bytes 'consumed' from src
                 /* Then everything from '?' (exclusive) until '#', '\r\n' or '\0' - that's query */
-                for (; i < l && *src != '#' && *src != '\r' && *src != '\n' && *src != '\0'; ++i, ++src, ++dst) {
+                for (; i < l && !nextComponent[*src]; ++i, ++src, ++dst) {
                     *dst = *src;
                 }
                 *dst = '\0';
@@ -505,6 +558,7 @@ AnyP::Uri::parse(const HttpRequestMethod& method, const SBuf &rawUrl)
             if (i > l)
                 return false;
 
+            nextComponent.remove('#');
             if (*src == '#') {
                 ++src; // skip '#' delimiter
                 ++i; // keep track of bytes 'consumed' from src
@@ -517,7 +571,7 @@ AnyP::Uri::parse(const HttpRequestMethod& method, const SBuf &rawUrl)
             if (i > l)
                 return false;
 
-            if (*src != '\r' && *src != '\n' && *src != '\0')
+            if (!nextComponent[*src]) // anything other than the CRLF or NIL terminators
                 throw TextException("invalid URL", Here());
 
             // If the parsed scheme has no (known) default port, and there is no
@@ -591,10 +645,11 @@ AnyP::Uri::parse(const HttpRequestMethod& method, const SBuf &rawUrl)
         if (StripAnyWsp(foundHost)) {
             urlpath[0] = '/';
             urlpath[1] = '\0';
+            *foundParams = '\0';
             *foundQuery = '\0';
         }
 
-        debugs(23, 3, "Split URL '" << rawUrl << "' into proto='" << scheme.image() << "', host='" << foundHost << "', port='" << foundPort << "', path='" << urlpath << "', query='" << foundQuery << "'");
+        debugs(23, 3, "Split URL '" << rawUrl << "' into proto='" << scheme.image() << "', host='" << foundHost << "', port='" << foundPort << "', path='" << urlpath << "', params='" << foundParams << "', query='" << foundQuery << "'");
 
         if (Config.onoff.check_hostnames &&
                 strspn(foundHost, Config.onoff.allow_underscore ? valid_hostname_chars_u : valid_hostname_chars) != strlen(foundHost)) {
@@ -622,6 +677,7 @@ AnyP::Uri::parse(const HttpRequestMethod& method, const SBuf &rawUrl)
 
         setScheme(scheme);
         query(SBuf(foundQuery));
+        legacyParams(SBuf(foundParams));
         path(urlpath);
         host(foundHost);
         userInfo(SBuf(login));
@@ -828,6 +884,10 @@ AnyP::Uri::absolutePath() const
     if (absolutePath_.isEmpty()) {
         if (!path().isEmpty())
             absolutePath_ = Encode(path(), PathChars());
+
+        if (!legacyParams().isEmpty())
+            absolutePath_.append(Encode(legacyParams(), LegacyParamsChars()));
+
         if (!query().isEmpty()) {
             absolutePath_.append("?");
             absolutePath_.append(Encode(query(), QueryChars()));

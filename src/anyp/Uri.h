@@ -100,6 +100,11 @@ public:
     void query(const SBuf &p) { query_=p; touch(); }
     const SBuf &query() const;
 
+    /// \copydoc legacyParams_
+    void legacyParams(const SBuf &p) { legacyParams_=p; touch(); }
+    /// \copydoc legacyParams_
+    const SBuf &legacyParams() const { return legacyParams_; }
+
     /**
      * Merge a relative-path URL into the existing URI details.
      * Implements RFC 3986 section 5.2.3
@@ -188,6 +193,10 @@ private:
 
     SBuf path_; ///< URI path component
     SBuf query_; ///< URI query component
+
+    /// RFC 1808 section 2.1 'params' component
+    /// used by FTP protocol URLs.
+    SBuf legacyParams_;
 
     // pre-assembled URI forms
     mutable SBuf authorityHttp_;     ///< RFC 7230 section 5.3.3 authority, maybe without default-port
