@@ -7,13 +7,22 @@
  */
 
 #include "squid.h"
+#include "compat/cppunit.h"
 #include "Store.h"
 #include "store/SwapMeta.h"
-#include "testStore.h"
 #include "unitTestMain.h"
 
 #include <limits>
 
+class TestStore: public CPPUNIT_NS::TestFixture
+{
+    CPPUNIT_TEST_SUITE( TestStore );
+    CPPUNIT_TEST( testSwapMetaTypeClassification );
+    CPPUNIT_TEST_SUITE_END();
+
+protected:
+    void testSwapMetaTypeClassification();
+};
 CPPUNIT_TEST_SUITE_REGISTRATION( TestStore );
 
 namespace Store {

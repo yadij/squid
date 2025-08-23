@@ -34,7 +34,7 @@ class RequestFlags;
 
 extern StoreIoStats store_io_stats;
 
-class StoreEntry : public hash_link, public Packable, public Lock
+class StoreEntry : public hash_link, public Packable, public RefCountable
 {
 
 public:

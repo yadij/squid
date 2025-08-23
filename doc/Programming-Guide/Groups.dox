@@ -48,14 +48,12 @@
  *      in a good condition. Squid tends to use cppunit tests.
  \par
  *      It is preferable to automated tests for units of functionality. There
- *      is a boilerplate for tests in "src/tests/testBoilerplate.[cc|h]". New
+ *      is a boilerplate for tests in "src/tests/testBoilerplate.cc". New
  *      tests need to be added to src/Makefile.am to build and run them during
  *      "make check". To add a new test script, just copy the references to
  *      testBoilerplate in Makefile.am adjusting the name, and likewise copy the
  *      source files. If you are testing an already tested area you may be able
- *      to just add new test cases to an existing script. I.e. to test the store
- *      some more just edit tests/testStore.h and add a new unit test method
- *      name.
+ *      to just add new test cases to an existing script.
  */
 
 /**

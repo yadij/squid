@@ -1395,7 +1395,6 @@ tests_testStore_SOURCES = \
 	StatHist.cc \
 	StatHist.h \
 	tests/testStore.cc \
-	tests/testStore.h \
 	tests/testStoreController.cc \
 	StoreFileSystem.cc \
 	tests/testStoreHashIndex.cc \

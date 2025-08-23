@@ -8,10 +8,9 @@
 
 #include "squid.h"
 #include "base/PackableStream.h"
-#include "CapturingStoreEntry.h"
 #include "compat/cppunit.h"
 #include "Store.h"
-#include "testStore.h"
+#include "tests/CapturingStoreEntry.h"
 
 #include <iomanip>
 #include <cppunit/TestAssert.h>
