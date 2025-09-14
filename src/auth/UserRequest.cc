@@ -146,43 +146,6 @@ Auth::UserRequest::authenticated() const
     return false;
 }
 
-static void
-authenticateAuthUserRequestSetIp(Auth::UserRequest::Pointer auth_user_request, Ip::Address &ipaddr)
-{
-    Auth::User::Pointer auth_user = auth_user_request->user();
-
-    if (!auth_user)
-        return;
-
-    auth_user->addIp(ipaddr);
-}
-
-void
-authenticateAuthUserRequestRemoveIp(Auth::UserRequest::Pointer auth_user_request, Ip::Address const &ipaddr)
-{
-    Auth::User::Pointer auth_user = auth_user_request->user();
-
-    if (!auth_user)
-        return;
-
-    auth_user->removeIp(ipaddr);
-}
-
-void
-authenticateAuthUserRequestClearIp(Auth::UserRequest::Pointer auth_user_request)
-{
-    if (auth_user_request != nullptr)
-        auth_user_request->user()->clearIp();
-}
-
-int
-authenticateAuthUserRequestIPCount(Auth::UserRequest::Pointer auth_user_request)
-{
-    assert(auth_user_request != nullptr);
-    assert(auth_user_request->user() != nullptr);
-    return auth_user_request->user()->ipcount;
-}
-
 /*
  * authenticateUserAuthenticated: is this auth_user structure logged in ?
  */
@@ -439,9 +402,10 @@ Auth::UserRequest::authenticate(Auth::UserRequest::Pointer * auth_user_request, 
 
     /* copy username to request for logging on client-side */
     /* the credentials are correct at this point */
-    if (request->auth_user_request == nullptr) {
+    if (!request->auth_user_request) {
         request->auth_user_request = *auth_user_request;
-        authenticateAuthUserRequestSetIp(*auth_user_request, src_addr);
+        if (auto auth_user = (*auth_user_request)->user())
+            auth_user->addIp(src_addr);
     }
 
     return AUTH_AUTHENTICATED;

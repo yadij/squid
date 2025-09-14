@@ -239,13 +239,6 @@ private:
 /* AuthUserRequest */
 
 /// \ingroup AuthAPI
-void authenticateAuthUserRequestRemoveIp(Auth::UserRequest::Pointer, Ip::Address const &);
-/// \ingroup AuthAPI
-void authenticateAuthUserRequestClearIp(Auth::UserRequest::Pointer);
-/// \ingroup AuthAPI
-int authenticateAuthUserRequestIPCount(Auth::UserRequest::Pointer);
-
-/// \ingroup AuthAPI
 /// See Auth::UserRequest::authenticated()
 bool authenticateUserAuthenticated(const Auth::UserRequest::Pointer &);
 
