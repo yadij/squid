@@ -64,7 +64,15 @@ Security::PeerOptions::parse(const char *token)
         sslVersion = xatoi(token + 8);
     } else if (strncmp(token, "min-version=", 12) == 0) {
         tlsMinVersion = SBuf(token + 12);
-        optsReparse = true;
+        if (tlsMinVersion.cmp("1.0") == 0 || tlsMinVersion.cmp("1.1") == 0) {
+            // RFC 8996 compliance:
+            // TLS 1.0 MUST NOT be used. Negotiation of TLS 1.0 from any version of TLS MUST NOT be permitted.
+            // TLS 1.1 MUST NOT be used. Negotiation of TLS 1.1 from any version of TLS MUST NOT be permitted.
+            debugs(DBG_CRITICAL, "SECURITY ERROR: TLS/" << tlsMinVersion << " is prohibited. Use TLS/1.2 or later.");
+            tlsMinVersion.clear();
+        } else {
+            optsReparse = true; // only needed if value acceptible.
+        }
     } else if (strncmp(token, "options=", 8) == 0) {
         sslOptions = SBuf(token + 8);
         optsReparse = true;
@@ -525,6 +533,18 @@ Security::PeerOptions::parseOptions()
     if (SSL_OP_NO_SSLv2)
         op |= SSL_OP_NO_SSLv2;
 #endif
+    // RFC 8996 compliance:
+#if defined(SSL_OP_NO_TLSv1)
+    // TLS 1.0 MUST NOT be used. Negotiation of TLS 1.0 from any version of TLS MUST NOT be permitted.
+    if (SSL_OP_NO_TLSv1)
+        op |= SSL_OP_NO_TLSv1;
+#endif
+#if defined(SSL_OP_NO_TLSv1_1)
+    // TLS 1.1 MUST NOT be used. Negotiation of TLS 1.1 from any version of TLS MUST NOT be permitted.
+    if (SSL_OP_NO_TLSv1_1)
+        op |= SSL_OP_NO_TLSv1_1;
+#endif
+
     parsedOptions = op;
 
 #elif HAVE_LIBGNUTLS
