@@ -685,8 +685,23 @@ HttpHeader::packInto(Packable * p, bool mask_sensitive_info) const
 
         bool maskThisEntry = false;
         switch (e->id) {
+        // RFC 9110 headers that contain credentials or sensitive key details
         case Http::HdrType::AUTHORIZATION:
+        case Http::HdrType::AUTHENTICATION_INFO:
         case Http::HdrType::PROXY_AUTHORIZATION:
+        case Http::HdrType::PROXY_AUTHENTICATION_INFO:
+            maskThisEntry = true;
+            break;
+
+        // RFC 6265 headers that may contain credentials
+        case Http::HdrType::COOKIE:
+        case Http::HdrType::SET_COOKIE:
+            maskThisEntry = true;
+            break;
+
+        // RFC 2965 headers that may contain credentials
+        case Http::HdrType::COOKIE2:
+        case Http::HdrType::SET_COOKIE2:
             maskThisEntry = true;
             break;
 
