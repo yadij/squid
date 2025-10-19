@@ -28,7 +28,9 @@ class mib_tree_entry;
 typedef oid *(instance_Fn) (oid * name, snint * len, mib_tree_entry * current, oid_ParseFn ** Fn);
 typedef enum {atNone = 0, atSum, atAverage, atMax, atMin} AggrType;
 
-class mib_tree_entry
+using MibTreePointer = RefCount<mib_tree_entry>;
+
+class mib_tree_entry : public RefCountable
 {
     MEMPROXY_CLASS(mib_tree_entry);
 public:
