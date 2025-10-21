@@ -37,9 +37,8 @@ Comm::ConnectionPointer snmpIncomingConn;
 Comm::ConnectionPointer snmpOutgoingConn;
 
 static MibTreePointer snmpAddNodeStr(const char *base_str, int o, oid_ParseFn * parsefunction, instance_Fn * instancefunction, AggrType aggrType = atNone);
-static MibTreePointer snmpAddNode(oid * name, int len, oid_ParseFn * parsefunction, instance_Fn * instancefunction, AggrType aggrType, int children,...);
-MibTreePointer snmpLookupNodeStr(const MibTreePointer &entry, const char *str);
-bool snmpCreateOidFromStr(const char *str, oid **name, int *nl);
+static MibTreePointer snmpAddNode(oid * name, size_t len, oid_ParseFn * parsefunction, instance_Fn * instancefunction, AggrType aggrType, int children,...);
+bool snmpCreateOidFromStr(const char *str, oid **name, size_t *nl);
 SQUIDCEXTERN void (*snmplib_debug_hook) (int, char *);
 static oid *static_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn);
 static oid *time_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn);
@@ -116,9 +115,9 @@ snmpInit()
     snmpAddNodeStr("1.3.6.1", 4, nullptr, nullptr);
     snmpAddNodeStr("1.3.6.1.4", 1, nullptr, nullptr);
     snmpAddNodeStr("1.3.6.1.4.1", 3495, nullptr, nullptr);
-    auto m2 = snmpAddNodeStr("1.3.6.1.4.1.3495", 1, nullptr, nullptr);
+    const auto m2 = snmpAddNodeStr("1.3.6.1.4.1.3495", 1, nullptr, nullptr);
 
-    auto n = snmpLookupNodeStr(nullptr, "1.3.6.1.4.1.3495.1");
+    const auto n = MibTree()->findByName("1.3.6.1.4.1.3495.1");
     assert(m2 == n);
 
     /* SQ_SYS - 1.3.6.1.4.1.3495.1.1 */
@@ -720,7 +719,7 @@ static oid *
 static_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn)
 {
     oid *instance = nullptr;
-    if (*len <= current->len) {
+    if (*len <= snint(current->len)) {
         instance = (oid *)xmalloc(sizeof(*name) * (*len + 1));
         memcpy(instance, name, sizeof(*name) * (*len));
         instance[*len] = 0;
@@ -737,7 +736,7 @@ time_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn)
     int identifier = 0, loop = 0;
     int index[TIME_INDEX_LEN] = {TIME_INDEX};
 
-    if (*len <= current->len) {
+    if (*len <= snint(current->len)) {
         instance = (oid *)xmalloc(sizeof(*name) * (*len + 1));
         memcpy(instance, name, sizeof(*name) * (*len));
         instance[*len] = *index;
@@ -775,7 +774,7 @@ peer_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn)
             return (instance);
 
         instance = client_Inst(current->name, len, current, Fn);
-    } else if (*len <= current->len) {
+    } else if (*len <= snint(current->len)) {
         debugs(49, 6, "snmp peer_Inst: *len <= current->len ???");
         instance = (oid *)xmalloc(sizeof(*name) * ( *len + 1));
         memcpy(instance, name, sizeof(*name) * (*len));
@@ -810,7 +809,7 @@ client_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn)
     int size = 0;
     int newshift = 0;
 
-    if (*len <= current->len) {
+    if (*len <= snint(current->len)) {
         aux  = client_entry(nullptr);
         if (aux)
             laddr = *aux;
@@ -875,9 +874,9 @@ static MibTreePointer
 snmpTreeSiblingEntry(oid entry, snint len, MibTreePointer &current)
 {
     MibTreePointer next;
-    int count = 0;
+    size_t count = 0;
 
-    while ((!next) && (count < current->children)) {
+    while (!next && count < current->leaves.size()) {
         if (current->leaves[count]->name[len] == entry) {
             next = current->leaves[count];
         }
@@ -886,7 +885,7 @@ snmpTreeSiblingEntry(oid entry, snint len, MibTreePointer &current)
     }
 
     /* Exactly the sibling on right */
-    if (count < current->children) {
+    if (count < current->leaves.size()) {
         next = current->leaves[count];
     } else {
         next = nullptr;
@@ -902,9 +901,9 @@ static MibTreePointer
 snmpTreeEntry(oid entry, snint len, MibTreePointer &current)
 {
     MibTreePointer next;
-    int count = 0;
+    size_t count = 0;
 
-    while ((!next) && current && (count < current->children)) {
+    while (!next && current && count < current->leaves.size()) {
         if (current->leaves[count]->name[len] == entry) {
             next = current->leaves[count];
         }
@@ -915,55 +914,71 @@ snmpTreeEntry(oid entry, snint len, MibTreePointer &current)
     return (next);
 }
 
-static void
-snmpAddNodeChild(const MibTreePointer &entry, const MibTreePointer &child)
+void
+mib_tree_entry::addChild(const MibTreePointer &child)
 {
-    debugs(49, 5, "snmpAddNodeChild: assigning " << child << " to parent " << entry);
-    entry->leaves = (MibTreePointer *)xrealloc(entry->leaves, sizeof(MibTreePointer) * (entry->children + 1));
-    entry->leaves[entry->children] = child;
-    entry->leaves[entry->children]->parent = entry;
-    ++ entry->children;
+    debugs(49, 5, "assigning " << child << " to parent " << this);
+    leaves.emplace_back(child);
+    leaves.back()->parent = this;
 }
 
 MibTreePointer
-snmpLookupNodeStr(const MibTreePointer &root, const char *str)
+mib_tree_entry::findByName(const char *str) const
 {
-    oid *name;
-    int namelen;
-    MibTreePointer e = (root ? root : MibTree());
+    oid *wanted;
+    size_t wantedLen;
 
-    if (! snmpCreateOidFromStr(str, &name, &namelen))
+    if (!snmpCreateOidFromStr(str, &wanted, &wantedLen))
         return nullptr;
 
+    auto result = findByOid(wanted, wantedLen);
+    xfree(wanted);
+    return result;
+}
+
+MibTreePointer
+mib_tree_entry::findByOid(const oid *wanted, const size_t wantedLen) const
+{
     /* I wish there were some kind of sensible existing tree traversal
      * routine to use. I'll worry about that later */
-    if (namelen <= 1) {
-        xfree(name);
-        return e;       /* XXX it should only be this? */
-    }
+    if (wantedLen <= 1)
+        return this;       /* XXX it should only be this? */
 
-    int i, r = 1;
-    while (r < namelen) {
+    // TODO: walking 'up' the tree is not needed yet.
+    assert(wantedLen >= len);
 
-        /* Find the child node which matches this */
-        for (i = 0; i < e->children && e->leaves[i]->name[r] != name[r]; ++i) ; // seek-loop
+    // check that we are a sub-tree of this OID
+    if (memcmp(wanted, name, len) != 0)
+        return nullptr;
 
-        /* Are we pointing to that node? */
-        if (i >= e->children)
+    MibTreePointer e = this;
+    size_t depth = len; // how deep into the OID we have matched so far
+
+    while (depth < wantedLen) {
+
+        /* Find the child node which matches this OID */
+        MibTreePointer foundChild;
+        for (const auto &i : e->leaves) {
+            if (i->name[depth] != wanted[depth]) {
+                foundChild = i;
+                break;
+            }
+        }
+
+        /* halt if/when none of the children match */
+        if (!foundChild)
             break;
-        assert(e->leaves[i]->name[r] == name[r]);
 
-        /* Skip to that node! */
-        e = e->leaves[i];
-        ++r;
+        /* walk down the found child's branch */
+        e = foundChild;
+        ++depth;
     }
 
-    xfree(name);
     return e;
 }
 
 bool
-snmpCreateOidFromStr(const char *str, oid **name, int *nl)
+snmpCreateOidFromStr(const char *str, oid **name, size_t *nl)
 {
     char const *delim = ".";
 
@@ -984,6 +999,7 @@ snmpCreateOidFromStr(const char *str, oid **name, int *nl)
 
     // if we aborted before the lst octet was found, return false.
     safe_free(*name);
+    *nl = 0;
     return false;
 }
 
@@ -995,11 +1011,11 @@ static MibTreePointer
 snmpAddNodeStr(const char *base_str, int o, oid_ParseFn * parsefunction, instance_Fn * instancefunction, AggrType aggrType)
 {
     oid *n;
-    int nl;
+    size_t nl;
     char s[1024];
 
     /* Find base node */
-    auto b = snmpLookupNodeStr(MibTree().getRaw(), base_str);
+    auto b = MibTree()->findByName(base_str);
     if (! b)
         return nullptr;
     debugs(49, 5, "snmpAddNodeStr: " << base_str << ": -> " << b);
@@ -1013,7 +1029,7 @@ snmpAddNodeStr(const char *base_str, int o, oid_ParseFn * parsefunction, instanc
     auto m = snmpAddNode(n, nl, parsefunction, instancefunction, aggrType, 0);
 
     /* Link it into the existing tree */
-    snmpAddNodeChild(b, m);
+    b->addChild(m);
 
     /* Return the node */
     return m;
@@ -1023,7 +1039,7 @@ snmpAddNodeStr(const char *base_str, int o, oid_ParseFn * parsefunction, instanc
  * Adds a node to the MIB tree structure and adds the appropriate children
  */
 static MibTreePointer
-snmpAddNode(oid * name, int len, oid_ParseFn * parsefunction, instance_Fn * instancefunction, AggrType aggrType, int children,...)
+snmpAddNode(oid * name, size_t len, oid_ParseFn * parsefunction, instance_Fn * instancefunction, AggrType aggrType, int children,...)
 {
     va_list args;
     int loop;
@@ -1038,9 +1054,7 @@ snmpAddNode(oid * name, int len, oid_ParseFn * parsefunction, instance_Fn * inst
     entry->instancefunction = instancefunction;
 
     if (children > 0) {
-        entry->children = children;
-        entry->leaves = (MibTreePointer *)xmalloc(sizeof(MibTreePointer) * children);
-
+        entry->leaves.reserve(children);
         for (loop = 0; loop < children; ++loop) {
             entry->leaves[loop] = va_arg(args, mib_tree_entry *);
             entry->leaves[loop]->parent = entry;

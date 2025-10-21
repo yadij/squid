@@ -18,6 +18,8 @@
 #include "ip/forward.h"
 #include "snmp_vars.h"
 
+#include <vector>
+
 class MemBuf;
 
 #define SNMP_REQUEST_SIZE 4096
@@ -35,16 +37,24 @@ class mib_tree_entry : public RefCountable
 {
     MEMPROXY_CLASS(mib_tree_entry);
 public:
-    mib_tree_entry(oid *aName, int aLen, AggrType type) : name(aName), len(aLen), aggrType(type) {}
+    mib_tree_entry(oid *aName, size_t aLen, AggrType type) : name(aName), len(aLen), aggrType(type) {}
+
+    /// become the parent node for the given sub-tree
+    void addChild(const MibTreePointer &);
+
+    /// search this sub-tree for the given OID string representation
+    MibTreePointer findByName(const char *) const;
+
+private:
+    MibTreePointer findByOid(const oid *, const size_t) const;
 
 public:
     oid *name = nullptr;
-    const int len = 0;
+    const size_t len = 0;
     oid_ParseFn *parsefunction = {};
     instance_Fn *instancefunction = {};
-    int children = 0;
 
-    MibTreePointer *leaves = nullptr;
+    std::vector<MibTreePointer> leaves;
     MibTreePointer parent;
     AggrType aggrType = atNone;
 };
