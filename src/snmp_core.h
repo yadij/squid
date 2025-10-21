@@ -24,11 +24,12 @@ class MemBuf;
 #define MAX_PROTOSTAT 5
 
 typedef variable_list *(oid_ParseFn) (variable_list *, snint *);
-class mib_tree_entry;
-typedef oid *(instance_Fn) (oid * name, snint * len, mib_tree_entry * current, oid_ParseFn ** Fn);
-typedef enum {atNone = 0, atSum, atAverage, atMax, atMin} AggrType;
 
+class mib_tree_entry;
 using MibTreePointer = RefCount<mib_tree_entry>;
+typedef oid *(instance_Fn) (oid *, snint *, MibTreePointer &, oid_ParseFn **);
+
+typedef enum {atNone = 0, atSum, atAverage, atMax, atMin} AggrType;
 
 class mib_tree_entry : public RefCountable
 {
@@ -43,8 +44,8 @@ public:
     instance_Fn *instancefunction = {};
     int children = 0;
 
-    mib_tree_entry **leaves = nullptr;
-    mib_tree_entry *parent = nullptr;
+    MibTreePointer *leaves = nullptr;
+    MibTreePointer parent;
     AggrType aggrType = atNone;
 };
 
