@@ -11,8 +11,13 @@
 #ifndef SQUID_SRC_SNMP_FORWARD_H
 #define SQUID_SRC_SNMP_FORWARD_H
 
+#include "base/RefCount.h"
+
 namespace Snmp
 {
+
+class MibTreeNode;
+using MibTreePointer = RefCount<MibTreeNode>;
 
 class Pdu;
 class Request;

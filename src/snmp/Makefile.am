@@ -14,6 +14,8 @@ libsnmp_la_SOURCES = \
 	Forwarder.h \
 	Inquirer.cc \
 	Inquirer.h \
+	MibTreeNode.cc \
+	MibTreeNode.h \
 	Pdu.cc \
 	Pdu.h \
 	Request.cc \

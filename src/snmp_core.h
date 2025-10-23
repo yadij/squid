@@ -16,9 +16,8 @@
 #include "cache_snmp.h"
 #include "comm/forward.h"
 #include "ip/forward.h"
+#include "snmp/forward.h"
 #include "snmp_vars.h"
-
-#include <vector>
 
 class MemBuf;
 
@@ -26,44 +25,16 @@ class MemBuf;
 #define MAX_PROTOSTAT 5
 
 typedef variable_list *(oid_ParseFn) (variable_list *, snint *);
-
-class mib_tree_entry;
-using MibTreePointer = RefCount<mib_tree_entry>;
-typedef oid *(instance_Fn) (oid *, snint *, MibTreePointer &, oid_ParseFn **);
+typedef oid *(instance_Fn) (oid *, snint *, Snmp::MibTreePointer &, oid_ParseFn **);
 
 typedef enum {atNone = 0, atSum, atAverage, atMax, atMin} AggrType;
-
-class mib_tree_entry : public RefCountable
-{
-    MEMPROXY_CLASS(mib_tree_entry);
-public:
-    mib_tree_entry(oid *aName, size_t aLen, AggrType type) : name(aName), len(aLen), aggrType(type) {}
-
-    /// become the parent node for the given sub-tree
-    void addChild(const MibTreePointer &);
-
-    /// search this sub-tree for the given OID string representation
-    MibTreePointer findByName(const char *) const;
-
-private:
-    MibTreePointer findByOid(const oid *, const size_t) const;
-
-public:
-    oid *name = nullptr;
-    const size_t len = 0;
-    oid_ParseFn *parsefunction = {};
-    instance_Fn *instancefunction = {};
-
-    std::vector<MibTreePointer> leaves;
-    MibTreePointer parent;
-    AggrType aggrType = atNone;
-};
 
 struct snmp_pdu* snmpAgentResponse(struct snmp_pdu* PDU);
 AggrType snmpAggrType(oid* Current, snint CurrentLen);
 
 extern Comm::ConnectionPointer snmpOutgoingConn;
 
+bool snmpCreateOidFromStr(const char *, oid **, size_t *);
 extern PF snmpHandleUdp;
 const char * snmpDebugOid(oid * Name, snint Len, MemBuf &outbuf);
 void addr2oid(Ip::Address &addr, oid *Dest);

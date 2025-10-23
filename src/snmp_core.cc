@@ -24,6 +24,7 @@
 #include "ip/tools.h"
 #include "ipc/StartListening.h"
 #include "snmp/Forwarder.h"
+#include "snmp/MibTreeNode.h"
 #include "snmp_agent.h"
 #include "snmp_core.h"
 #include "SnmpRequest.h"
@@ -36,21 +37,20 @@ static void snmpPortOpened(Ipc::StartListeningAnswer&);
 Comm::ConnectionPointer snmpIncomingConn;
 Comm::ConnectionPointer snmpOutgoingConn;
 
-static MibTreePointer snmpAddNodeStr(const char *base_str, int o, oid_ParseFn * parsefunction, instance_Fn * instancefunction, AggrType aggrType = atNone);
-static MibTreePointer snmpAddNode(oid * name, size_t len, oid_ParseFn * parsefunction, instance_Fn * instancefunction, AggrType aggrType, int children,...);
-bool snmpCreateOidFromStr(const char *str, oid **name, size_t *nl);
+static Snmp::MibTreePointer snmpAddNodeStr(const char *base_str, int o, oid_ParseFn * parsefunction, instance_Fn * instancefunction, AggrType aggrType = atNone);
+static Snmp::MibTreePointer snmpAddNode(oid * name, size_t len, oid_ParseFn * parsefunction, instance_Fn * instancefunction, AggrType aggrType, int children,...);
 SQUIDCEXTERN void (*snmplib_debug_hook) (int, char *);
-static oid *static_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn);
-static oid *time_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn);
-static oid *peer_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn);
-static oid *client_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn);
+static oid *static_Inst(oid *name, snint *len, Snmp::MibTreePointer &current, oid_ParseFn **Fn);
+static oid *time_Inst(oid *name, snint *len, Snmp::MibTreePointer &current, oid_ParseFn **Fn);
+static oid *peer_Inst(oid *name, snint *len, Snmp::MibTreePointer &current, oid_ParseFn **Fn);
+static oid *client_Inst(oid *name, snint *len, Snmp::MibTreePointer &current, oid_ParseFn **Fn);
 static void snmpDecodePacket(SnmpRequest * rq);
 static void snmpConstructReponse(SnmpRequest * rq);
 
 static oid_ParseFn *snmpTreeNext(oid * Current, snint CurrentLen, oid ** Next, snint * NextLen);
 static oid_ParseFn *snmpTreeGet(oid * Current, snint CurrentLen);
-static MibTreePointer snmpTreeEntry(oid entry, snint len, MibTreePointer &current);
-static MibTreePointer snmpTreeSiblingEntry(oid entry, snint len, MibTreePointer &current);
+static Snmp::MibTreePointer snmpTreeEntry(oid entry, snint len, Snmp::MibTreePointer &current);
+static Snmp::MibTreePointer snmpTreeSiblingEntry(oid entry, snint len, Snmp::MibTreePointer &current);
 extern "C" void snmpSnmplibDebug(int lvl, char *buf);
 
 /**
@@ -76,10 +76,10 @@ snmpCreateOid(int length, ...)
     return (new_oid);
 }
 
-static const MibTreePointer &
+static const Snmp::MibTreePointer &
 MibTree()
 {
-    static MibTreePointer theTree = new mib_tree_entry(snmpCreateOid(1, 1), 1, atNone);
+    static Snmp::MibTreePointer theTree = new Snmp::MibTreeNode(snmpCreateOid(1, 1), 1, atNone);
     return theTree;
 }
 
@@ -88,10 +88,10 @@ MibTree()
  * without having a "search" function. A search function should be written
  * to make this and the other code much less evil.
  */
-static MibTreePointer &
+static Snmp::MibTreePointer &
 MibTreeEnd()
 {
-    static MibTreePointer theLastNode;
+    static Snmp::MibTreePointer theLastNode;
     return theLastNode;
 }
 
@@ -716,7 +716,7 @@ snmpTreeNext(oid * Current, snint CurrentLen, oid ** Next, snint * NextLen)
 }
 
 static oid *
-static_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn)
+static_Inst(oid *name, snint *len, Snmp::MibTreePointer &current, oid_ParseFn **Fn)
 {
     oid *instance = nullptr;
     if (*len <= snint(current->len)) {
@@ -730,7 +730,7 @@ static_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn)
 }
 
 static oid *
-time_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn)
+time_Inst(oid *name, snint *len, Snmp::MibTreePointer &current, oid_ParseFn **Fn)
 {
     oid *instance = nullptr;
     int identifier = 0, loop = 0;
@@ -759,7 +759,7 @@ time_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn)
 }
 
 static oid *
-peer_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn)
+peer_Inst(oid *name, snint *len, Snmp::MibTreePointer &current, oid_ParseFn **Fn)
 {
     oid *instance = nullptr;
     const auto peersAvailable = CurrentCachePeers().size();
@@ -801,7 +801,7 @@ peer_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn)
 }
 
 static oid *
-client_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn)
+client_Inst(oid *name, snint *len, Snmp::MibTreePointer &current, oid_ParseFn **Fn)
 {
     oid *instance = nullptr;
     Ip::Address laddr;
@@ -870,10 +870,10 @@ client_Inst(oid *name, snint *len, MibTreePointer &current, oid_ParseFn **Fn)
  * Returns a sibling object for the requested child object or NULL
  * if it does not exit
  */
-static MibTreePointer
-snmpTreeSiblingEntry(oid entry, snint len, MibTreePointer &current)
+static Snmp::MibTreePointer
+snmpTreeSiblingEntry(oid entry, snint len, Snmp::MibTreePointer &current)
 {
-    MibTreePointer next;
+    Snmp::MibTreePointer next;
     size_t count = 0;
 
     while (!next && count < current->leaves.size()) {
@@ -897,10 +897,10 @@ snmpTreeSiblingEntry(oid entry, snint len, MibTreePointer &current)
 /*
  * Returns the requested child object or NULL if it does not exist
  */
-static MibTreePointer
-snmpTreeEntry(oid entry, snint len, MibTreePointer &current)
+static Snmp::MibTreePointer
+snmpTreeEntry(oid entry, snint len, Snmp::MibTreePointer &current)
 {
-    MibTreePointer next;
+    Snmp::MibTreePointer next;
     size_t count = 0;
 
     while (!next && current && count < current->leaves.size()) {
@@ -912,69 +912,6 @@ snmpTreeEntry(oid entry, snint len, MibTreePointer &current)
     }
 
     return (next);
-}
-
-void
-mib_tree_entry::addChild(const MibTreePointer &child)
-{
-    debugs(49, 5, "assigning " << child << " to parent " << this);
-    leaves.emplace_back(child);
-    leaves.back()->parent = this;
-}
-
-MibTreePointer
-mib_tree_entry::findByName(const char *str) const
-{
-    oid *wanted;
-    size_t wantedLen;
-
-    if (!snmpCreateOidFromStr(str, &wanted, &wantedLen))
-        return nullptr;
-
-    auto result = findByOid(wanted, wantedLen);
-    xfree(wanted);
-    return result;
-}
-
-MibTreePointer
-mib_tree_entry::findByOid(const oid *wanted, const size_t wantedLen) const
-{
-    /* I wish there were some kind of sensible existing tree traversal
-     * routine to use. I'll worry about that later */
-    if (wantedLen <= 1)
-        return this;       /* XXX it should only be this? */
-
-    // TODO: walking 'up' the tree is not needed yet.
-    assert(wantedLen >= len);
-
-    // check that we are a sub-tree of this OID
-    if (memcmp(wanted, name, len) != 0)
-        return nullptr;
-
-    MibTreePointer e = this;
-    size_t depth = len; // how deep into the OID we have matched so far
-
-    while (depth < wantedLen) {
-
-        /* Find the child node which matches this OID */
-        MibTreePointer foundChild;
-        for (const auto &i : e->leaves) {
-            if (i->name[depth] != wanted[depth]) {
-                foundChild = i;
-                break;
-            }
-        }
-
-        /* halt if/when none of the children match */
-        if (!foundChild)
-            break;
-
-        /* walk down the found child's branch */
-        e = foundChild;
-        ++depth;
-    }
-
-    return e;
 }
 
 bool
@@ -1007,7 +944,7 @@ snmpCreateOidFromStr(const char *str, oid **name, size_t *nl)
  * Create an entry. Return a pointer to the newly created node, or NULL
  * on failure.
  */
-static MibTreePointer
+static Snmp::MibTreePointer
 snmpAddNodeStr(const char *base_str, int o, oid_ParseFn * parsefunction, instance_Fn * instancefunction, AggrType aggrType)
 {
     oid *n;
@@ -1038,7 +975,7 @@ snmpAddNodeStr(const char *base_str, int o, oid_ParseFn * parsefunction, instanc
 /*
  * Adds a node to the MIB tree structure and adds the appropriate children
  */
-static MibTreePointer
+static Snmp::MibTreePointer
 snmpAddNode(oid * name, size_t len, oid_ParseFn * parsefunction, instance_Fn * instancefunction, AggrType aggrType, int children,...)
 {
     va_list args;
@@ -1049,14 +986,14 @@ snmpAddNode(oid * name, size_t len, oid_ParseFn * parsefunction, instance_Fn * i
     debugs(49, 6, "snmpAddNode: Children : " << children << ", Oid : " << snmpDebugOid(name, len, tmp));
 
     va_start(args, children);
-    MibTreePointer entry = new mib_tree_entry(name, len, aggrType);
+    Snmp::MibTreePointer entry = new Snmp::MibTreeNode(name, len, aggrType);
     entry->parsefunction = parsefunction;
     entry->instancefunction = instancefunction;
 
     if (children > 0) {
         entry->leaves.reserve(children);
         for (loop = 0; loop < children; ++loop) {
-            entry->leaves[loop] = va_arg(args, mib_tree_entry *);
+            entry->leaves[loop] = va_arg(args, Snmp::MibTreeNode *);
             entry->leaves[loop]->parent = entry;
         }
     }
