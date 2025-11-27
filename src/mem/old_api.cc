@@ -27,6 +27,7 @@
 #include <iomanip>
 
 /* forward declarations */
+static void memFree16B(void *);
 static void memFree32B(void *);
 static void memFree64B(void *);
 static void memFree128B(void *);
@@ -140,7 +141,10 @@ memFindBufSizeType(size_t net_size, size_t * gross_size)
     mem_type type;
     size_t size;
 
-    if (net_size <= 32) {
+    if (net_size <= 16) {
+        type = MEM_16B_BUF;
+        size = 16;
+    } else if (net_size <= 32) {
         type = MEM_32B_BUF;
         size = 32;
     } else if (net_size <= 64) {
@@ -295,6 +299,7 @@ Mem::Init(void)
      * that are never used or used only once; perhaps we should simply use
      * malloc() for those? @?@
      */
+    memDataInit(MEM_16B_BUF, "16B Buffer", 16, 10, false);
     memDataInit(MEM_32B_BUF, "32B Buffer", 32, 10, false);
     memDataInit(MEM_64B_BUF, "64B Buffer", 64, 10, false);
     memDataInit(MEM_128B_BUF, "128B Buffer", 128, 10, false);
@@ -347,6 +352,12 @@ memInUse(mem_type type)
 }
 
 /* ick */
+
+void
+memFree16B(void *p)
+{
+    memFree(p, MEM_16B_BUF);
+}
 
 void
 memFree32B(void *p)
@@ -430,6 +441,9 @@ FREE *
 memFreeBufFunc(size_t size)
 {
     switch (size) {
+
+    case 16:
+        return memFree16B;
 
     case 32:
         return memFree32B;
