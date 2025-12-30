@@ -5,9 +5,6 @@
 ## Please see the COPYING and CONTRIBUTORS files for details.
 ##
 
-dnl these checks must be performed in the same order as here defined,
-dnl and have mostly been lifted out of an inlined configure.ac.
-
 dnl check whether the Kerberos context has a memory keytab
 AC_DEFUN([SQUID_CHECK_KRB5_CONTEXT_MEMORY_KEYTAB],[
   AC_REQUIRE([SQUID_STATE_SAVE])
@@ -66,37 +63,6 @@ AC_DEFUN([SQUID_CHECK_SOLARIS_KRB5],[
   ])
 ])
 
-AC_DEFUN([SQUID_CHECK_KRB5_HEIMDAL_BROKEN_KRB5_H], [
-  AC_CACHE_CHECK([for broken Heimdal krb5.h],squid_cv_broken_heimdal_krb5_h, [
-    SQUID_STATE_SAVE(squid_krb5_heimdal_test)
-    CPPFLAGS="-I${srcdir:-.} $CPPFLAGS"
-    AC_LINK_IFELSE([AC_LANG_SOURCE([[
-#include <krb5.h>
-int
-main(void)
-{
-        krb5_context context;
-        krb5_init_context(&context);
-        return 0;
-}
-]])], [ squid_cv_broken_heimdal_krb5_h=no ], [
-    AC_LINK_IFELSE([AC_LANG_SOURCE([[
-#define HAVE_BROKEN_HEIMDAL_KRB5_H  1
-#include "compat/krb5.h"
-int
-main(void)
-{
-        krb5_context context;
-        krb5_init_context(&context);
-        return 0;
-}
-]])], [ squid_cv_broken_heimdal_krb5_h=yes ], [ squid_cv_broken_heimdal_krb5_h=no ])
-    ])
-    SQUID_STATE_ROLLBACK(squid_krb5_heimdal_test)
-  ])
-  SQUID_DEFINE_BOOL(HAVE_BROKEN_HEIMDAL_KRB5_H,$squid_cv_broken_heimdal_krb5_h,[Heimdal krb5.h is broken for C++])
-]) dnl SQUID_CHECK_KRB5_HEIMDAL_BROKEN_KRB5_H
-
 dnl check whether the kerberos context has a memory cache. Sets
 dnl squid_cv_memory_cache if that's the case.
 AC_DEFUN([SQUID_CHECK_KRB5_CONTEXT_MEMORY_CACHE],[
@@ -118,6 +84,17 @@ int main(int argc, char *argv[])
     ], [ squid_cv_memory_cache=yes ], [ squid_cv_memory_cache=no ], [:])
     SQUID_STATE_ROLLBACK(squid_krb5_test)
   ])
+])
+
+dnl check for PAC requirements
+AC_DEFUN([SQUID_CHECK_KRB5_PAC_SUPPORT],[
+  AC_CHECK_TYPE(krb5_pac,[
+    AC_CHECK_FUNC(gss_map_name_to_any)
+    AC_CHECK_FUNC(gsskrb5_extract_authz_data_from_sec_context)
+    AS_IF([test "x$ac_cv_func_gss_map_name_to_any" = "xyes" -o "x$ac_cv_func_gsskrb5_extract_authz_data_from_sec_context" = "xyes"],[
+      AC_DEFINE(HAVE_KRB5_PAC_SUPPORT,1,[Define to 1 if kerberos has PAC support])
+    ])
+  ],,[#include <krb5.h>])
 ])
 
 dnl checks that gssapi is ok, and sets squid_cv_working_gssapi accordingly
@@ -152,7 +129,8 @@ main(void)
         return 0;
 }
   ]])],  [ squid_cv_working_gssapi=yes ], [ squid_cv_working_gssapi=no ], [:])])
-  AS_IF([test "x$squid_cv_working_gssapi" = "xno" -a `echo $LIBS | grep -i -c "(-)L"` -gt 0],[
+  AS_IF([test "x$squid_cv_working_gssapi" = "xyes"],[SQUID_CHECK_KRB5_PAC_SUPPORT],
+  [test "x$squid_cv_working_gssapi" = "xno" -a `echo $LIBS | grep -i -c "(-)L"` -gt 0],[
     AC_MSG_NOTICE([Check Runtime library path !])
   ])
 ])
@@ -256,10 +234,6 @@ AC_DEFUN([SQUID_CHECK_KRB5_FUNCS],[
     AC_DEFINE(HAVE_KRB5_FREE_ERROR_STRING,1,
       [Define to 1 if you have krb5_free_error_string]),)
   AC_CHECK_DECLS(krb5_kt_free_entry,,,[#include <krb5.h>])
-  AC_CHECK_TYPE(krb5_pac,
-    AC_DEFINE(HAVE_KRB5_PAC,1,
-      [Define to 1 if you have krb5_pac]),,
-      [#include <krb5.h>])
   AC_CHECK_LIB(krb5,krb5_kt_free_entry,
     AC_DEFINE(HAVE_KRB5_KT_FREE_ENTRY,1,
       [Define to 1 if you have krb5_kt_free_entry]),)
@@ -297,13 +271,6 @@ AC_DEFUN([SQUID_CHECK_KRB5_FUNCS],[
 	AC_MSG_RESULT(yes)
     ],[AC_MSG_RESULT(no)],[AC_MSG_RESULT(no)])
   SQUID_STATE_ROLLBACK(squid_krb5_test)
-
-  AC_CHECK_FUNCS(gss_map_name_to_any,
-    AC_DEFINE(HAVE_GSS_MAP_ANY_TO_ANY,1,
-      [Define to 1 if you have gss_map_name_to_any]),)
-  AC_CHECK_FUNCS(gsskrb5_extract_authz_data_from_sec_context,
-    AC_DEFINE(HAVE_GSSKRB5_EXTRACT_AUTHZ_DATA_FROM_SEC_CONTEXT,1,
-      [Define to 1 if you have gsskrb5_extract_authz_data_from_sec_context]),)
 
   SQUID_CHECK_KRB5_CONTEXT_MEMORY_CACHE
   SQUID_DEFINE_BOOL(HAVE_KRB5_MEMORY_CACHE,$squid_cv_memory_cache,
