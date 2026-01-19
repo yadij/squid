@@ -48,10 +48,10 @@ public:
     off_t offset = 0;
 };
 
-class fde
+class fde : public RefCountable
 {
-
 public:
+    using Pointer = RefCount<fde>;
 
     // TODO: Merge with comm_init() to reduce initialization order dependencies.
     /// Configures fd_table (a.k.a. fde::Table).
