@@ -12,7 +12,7 @@
 #include "tests/STUB.h"
 
 #include "fde.h"
-void fde::Init() STUB
+std::vector<fde> &fde::Table() STUB_RETREF(std::vector<fde>)
 void fde::setIo(READ_HANDLER *, WRITE_HANDLER *) STUB
 void fde::useDefaultIo() STUB
 void fde::useBufferedIo(READ_HANDLER *, WRITE_HANDLER *) STUB
@@ -20,4 +20,3 @@ void fde::DumpStats(StoreEntry *) STUB
 char const *fde::remoteAddr() const STUB_RETVAL(nullptr)
 void fde::dumpStats(StoreEntry &, int) const STUB
 bool fde::readPending(int) const STUB_RETVAL(false)
-fde* fde::Table = nullptr;

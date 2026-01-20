@@ -87,9 +87,6 @@ TestUfs::commonInit()
     storeReplAdd("lru", createRemovalPolicy_lru);
 
     Mem::Init();
-
-    fde::Init();
-
     comm_init();
 
     httpHeaderInitModule(); /* must go before any header processing (e.g. the one in errorInitialize) */

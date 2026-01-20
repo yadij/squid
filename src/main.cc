@@ -1337,7 +1337,6 @@ static void
 StartUsingConfig()
 {
     setMaxFD();
-    fde::Init();
     const auto skipCwdAdjusting = IamMasterProcess() && InDaemonMode();
     if (skipCwdAdjusting) {
         ConfigureDebugging();

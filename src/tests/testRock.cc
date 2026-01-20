@@ -346,7 +346,6 @@ MyTestProgram::startup()
     visible_appname_string = xstrdup(APP_FULLNAME);
 
     Mem::Init();
-    fde::Init();
     comm_init();
     httpHeaderInitModule(); /* must go before any header processing (e.g. the one in errorInitialize) */
 

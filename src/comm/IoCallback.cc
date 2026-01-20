@@ -21,7 +21,6 @@ namespace Comm
 
 // XXX: Add API to react to Squid_MaxFD changes.
 /// Creates a new callback table using the current value of Squid_MaxFD.
-/// \sa fde::Init()
 static CbEntry *
 MakeCallbackTable()
 {

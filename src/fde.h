@@ -48,16 +48,11 @@ public:
     off_t offset = 0;
 };
 
-class fde : public RefCountable
+class fde
 {
 public:
-    using Pointer = RefCount<fde>;
-
-    // TODO: Merge with comm_init() to reduce initialization order dependencies.
-    /// Configures fd_table (a.k.a. fde::Table).
-    /// Call once, after learning the number of supported descriptors (i.e.
-    /// setMaxFD()) and before dereferencing fd_table (e.g., before Comm I/O).
-    static void Init();
+    /// table of at least max_filedescriptors FD and their state
+    static std::vector<fde> &Table();
 
     fde() {
         *ipaddr = 0;
@@ -98,10 +93,6 @@ public:
     void noteUse() { ++pconn.uses; }
 
 public:
-
-    /// global table of FD and their state.
-    static fde* Table;
-
     unsigned int type = 0;
     unsigned short remote_port = 0;
 
@@ -186,7 +177,7 @@ private:
     WRITE_HANDLER *writeMethod_ = nullptr; ///< exports Squid bytes
 };
 
-#define fd_table fde::Table
+#define fd_table fde::Table()
 
 inline int
 FD_READ_METHOD(int fd, char *buf, int len)

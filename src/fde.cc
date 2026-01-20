@@ -16,7 +16,16 @@
 #include "globals.h"
 #include "Store.h"
 
-fde *fde::Table = nullptr;
+std::vector<fde> &
+fde::Table()
+{
+    static std::vector<fde> theTable;
+    assert(Squid_MaxFD >= 0);
+    if (theTable.size() < size_t(Squid_MaxFD))
+        theTable.reserve(Squid_MaxFD);
+
+    return theTable;
+}
 
 void
 fde::setIo(READ_HANDLER *reader, WRITE_HANDLER *writer)
@@ -116,8 +125,9 @@ fde::DumpStats(StoreEntry *dumpEntry)
     storeAppendPrintf(dumpEntry, "---- ------ ---- -------- -------- --------------------- ------------------------------\n");
 #endif
 
+    const auto &table = fde::Table();
     for (int i = 0; i < Squid_MaxFD; ++i) {
-        fde::Table[i].dumpStats(*dumpEntry, i);
+        table[i].dumpStats(*dumpEntry, i);
     }
 }
 
@@ -136,11 +146,3 @@ fde::remoteAddr() const
 
     return buf;
 }
-
-void
-fde::Init()
-{
-    assert(!Table);
-    Table = static_cast<fde *>(xcalloc(Squid_MaxFD, sizeof(fde)));
-}
-

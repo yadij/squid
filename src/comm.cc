@@ -90,7 +90,7 @@ static void commSetTcpRcvbuf(int, int);
 bool
 isOpen(const int fd)
 {
-    return fd >= 0 && fd_table && fd_table[fd].flags.open != 0;
+    return fd >= 0 && fd_table[fd].flags.open != 0;
 }
 
 /**
@@ -1140,8 +1140,6 @@ commSetTcpNoDelay(int fd)
 void
 comm_init(void)
 {
-    assert(fd_table);
-
     /* XXX account fd_table */
     /* Keep a few file descriptors free so that we don't run out of FD's
      * after accepting a client but before it opens a socket or a file.
