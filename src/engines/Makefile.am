@@ -13,4 +13,5 @@ libengines_la_SOURCES = \
 	AsyncEngine.h \
 	EventLoop.cc \
 	EventLoop.h \
+	StoreEngine.h \
 	forward.h

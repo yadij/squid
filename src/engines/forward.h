@@ -12,4 +12,9 @@
 class AsyncEngine;
 class EventLoop;
 
+namespace Store
+{
+class Engine;
+} // namespace Store
+
 #endif /* SQUID_SRC_ENGINES_FORWARD_H */

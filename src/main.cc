@@ -34,6 +34,7 @@
 #include "errorpage.h"
 #include "event.h"
 #include "engines/EventLoop.h"
+#include "engines/StoreEngine.h"
 #include "ExternalACL.h"
 #include "fd.h"
 #include "format/Token.h"
@@ -171,18 +172,6 @@ static const char *squid_start_script = "squid_start";
 #if TEST_ACCESS
 #include "test_access.c"
 #endif
-
-/** temporary thunk across to the unrefactored store interface */
-
-class StoreRootEngine : public AsyncEngine
-{
-
-public:
-    int checkEvents(int) override {
-        Store::Root().callback();
-        return EVENT_IDLE;
-    };
-};
 
 class SignalEngine: public AsyncEngine
 {
@@ -1619,8 +1608,7 @@ SquidMain(int argc, char **argv)
     /* TODO: stop requiring the singleton here */
     mainLoop.registerEngine(EventScheduler::GetInstance());
 
-    StoreRootEngine store_engine;
-
+    Store::Engine store_engine;
     mainLoop.registerEngine(&store_engine);
 
     CommSelectEngine comm_engine;
