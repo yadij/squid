@@ -18,3 +18,5 @@ EventLoop *EventLoop::Running = nullptr;
 void EventLoop::run() STUB
 bool EventLoop::runOnce() STUB
 void EventLoop::setPrimaryEngine(AsyncEngine * const) STUB
+
+#include "engines/StoreEngine.h"
