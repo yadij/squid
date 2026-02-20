@@ -20,6 +20,9 @@ typedef void IDNSCB(void *cbdata, const rfc1035_rr *answer, const int recordsInA
 namespace Dns
 {
 
+/// Configure Multicast-DNS resolvers.
+void AddMdnsNameservers();
+
 class LookupDetails;
 
 void Init(void);
@@ -45,6 +48,10 @@ using DomainName = SBuf;
 // internal DNS client API
 void idnsALookup(const char *, IDNSCB *, void *);
 void idnsPTRLookup(const Ip::Address &, IDNSCB *, void *);
+
+/// Attempt to add a DNS resolver by hostname/IP to the available nameservers[] array.
+/// \returns number of nameservers[] entries added.
+size_t idnsAddNameserver(const SBuf &/* host/IP string */, const SBuf &/* config location */);
 
 #endif /* SQUID_SRC_DNS_FORWARD_H */
 

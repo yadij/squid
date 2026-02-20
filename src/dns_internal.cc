@@ -253,11 +253,8 @@ static int max_shared_edns = RFC1035_DEFAULT_PACKET_SZ;
 #endif
 
 static OBJH idnsStats;
-static void idnsAddNameserver(const SBuf &ns, const SBuf &origin);
-static void idnsAddMDNSNameservers();
 static void idnsAddPathComponent(const char *buf);
 static void idnsFreeSearchpath(void);
-static bool idnsParseNameservers(void);
 static bool idnsParseResolvConf(void);
 #if _SQUID_WINDOWS_
 static bool idnsParseWIN32Registry(void);
@@ -286,7 +283,7 @@ static void idnsCallbackOnEarlyError(IDNSCB *callback, void *cbdata, const char 
 static void
 idnsCheckMDNS(idns_query *q)
 {
-    if (!Config.onoff.dns_mdns || q->permit_mdns)
+    if (!Config.dns.mdns_enabled || q->permit_mdns)
         return;
 
     size_t slen = strlen(q->name);
@@ -295,32 +292,35 @@ idnsCheckMDNS(idns_query *q)
     }
 }
 
-static void
-idnsAddMDNSNameservers()
+void
+Dns::AddMdnsNameservers()
 {
     nns_mdns_count=0;
 
     // mDNS is disabled
-    if (!Config.onoff.dns_mdns)
+    if (!Config.dns.mdns_enabled)
         return;
 
     // mDNS resolver addresses are explicit multicast group IPs
     static const SBuf origin("mDNS specification");
     if (Ip::EnableIpv6) {
         static const SBuf mDnsIp6("[FF02::FB]:5353");
-        idnsAddNameserver(mDnsIp6, origin);
-        nameservers.back().mDNSResolver = true;
-        ++nns_mdns_count;
+        if (idnsAddNameserver(mDnsIp6, origin) > 0) {
+          nameservers.back().mDNSResolver = true;
+          ++nns_mdns_count;
+        } else
+            throw TextException("internal error: mDNS IPv6 parse", Here());
     }
 
     static const SBuf mDnsIp4("224.0.0.251:5353");
-    idnsAddNameserver(mDnsIp4, origin);
-    nameservers.back().mDNSResolver = true;
-
-    ++nns_mdns_count;
+    if (idnsAddNameserver(mDnsIp4, origin) > 0) {
+        nameservers.back().mDNSResolver = true;
+        ++nns_mdns_count;
+    } else
+        throw TextException("internal error: mDNS IPv4 parse", Here());
 }
 
-static void
+size_t
 idnsAddNameserver(const SBuf &buf, const SBuf &origin)
 {
     Ip::Address A;
@@ -372,7 +372,7 @@ idnsAddNameserver(const SBuf &buf, const SBuf &origin)
 
     } catch (...) {
         debugs(78, DBG_CRITICAL, "ERROR: rejecting " << origin << " nameserver '" << buf << "' with " << CurrentException);
-        return;
+        return 0; // no changes made to useful nameservers
     }
 
     if (A.isAnyAddr()) {
@@ -389,6 +389,7 @@ idnsAddNameserver(const SBuf &buf, const SBuf &origin)
 #endif
     nameservers.emplace_back(nameserver);
     debugs(78, Important(15), "Added nameserver #" << nameservers.size()-1 << " (" << A << ") from " << origin << " " << buf);
+    return 1; // only one entry per call for now. see TODOs above
 }
 
 static void
@@ -425,18 +426,6 @@ idnsFreeSearchpath(void)
 {
     safe_free(searchpath);
     npc = npc_alloc = 0;
-}
-
-static bool
-idnsParseNameservers(void)
-{
-    static const SBuf origin("squid.conf dns_nameservers");
-    bool result = false;
-    for (auto &i : Config.dns.nameservers) {
-        idnsAddNameserver(i, origin);
-        result = true;
-    }
-    return result;
 }
 
 static bool
@@ -1632,10 +1621,7 @@ Dns::Init(void)
         }
     }
 
-    assert(nameservers.empty());
-    idnsAddMDNSNameservers();
-    bool nsFound = idnsParseNameservers();
-
+    bool nsFound = nameservers.size(); // if dns_nameservers configured anything already.
     if (!nsFound)
         nsFound = idnsParseResolvConf();
 
@@ -1880,7 +1866,7 @@ idnsPTRLookup(const Ip::Address &addr, IDNSCB * callback, void *data)
     debugs(78, 3, "idnsPTRLookup: buf is " << q->sz << " bytes for " << ip <<
            ", id = 0x" << asHex(q->query_id));
 
-    q->permit_mdns = Config.onoff.dns_mdns;
+    q->permit_mdns = Config.dns.mdns_enabled;
     idnsStartQuery(q, callback, data);
 }
 

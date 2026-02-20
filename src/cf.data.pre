@@ -10150,46 +10150,15 @@ DOC_START
 DOC_END
 
 NAME: dns_multicast_local
-COMMENT: on|off
-TYPE: onoff
+TYPE: idns_mdns
 DEFAULT: off
 DEFAULT_DOC: Search for .local and .arpa names is disabled.
-LOC: Config.onoff.dns_mdns
+LOC: Config.dns.mdns_enabled
 DOC_START
 	When set to on, Squid sends multicast DNS lookups on the local
 	network for domains ending in .local and .arpa.
 	This enables local servers and devices to be contacted in an
 	ad-hoc or zero-configuration network environment.
-DOC_END
-
-NAME: dns_nameservers
-TYPE: SBufList
-DEFAULT: none
-DEFAULT_DOC: Use operating system definitions
-LOC: Config.dns.nameservers
-DOC_START
-	Use this if you want to specify a list of DNS name servers
-	(IP addresses) to use instead of those given in your
-	/etc/resolv.conf file.
-
-	On Windows platforms, if no value is specified here or in
-	the /etc/resolv.conf file, the list of DNS name servers are
-	taken from the Windows registry, both static and dynamic DHCP
-	configurations are supported.
-
-	When a domain or hostname is used instead of IP address the
-	OS default resolver is used to lookup its first IP address.
-	Secondary IPs for nameservers are not yet supported.
-
-	NOTICE: The /etc/resolv.conf sortlist feature is not supported.
-		Name servers are contacted in the order given by this
-		directive with first configured treated as primary server.
-		Each use of this directive appends new name servers to the
-		list of known DNS servers.
-
-	Example:
-		dns_nameservers 10.0.0.1 fe80::1 [fe80::2]:54
-		dns_nameservers example.com:80 localhost
 DOC_END
 
 NAME: hosts_file
@@ -10236,6 +10205,36 @@ DOC_START
 
 Example:
  append_domain .yourdomain.com
+DOC_END
+
+NAME: dns_nameservers
+TYPE: idns_ns
+DEFAULT: none
+DEFAULT_DOC: Use operating system definitions
+LOC: Config.dns.nameservers
+DOC_START
+	Use this if you want to specify a list of DNS name servers
+	(IP addresses) to use instead of those given in your
+	/etc/resolv.conf file.
+
+	On Windows platforms, if no value is specified here or in
+	the /etc/resolv.conf file, the list of DNS name servers are
+	taken from the Windows registry, both static and dynamic DHCP
+	configurations are supported.
+
+	When a domain or hostname is used instead of IP address the
+	OS default resolver is used to lookup its first IP address.
+	Secondary IPs for nameservers are not yet supported.
+
+	NOTICE: The /etc/resolv.conf sortlist feature is not supported.
+		Name servers are contacted in the order given by this
+		directive with first configured treated as primary server.
+		Each use of this directive appends new name servers to the
+		list of known DNS servers.
+
+	Example:
+		dns_nameservers 10.0.0.1 fe80::1 [fe80::2]:54
+		dns_nameservers example.com:80 localhost
 DOC_END
 
 NAME: ignore_unknown_nameservers

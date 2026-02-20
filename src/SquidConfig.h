@@ -336,7 +336,6 @@ public:
         int memory_cache_disk;
         int hostStrictVerify;
         int client_dst_passthru;
-        int dns_mdns;
 #if USE_OPENSSL
         bool logTlsServerHelloDetails;
 #endif
@@ -540,6 +539,7 @@ public:
         SBufList nameservers;
         int v4_first;       ///< Place IPv4 first in the order of DNS results.
         ssize_t packet_max; ///< maximum size EDNS advertised for DNS replies.
+        int mdns_enabled;   ///< non-zero if Multicast-DNS is enabled (onoff type, not bool).
     } dns;
 
     struct {

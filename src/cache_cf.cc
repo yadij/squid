@@ -35,6 +35,7 @@
 #include "CpuAffinityMap.h"
 #include "debug/Messages.h"
 #include "DiskIO/DiskIOModule.h"
+#include "dns/forward.h"
 #include "eui/Config.h"
 #include "ExternalACL.h"
 #include "format/Format.h"
@@ -2634,6 +2635,29 @@ parse_tristate(int *var)
 }
 
 #define free_tristate free_int
+
+static void
+parse_idns_mdns(int *data)
+{
+    parse_onoff(data);
+    Dns::AddMdnsNameservers();
+}
+#define dump_idns_mdns	dump_onoff
+#define free_idns_mdns	free_onoff
+
+static void
+parse_idns_ns(SBufList *list)
+{
+    static const SBuf origin("squid.conf dns_nameservers");
+    while (const auto token = ConfigParser::NextToken()) {
+        auto t = SBuf(token);
+        if(!idnsAddNameserver(t, origin))
+            throw TextException(ToSBuf("invalid nameserver: ", t), Here());
+        list->emplace_back(t);
+    }
+}
+#define dump_idns_ns	dump_SBufList
+#define free_idns_ns	free_SBufList
 
 static void
 parse_pipelinePrefetch(int *var)

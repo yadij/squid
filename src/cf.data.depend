@@ -69,6 +69,8 @@ icap_class_type		icap_service
 icap_service_type
 icap_service_failure_limit
 icmp
+idns_mdns
+idns_ns			append_domain dns_defnames dns_multicast_local hosts_file
 ecap_service_type
 int
 int64_t
