@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1996-2025 The Squid Software Foundation and contributors
+ * Copyright (C) 1996-2026 The Squid Software Foundation and contributors
  *
  * Squid software is distributed under GPLv2+ license and includes
  * contributions from numerous individuals and organizations.
@@ -423,7 +423,9 @@ snmpDecodePacket(SnmpRequest * rq)
             snmp_free_pdu(PDU);
         }
         xfree(Community);
-
+        rq->community = nullptr;
+        rq->session.community = nullptr;
+        rq->session.community_len = 0;
     } else {
         debugs(49, DBG_IMPORTANT, "WARNING: Failed SNMP agent query from : " << rq->from);
         snmp_free_pdu(PDU);

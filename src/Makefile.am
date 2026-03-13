@@ -1,4 +1,4 @@
-## Copyright (C) 1996-2025 The Squid Software Foundation and contributors
+## Copyright (C) 1996-2026 The Squid Software Foundation and contributors
 ##
 ## Squid software is distributed under GPLv2+ license and includes
 ## contributions from numerous individuals and organizations.
@@ -1471,6 +1471,7 @@ nodist_tests_testStore_SOURCES = \
 	$(TESTSOURCES) \
 	SquidMath.cc \
 	SquidMath.h \
+	tests/stub_fde.cc \
 	tests/stub_libtime.cc \
 	swap_log_op.cc
 tests_testStore_LDADD= \
@@ -1588,8 +1589,7 @@ tests_testDiskIO_SOURCES = \
 	fatal.h \
 	fd.cc \
 	fd.h \
-	fde.cc \
-	fde.h \
+	tests/stub_fde.cc \
 	filemap.cc \
 	tests/stub_fqdncache.cc \
 	fs_io.cc \
@@ -1902,6 +1902,7 @@ tests_testHttpReply_SOURCES = \
 	wordlist.h
 nodist_tests_testHttpReply_SOURCES = \
 	$(TESTSOURCES) \
+	tests/stub_fde.cc \
 	hier_code.cc \
 	tests/stub_libtime.cc
 tests_testHttpReply_LDADD=\
