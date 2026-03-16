@@ -70,7 +70,6 @@ DISTCHECK_CONFIGURE_FLAGS=" \
 	--enable-referer-log \
 	--enable-wccp \
 	--enable-wccpv2 \
-	--enable-snmp \
 	--enable-eui \
 	--enable-htcp \
 	--enable-ssl \

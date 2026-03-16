@@ -30,7 +30,6 @@ BEGIN {
 	define["HAVE_LIBGNUTLS||USE_OPENSSL"]="--with-gnutls or --with-openssl"
 	define["HAVE_MSTATS&&HAVE_GNUMALLOC_H"]="GNU Malloc with mstats()"
 	define["ICAP_CLIENT"]="--enable-icap-client"
-	define["SQUID_SNMP"]="--enable-snmp"
 	define["USE_ADAPTATION"]="--enable-ecap or --enable-icap-client"
 	define["USE_AUTH"]="--enable-auth"
 	define["USE_CACHE_DIGESTS"]="--enable-cache-digests"

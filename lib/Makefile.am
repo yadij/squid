@@ -10,9 +10,8 @@ include $(top_srcdir)/src/Common.am
 SUBDIRS=
 EXTRA_DIST=
 
-if ENABLE_SNMP
 SUBDIRS += snmplib
-endif
+
 if ENABLE_SSPI
 SUBDIRS += sspi
 endif

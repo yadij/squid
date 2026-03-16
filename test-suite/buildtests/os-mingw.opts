@@ -22,7 +22,6 @@ DISTCHECK_CONFIGURE_FLAGS=" \
 	--enable-removal-policies="lru,heap" \
 	--enable-delay-pools \
 	--enable-cache-digests \
-	--enable-snmp \
 	--enable-htcp \
 	--enable-carp \
 	--enable-useragent-log \

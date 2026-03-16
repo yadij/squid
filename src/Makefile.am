@@ -63,23 +63,16 @@ SSL_LIBS += \
 	ssl/libsslsquid.la \
 	ssl/libsslutil.la
 endif
-SUBDIRS += security
+SUBDIRS += security \
+	snmp
 
-SNMP_ALL_SOURCE = \
+SNMP_SOURCE = \
 	SnmpRequest.h \
 	snmp_core.h \
 	snmp_core.cc \
 	snmp_agent.h \
 	snmp_agent.cc
-
-if ENABLE_SNMP
-SNMP_SOURCE = $(SNMP_ALL_SOURCE)
-SUBDIRS += snmp
 SNMP_LIBS = snmp/libsnmp.la $(SNMPLIB)
-else
-SNMP_SOURCE =
-EXCLUDE_FROM_HDR_TESTING += $(SNMP_ALL_SOURCE)
-endif
 
 if ENABLE_ADAPTATION
 SUBDIRS += adaptation
@@ -468,7 +461,6 @@ squid_SOURCES = \
 EXTRA_squid_SOURCES = \
 	$(DELAY_POOL_ALL_SOURCE) \
 	$(LOADABLE_MODULES_SOURCES) \
-	$(SNMP_ALL_SOURCE) \
 	$(UNLINKDSOURCE) \
 	$(WIN32_ALL_SOURCE) \
 	$(all_AUTHMODULES) \

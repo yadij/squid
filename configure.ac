@@ -942,15 +942,8 @@ SQUID_DEFINE_BOOL(USE_WCCPv2,${enable_wccpv2:=yes},
             [Define to enable WCCP V2])
 AC_MSG_NOTICE([Web Cache Coordination V2 Protocol enabled: $enable_wccpv2])
 
-AC_ARG_ENABLE(snmp,
-  AS_HELP_STRING([--disable-snmp],[Disable SNMP monitoring support]), [
-  SQUID_YESNO([$enableval],[--enable-snmp])
-])
-SQUID_DEFINE_BOOL(SQUID_SNMP,${enable_snmp:=yes},
-   [Define to enable SNMP monitoring of Squid])
-AM_CONDITIONAL(ENABLE_SNMP, [test "x$enable_snmp" = "xyes"])
-AS_IF([test "x$enable_snmp" = "xyes"],[SNMPLIB="../lib/snmplib/libsnmplib.la"])
-AC_MSG_NOTICE([SNMP support enabled: $enable_snmp])
+SQUID_DEFINE_BOOL(SQUID_SNMP,yes,[Define to enable SNMP monitoring of Squid])
+SNMPLIB="../lib/snmplib/libsnmplib.la"
 AC_SUBST(SNMPLIB)
 
 AC_ARG_ENABLE(eui,
