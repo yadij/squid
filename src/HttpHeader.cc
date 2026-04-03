@@ -376,24 +376,47 @@ HttpHeader::append(const HttpHeader * src)
 bool
 HttpHeader::needUpdate(HttpHeader const *fresh) const
 {
+    bool result = false; // assume optimal result; no further work necessary
+    String value;
     for (const auto e: fresh->entries) {
-        if (!e || skipUpdateHeader(e->id))
+        if (!e) // Paranoid check; should never occur
             continue;
-        String value;
-        if (!hasNamed(e->name, &value) ||
-                (value != fresh->getByName(e->name)))
-            return true;
-    }
-    return false;
-}
 
-bool
-HttpHeader::skipUpdateHeader(const Http::HdrType id) const
-{
-    return
-        // TODO: Consider updating Vary headers after comparing the magnitude of
-        // the required changes (and/or cache losses) with compliance gains.
-        (id == Http::HdrType::VARY);
+        switch (e->id) {
+        case Http::HdrType::OTHER:
+            if (!result)
+                result = (!hasNamed(e->name, &value) || value != fresh->getByName(e->name));
+            break;
+
+        case Http::HdrType::CONTENT_ENCODING:
+        case Http::HdrType::CONTENT_LENGTH:
+        case Http::HdrType::CONTENT_TYPE:
+        case Http::HdrType::ETAG:
+        case Http::HdrType::VARY:
+            // Any change to these headers indicates a broken server.
+            // The 304 received DOES NOT apply to our cached representation.
+            // Squid should fallback to either MISS or using the cached
+            // object without the 304 changes.
+            if (!getByIdIfPresent(e->id, &value) || value != fresh->getByName(e->name))
+                return false; // 304 problem, MUST NOT do an update
+            break;
+
+        case Http::HdrType::CONTENT_LANGUAGE:
+        case Http::HdrType::CONTENT_LOCATION:
+            // these headers are weak identifiers, changes only
+            // cause representation issues if they are used by
+            // the Vary field-value
+            if (hasListMember(Http::HdrType::VARY, e->value.rawBuf(), ','))
+                return false;
+            [[fallthrough]];
+
+        default:
+            if (!result)
+                result = (!getByIdIfPresent(e->id, &value) || value != fresh->getByName(e->name));
+            break;
+        }
+    }
+    return result;
 }
 
 void
@@ -402,29 +425,21 @@ HttpHeader::update(HttpHeader const *fresh)
     assert(fresh);
     assert(this != fresh);
 
-    const HttpHeaderEntry *e;
     HttpHeaderPos pos = HttpHeaderInitPos;
+    String value;
 
-    while ((e = fresh->getEntry(&pos))) {
+    while (const auto e = fresh->getEntry(&pos)) {
         /* deny bad guys (ok to check for Http::HdrType::OTHER) here */
 
-        if (skipUpdateHeader(e->id))
+        if (hasNamed(e->name, &value) && value == fresh->getByName(e->name))
             continue;
+
+        debugs(55, 7, "Updating header '" << Http::HeaderLookupTable.lookup(e->id).name << "' in cached entry");
 
         if (e->id != Http::HdrType::OTHER)
             delById(e->id);
         else
             delByName(e->name);
-    }
-
-    pos = HttpHeaderInitPos;
-    while ((e = fresh->getEntry(&pos))) {
-        /* deny bad guys (ok to check for Http::HdrType::OTHER) here */
-
-        if (skipUpdateHeader(e->id))
-            continue;
-
-        debugs(55, 7, "Updating header '" << Http::HeaderLookupTable.lookup(e->id).name << "' in cached entry");
 
         addEntry(e->clone());
     }
