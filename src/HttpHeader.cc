@@ -456,19 +456,19 @@ HttpHeader::skipUpdateHeader(const Http::HdrType id) const
 
     // s3.2: Header fields excepted from storage in Section 3.1
     switch (id) {
-        // s3.1: Header fields that are specific to the proxy that a cache uses
+    // s3.1: Header fields that are specific to the proxy that a cache uses
     case Http::HdrType::PROXY_AUTHENTICATE:
     case Http::HdrType::PROXY_AUTHENTICATION_INFO:
     case Http::HdrType::PROXY_AUTHORIZATION:
         return true;
 
-        // s3.1: The Connection header field and fields whose names are listed in it
-        // MAY update. so we dont bother figuring out if we can skip any listed.
+    // s3.1: The Connection header field and fields whose names are listed in it
+    // MAY update. so we dont bother figuring out if we can skip any listed.
     case Http::HdrType::CONNECTION:
         return true;
 
-        // s3.1: The no-cache and private cache directives can have arguments that prevent storage of header fields
-        // MAY update. so we dont bother figuring out if we can skip.
+    // s3.1: The no-cache and private cache directives can have arguments that prevent storage of header fields
+    // MAY update. so we dont bother figuring out if we can skip.
 
     default:
         // s3.1: some fields' semantics require them to be removed before forwarding the message
@@ -478,23 +478,24 @@ HttpHeader::skipUpdateHeader(const Http::HdrType id) const
     }
 
     switch (id) {
-        // s3.2: Header fields that the cache's stored response depends upon
+    // s3.2: Header fields that the cache's stored response depends upon
     case Http::HdrType::ETAG:
     case Http::HdrType::KEY:
     case Http::HdrType::VARY:
         return true;
 
-        // s3.2: Header fields that are automatically processed and removed by the recipient
+    // s3.2: Header fields that are automatically processed and removed by the recipient
     case Http::HdrType::CONTENT_ENCODING:
     case Http::HdrType::CONTENT_MD5:
     case Http::HdrType::CONTENT_RANGE:
     case Http::HdrType::CONTENT_TYPE:
         return true;
 
-        // s3.2: The Content-Length header field
+    // s3.2: The Content-Length header field
     case Http::HdrType::CONTENT_LENGTH:
         return true;
 
+    // more complex tests using field-value are in update(fresh)
     case Http::HdrType::OTHER:
     default:
         return false;
@@ -516,6 +517,7 @@ HttpHeader::update(HttpHeader const *fresh)
         if (skipUpdateHeader(e->id))
             continue;
 
+        // when header value not actually changed, don't touch it.
         if (hasNamed(e->name, &value) && value == fresh->getByName(e->name))
             continue;
 
