@@ -432,6 +432,75 @@ HttpHeader::needUpdate(HttpHeader const *fresh) const
     return result;
 }
 
+/**
+ * Whether this HTTP header is to be ignored when updating
+ * an existing cache object after revalidation, etc.
+ *
+ * Governed by RFC 9111 section 3.1 and 3.2:
+ * "
+ *  Caches are required to update a stored response's
+ *  header fields from another (typically newer)
+ *  response in several situations
+ * "
+ */
+bool
+HttpHeader::skipUpdateHeader(const Http::HdrType id) const
+{
+    /**
+     * RFC 9111 section 3.2:
+     *  the cache MUST add each header field in the provided
+     *  response to the stored response, replacing field
+     *  values that are already present, with the following
+     *  exceptions:
+     */
+
+    // s3.2: Header fields excepted from storage in Section 3.1
+    switch (id) {
+        // s3.1: Header fields that are specific to the proxy that a cache uses
+    case Http::HdrType::PROXY_AUTHENTICATE:
+    case Http::HdrType::PROXY_AUTHENTICATION_INFO:
+    case Http::HdrType::PROXY_AUTHORIZATION:
+        return true;
+
+        // s3.1: The Connection header field and fields whose names are listed in it
+        // MAY update. so we dont bother figuring out if we can skip any listed.
+    case Http::HdrType::CONNECTION:
+        return true;
+
+        // s3.1: The no-cache and private cache directives can have arguments that prevent storage of header fields
+        // MAY update. so we dont bother figuring out if we can skip.
+
+    default:
+        // s3.1: some fields' semantics require them to be removed before forwarding the message
+        if (Http::HeaderLookupTable.lookup(id).hopbyhop)
+            return true;
+        break;
+    }
+
+    switch (id) {
+        // s3.2: Header fields that the cache's stored response depends upon
+    case Http::HdrType::ETAG:
+    case Http::HdrType::KEY:
+    case Http::HdrType::VARY:
+        return true;
+
+        // s3.2: Header fields that are automatically processed and removed by the recipient
+    case Http::HdrType::CONTENT_ENCODING:
+    case Http::HdrType::CONTENT_MD5:
+    case Http::HdrType::CONTENT_RANGE:
+    case Http::HdrType::CONTENT_TYPE:
+        return true;
+
+        // s3.2: The Content-Length header field
+    case Http::HdrType::CONTENT_LENGTH:
+        return true;
+
+    case Http::HdrType::OTHER:
+    default:
+        return false;
+    }
+}
+
 void
 HttpHeader::update(HttpHeader const *fresh)
 {
@@ -443,6 +512,9 @@ HttpHeader::update(HttpHeader const *fresh)
 
     while (const auto e = fresh->getEntry(&pos)) {
         /* deny bad guys (ok to check for Http::HdrType::OTHER) here */
+
+        if (skipUpdateHeader(e->id))
+            continue;
 
         if (hasNamed(e->name, &value) && value == fresh->getByName(e->name))
             continue;

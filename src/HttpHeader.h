@@ -187,6 +187,7 @@ protected:
     /// *blk_end points to the first header delimiter character (CR or LF in CR?LF).
     /// If block starts where it ends, then there are no fields in the header.
     static bool Isolate(const char **parse_start, size_t l, const char **blk_start, const char **blk_end);
+    bool skipUpdateHeader(const Http::HdrType id) const;
 
 private:
     HttpHeaderEntry *findLastEntry(Http::HdrType id) const;
