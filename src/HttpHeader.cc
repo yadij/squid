@@ -373,6 +373,18 @@ HttpHeader::append(const HttpHeader * src)
     }
 }
 
+/**
+ * Whether this is the same resource representation
+ * the 304 ('fresh') header was generated from, and
+ * that there are changes to apply.
+ *
+ * Governed by RFC 9111 section 4.3.4:
+ * "
+ *  When a cache receives a 304 (Not Modified) response,
+ *  it needs to identify stored responses that are
+ *  suitable for updating with the new information provided
+ * "
+ */
 bool
 HttpHeader::needUpdate(HttpHeader const *fresh) const
 {
@@ -384,6 +396,7 @@ HttpHeader::needUpdate(HttpHeader const *fresh) const
 
         switch (e->id) {
         case Http::HdrType::OTHER:
+            // check if this header is actually being changed.
             if (!result)
                 result = (!hasNamed(e->name, &value) || value != fresh->getByName(e->name));
             break;
@@ -393,24 +406,24 @@ HttpHeader::needUpdate(HttpHeader const *fresh) const
         case Http::HdrType::CONTENT_TYPE:
         case Http::HdrType::ETAG:
         case Http::HdrType::VARY:
-            // Any change to these headers indicates a broken server.
-            // The 304 received DOES NOT apply to our cached representation.
-            // Squid should fallback to either MISS or using the cached
-            // object without the 304 changes.
+            // Strong Identifiers;
+            // Any difference in these headers indicates the 304
+            // received DOES NOT apply to this representation.
             if (!getByIdIfPresent(e->id, &value) || value != fresh->getByName(e->name))
-                return false; // 304 problem, MUST NOT do an update
+                return false;
             break;
 
         case Http::HdrType::CONTENT_LANGUAGE:
         case Http::HdrType::CONTENT_LOCATION:
-            // these headers are weak identifiers, changes only
-            // cause representation issues if they are used by
-            // the Vary field-value
+            // Weak identifiers;
+            // Changes only cause representation issues if they are
+            // used by the Vary field-value
             if (hasListMember(Http::HdrType::VARY, e->value.rawBuf(), ','))
                 return false;
             [[fallthrough]];
 
         default:
+            // check if this header is actually being changed.
             if (!result)
                 result = (!getByIdIfPresent(e->id, &value) || value != fresh->getByName(e->name));
             break;
