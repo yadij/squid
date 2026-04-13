@@ -53,7 +53,7 @@ Security::PeerConnector::PeerConnector(const Comm::ConnectionPointer &aServerCon
     // watch for external connection closures
     Must(Comm::IsConnOpen(serverConn));
     Must(!fd_table[serverConn->fd].closing());
-    typedef CommCbMemFunT<Security::PeerConnector, CommCloseCbParams> Dialer;
+    using Dialer = CommCbMemFunT<Security::PeerConnector, CommCloseCbParams>;
     closeHandler = JobCallback(9, 5, Dialer, this, Security::PeerConnector::commCloseHandler);
     comm_add_close_handler(serverConn->fd, closeHandler);
 }
@@ -467,9 +467,8 @@ Security::PeerConnector::noteWantRead()
     const int fd = serverConnection()->fd;
 
     // read timeout to avoid getting stuck while reading from a silent server
-    typedef CommCbMemFunT<Security::PeerConnector, CommTimeoutCbParams> TimeoutDialer;
-    AsyncCall::Pointer timeoutCall = JobCallback(83, 5,
-                                     TimeoutDialer, this, Security::PeerConnector::commTimeoutHandler);
+    using TimeoutDialer = CommCbMemFunT<Security::PeerConnector, CommTimeoutCbParams>;
+    AsyncCall::Pointer timeoutCall = JobCallback(83, 5, TimeoutDialer, this, Security::PeerConnector::commTimeoutHandler);
     const auto timeout = Comm::MortalReadTimeout(startTime, negotiationTimeout);
     commSetConnTimeout(serverConnection(), timeout, timeoutCall);
 
