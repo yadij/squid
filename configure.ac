@@ -83,7 +83,7 @@ AM_MAINTAINER_MODE
 #
 # Section 4: Feature detection
 #
-# Check which features can be built.
+# Check which features are wanted by the user.
 #
 # User settings should be provided as --(en/dis)able-FEATURE[=LIST]
 #
@@ -98,13 +98,10 @@ AM_MAINTAINER_MODE
 #
 # Check for all libraries used by Squid.
 #
-# Which libraries are available will determine which features
-# can be enabled later.
-#
 # User settings should be provided as --with(out)-LIBRARY[=PATH]
 #
 
-
+# TODO: move logic here
 
 #
 # XXX: Legacy configure.ac layout to move around
@@ -125,8 +122,8 @@ m4_include([acinclude/lib-checks.m4])
 m4_include([acinclude/ax_cxx_compile_stdcxx.m4])
 m4_include([acinclude/win32-sspi.m4])
 
-dnl BUG: auto-tools are not supposed to change user (C/CPP/CXX/LD)FLAGS variables.
-dnl TODO: set AM_*FLAGS as-needed instead
+dnl XXX: Do not change and, hence, do not save user-controlled variables.
+dnl TODO: Remove the corresponding code or refactor it to set AM_*FLAGS where still warranted.
 PRESET_CFLAGS="$CFLAGS"
 PRESET_CXXFLAGS="$CXXFLAGS"
 PRESET_LDFLAGS="$LDFLAGS"
