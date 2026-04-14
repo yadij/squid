@@ -1119,8 +1119,6 @@ SQUID_CHECK_LIB_WORKS(openssl,[
     SQUID_CHECK_OPENSSL_TXTDB
   ])
 ])
-dnl XXX: transitional. remove USE_OPENSSL before merge
-AC_DEFINE_UNQUOTED(USE_OPENSSL,HAVE_LIBOPENSSL,[Deprecated. Use HAVE_LIBOPENSSL instead.])
 
 # Kerberos support libraries: MIT
 SQUID_AUTO_LIB(mit-krb5,[MIT Kerberos],[LIBMIT_KRB5])
