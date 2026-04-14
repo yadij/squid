@@ -762,5 +762,4 @@ Security::PeerConnector::resumeNegotiation()
     handleNegotiationResult(*lastError);
 }
 
-#endif //USE_OPENSSL
-
+#endif /* HAVE_LIBOPENSSL */
