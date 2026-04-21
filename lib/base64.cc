@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1996-2025 The Squid Software Foundation and contributors
+ * Copyright (C) 1996-2026 The Squid Software Foundation and contributors
  *
  * Squid software is distributed under GPLv2+ license and includes
  * contributions from numerous individuals and organizations.
@@ -208,7 +208,7 @@ encode_raw(const char *alphabet,
     assert(out == dst);
 }
 
-static const char base64_encode_table[64] =
+static const auto base64_encode_table =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789+/";
