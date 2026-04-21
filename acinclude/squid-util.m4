@@ -1,9 +1,9 @@
-## Copyright (C) 1996-2025 The Squid Software Foundation and contributors
-##
-## Squid software is distributed under GPLv2+ license and includes
-## contributions from numerous individuals and organizations.
-## Please see the COPYING and CONTRIBUTORS files for details.
-##
+dnl Copyright (C) 1996-2026 The Squid Software Foundation and contributors
+dnl
+dnl Squid software is distributed under GPLv2+ license and includes
+dnl contributions from numerous individuals and organizations.
+dnl Please see the COPYING and CONTRIBUTORS files for details.
+dnl
 
 dnl save main environment variables to variables to the namespace defined by the
 dnl first argument (prefix)
@@ -257,9 +257,9 @@ AC_DEFUN([SQUID_AUTO_LIB],[
     AS_CASE(["$withval"],[yes|no],,[
       AS_IF([test ! -d "$withval"],AC_MSG_ERROR([--with-$1 path does not point to a directory]))
       m4_translit([with_$1], [-+.], [___])=yes
-      AS_IF([test -d "$withval/lib64"],[$3_PATH+="-L$withval/lib64"])
-      AS_IF([test -d "$withval/lib"],[$3_PATH+="-L$withval/lib"])
-      AS_IF([test -d "$withval/include"],[$3_CFLAGS+="-I$withval/include"])
+      AS_IF([test -d "$withval/lib64"],[$3_PATH="$$3_PATH -L$withval/lib64"])
+      AS_IF([test -d "$withval/lib"],[$3_PATH="$$3_PATH -L$withval/lib"])
+      AS_IF([test -d "$withval/include"],[$3_CFLAGS="$$3_CFLAGS -I$withval/include"])
     ])
   ])
 ])
@@ -269,9 +269,9 @@ AC_DEFUN([SQUID_OPTIONAL_LIB],[
     AS_CASE(["$withval"],[yes|no],,[
       AS_IF([test ! -d "$withval"],AC_MSG_ERROR([--with-$1 path does not point to a directory]))
       m4_translit([with_$1], [-+.], [___])=yes
-      AS_IF([test -d "$withval/lib64"],[$3_PATH+="-L$withval/lib64"])
-      AS_IF([test -d "$withval/lib"],[$3_PATH+="-L$withval/lib"])
-      AS_IF([test -d "$withval/include"],[$3_CFLAGS+="-I$withval/include"])
+      AS_IF([test -d "$withval/lib64"],[$3_PATH="$$3_PATH -L$withval/lib64"])
+      AS_IF([test -d "$withval/lib"],[$3_PATH="$$3_PATH -L$withval/lib"])
+      AS_IF([test -d "$withval/include"],[$3_CFLAGS="$$3_CFLAGS -I$withval/include"])
     ])
   ])
   AS_IF([test "x$withval" = "x"],[m4_translit([with_$1], [-+.], [___])=no])

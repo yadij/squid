@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1996-2025 The Squid Software Foundation and contributors
+ * Copyright (C) 1996-2026 The Squid Software Foundation and contributors
  *
  * Squid software is distributed under GPLv2+ license and includes
  * contributions from numerous individuals and organizations.
@@ -624,7 +624,7 @@ ftpListParseParts(const char *buf, struct Ftp::GatewayFlags flags)
             // point after tokens[i+2] :
             copyFrom = buf + tokens[i + 2].pos + strlen(tokens[i + 2].token);
             if (flags.skip_whitespace) {
-                while (strchr(w_space, *copyFrom))
+                while (*copyFrom && strchr(w_space, *copyFrom))
                     ++copyFrom;
             } else {
                 /* Handle the following four formats:
@@ -635,7 +635,7 @@ ftpListParseParts(const char *buf, struct Ftp::GatewayFlags flags)
                  * Assuming a single space between date and filename
                  * suggested by:  Nathan.Bailey@cc.monash.edu.au and
                  * Mike Battersby <mike@starbug.bofh.asn.au> */
-                if (strchr(w_space, *copyFrom))
+                if (*copyFrom && strchr(w_space, *copyFrom))
                     ++copyFrom;
             }
 
