@@ -13,9 +13,6 @@
 #include "Store.h"
 
 #include <limits>
-#if USE_OPENSSL
-#include "compat/openssl.h"
-#endif
 
 Ssl::CertificateStorageAction::CertificateStorageAction(const Mgr::Command::Pointer &aCmd)
     :   Mgr::Action(aCmd)
