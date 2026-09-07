@@ -773,8 +773,8 @@ setMaxFD(void)
     } else if (Config.max_filedescriptors > 0) {
 #if USE_SELECT
         /* select() breaks if this gets set too big */
-        if (Config.max_filedescriptors > FD_SETSIZE) {
-            rl.rlim_cur = FD_SETSIZE;
+        if (Config.max_filedescriptors > SQUID_MAXFD_LIMIT) {
+            rl.rlim_cur = SQUID_MAXFD_LIMIT;
             debugs(50, DBG_CRITICAL, "WARNING: 'max_filedescriptors " << Config.max_filedescriptors << "' does not work with select()");
         } else
 #endif
@@ -800,30 +800,19 @@ setMaxFD(void)
         int xerrno = errno;
         debugs(50, DBG_CRITICAL, "ERROR: getrlimit: RLIMIT_NOFILE: " << xstrerr(xerrno));
     } else {
-        // An OS may supply us with huge RLIMIT_NOFILE limits (e.g., the soft
-        // limit may exceed one billion on Kubernets). We cap these OS-provided
-        // limits to protect deployments from accidentally or unknowingly
-        // allocating huge FD-indexed structures (e.g., ~432 GB fd_table on
-        // Kubernetes). Special deployments that really need more descriptors
-        // than this cap must set max_filedescriptors accordingly.
-        const auto defaultCapForMaximumNumberOfFiles = rlim_t(100*1024); // ~42 MB fd_table
-
         // No cap if setrlimit() changed the limits to match max_filedescriptors
         // because, in that case, rl.rlim_cur is effectively set by the Squid
         // admin (rather than reflecting OS configuration that we do not trust).
-        if (checkLimits && rl.rlim_cur > defaultCapForMaximumNumberOfFiles) {
+        if (checkLimits && rl.rlim_cur > rlim_t(SQUID_MAXFD_LIMIT)) {
             debugs(50, DBG_IMPORTANT, "WARNING: OS-provided soft limit (" << rl.rlim_cur << " RLIMIT_NOFILE) " <<
                    "is too big to use for calculating the maximum number of descriptors Squid may use; " <<
-                   "setting that maximum to " << defaultCapForMaximumNumberOfFiles);
-            Squid_MaxFD = defaultCapForMaximumNumberOfFiles;
+                   "setting that maximum to " << SQUID_MAXFD_LIMIT);
+            Squid_MaxFD = SQUID_MAXFD_LIMIT;
         } else {
             debugs(50, 3, "Squid_MaxFD was " << Squid_MaxFD << "; now " << rl.rlim_cur << " <= " << rl.rlim_max);
             Squid_MaxFD = rl.rlim_cur;
         }
-        // XXX: When checkLimits, take ./configure --with-filedescriptors (if any) into account.
         // XXX: rl.rlim_cur is often too small (e.g. 1024). In those cases, use a larger value if rl.rlim_max allows.
-        // XXX: The new value may make Squid_MaxFD different from SQUID_MAXFD still used by ModEpoll, ModPoll, ipcCreate(), etc.!
-        // XXX: If this increases Squid_MaxFD, then the new value will violate any defined SQUID_MAXFD_LIMIT.
     }
 
 #endif /* HAVE_SETRLIMIT */
