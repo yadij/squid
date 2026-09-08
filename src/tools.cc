@@ -765,20 +765,22 @@ setMaxFD(void)
     struct rlimit rl;
 #endif
 
-    auto checkLimits = true;
-
     if (getrlimit(RLIMIT_NOFILE, &rl) < 0) {
         int xerrno = errno;
         debugs(50, DBG_CRITICAL, "getrlimit: RLIMIT_NOFILE: " << xstrerr(xerrno));
-    } else if (Config.max_filedescriptors > 0) {
-#if USE_SELECT
-        /* select() breaks if this gets set too big */
+        return; // TODO: maybe throw an error.
+    }
+
+    if (Config.max_filedescriptors > 0) {
+        // Obey the Squid hard limit. Set by ./configure --with-filedescriptors (if any),
+        // or the detected limits of built I/O modules (eg. select(), poll()),
+        // or Squid arbitrary hard coded default.
         if (Config.max_filedescriptors > SQUID_MAXFD_LIMIT) {
             rl.rlim_cur = SQUID_MAXFD_LIMIT;
-            debugs(50, DBG_CRITICAL, "WARNING: 'max_filedescriptors " << Config.max_filedescriptors << "' does not work with select()");
+            debugs(50, DBG_CRITICAL, "ERROR: This Squid restricts max_filedescriptors to " << SQUID_MAXFD_LIMIT);
         } else
-#endif
             rl.rlim_cur = Config.max_filedescriptors;
+
         if (rl.rlim_cur > rl.rlim_max)
             rl.rlim_max = rl.rlim_cur;
         if (setrlimit(RLIMIT_NOFILE, &rl)) {
@@ -791,11 +793,10 @@ setMaxFD(void)
                 debugs(50, DBG_CRITICAL, "ERROR: setrlimit: RLIMIT_NOFILE: " << xstrerr(xerrno));
             }
             // else: getrlimit() will still return two OS-originated rl.rlim_max limits that must be checked
-        } else {
-            // getrlimit() will now return admin-configured numbers, not OS-provided ones
-            checkLimits = false;
         }
+        // else: getrlimit() will now return admin-configured numbers, not OS-provided ones
     }
+
     if (getrlimit(RLIMIT_NOFILE, &rl) < 0) {
         int xerrno = errno;
         debugs(50, DBG_CRITICAL, "ERROR: getrlimit: RLIMIT_NOFILE: " << xstrerr(xerrno));
@@ -803,7 +804,7 @@ setMaxFD(void)
         // No cap if setrlimit() changed the limits to match max_filedescriptors
         // because, in that case, rl.rlim_cur is effectively set by the Squid
         // admin (rather than reflecting OS configuration that we do not trust).
-        if (checkLimits && rl.rlim_cur > SQUID_MAXFD_LIMIT) {
+        if (rl.rlim_cur > SQUID_MAXFD_LIMIT) {
             debugs(50, DBG_IMPORTANT, "WARNING: OS-provided soft limit (" << rl.rlim_cur << " RLIMIT_NOFILE) " <<
                    "is too big to use for calculating the maximum number of descriptors Squid may use; " <<
                    "setting that maximum to " << SQUID_MAXFD_LIMIT);
