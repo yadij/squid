@@ -803,7 +803,7 @@ setMaxFD(void)
         // No cap if setrlimit() changed the limits to match max_filedescriptors
         // because, in that case, rl.rlim_cur is effectively set by the Squid
         // admin (rather than reflecting OS configuration that we do not trust).
-        if (checkLimits && rl.rlim_cur > rlim_t(SQUID_MAXFD_LIMIT)) {
+        if (checkLimits && rl.rlim_cur > SQUID_MAXFD_LIMIT) {
             debugs(50, DBG_IMPORTANT, "WARNING: OS-provided soft limit (" << rl.rlim_cur << " RLIMIT_NOFILE) " <<
                    "is too big to use for calculating the maximum number of descriptors Squid may use; " <<
                    "setting that maximum to " << SQUID_MAXFD_LIMIT);

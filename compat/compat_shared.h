@@ -79,7 +79,7 @@ extern void (*failure_notify) (const char *);
 // Kubernetes). Special deployments that really need more descriptors
 // than this cap must set max_filedescriptors accordingly.
 /* ~42 MB fd_table */
-#define SQUID_MAXFD_LIMIT (100*1024)
+constexpr rlim_t SQUID_MAXFD_LIMIT=100*1024;
 
 #else
 # error Unknown select loop model!
